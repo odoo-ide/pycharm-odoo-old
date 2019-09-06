@@ -16,7 +16,8 @@
 
     <extensions defaultExtensionNs="Pythonid">
         <!-- Add your extensions here -->
-        <importResolver implementation="OdooImportResolver" />
+        <importResolver implementation="OdooImportResolver"/>
+        <pyModuleMembersProvider implementation="OdooModuleMembersProvider"/>
     </extensions>
 
     <actions>
