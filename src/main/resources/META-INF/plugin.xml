@@ -20,6 +20,9 @@
         <pyModuleMembersProvider implementation="OdooModuleMembersProvider"/>
     </extensions>
 
+    <extensions defaultExtensionNs="com.intellij">
+        <fileBasedIndex implementation="OdooModuleIndex" />
+    </extensions>
     <actions>
         <!-- Add your actions here -->
     </actions>
