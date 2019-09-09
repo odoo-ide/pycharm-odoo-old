@@ -1,8 +1,5 @@
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.PsiFileSystemItem;
-import com.intellij.psi.search.FilenameIndex;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.jetbrains.python.codeInsight.PyCustomMember;
 import com.jetbrains.python.psi.PyFile;
 import com.jetbrains.python.psi.types.PyModuleMembersProvider;
@@ -17,18 +14,10 @@ public class OdooModuleMembersProvider extends PyModuleMembersProvider {
     @Override
     protected @NotNull Collection<PyCustomMember> getMembersByQName(@NotNull PyFile pyFile, @NotNull String s, @NotNull TypeEvalContext typeEvalContext) {
         Project project = pyFile.getProject();
-        GlobalSearchScope searchScope = GlobalSearchScope.allScope(project);
         if (s.equals("odoo.addons")) {
-            Collection<PsiDirectory> addons = new ArrayList<>();
-            FilenameIndex.processFilesByName("__manifest__.py", false, psiFileSystemItem -> {
-                PsiFileSystemItem addon = psiFileSystemItem.getParent();
-                if (addon instanceof PsiDirectory) {
-                    addons.add((PsiDirectory) addon);
-                }
-                return true;
-            }, searchScope, project, null);
+            Collection<PsiDirectory> modules = OdooModuleIndex.getAllModule(project);
             Collection<PyCustomMember> members = new ArrayList<>();
-            for (PsiDirectory addon : addons) {
+            for (PsiDirectory addon : modules) {
                 PyCustomMember member = new PyCustomMember(addon.getName(), addon);
                 members.add(member);
             }

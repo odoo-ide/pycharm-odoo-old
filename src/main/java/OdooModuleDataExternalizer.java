@@ -12,8 +12,6 @@ public class OdooModuleDataExternalizer implements DataExternalizer<OdooModuleIn
 
     @Override
     public void save(@NotNull DataOutput out, OdooModuleInfo value) throws IOException {
-        out.writeUTF(value.getName());
-        out.writeUTF(value.getPath());
         List<String> depends = value.getDepends();
         out.writeInt(depends.size());
         for (String s : depends) {
@@ -23,14 +21,12 @@ public class OdooModuleDataExternalizer implements DataExternalizer<OdooModuleIn
 
     @Override
     public OdooModuleInfo read(@NotNull DataInput in) throws IOException {
-        String name = in.readUTF();
-        String path = in.readUTF();
         ArrayList<String> depends = new ArrayList<>();
         int size = in.readInt();
         for (int i = 0; i < size; i++) {
             String s = in.readUTF();
             depends.add(s);
         }
-        return new OdooModuleInfo(name, path, depends);
+        return new OdooModuleInfo(depends);
     }
 }

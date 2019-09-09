@@ -13,9 +13,10 @@ public class OdooModuleDataIndexer implements DataIndexer<String, OdooModuleInfo
     @Override
     public @NotNull Map<String, OdooModuleInfo> map(@NotNull FileContent inputData) {
         HashMap<String, OdooModuleInfo> result = new HashMap<>();
+        VirtualFile moduleDir = inputData.getFile().getParent();
         OdooModuleInfo info = OdooModuleInfo.readFromManifest(inputData);
         if (info != null) {
-            result.put(info.getName(), info);
+            result.put(moduleDir.getName(), info);
         }
         return result;
     }

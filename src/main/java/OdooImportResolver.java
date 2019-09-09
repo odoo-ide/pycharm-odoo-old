@@ -1,8 +1,6 @@
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.search.FilenameIndex;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.QualifiedName;
 import com.jetbrains.python.psi.impl.PyImportResolver;
 import com.jetbrains.python.psi.resolve.PyQualifiedNameResolveContext;
@@ -18,36 +16,25 @@ public class OdooImportResolver implements PyImportResolver {
     public @Nullable PsiElement resolveImportReference(@NotNull QualifiedName qualifiedName, @NotNull PyQualifiedNameResolveContext pyQualifiedNameResolveContext, boolean b) {
         List<String> components = qualifiedName.getComponents();
         Project project = pyQualifiedNameResolveContext.getProject();
-        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-        final PsiElement[] result = {null};
         if (components.size() > 2 && components.get(0).equals("odoo") && components.get(1).equals("addons")) {
-            String odooModuleName = components.get(2);
-            FilenameIndex.processFilesByName(odooModuleName, true, psiFileSystemItem -> {
-                PsiDirectory dir = (PsiDirectory) psiFileSystemItem;
-                if (dir.getName().equals(odooModuleName) && this.isOdooModule(dir)) {
-                    QualifiedName importableQName = QualifiedNameFinder.findShortestImportableQName(psiFileSystemItem);
-                    if (importableQName == null) {
-                        return false;
-                    }
-                    for (int i = 3; i < components.size(); i++) {
-                        importableQName = importableQName.append(components.get(i));
-                    }
-                    if (qualifiedName.equals(importableQName)) {
-                        return false;
-                    }
-                    List<PsiElement> refs = PyResolveImportUtil.resolveQualifiedName(importableQName, pyQualifiedNameResolveContext);
-                    if (refs.size() > 0) {
-                        result[0] = refs.get(0);
-                    }
-                    return false;
-                }
-                return true;
-            }, scope, project, null);
+            String moduleName = components.get(2);
+            PsiDirectory dir = OdooModuleIndex.getModuleByName(moduleName, project);
+            QualifiedName importableQName = QualifiedNameFinder.findShortestImportableQName(dir);
+            if (importableQName == null) {
+                return null;
+            }
+            for (int i = 3; i < components.size(); i++) {
+                importableQName = importableQName.append(components.get(i));
+            }
+            if (qualifiedName.equals(importableQName)) {
+                return null;
+            }
+            pyQualifiedNameResolveContext = pyQualifiedNameResolveContext.copyWithoutForeign();
+            List<PsiElement> refs = PyResolveImportUtil.resolveQualifiedName(importableQName, pyQualifiedNameResolveContext);
+            if (refs.size() > 0) {
+                return refs.get(0);
+            }
         }
-        return result[0];
-    }
-
-    private boolean isOdooModule(@NotNull PsiDirectory directory) {
-        return directory.findFile("__init__.py") != null && directory.findFile("__manifest__.py") != null;
+        return null;
     }
 }
