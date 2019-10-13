@@ -4,35 +4,33 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.*;
-import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 
-public class OdooModuleIndex extends FileBasedIndexExtension<String, OdooModuleInfo> {
-    public static final @NotNull ID<String, OdooModuleInfo> NAME = ID.create("odoo.module");
+public class OdooModuleIndex extends ScalarIndexExtension<String> {
+    public static final @NotNull ID<String, Void> NAME = ID.create("odoo.module");
+
+    private @NotNull DataIndexer<String, Void, FileContent> myDataIndexer = inputData -> {
+        VirtualFile moduleDir = inputData.getFile().getParent();
+        return Collections.singletonMap(moduleDir.getName(), null);
+    };
 
     @Override
-    public @NotNull ID<String, OdooModuleInfo> getName() {
+    public @NotNull ID<String, Void> getName() {
         return NAME;
     }
 
     @Override
-    public @NotNull DataIndexer<String, OdooModuleInfo, FileContent> getIndexer() {
-        return OdooModuleDataIndexer.INSTANCE;
+    public @NotNull DataIndexer<String, Void, FileContent> getIndexer() {
+        return myDataIndexer;
     }
 
     @Override
     public @NotNull KeyDescriptor<String> getKeyDescriptor() {
         return EnumeratorStringDescriptor.INSTANCE;
-    }
-
-    @Override
-    public @NotNull DataExternalizer<OdooModuleInfo> getValueExternalizer() {
-        return OdooModuleDataExternalizer.INSTANCE;
     }
 
     @Override
@@ -47,7 +45,7 @@ public class OdooModuleIndex extends FileBasedIndexExtension<String, OdooModuleI
 
     @Override
     public boolean dependsOnFileContent() {
-        return true;
+        return false;
     }
 
     public static PsiDirectory getModuleByName(String name, Project project) {

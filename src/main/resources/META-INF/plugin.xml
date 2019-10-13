@@ -18,10 +18,13 @@
         <!-- Add your extensions here -->
         <importResolver implementation="OdooImportResolver"/>
         <pyModuleMembersProvider implementation="OdooModuleMembersProvider"/>
+        <pyClassMembersProvider implementation="OdooClassMembersProvider"/>
+        <typeProvider implementation="OdooTypeProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <fileBasedIndex implementation="OdooModuleIndex" />
+        <fileBasedIndex implementation="OdooModuleIndex"/>
+        <fileBasedIndex implementation="OdooModelIndex"/>
     </extensions>
     <actions>
         <!-- Add your actions here -->
