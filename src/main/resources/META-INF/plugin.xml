@@ -20,11 +20,12 @@
         <pyModuleMembersProvider implementation="OdooModuleMembersProvider"/>
         <pyClassMembersProvider implementation="OdooClassMembersProvider"/>
         <typeProvider implementation="OdooTypeProvider"/>
+        <pyClassInheritorsSearch implementation="OdooClassInheritorsSearch" />
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
         <fileBasedIndex implementation="OdooModuleIndex"/>
-        <fileBasedIndex implementation="OdooModelIndex"/>
+        <fileBasedIndex implementation="OdooModelNameIndex"/>
     </extensions>
     <actions>
         <!-- Add your actions here -->

@@ -3,7 +3,9 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.indexing.FileContent;
 import com.jetbrains.python.psi.*;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Utils {
