@@ -1,3 +1,5 @@
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiFile;
 import com.jetbrains.python.psi.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -7,37 +9,64 @@ import java.util.List;
 
 public class OdooModelInfo {
     private final String myName;
-    private final boolean myPrimary;
+    private final String myModuleName;
+    private final boolean myIsPrimary;
     private final List<String> myInherit;
 
-    public OdooModelInfo(@NotNull String name, boolean primary, @Nullable List<String> inherit) {
+    public OdooModelInfo(@NotNull String name, @NotNull String moduleName, boolean isPrimary, @Nullable List<String> inherit) {
         myName = name;
-        myPrimary = primary;
+        myModuleName = moduleName;
+        myIsPrimary = isPrimary;
         myInherit = inherit;
     }
 
-    public @NotNull String getName() {
+    @NotNull
+    public String getName() {
         return myName;
     }
 
-    public boolean isPrimary() {
-        return myPrimary;
+    @NotNull
+    public String getModuleName() {
+        return myModuleName;
     }
 
-    public @Nullable List<String> getInherit() {
+    public boolean isPrimary() {
+        return myIsPrimary;
+    }
+
+    @Nullable
+    public List<String> getInherit() {
         return myInherit;
     }
 
-    public static @Nullable OdooModelInfo readFromClass(PyClass pyClass) {
+    @Nullable
+    public static OdooModelInfo readFromClass(PyClass pyClass) {
+        PsiFile psiFile = pyClass.getContainingFile();
+        if (psiFile == null) {
+            return null;
+        }
+
+        PsiDirectory modelsDir = psiFile.getParent();
+        if (modelsDir == null || !modelsDir.getName().equals("models")) {
+            return null;
+        }
+
+        PsiDirectory moduleDir = modelsDir.getParent();
+        if (moduleDir == null || moduleDir.findFile(OdooNames.MANIFEST) == null) {
+            return null;
+        }
+
+        String moduleName = moduleDir.getName();
         String model = null;
         List<String> inherit = null;
-        boolean primary = false;
+        boolean isPrimary = false;
+
         PyTargetExpression nameExpr = pyClass.findClassAttribute(OdooNames.MODEL_NAME, false, null);
         if (nameExpr != null) {
             PyExpression valueExpr = nameExpr.findAssignedValue();
             if (valueExpr instanceof PyStringLiteralExpression) {
                 model = ((PyStringLiteralExpression) valueExpr).getStringValue();
-                primary = true;
+                isPrimary = true;
             }
         }
         PyTargetExpression inheritExpr = pyClass.findClassAttribute(OdooNames.MODEL_INHERIT, false, null);
@@ -45,17 +74,16 @@ public class OdooModelInfo {
             PyExpression valueExpr = inheritExpr.findAssignedValue();
             if (valueExpr instanceof PyStringLiteralExpression) {
                 String inheritModel = ((PyStringLiteralExpression) valueExpr).getStringValue();
+                inherit = Collections.singletonList(inheritModel);
                 if (model == null) {
                     model = inheritModel;
-                } else {
-                    inherit = Collections.singletonList(inheritModel);
                 }
             } else {
                 inherit = PyUtil.strListValue(valueExpr);
             }
         }
         if (model != null) {
-            return new OdooModelInfo(model, primary, inherit);
+            return new OdooModelInfo(model, moduleName, isPrimary, inherit);
         }
         return null;
     }

@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.4.10'
+    id 'org.jetbrains.intellij' version '0.4.11'
 }
 
 group 'dev.ngocta'
@@ -18,8 +18,7 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version 'PC-2019.2.1'
-    type 'PC'
+    version 'PC-2019.2.3'
     downloadSources = true
 }
 patchPluginXml {
