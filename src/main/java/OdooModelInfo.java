@@ -1,3 +1,4 @@
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.jetbrains.python.psi.*;
@@ -46,13 +47,8 @@ public class OdooModelInfo {
             return null;
         }
 
-        PsiDirectory modelsDir = psiFile.getParent();
-        if (modelsDir == null || !modelsDir.getName().equals("models")) {
-            return null;
-        }
-
-        PsiDirectory moduleDir = modelsDir.getParent();
-        if (moduleDir == null || moduleDir.findFile(OdooNames.MANIFEST) == null) {
+        VirtualFile moduleDir = Utils.getOdooModuleDir(psiFile.getVirtualFile());
+        if (moduleDir == null) {
             return null;
         }
 
