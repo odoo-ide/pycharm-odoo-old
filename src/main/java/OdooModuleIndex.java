@@ -102,32 +102,4 @@ public class OdooModuleIndex extends FileBasedIndexExtension<String, String> {
         }, GlobalSearchScope.allScope(project));
         return depends;
     }
-
-    @NotNull
-    static List<PsiDirectory> getDependModules(@NotNull String moduleName, @NotNull Project project) {
-        List<PsiDirectory> result = new LinkedList<>();
-        getDepends(moduleName, project).forEach(s -> {
-            PsiDirectory dir = getModuleByName(s, project);
-            if (dir != null) {
-                result.add(dir);
-            }
-        });
-        return result;
-    }
-
-    @NotNull
-    public static List<String> getDependsRecursive(@NotNull String moduleName, @NotNull Project project) {
-        List<String> depends = new LinkedList<>();
-        resolveDependsOfModule(moduleName, project, depends);
-        return depends;
-    }
-
-    private static void resolveDependsOfModule(@NotNull String moduleName, @NotNull Project project, @NotNull List<String> depends) {
-        if (!depends.contains(moduleName)) {
-            depends.add(moduleName);
-            getDepends(moduleName, project).forEach(s -> {
-                resolveDependsOfModule(moduleName, project, depends);
-            });
-        }
-    }
 }

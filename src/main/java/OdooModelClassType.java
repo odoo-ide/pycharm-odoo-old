@@ -1,3 +1,4 @@
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDirectory;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.types.PyClassLikeType;
@@ -42,19 +43,26 @@ public class OdooModelClassType extends PyClassTypeImpl {
     }
 
     private void resolveSuperClasses(String model, String moduleName, List<PyClass> result) {
-        List<PsiDirectory> dependModules = OdooModuleIndex.getDependModules(moduleName, myClass.getProject());
-        dependModules.forEach(directory -> {
-            List<PyClass> pyClasses = OdooModelIndex.findModelClasses(model, directory);
-            if (pyClasses.isEmpty()) {
-                resolveSuperClasses(model, directory.getName(), result);
-            } else {
-                for (PyClass pyClass : pyClasses) {
-                    if (result.contains(pyClass)) {
-                        return;
-                    }
+        Project project = myClass.getProject();
+        PsiDirectory module = OdooModuleIndex.getModuleByName(moduleName, project);
+        if (module == null) {
+            return;
+        }
+        List<PyClass> pyClasses = OdooModelIndex.findModelClasses(model, module);
+        if (pyClasses.isEmpty()) {
+            List<String> depends = OdooModuleIndex.getDepends(moduleName, project);
+            depends.forEach(depend -> resolveSuperClasses(model, depend, result));
+        } else {
+            for (PyClass pyClass : pyClasses) {
+                if (result.contains(pyClass)) {
+                    return;
                 }
-                result.addAll(pyClasses);
             }
-        });
+            for (PyClass pyClass : pyClasses) {
+                if (pyClass != myClass) {
+                    result.add(pyClass);
+                }
+            }
+        }
     }
 }

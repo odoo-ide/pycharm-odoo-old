@@ -8,7 +8,7 @@ public class Utils {
     @Nullable
     public static VirtualFile getOdooModuleDir(@NotNull VirtualFile file) {
         VirtualFile cur = file;
-        while (cur != null && cur.isDirectory()) {
+        while (cur != null) {
             if (cur.findChild(OdooNames.MANIFEST) != null) {
                 return cur;
             }
