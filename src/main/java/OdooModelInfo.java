@@ -1,24 +1,34 @@
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.jetbrains.python.psi.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class OdooModelInfo {
     private final String myName;
     private final String myModuleName;
     private final boolean myIsPrimary;
     private final List<String> myInherit;
+    private final Map<String, String> myInherits;
 
-    public OdooModelInfo(@NotNull String name, @NotNull String moduleName, boolean isPrimary, @Nullable List<String> inherit) {
+    public OdooModelInfo(@NotNull String name,
+                         @NotNull String moduleName,
+                         boolean isPrimary,
+                         @Nullable List<String> inherit,
+                         @Nullable Map<String, String> inherits) {
         myName = name;
         myModuleName = moduleName;
         myIsPrimary = isPrimary;
+        if (inherit == null) {
+            inherit = Collections.emptyList();
+        }
         myInherit = inherit;
+        if (inherits == null) {
+            inherits = Collections.emptyMap();
+        }
+        myInherits = inherits;
     }
 
     @NotNull
@@ -35,9 +45,14 @@ public class OdooModelInfo {
         return myIsPrimary;
     }
 
-    @Nullable
+    @NotNull
     public List<String> getInherit() {
         return myInherit;
+    }
+
+    @NotNull
+    Map<String, String> getInherits() {
+        return myInherits;
     }
 
     @Nullable
@@ -54,8 +69,9 @@ public class OdooModelInfo {
 
         String moduleName = moduleDir.getName();
         String model = null;
-        List<String> inherit = null;
         boolean isPrimary = false;
+        List<String> inherit = new LinkedList<>();
+        Map<String, String> inherits = new HashMap<>();
 
         PyTargetExpression nameExpr = pyClass.findClassAttribute(OdooNames.MODEL_NAME, false, null);
         if (nameExpr != null) {
@@ -78,8 +94,21 @@ public class OdooModelInfo {
                 inherit = PyUtil.strListValue(valueExpr);
             }
         }
+        PyTargetExpression inheritsExpr = pyClass.findClassAttribute(OdooNames.MODEL_INHERITS, false, null);
+        if (inheritsExpr != null) {
+            PyExpression valueExpr = inheritsExpr.findAssignedValue();
+            if (valueExpr instanceof PyDictLiteralExpression) {
+                Map<String, PyExpression> value = PyUtil.dictValue((PyDictLiteralExpression) valueExpr);
+                value.forEach((s, pyExpression) -> {
+                    if (pyExpression instanceof PyStringLiteralExpression) {
+                        String fieldName = ((PyStringLiteralExpression) pyExpression).getStringValue();
+                        inherits.put(s, fieldName);
+                    }
+                });
+            }
+        }
         if (model != null) {
-            return new OdooModelInfo(model, moduleName, isPrimary, inherit);
+            return new OdooModelInfo(model, moduleName, isPrimary, inherit, inherits);
         }
         return null;
     }
