@@ -49,6 +49,7 @@ public class OdooModelClassType extends PyClassTypeImpl {
             return;
         }
         List<PyClass> pyClasses = OdooModelIndex.findModelClasses(model, module);
+        pyClasses.remove(myClass);
         if (pyClasses.isEmpty()) {
             List<String> depends = OdooModuleIndex.getDepends(moduleName, project);
             depends.forEach(depend -> resolveSuperClasses(model, depend, result));
@@ -58,11 +59,7 @@ public class OdooModelClassType extends PyClassTypeImpl {
                     return;
                 }
             }
-            for (PyClass pyClass : pyClasses) {
-                if (pyClass != myClass) {
-                    result.add(pyClass);
-                }
-            }
+            result.addAll(pyClasses);
         }
     }
 }
