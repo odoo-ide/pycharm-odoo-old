@@ -20,7 +20,7 @@ public class OdooModelClassType extends PyClassTypeImpl {
     @NotNull
     @Override
     public List<PyClassLikeType> getSuperClassTypes(@NotNull TypeEvalContext context) {
-        if (myOdooModelInfo == null || myOdooModelInfo.getInherit() == null) {
+        if (myOdooModelInfo == null || myOdooModelInfo.getInherit().isEmpty()) {
             return super.getSuperClassTypes(context);
         }
         List<PyClassLikeType> result = new LinkedList<>();
@@ -34,7 +34,7 @@ public class OdooModelClassType extends PyClassTypeImpl {
     @NotNull
     private List<PyClass> getSuperClasses() {
         List<PyClass> result = new LinkedList<>();
-        if (myOdooModelInfo != null && myOdooModelInfo.getInherit() != null) {
+        if (myOdooModelInfo != null) {
             myOdooModelInfo.getInherit().forEach(s -> {
                 resolveSuperClasses(s, myOdooModelInfo.getModuleName(), result);
             });

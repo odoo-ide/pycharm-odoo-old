@@ -9,18 +9,15 @@ import java.util.*;
 public class OdooModelInfo {
     private final String myName;
     private final String myModuleName;
-    private final boolean myIsPrimary;
     private final List<String> myInherit;
     private final Map<String, String> myInherits;
 
     public OdooModelInfo(@NotNull String name,
                          @NotNull String moduleName,
-                         boolean isPrimary,
                          @Nullable List<String> inherit,
                          @Nullable Map<String, String> inherits) {
         myName = name;
         myModuleName = moduleName;
-        myIsPrimary = isPrimary;
         if (inherit == null) {
             inherit = Collections.emptyList();
         }
@@ -41,17 +38,13 @@ public class OdooModelInfo {
         return myModuleName;
     }
 
-    public boolean isPrimary() {
-        return myIsPrimary;
-    }
-
     @NotNull
     public List<String> getInherit() {
         return myInherit;
     }
 
     @NotNull
-    Map<String, String> getInherits() {
+    public Map<String, String> getInherits() {
         return myInherits;
     }
 
@@ -69,7 +62,6 @@ public class OdooModelInfo {
 
         String moduleName = moduleDir.getName();
         String model = null;
-        boolean isPrimary = false;
         List<String> inherit = new LinkedList<>();
         Map<String, String> inherits = new HashMap<>();
 
@@ -78,7 +70,6 @@ public class OdooModelInfo {
             PyExpression valueExpr = nameExpr.findAssignedValue();
             if (valueExpr instanceof PyStringLiteralExpression) {
                 model = ((PyStringLiteralExpression) valueExpr).getStringValue();
-                isPrimary = true;
             }
         }
         PyTargetExpression inheritExpr = pyClass.findClassAttribute(OdooNames.MODEL_INHERIT, false, null);
@@ -108,7 +99,7 @@ public class OdooModelInfo {
             }
         }
         if (model != null) {
-            return new OdooModelInfo(model, moduleName, isPrimary, inherit, inherits);
+            return new OdooModelInfo(model, moduleName, inherit, inherits);
         }
         return null;
     }

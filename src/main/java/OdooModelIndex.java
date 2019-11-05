@@ -21,10 +21,11 @@ import java.util.*;
 public class OdooModelIndex extends FileBasedIndexExtension<String, String> {
     public static final @NotNull ID<String, String> NAME = ID.create("odoo.model");
     private static final Gson GSON = new Gson();
-    private static final String KEY_moduleName = "moduleName";
-    private static final String KEY_className = "className";
-    private static final String KEY_isPrimary = "isPrimary";
+    private static final String KEY_model = "model";
+    private static final String KEY_module = "module";
+    private static final String KEY_class = "class";
     private static final String KEY_inherit = "inherit";
+    private static final String KEY_inherits = "inherits";
 
     private DataIndexer<String, String, FileContent> myDataIndexer = inputData -> {
         HashMap<String, String> result = new HashMap<>();
@@ -36,10 +37,10 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, String> {
                 OdooModelInfo info = OdooModelInfo.readFromClass(pyClass);
                 if (info != null) {
                     Map<String, Object> value = new HashMap<>();
-                    value.put(KEY_moduleName, info.getModuleName());
-                    value.put(KEY_className, pyClass.getName());
-                    value.put(KEY_isPrimary, info.isPrimary());
+                    value.put(KEY_module, info.getModuleName());
+                    value.put(KEY_class, pyClass.getName());
                     value.put(KEY_inherit, info.getInherit());
+                    value.put(KEY_inherits, info.getInherits());
                     result.put(info.getName(), GSON.toJson(value));
                 }
             });
@@ -108,9 +109,9 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, String> {
         models.forEach(s -> {
             index.processValues(NAME, s, psiFile.getVirtualFile(), (file, value) -> {
                 Map<String, Object> valueMap = deserializeValue(value);
-                String name = (String) valueMap.get(KEY_className);
+                String name = (String) valueMap.get(KEY_class);
                 if (name.equals(className)) {
-                    valueMap.put("model", s);
+                    valueMap.put(KEY_model, s);
                     values.add(valueMap);
                     return false;
                 }
@@ -122,11 +123,11 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, String> {
         }
 
         Map<String, Object> value = values.get(0);
-        String model = (String) value.get("model");
-        String moduleName = (String) value.get(KEY_moduleName);
-        boolean isPrimary = (boolean) value.get(KEY_isPrimary);
+        String model = (String) value.get(KEY_model);
+        String moduleName = (String) value.get(KEY_module);
         @SuppressWarnings("unchecked") List<String> inherit = (List<String>) value.get(KEY_inherit);
-        return new OdooModelInfo(model, moduleName, isPrimary, inherit);
+        @SuppressWarnings("unchecked") Map<String, String> inherits = (Map<String, String>) value.get(KEY_inherits);
+        return new OdooModelInfo(model, moduleName, inherit, inherits);
     }
 
     @NotNull
@@ -142,7 +143,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, String> {
         Map<VirtualFile, String> classMap = new HashMap<>();
         index.processValues(NAME, model, null, (file, value) -> {
             Map<String, Object> valueMap = deserializeValue(value);
-            String className = (String) valueMap.get(KEY_className);
+            String className = (String) valueMap.get(KEY_class);
             classMap.put(file, className);
             return true;
         }, GlobalSearchScopesCore.directoryScope(module, true));
