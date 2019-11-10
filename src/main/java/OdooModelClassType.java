@@ -18,7 +18,7 @@ public class OdooModelClassType extends PyClassTypeImpl {
 
     public OdooModelClassType(@NotNull PyClass source, boolean isDefinition) {
         super(source, isDefinition);
-        myOdooModelInfo = OdooModelIndex.getModelInfo(source);
+        myOdooModelInfo = OdooModelInfo.readFromClass(source);
     }
 
     @NotNull

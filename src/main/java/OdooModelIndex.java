@@ -1,4 +1,3 @@
-import com.google.gson.Gson;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
@@ -14,18 +13,11 @@ import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyFile;
 import com.jetbrains.python.psi.stubs.PyClassNameIndex;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public class OdooModelIndex extends FileBasedIndexExtension<String, String> {
     public static final @NotNull ID<String, String> NAME = ID.create("odoo.model");
-    private static final Gson GSON = new Gson();
-    private static final String KEY_model = "model";
-    private static final String KEY_module = "module";
-    private static final String KEY_class = "class";
-    private static final String KEY_inherit = "inherit";
-    private static final String KEY_inherits = "inherits";
 
     private DataIndexer<String, String, FileContent> myDataIndexer = inputData -> {
         HashMap<String, String> result = new HashMap<>();
@@ -36,12 +28,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, String> {
             pyFile.getTopLevelClasses().forEach(pyClass -> {
                 OdooModelInfo info = OdooModelInfo.readFromClass(pyClass);
                 if (info != null) {
-                    Map<String, Object> value = new HashMap<>();
-                    value.put(KEY_module, info.getModuleName());
-                    value.put(KEY_class, pyClass.getName());
-                    value.put(KEY_inherit, info.getInherit());
-                    value.put(KEY_inherits, info.getInherits());
-                    result.put(info.getName(), GSON.toJson(value));
+                    result.put(info.getName(), pyClass.getName());
                 }
             });
         }
@@ -74,7 +61,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, String> {
 
     @Override
     public int getVersion() {
-        return 0;
+        return 1;
     }
 
     @NotNull
@@ -88,68 +75,18 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, String> {
         return true;
     }
 
-    @Nullable
-    public static OdooModelInfo getModelInfo(@NotNull PyClass pyClass) {
-        PsiFile psiFile = pyClass.getContainingFile();
-        if (psiFile == null) {
-            return null;
-        }
-
-        FileBasedIndex index = FileBasedIndex.getInstance();
-        GlobalSearchScope scope = GlobalSearchScope.fileScope(psiFile);
-
-        List<String> models = new LinkedList<>();
-        index.processAllKeys(NAME, s -> {
-            models.add(s);
-            return true;
-        }, scope, null);
-
-        String className = pyClass.getName();
-        List<Map<String, Object>> values = new LinkedList<>();
-        models.forEach(s -> {
-            index.processValues(NAME, s, psiFile.getVirtualFile(), (file, value) -> {
-                Map<String, Object> valueMap = deserializeValue(value);
-                String name = (String) valueMap.get(KEY_class);
-                if (name.equals(className)) {
-                    valueMap.put(KEY_model, s);
-                    values.add(valueMap);
-                    return false;
-                }
-                return true;
-            }, scope);
-        });
-        if (values.isEmpty()) {
-            return null;
-        }
-
-        Map<String, Object> value = values.get(0);
-        String model = (String) value.get(KEY_model);
-        String moduleName = (String) value.get(KEY_module);
-        @SuppressWarnings("unchecked") List<String> inherit = (List<String>) value.get(KEY_inherit);
-        @SuppressWarnings("unchecked") Map<String, String> inherits = (Map<String, String>) value.get(KEY_inherits);
-        return new OdooModelInfo(model, moduleName, inherit, inherits);
-    }
-
-    @NotNull
-    @SuppressWarnings("unchecked")
-    private static Map<String, Object> deserializeValue(@NotNull String value) {
-        return GSON.fromJson(value, Map.class);
-    }
-
     @NotNull
     public static List<PyClass> findModelClasses(@NotNull String model, @NotNull PsiDirectory module) {
         List<PyClass> result = new LinkedList<>();
         FileBasedIndex index = FileBasedIndex.getInstance();
-        Map<VirtualFile, String> classMap = new HashMap<>();
-        index.processValues(NAME, model, null, (file, value) -> {
-            Map<String, Object> valueMap = deserializeValue(value);
-            String className = (String) valueMap.get(KEY_class);
-            classMap.put(file, className);
+        Map<VirtualFile, String> files = new HashMap<>();
+        index.processValues(NAME, model, null, (file, className) -> {
+            files.put(file, className);
             return true;
         }, GlobalSearchScopesCore.directoryScope(module, true));
         Project project = module.getProject();
-        classMap.forEach((virtualFile, s) -> {
-            Collection<PyClass> pyClasses = PyClassNameIndex.find(s, project, GlobalSearchScope.fileScope(project, virtualFile));
+        files.forEach((file, className) -> {
+            Collection<PyClass> pyClasses = PyClassNameIndex.find(className, project, GlobalSearchScope.fileScope(project, file));
             result.addAll(pyClasses);
         });
         return result;

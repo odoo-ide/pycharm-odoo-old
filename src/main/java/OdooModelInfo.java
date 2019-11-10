@@ -12,10 +12,10 @@ public class OdooModelInfo {
     private final List<String> myInherit;
     private final Map<String, String> myInherits;
 
-    public OdooModelInfo(@NotNull String name,
-                         @NotNull String moduleName,
-                         @Nullable List<String> inherit,
-                         @Nullable Map<String, String> inherits) {
+    private OdooModelInfo(@NotNull String name,
+                          @NotNull String moduleName,
+                          @Nullable List<String> inherit,
+                          @Nullable Map<String, String> inherits) {
         myName = name;
         myModuleName = moduleName;
         if (inherit == null) {

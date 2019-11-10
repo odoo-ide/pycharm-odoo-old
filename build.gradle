@@ -18,7 +18,7 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version 'PC-2019.2.3'
+    version 'PC-2019.2.4'
     downloadSources = true
 }
 patchPluginXml {
