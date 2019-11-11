@@ -42,13 +42,19 @@ public class OdooModelClassType extends PyClassTypeImpl {
             return cachedAncestorTypes;
         }
         List<PyClassLikeType> result = new LinkedList<>();
-        getSuperClasses().forEach(pyClass -> {
-            OdooModelClassType type = new OdooModelClassType(pyClass, myIsDefinition);
-            result.add(type);
-            result.addAll(type.getAncestorTypes(context));
-        });
+        resolveAncestorTypes(this, context, result);
         cachedAncestorTypes = result;
         return result;
+    }
+
+    private void resolveAncestorTypes(OdooModelClassType type, TypeEvalContext context, List<PyClassLikeType> result) {
+        type.getSuperClassTypes(context).forEach(pyClassLikeType -> {
+            if (pyClassLikeType instanceof OdooModelClassType && !result.contains(pyClassLikeType)) {
+                OdooModelClassType odooModelClassType = (OdooModelClassType) pyClassLikeType;
+                result.add(odooModelClassType);
+                resolveAncestorTypes(odooModelClassType, context, result);
+            }
+        });
     }
 
     @NotNull
