@@ -91,4 +91,13 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, String> {
         });
         return result;
     }
+
+    @NotNull
+    public static List<PyClass> findModelClasses(@NotNull String model, @NotNull String moduleName, @NotNull Project project) {
+        PsiDirectory module = OdooModuleIndex.getModuleByName(moduleName, project);
+        if (module != null) {
+            return findModelClasses(model, module);
+        }
+        return Collections.emptyList();
+    }
 }

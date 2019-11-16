@@ -70,11 +70,7 @@ public class OdooModelClassType extends PyClassTypeImpl {
 
     private void resolveSuperClasses(String model, String moduleName, List<PyClass> result) {
         Project project = myClass.getProject();
-        PsiDirectory module = OdooModuleIndex.getModuleByName(moduleName, project);
-        if (module == null) {
-            return;
-        }
-        List<PyClass> pyClasses = OdooModelIndex.findModelClasses(model, module);
+        List<PyClass> pyClasses = OdooModelIndex.findModelClasses(model, moduleName, project);
         pyClasses.remove(myClass);
         if (pyClasses.isEmpty()) {
             List<String> depends = OdooModuleIndex.getDepends(moduleName, project);
