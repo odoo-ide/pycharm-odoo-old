@@ -5,8 +5,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiPolyVariantReference;
 import com.jetbrains.python.psi.*;
+import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.PyTypeProviderBase;
+import com.jetbrains.python.psi.types.PyUnionType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,21 +49,48 @@ public class OdooTypeProvider extends PyTypeProviderBase {
             if (pyExpression instanceof PyCallExpression) {
                 PyCallExpression callExpression = (PyCallExpression) pyExpression;
                 PyExpression callee = callExpression.getCallee();
+                PyPsiFacade psiFacade = PyPsiFacade.getInstance(referenceExpression.getProject());
                 if (callee != null) {
                     String calleeName = callee.getName();
+                    PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(referenceExpression);
                     if (calleeName != null) {
-                        if (calleeName.equals("Many2one")
-                                || calleeName.equals("One2many")
-                                || calleeName.equals("Many2many")) {
-                            PyStringLiteralExpression comodelExpression = callExpression.getArgument(
-                                    0, "comodel_name", PyStringLiteralExpression.class);
-                            if (comodelExpression != null) {
-                                String comodel = comodelExpression.getStringValue();
-                                PyClass pyClass = findModelClass(comodel, referenceExpression);
-                                if (pyClass != null) {
-                                    return new OdooModelClassType(pyClass, false);
+                        switch (calleeName) {
+                            case OdooNames.MANY2ONE:
+                            case OdooNames.ONE2MANY:
+                            case OdooNames.MANY2MANY:
+                                PyStringLiteralExpression comodelExpression = callExpression.getArgument(
+                                        0, OdooNames.COMODEL_NAME, PyStringLiteralExpression.class);
+                                if (comodelExpression != null) {
+                                    String comodel = comodelExpression.getStringValue();
+                                    PyClass pyClass = findModelClass(comodel, referenceExpression);
+                                    if (pyClass != null) {
+                                        return new OdooModelClassType(pyClass, false);
+                                    }
                                 }
-                            }
+                                break;
+                            case OdooNames.BOOLEAN:
+                                return builtinCache.getBoolType();
+                            case OdooNames.INTEGER:
+                                return builtinCache.getIntType();
+                            case OdooNames.FLOAT:
+                            case OdooNames.MONETARY:
+                                return builtinCache.getFloatType();
+                            case OdooNames.CHAR:
+                            case OdooNames.TEXT:
+                            case OdooNames.SELECTION:
+                                return PyUnionType.union(builtinCache.getStrType(), null);
+                            case OdooNames.DATE:
+                                PyClass dateClass = psiFacade.createClassByQName("datetime.date", referenceExpression);
+                                if (dateClass != null) {
+                                    return PyUnionType.union(context.getType(dateClass), null);
+                                }
+                                break;
+                            case OdooNames.DATETIME:
+                                PyClass datetimeClass = psiFacade.createClassByQName("datetime.datetime", referenceExpression);
+                                if (datetimeClass != null) {
+                                    return PyUnionType.union(context.getType(datetimeClass), null);
+                                }
+                                break;
                         }
                     }
                 }
