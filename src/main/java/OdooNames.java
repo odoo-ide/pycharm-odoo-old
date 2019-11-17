@@ -17,4 +17,5 @@ public class OdooNames {
     public static final String MANY2MANY = "Many2many";
     public static final String COMODEL_NAME = "comodel_name";
     public static final String ENV = "env";
+    public static final String ENVIRONMENT_QNAME = "odoo.api.Environment";
 }

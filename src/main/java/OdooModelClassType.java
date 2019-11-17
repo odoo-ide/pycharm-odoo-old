@@ -1,36 +1,57 @@
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
 import com.jetbrains.python.psi.resolve.RatedResolveResult;
 import com.jetbrains.python.psi.types.PyClassLikeType;
+import com.jetbrains.python.psi.types.PyClassType;
 import com.jetbrains.python.psi.types.PyClassTypeImpl;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 
 public class OdooModelClassType extends PyClassTypeImpl {
     private OdooModelInfo myOdooModelInfo;
-    private List<PyClassLikeType> cachedAncestorTypes = null;
+    private OdooRecordSetType myRecordSetType;
+    private List<PyClassLikeType> cachedAncestorTypes;
 
-    public OdooModelClassType(@NotNull PyClass source, boolean isDefinition) {
-        super(source, isDefinition);
-        myOdooModelInfo = OdooModelInfo.readFromClass(source);
+    public static PyClassType getClassType(@NotNull PyClass source, boolean isDefinition) {
+        return getClassType(source, isDefinition ? null : OdooRecordSetType.MULTI);
+    }
+
+    public static PyClassType getClassType(@NotNull PyClass source, @Nullable OdooRecordSetType recordSetType) {
+        OdooModelInfo info = OdooModelInfo.readFromClass(source);
+        if (info != null) {
+            return new OdooModelClassType(source, info, recordSetType);
+        }
+        return new PyClassTypeImpl(source, recordSetType == null);
+    }
+
+    private OdooModelClassType(@NotNull PyClass source, @NotNull OdooModelInfo modelInfo, OdooRecordSetType recordSetType) {
+        super(source, recordSetType == null);
+        myOdooModelInfo = modelInfo;
+        myRecordSetType = recordSetType;
+    }
+
+    public OdooModelClassType getOneRecord() {
+        return new OdooModelClassType(myClass, myOdooModelInfo, OdooRecordSetType.ONE);
     }
 
     @NotNull
     @Override
     public List<PyClassLikeType> getSuperClassTypes(@NotNull TypeEvalContext context) {
-        if (myOdooModelInfo == null || myOdooModelInfo.getInherit().isEmpty()) {
+        if (myOdooModelInfo.getInherit().isEmpty()) {
             return super.getSuperClassTypes(context);
         }
         List<PyClassLikeType> result = new LinkedList<>();
         List<PyClass> supers = getSuperClasses();
         supers.forEach(pyClass -> {
-            result.add(new OdooModelClassType(pyClass, myIsDefinition));
+            result.add(getClassType(pyClass, myIsDefinition));
         });
         return result;
     }
@@ -60,11 +81,9 @@ public class OdooModelClassType extends PyClassTypeImpl {
     @NotNull
     private List<PyClass> getSuperClasses() {
         List<PyClass> result = new LinkedList<>();
-        if (myOdooModelInfo != null) {
-            myOdooModelInfo.getInherit().forEach(s -> {
-                resolveSuperClasses(s, myOdooModelInfo.getModuleName(), result);
-            });
-        }
+        myOdooModelInfo.getInherit().forEach(s -> {
+            resolveSuperClasses(s, myOdooModelInfo.getModuleName(), result);
+        });
         return result;
     }
 
@@ -112,11 +131,9 @@ public class OdooModelClassType extends PyClassTypeImpl {
     @Nullable
     @Override
     public List<? extends RatedResolveResult> resolveMember(@NotNull String name, @Nullable PyExpression location, @NotNull AccessDirection direction, @NotNull PyResolveContext resolveContext, boolean inherited) {
-        if (myOdooModelInfo != null) {
-            PsiElement element = findMember(name, resolveContext, inherited);
-            if (element != null) {
-                return Collections.singletonList(new RatedResolveResult(RatedResolveResult.RATE_NORMAL, element));
-            }
+        PsiElement element = findMember(name, resolveContext, inherited);
+        if (element != null) {
+            return Collections.singletonList(new RatedResolveResult(RatedResolveResult.RATE_NORMAL, element));
         }
         return super.resolveMember(name, location, direction, resolveContext, inherited);
     }
