@@ -13,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 public class OdooModelClassType extends PyClassTypeImpl {
@@ -22,12 +21,12 @@ public class OdooModelClassType extends PyClassTypeImpl {
     private List<PyClassLikeType> cachedAncestorTypes;
 
     @Nullable
-    public static OdooModelClassType fromClass(@NotNull PyClass source, boolean isDefinition) {
-        return fromClass(source, isDefinition ? null : OdooRecordSetType.MULTI);
+    public static OdooModelClassType create(@NotNull PyClass source, boolean isDefinition) {
+        return create(source, isDefinition ? null : OdooRecordSetType.MULTI);
     }
 
     @Nullable
-    public static OdooModelClassType fromClass(@NotNull PyClass source, @Nullable OdooRecordSetType recordSetType) {
+    public static OdooModelClassType create(@NotNull PyClass source, @Nullable OdooRecordSetType recordSetType) {
         OdooModelInfo info = OdooModelInfo.readFromClass(source);
         if (info != null) {
             return new OdooModelClassType(source, info, recordSetType);
@@ -51,10 +50,15 @@ public class OdooModelClassType extends PyClassTypeImpl {
         if (myModelInfo.getInherit().isEmpty()) {
             return super.getSuperClassTypes(context);
         }
+        return getSuperClassTypes(context, Collections.emptySet());
+    }
+
+    @NotNull
+    private List<PyClassLikeType> getSuperClassTypes(@NotNull TypeEvalContext context, @NotNull Set<PyClass> excludedClasses) {
         List<PyClassLikeType> result = new LinkedList<>();
-        List<PyClass> supers = getSuperClasses();
+        List<PyClass> supers = getSuperClasses(excludedClasses);
         supers.forEach(pyClass -> {
-            OdooModelClassType superType = fromClass(pyClass, myRecordSetType);
+            OdooModelClassType superType = create(pyClass, myRecordSetType);
             if (superType != null) {
                 result.add(superType);
             }
@@ -65,49 +69,53 @@ public class OdooModelClassType extends PyClassTypeImpl {
     @NotNull
     @Override
     public List<PyClassLikeType> getAncestorTypes(@NotNull TypeEvalContext context) {
-//        if (cachedAncestorTypes != null) {
-//            return cachedAncestorTypes;
-//        }
+        if (cachedAncestorTypes != null) {
+            return cachedAncestorTypes;
+        }
         List<PyClassLikeType> result = new LinkedList<>();
-        resolveAncestorTypes(this, context, result);
-//        cachedAncestorTypes = result;
+        Set<PyClass> excludedClasses = new HashSet<>();
+        excludedClasses.add(myClass);
+        resolveAncestorTypes(this, context, result, excludedClasses);
+        cachedAncestorTypes = result;
         return result;
     }
 
-    private void resolveAncestorTypes(OdooModelClassType type, TypeEvalContext context, List<PyClassLikeType> result) {
-        type.getSuperClassTypes(context).forEach(pyClassLikeType -> {
-            if (pyClassLikeType instanceof OdooModelClassType && !pyClassLikeType.equals(this) && !result.contains(pyClassLikeType)) {
+    private void resolveAncestorTypes(OdooModelClassType type, TypeEvalContext context, List<PyClassLikeType> result,
+                                      Set<PyClass> excludedClasses) {
+        type.getSuperClassTypes(context, excludedClasses).forEach(pyClassLikeType -> {
+            if (pyClassLikeType instanceof OdooModelClassType) {
                 OdooModelClassType odooModelClassType = (OdooModelClassType) pyClassLikeType;
                 result.add(odooModelClassType);
-                resolveAncestorTypes(odooModelClassType, context, result);
+                excludedClasses.add(odooModelClassType.getPyClass());
+                resolveAncestorTypes(odooModelClassType, context, result, excludedClasses);
             }
         });
     }
 
     @NotNull
-    private List<PyClass> getSuperClasses() {
+    private List<PyClass> getSuperClasses(@NotNull Set<PyClass> excludedClasses) {
         List<PyClass> result = new LinkedList<>();
         myModelInfo.getInherit().forEach(s -> {
-            resolveSuperClasses(s, myModelInfo.getModuleName(), result);
+            resolveSuperClasses(s, myModelInfo.getModuleName(), result, excludedClasses);
         });
         return result;
     }
 
-    private void resolveSuperClasses(String model, String moduleName, List<PyClass> result, Collection<PyClass> excludedClasses) {
+    private void resolveSuperClasses(@NotNull String model, @NotNull String moduleName, @NotNull List<PyClass> result,
+                                     @NotNull Set<PyClass> excludedClasses) {
         Project project = myClass.getProject();
         List<PyClass> pyClasses = OdooModelIndex.findModelClasses(model, moduleName, project);
+        pyClasses.removeAll(excludedClasses);
         if (pyClasses.isEmpty()) {
             List<String> depends = OdooModuleIndex.getDepends(moduleName, project);
             depends.forEach(depend -> resolveSuperClasses(model, depend, result, excludedClasses));
-        } else {
+        } else if (pyClasses.stream().noneMatch(result::contains)) {
             result.addAll(pyClasses);
-            excludedClasses.addAll(pyClasses);
         }
     }
 
     @Nullable
-    public PsiElement findMember(@NotNull String name, PyResolveContext resolveContext, boolean inherit) {
-        TypeEvalContext context = resolveContext.getTypeEvalContext();
+    private PsiElement findMember(@NotNull String name, @NotNull TypeEvalContext context, boolean inherit) {
         PyTargetExpression attExpr = myClass.findClassAttribute(name, false, context);
         if (attExpr != null) {
             return attExpr;
@@ -119,7 +127,7 @@ public class OdooModelClassType extends PyClassTypeImpl {
         if (inherit) {
             for (PyClassLikeType classType : getAncestorTypes(context)) {
                 if (classType instanceof OdooModelClassType) {
-                    PsiElement member = ((OdooModelClassType) classType).findMember(name, resolveContext, false);
+                    PsiElement member = ((OdooModelClassType) classType).findMember(name, context, false);
                     if (member != null) {
                         return member;
                     }
@@ -131,8 +139,12 @@ public class OdooModelClassType extends PyClassTypeImpl {
 
     @Nullable
     @Override
-    public List<? extends RatedResolveResult> resolveMember(@NotNull String name, @Nullable PyExpression location, @NotNull AccessDirection direction, @NotNull PyResolveContext resolveContext, boolean inherited) {
-        PsiElement element = findMember(name, resolveContext, inherited);
+    public List<? extends RatedResolveResult> resolveMember(@NotNull String name,
+                                                            @Nullable PyExpression location,
+                                                            @NotNull AccessDirection direction,
+                                                            @NotNull PyResolveContext resolveContext,
+                                                            boolean inherited) {
+        PsiElement element = findMember(name, resolveContext.getTypeEvalContext(), inherited);
         if (element != null) {
             return Collections.singletonList(new RatedResolveResult(RatedResolveResult.RATE_NORMAL, element));
         }

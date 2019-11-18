@@ -29,7 +29,7 @@ public class OdooTypeProvider extends PyTypeProviderBase {
                     PyFunction func = parameterList.getContainingFunction();
                     if (func != null) {
                         final PyFunction.Modifier modifier = func.getModifier();
-                        PyClassType type = OdooModelClassType.fromClass(pyClass, modifier == PyFunction.Modifier.CLASSMETHOD);
+                        PyClassType type = OdooModelClassType.create(pyClass, modifier == PyFunction.Modifier.CLASSMETHOD);
                         return Ref.create(type);
                     }
                 }
@@ -123,7 +123,7 @@ public class OdooTypeProvider extends PyTypeProviderBase {
     private OdooModelClassType findModelClassType(@NotNull String model, @NotNull PsiElement anchor, @Nullable OdooRecordSetType recordSetType) {
         PyClass pyClass = findModelClass(model, anchor);
         if (pyClass != null) {
-            return OdooModelClassType.fromClass(pyClass, recordSetType);
+            return OdooModelClassType.create(pyClass, recordSetType);
         }
         return null;
     }
