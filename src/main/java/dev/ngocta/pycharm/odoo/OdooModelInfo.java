@@ -1,7 +1,11 @@
 package dev.ngocta.pycharm.odoo;
 
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.util.CachedValue;
+import com.intellij.psi.util.CachedValueProvider;
+import com.intellij.psi.util.CachedValuesManager;
 import com.jetbrains.python.psi.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,6 +17,7 @@ public class OdooModelInfo {
     private final String myModuleName;
     private final List<String> myInherit;
     private final Map<String, String> myInherits;
+    private static final Key<CachedValue<OdooModelInfo>> KEY = new Key<>("OdooModelInfo");
 
     private OdooModelInfo(@NotNull String name,
                           @NotNull String moduleName,
@@ -52,6 +57,14 @@ public class OdooModelInfo {
 
     @Nullable
     public static OdooModelInfo readFromClass(PyClass pyClass) {
+        return CachedValuesManager.getCachedValue(pyClass, KEY, () -> {
+            OdooModelInfo info = doReadFromClass(pyClass);
+            return CachedValueProvider.Result.createSingleDependency(info, pyClass);
+        });
+    }
+
+    @Nullable
+    private static OdooModelInfo doReadFromClass(PyClass pyClass) {
         PsiFile psiFile = pyClass.getContainingFile();
         if (psiFile == null) {
             return null;
@@ -61,7 +74,6 @@ public class OdooModelInfo {
         if (moduleDir == null) {
             return null;
         }
-
         String moduleName = moduleDir.getName();
         String model = null;
         List<String> inherit = new LinkedList<>();
@@ -100,6 +112,7 @@ public class OdooModelInfo {
                 });
             }
         }
+
         if (model != null) {
             return new OdooModelInfo(model, moduleName, inherit, inherits);
         }

@@ -18,11 +18,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class OdooModelIndex extends FileBasedIndexExtension<String, String> {
-    public static final @NotNull ID<String, String> NAME = ID.create("odoo.model");
+public class OdooModelIndex extends ScalarIndexExtension<String> {
+    public static final @NotNull ID<String, Void> NAME = ID.create("odoo.model");
 
-    private DataIndexer<String, String, FileContent> myDataIndexer = inputData -> {
-        HashMap<String, String> result = new HashMap<>();
+    private DataIndexer<String, Void, FileContent> myDataIndexer = inputData -> {
+        HashMap<String, Void> result = new HashMap<>();
         VirtualFile virtualFile = inputData.getFile();
         PsiFile psiFile = PsiManager.getInstance(inputData.getProject()).findFile(virtualFile);
         if (psiFile instanceof PyFile) {
@@ -30,7 +30,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, String> {
             pyFile.getTopLevelClasses().forEach(pyClass -> {
                 OdooModelInfo info = OdooModelInfo.readFromClass(pyClass);
                 if (info != null) {
-                    result.put(info.getName(), pyClass.getName());
+                    result.put(info.getName(), null);
                 }
             });
         }
@@ -39,13 +39,13 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, String> {
 
     @NotNull
     @Override
-    public ID<String, String> getName() {
+    public ID<String, Void> getName() {
         return NAME;
     }
 
     @NotNull
     @Override
-    public DataIndexer<String, String, FileContent> getIndexer() {
+    public DataIndexer<String, Void, FileContent> getIndexer() {
         return myDataIndexer;
     }
 
@@ -55,15 +55,9 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, String> {
         return EnumeratorStringDescriptor.INSTANCE;
     }
 
-    @NotNull
-    @Override
-    public DataExternalizer<String> getValueExternalizer() {
-        return EnumeratorStringDescriptor.INSTANCE;
-    }
-
     @Override
     public int getVersion() {
-        return 1;
+        return 2;
     }
 
     @NotNull
@@ -81,15 +75,21 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, String> {
     public static List<PyClass> findModelClasses(@NotNull String model, @NotNull PsiDirectory module) {
         List<PyClass> result = new LinkedList<>();
         FileBasedIndex index = FileBasedIndex.getInstance();
-        Map<VirtualFile, String> files = new HashMap<>();
-        index.processValues(NAME, model, null, (file, className) -> {
-            files.put(file, className);
-            return true;
-        }, GlobalSearchScopesCore.directoryScope(module, true));
+        Set<VirtualFile> files = new HashSet<>();
+        index.getFilesWithKey(NAME, Collections.singleton(model), files::add,
+                GlobalSearchScopesCore.directoryScope(module, true));
         Project project = module.getProject();
-        files.forEach((file, className) -> {
-            Collection<PyClass> pyClasses = PyClassNameIndex.find(className, project, GlobalSearchScope.fileScope(project, file));
-            result.addAll(pyClasses);
+        PsiManager psiManager = PsiManager.getInstance(project);
+        files.forEach(file -> {
+            PsiFile psiFile = psiManager.findFile(file);
+            if (psiFile instanceof PyFile) {
+                ((PyFile) psiFile).getTopLevelClasses().forEach(pyClass -> {
+                    OdooModelInfo info = OdooModelInfo.readFromClass(pyClass);
+                    if (info != null && info.getName().equals(model)) {
+                        result.add(pyClass);
+                    }
+                });
+            }
         });
         return result;
     }

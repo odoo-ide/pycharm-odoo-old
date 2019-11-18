@@ -6,14 +6,14 @@ import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
 import com.jetbrains.python.psi.resolve.RatedResolveResult;
 import com.jetbrains.python.psi.types.PyClassLikeType;
+import com.jetbrains.python.psi.types.PyClassType;
 import com.jetbrains.python.psi.types.PyClassTypeImpl;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class OdooModelClassType extends PyClassTypeImpl {
@@ -65,18 +65,18 @@ public class OdooModelClassType extends PyClassTypeImpl {
     @NotNull
     @Override
     public List<PyClassLikeType> getAncestorTypes(@NotNull TypeEvalContext context) {
-        if (cachedAncestorTypes != null) {
-            return cachedAncestorTypes;
-        }
+//        if (cachedAncestorTypes != null) {
+//            return cachedAncestorTypes;
+//        }
         List<PyClassLikeType> result = new LinkedList<>();
         resolveAncestorTypes(this, context, result);
-        cachedAncestorTypes = result;
+//        cachedAncestorTypes = result;
         return result;
     }
 
     private void resolveAncestorTypes(OdooModelClassType type, TypeEvalContext context, List<PyClassLikeType> result) {
         type.getSuperClassTypes(context).forEach(pyClassLikeType -> {
-            if (pyClassLikeType instanceof OdooModelClassType && !result.contains(pyClassLikeType)) {
+            if (pyClassLikeType instanceof OdooModelClassType && !pyClassLikeType.equals(this) && !result.contains(pyClassLikeType)) {
                 OdooModelClassType odooModelClassType = (OdooModelClassType) pyClassLikeType;
                 result.add(odooModelClassType);
                 resolveAncestorTypes(odooModelClassType, context, result);
@@ -93,20 +93,15 @@ public class OdooModelClassType extends PyClassTypeImpl {
         return result;
     }
 
-    private void resolveSuperClasses(String model, String moduleName, List<PyClass> result) {
+    private void resolveSuperClasses(String model, String moduleName, List<PyClass> result, Collection<PyClass> excludedClasses) {
         Project project = myClass.getProject();
         List<PyClass> pyClasses = OdooModelIndex.findModelClasses(model, moduleName, project);
-        pyClasses.remove(myClass);
         if (pyClasses.isEmpty()) {
             List<String> depends = OdooModuleIndex.getDepends(moduleName, project);
-            depends.forEach(depend -> resolveSuperClasses(model, depend, result));
+            depends.forEach(depend -> resolveSuperClasses(model, depend, result, excludedClasses));
         } else {
-            for (PyClass pyClass : pyClasses) {
-                if (result.contains(pyClass)) {
-                    return;
-                }
-            }
             result.addAll(pyClasses);
+            excludedClasses.addAll(pyClasses);
         }
     }
 
