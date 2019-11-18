@@ -1,3 +1,5 @@
+package dev.ngocta.pycharm.odoo;
+
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.indexing.FileBasedIndex;
 import org.jetbrains.annotations.NotNull;

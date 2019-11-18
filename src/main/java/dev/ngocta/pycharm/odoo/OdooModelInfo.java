@@ -1,3 +1,5 @@
+package dev.ngocta.pycharm.odoo;
+
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.jetbrains.python.psi.*;
@@ -55,7 +57,7 @@ public class OdooModelInfo {
             return null;
         }
 
-        VirtualFile moduleDir = Utils.getOdooModuleDir(psiFile.getVirtualFile());
+        VirtualFile moduleDir = OdooUtils.getOdooModuleDir(psiFile.getVirtualFile());
         if (moduleDir == null) {
             return null;
         }
@@ -65,14 +67,14 @@ public class OdooModelInfo {
         List<String> inherit = new LinkedList<>();
         Map<String, String> inherits = new HashMap<>();
 
-        PyTargetExpression nameExpr = pyClass.findClassAttribute(OdooNames.MODEL_NAME, false, null);
+        PyTargetExpression nameExpr = pyClass.findClassAttribute(OdooNames._NAME, false, null);
         if (nameExpr != null) {
             PyExpression valueExpr = nameExpr.findAssignedValue();
             if (valueExpr instanceof PyStringLiteralExpression) {
                 model = ((PyStringLiteralExpression) valueExpr).getStringValue();
             }
         }
-        PyTargetExpression inheritExpr = pyClass.findClassAttribute(OdooNames.MODEL_INHERIT, false, null);
+        PyTargetExpression inheritExpr = pyClass.findClassAttribute(OdooNames._INHERIT, false, null);
         if (inheritExpr != null) {
             PyExpression valueExpr = inheritExpr.findAssignedValue();
             if (valueExpr instanceof PyStringLiteralExpression) {
@@ -85,7 +87,7 @@ public class OdooModelInfo {
                 inherit = PyUtil.strListValue(valueExpr);
             }
         }
-        PyTargetExpression inheritsExpr = pyClass.findClassAttribute(OdooNames.MODEL_INHERITS, false, null);
+        PyTargetExpression inheritsExpr = pyClass.findClassAttribute(OdooNames._INHERITS, false, null);
         if (inheritsExpr != null) {
             PyExpression valueExpr = inheritsExpr.findAssignedValue();
             if (valueExpr instanceof PyDictLiteralExpression) {

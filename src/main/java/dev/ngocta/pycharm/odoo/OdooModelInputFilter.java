@@ -1,3 +1,5 @@
+package dev.ngocta.pycharm.odoo;
+
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.indexing.FileBasedIndex;
 import org.jetbrains.annotations.NotNull;
@@ -7,6 +9,6 @@ public class OdooModelInputFilter implements FileBasedIndex.InputFilter {
 
     @Override
     public boolean acceptInput(@NotNull VirtualFile file) {
-        return Utils.isOdooModelFile(file);
+        return OdooUtils.isOdooModelFile(file);
     }
 }

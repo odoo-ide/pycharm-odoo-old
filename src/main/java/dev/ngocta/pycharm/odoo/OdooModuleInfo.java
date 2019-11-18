@@ -1,3 +1,5 @@
+package dev.ngocta.pycharm.odoo;
+
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.indexing.FileContent;

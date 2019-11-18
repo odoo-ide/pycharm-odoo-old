@@ -1,8 +1,10 @@
+package dev.ngocta.pycharm.odoo;
+
 public class OdooNames {
     public static final String MANIFEST = "__manifest__.py";
-    public static final String MODEL_NAME = "_name";
-    public static final String MODEL_INHERIT = "_inherit";
-    public static final String MODEL_INHERITS = "_inherits";
+    public static final String _NAME = "_name";
+    public static final String _INHERIT = "_inherit";
+    public static final String _INHERITS = "_inherits";
     public static final String BOOLEAN = "Boolean";
     public static final String INTEGER = "Integer";
     public static final String FLOAT = "Float";
@@ -18,4 +20,11 @@ public class OdooNames {
     public static final String COMODEL_NAME = "comodel_name";
     public static final String ENV = "env";
     public static final String ENVIRONMENT_QNAME = "odoo.api.Environment";
+    public static final String BROWSE = "browse";
+    public static final String WITH_CONTEXT = "with_context";
+    public static final String WITH_ENV = "with_env";
+    public static final String SUDO = "sudo";
+    public static final String[] BROWSE_VARIANTS = {BROWSE, WITH_CONTEXT, WITH_ENV, SUDO};
+    public static final String USER = "user";
+    public static final String RES_USERS = "res.users";
 }

@@ -1,3 +1,5 @@
+package dev.ngocta.pycharm.odoo;
+
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;

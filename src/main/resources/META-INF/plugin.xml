@@ -16,14 +16,14 @@
 
     <extensions defaultExtensionNs="Pythonid">
         <!-- Add your extensions here -->
-        <importResolver implementation="OdooImportResolver"/>
-        <pyModuleMembersProvider implementation="OdooModuleMembersProvider"/>
-        <typeProvider implementation="OdooTypeProvider"/>
+        <importResolver implementation="dev.ngocta.pycharm.odoo.OdooImportResolver"/>
+        <pyModuleMembersProvider implementation="dev.ngocta.pycharm.odoo.OdooModuleMembersProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooTypeProvider" order="first"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <fileBasedIndex implementation="OdooModuleIndex"/>
-        <fileBasedIndex implementation="OdooModelIndex"/>
+        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.OdooModuleIndex"/>
+        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.OdooModelIndex"/>
     </extensions>
     <actions>
         <!-- Add your actions here -->
