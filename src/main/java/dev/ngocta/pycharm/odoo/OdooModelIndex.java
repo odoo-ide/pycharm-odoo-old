@@ -5,15 +5,13 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.GlobalSearchScopesCore;
 import com.intellij.util.indexing.*;
-import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
+import com.jetbrains.python.PythonFileType;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyFile;
-import com.jetbrains.python.psi.stubs.PyClassNameIndex;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -25,7 +23,7 @@ public class OdooModelIndex extends ScalarIndexExtension<String> {
         HashMap<String, Void> result = new HashMap<>();
         VirtualFile virtualFile = inputData.getFile();
         PsiFile psiFile = PsiManager.getInstance(inputData.getProject()).findFile(virtualFile);
-        if (psiFile instanceof PyFile) {
+        if (OdooUtils.isOdooModelFile(psiFile)) {
             PyFile pyFile = (PyFile) psiFile;
             pyFile.getTopLevelClasses().forEach(pyClass -> {
                 OdooModelInfo info = OdooModelInfo.readFromClass(pyClass);
@@ -63,7 +61,7 @@ public class OdooModelIndex extends ScalarIndexExtension<String> {
     @NotNull
     @Override
     public FileBasedIndex.InputFilter getInputFilter() {
-        return OdooModelInputFilter.INSTANCE;
+        return new DefaultFileTypeSpecificInputFilter(PythonFileType.INSTANCE);
     }
 
     @Override
@@ -92,14 +90,5 @@ public class OdooModelIndex extends ScalarIndexExtension<String> {
             }
         });
         return result;
-    }
-
-    @NotNull
-    public static List<PyClass> findModelClasses(@NotNull String model, @NotNull String moduleName, @NotNull Project project) {
-        PsiDirectory module = OdooModuleIndex.getModuleByName(moduleName, project);
-        if (module != null) {
-            return findModelClasses(model, module);
-        }
-        return Collections.emptyList();
     }
 }

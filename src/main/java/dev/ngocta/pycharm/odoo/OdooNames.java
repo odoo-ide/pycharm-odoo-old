@@ -2,6 +2,7 @@ package dev.ngocta.pycharm.odoo;
 
 public class OdooNames {
     public static final String MANIFEST = "__manifest__.py";
+    public static final String DEPENDS = "depends";
     public static final String _NAME = "_name";
     public static final String _INHERIT = "_inherit";
     public static final String _INHERITS = "_inherits";

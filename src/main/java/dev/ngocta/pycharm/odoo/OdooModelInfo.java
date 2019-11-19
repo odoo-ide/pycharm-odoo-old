@@ -1,7 +1,7 @@
 package dev.ngocta.pycharm.odoo;
 
 import com.intellij.openapi.util.Key;
-import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.CachedValue;
 import com.intellij.psi.util.CachedValueProvider;
@@ -14,17 +14,17 @@ import java.util.*;
 
 public class OdooModelInfo {
     private final String myName;
-    private final String myModuleName;
+    private final PsiDirectory myModule;
     private final List<String> myInherit;
     private final Map<String, String> myInherits;
     private static final Key<CachedValue<OdooModelInfo>> KEY = new Key<>("OdooModelInfo");
 
     private OdooModelInfo(@NotNull String name,
-                          @NotNull String moduleName,
+                          @NotNull PsiDirectory module,
                           @Nullable List<String> inherit,
                           @Nullable Map<String, String> inherits) {
         myName = name;
-        myModuleName = moduleName;
+        myModule = module;
         if (inherit == null) {
             inherit = Collections.emptyList();
         }
@@ -41,8 +41,8 @@ public class OdooModelInfo {
     }
 
     @NotNull
-    public String getModuleName() {
-        return myModuleName;
+    public PsiDirectory getModule() {
+        return myModule;
     }
 
     @NotNull
@@ -70,11 +70,10 @@ public class OdooModelInfo {
             return null;
         }
 
-        VirtualFile moduleDir = OdooUtils.getOdooModuleDir(psiFile.getVirtualFile());
-        if (moduleDir == null) {
+        PsiDirectory module = OdooUtils.getOdooModuleDir(psiFile);
+        if (module == null) {
             return null;
         }
-        String moduleName = moduleDir.getName();
         String model = null;
         List<String> inherit = new LinkedList<>();
         Map<String, String> inherits = new HashMap<>();
@@ -114,7 +113,7 @@ public class OdooModelInfo {
         }
 
         if (model != null) {
-            return new OdooModelInfo(model, moduleName, inherit, inherits);
+            return new OdooModelInfo(model, module, inherit, inherits);
         }
         return null;
     }

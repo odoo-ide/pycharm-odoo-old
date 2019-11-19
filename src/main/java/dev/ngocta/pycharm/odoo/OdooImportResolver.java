@@ -20,7 +20,7 @@ public class OdooImportResolver implements PyImportResolver {
         Project project = pyQualifiedNameResolveContext.getProject();
         if (components.size() > 2 && components.get(0).equals("odoo") && components.get(1).equals("addons")) {
             String moduleName = components.get(2);
-            PsiDirectory dir = OdooModuleIndex.getModuleByName(moduleName, project);
+            PsiDirectory dir = OdooModuleIndex.getModule(moduleName, project);
             QualifiedName importableQName = QualifiedNameFinder.findShortestImportableQName(dir);
             if (importableQName == null) {
                 return null;

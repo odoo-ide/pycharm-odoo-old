@@ -3,41 +3,43 @@ package dev.ngocta.pycharm.odoo;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.*;
-import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
+import com.jetbrains.python.PythonFileType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class OdooModuleIndex extends FileBasedIndexExtension<String, String> {
-    public static final @NotNull ID<String, String> NAME = ID.create("odoo.module");
+public class OdooModuleIndex extends ScalarIndexExtension<String> {
+    public static final @NotNull ID<String, Void> NAME = ID.create("odoo.module");
 
     @NotNull
-    private DataIndexer<String, String, FileContent> myDataIndexer = inputData -> {
-        Map<String, String> result = new HashMap<>();
-        OdooModuleInfo info = OdooModuleInfo.readFromManifest(inputData);
-        if (info != null) {
-            VirtualFile parent = inputData.getFile().getParent();
-            List<String> depends = info.getDepends();
-            result.put(parent.getName(), String.join(",", depends));
+    private DataIndexer<String, Void, FileContent> myDataIndexer = inputData -> {
+        Map<String, Void> result = new HashMap<>();
+        VirtualFile file = inputData.getFile();
+        if (OdooNames.MANIFEST.equals(file.getName())) {
+            VirtualFile dir = file.getParent();
+            if (dir != null) {
+                result.put(dir.getName(), null);
+            }
         }
         return result;
     };
 
     @NotNull
     @Override
-    public ID<String, String> getName() {
+    public ID<String, Void> getName() {
         return NAME;
     }
 
     @NotNull
     @Override
-    public DataIndexer<String, String, FileContent> getIndexer() {
+    public DataIndexer<String, Void, FileContent> getIndexer() {
         return myDataIndexer;
     }
 
@@ -47,21 +49,15 @@ public class OdooModuleIndex extends FileBasedIndexExtension<String, String> {
         return EnumeratorStringDescriptor.INSTANCE;
     }
 
-    @NotNull
-    @Override
-    public DataExternalizer<String> getValueExternalizer() {
-        return EnumeratorStringDescriptor.INSTANCE;
-    }
-
     @Override
     public int getVersion() {
-        return 0;
+        return 1;
     }
 
     @NotNull
     @Override
     public FileBasedIndex.InputFilter getInputFilter() {
-        return OdooManifestInputFilter.INSTANCE;
+        return new DefaultFileTypeSpecificInputFilter(PythonFileType.INSTANCE);
     }
 
     @Override
@@ -70,12 +66,20 @@ public class OdooModuleIndex extends FileBasedIndexExtension<String, String> {
     }
 
     @Nullable
-    public static PsiDirectory getModuleByName(@NotNull String name, @NotNull Project project) {
+    private static PsiFile getModuleManifest(@NotNull String moduleName, @NotNull Project project) {
         FileBasedIndex fileIndex = FileBasedIndex.getInstance();
-        Collection<VirtualFile> files = fileIndex.getContainingFiles(NAME, name, GlobalSearchScope.allScope(project));
+        Collection<VirtualFile> files = fileIndex.getContainingFiles(NAME, moduleName, GlobalSearchScope.allScope(project));
         for (VirtualFile file : files) {
-            VirtualFile dir = file.getParent();
-            return PsiManager.getInstance(project).findDirectory(dir);
+            return PsiManager.getInstance(project).findFile(file);
+        }
+        return null;
+    }
+
+    @Nullable
+    public static PsiDirectory getModule(@NotNull String moduleName, @NotNull Project project) {
+        PsiFile manifest = getModuleManifest(moduleName, project);
+        if (manifest != null) {
+            return manifest.getContainingDirectory();
         }
         return null;
     }
@@ -86,7 +90,7 @@ public class OdooModuleIndex extends FileBasedIndexExtension<String, String> {
         ArrayList<PsiDirectory> dirs = new ArrayList<>();
         Collection<String> names = fileIndex.getAllKeys(NAME, project);
         for (String name : names) {
-            PsiDirectory dir = getModuleByName(name, project);
+            PsiDirectory dir = getModule(name, project);
             if (dir != null) {
                 dirs.add(dir);
             }
@@ -95,13 +99,35 @@ public class OdooModuleIndex extends FileBasedIndexExtension<String, String> {
     }
 
     @NotNull
-    public static List<String> getDepends(@NotNull String moduleName, @NotNull Project project) {
-        List<String> depends = new LinkedList<>();
-        FileBasedIndex index = FileBasedIndex.getInstance();
-        index.processValues(OdooModuleIndex.NAME, moduleName, null, (file, value) -> {
-            depends.addAll(Arrays.asList(value.split(",")));
-            return false;
-        }, GlobalSearchScope.allScope(project));
-        return depends;
+    private static List<PsiDirectory> getDepends(@NotNull PsiFile manifest) {
+        List<PsiDirectory> result = new LinkedList<>();
+        Project project = manifest.getProject();
+        OdooModuleInfo info = OdooModuleInfo.readFromManifest(manifest);
+        if (info != null) {
+            info.getDepends().forEach(s -> {
+                PsiDirectory module = getModule(s, project);
+                if (module != null) {
+                    result.add(module);
+                }
+            });
+        }
+        return result;
+    }
+
+    @NotNull
+    public static List<PsiDirectory> getDepends(@NotNull String moduleName, @NotNull Project project) {
+        PsiFile manifest = getModuleManifest(moduleName, project);
+        if (manifest != null) {
+            return getDepends(manifest);
+        }
+        return Collections.emptyList();
+    }
+
+    public static List<PsiDirectory> getDepends(@NotNull PsiDirectory module) {
+        PsiFile manifest = module.findFile(OdooNames.MANIFEST);
+        if (manifest != null) {
+            return getDepends(manifest);
+        }
+        return Collections.emptyList();
     }
 }

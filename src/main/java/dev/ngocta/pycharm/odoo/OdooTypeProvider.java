@@ -1,10 +1,8 @@
 package dev.ngocta.pycharm.odoo;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Ref;
-import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiPolyVariantReference;
 import com.jetbrains.python.PyNames;
 import com.jetbrains.python.psi.*;
@@ -130,30 +128,26 @@ public class OdooTypeProvider extends PyTypeProviderBase {
 
     @Nullable
     private PyClass findModelClass(@NotNull String model, @NotNull PsiElement anchor) {
-        Project project = anchor.getProject();
-        PsiFile psiFile = anchor.getContainingFile();
-        if (psiFile != null) {
-            VirtualFile moduleDir = OdooUtils.getOdooModuleDir(psiFile.getVirtualFile());
-            if (moduleDir != null) {
-                return findModelClass(model, moduleDir.getName(), project, new LinkedList<>());
-            }
+        PsiDirectory module = OdooUtils.getOdooModuleDir(anchor);
+        if (module != null) {
+            return findModelClass(model, module, new LinkedList<>());
         }
         return null;
     }
 
     @Nullable
-    private PyClass findModelClass(@NotNull String model, @NotNull String moduleName, @NotNull Project project, List<String> visitedModuleNames) {
-        if (visitedModuleNames.contains(moduleName)) {
+    private PyClass findModelClass(@NotNull String model, @NotNull PsiDirectory module, List<PsiDirectory> visitedModules) {
+        if (visitedModules.contains(module)) {
             return null;
         }
-        visitedModuleNames.add(moduleName);
-        List<PyClass> pyClasses = OdooModelIndex.findModelClasses(model, moduleName, project);
+        visitedModules.add(module);
+        List<PyClass> pyClasses = OdooModelIndex.findModelClasses(model, module);
         if (!pyClasses.isEmpty()) {
             return pyClasses.get(0);
         }
-        List<String> depends = OdooModuleIndex.getDepends(moduleName, project);
-        for (String depend : depends) {
-            PyClass pyClass = findModelClass(model, depend, project, visitedModuleNames);
+        List<PsiDirectory> depends = OdooModuleIndex.getDepends(module);
+        for (PsiDirectory depend : depends) {
+            PyClass pyClass = findModelClass(model, depend, visitedModules);
             if (pyClass != null) {
                 return pyClass;
             }
