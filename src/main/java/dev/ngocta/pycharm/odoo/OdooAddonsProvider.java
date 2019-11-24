@@ -12,12 +12,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-public class OdooModuleMembersProvider extends PyModuleMembersProvider {
+public class OdooAddonsProvider extends PyModuleMembersProvider {
     @NotNull
     @Override
-    protected Collection<PyCustomMember> getMembersByQName(@NotNull PyFile pyFile, @NotNull String s, @NotNull TypeEvalContext typeEvalContext) {
-        Project project = pyFile.getProject();
-        if (s.equals("odoo.addons")) {
+    protected Collection<PyCustomMember> getMembersByQName(@NotNull PyFile file, @NotNull String name, @NotNull TypeEvalContext context) {
+        Project project = file.getProject();
+        if (OdooNames.ODOO_ADDONS.equals(name)) {
             Collection<PsiDirectory> modules = OdooModuleIndex.getAllModules(project);
             Collection<PyCustomMember> members = new ArrayList<>();
             for (PsiDirectory module : modules) {

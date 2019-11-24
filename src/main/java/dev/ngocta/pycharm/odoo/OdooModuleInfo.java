@@ -1,8 +1,6 @@
 package dev.ngocta.pycharm.odoo;
 
-import com.intellij.openapi.util.Key;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.util.CachedValue;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -15,7 +13,6 @@ import java.util.List;
 
 public class OdooModuleInfo {
     private List<String> myDepends;
-    private static final Key<CachedValue<OdooModuleInfo>> KEY = new Key<>("OdooModuleInfo");
 
     private OdooModuleInfo(List<String> depends) {
         myDepends = depends;
@@ -28,15 +25,15 @@ public class OdooModuleInfo {
 
     @Nullable
     public static OdooModuleInfo readFromManifest(@NotNull PsiFile file) {
-        return CachedValuesManager.getCachedValue(file, KEY, () -> {
+        return CachedValuesManager.getCachedValue(file, () -> {
             OdooModuleInfo info = doReadFromManifest(file);
-            return CachedValueProvider.Result.createSingleDependency(info, file);
+            return CachedValueProvider.Result.createSingleDependency(info, file.getVirtualFile());
         });
     }
 
     @Nullable
     private static OdooModuleInfo doReadFromManifest(@NotNull PsiFile file) {
-        if (!(file instanceof PyFile) || !file.getName().equals(OdooNames.MANIFEST)) {
+        if (!(file instanceof PyFile) || !file.getName().equals(OdooNames.__MANIFEST__DOT_PY)) {
             return null;
         }
 

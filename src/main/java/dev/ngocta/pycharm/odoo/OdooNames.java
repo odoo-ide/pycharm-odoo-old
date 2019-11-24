@@ -1,7 +1,10 @@
 package dev.ngocta.pycharm.odoo;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class OdooNames {
-    public static final String MANIFEST = "__manifest__.py";
+    public static final String __MANIFEST__DOT_PY = "__manifest__.py";
     public static final String DEPENDS = "depends";
     public static final String _NAME = "_name";
     public static final String _INHERIT = "_inherit";
@@ -20,12 +23,19 @@ public class OdooNames {
     public static final String MANY2MANY = "Many2many";
     public static final String COMODEL_NAME = "comodel_name";
     public static final String ENV = "env";
-    public static final String ENVIRONMENT_QNAME = "odoo.api.Environment";
+    public static final String ODOO_API_ENVIRONMENT = "odoo.api.Environment";
     public static final String BROWSE = "browse";
+    public static final String CREATE = "create";
+    public static final String FILTERED = "filtered";
+    public static final String SORTED = "sorted";
+    public static final String SEARCH = "search";
+    public static final String SUDO = "sudo";
     public static final String WITH_CONTEXT = "with_context";
     public static final String WITH_ENV = "with_env";
-    public static final String SUDO = "sudo";
-    public static final String[] BROWSE_VARIANTS = {BROWSE, WITH_CONTEXT, WITH_ENV, SUDO};
+    public static final List<String> BROWSE_VARIANTS = Arrays.asList(BROWSE, CREATE, SUDO, FILTERED, SORTED, SEARCH, WITH_CONTEXT, WITH_ENV);
     public static final String USER = "user";
     public static final String RES_USERS = "res.users";
+    public static final String ODOO_MODELS_BASE_MODEL = "odoo.models.BaseModel";
+    public static final String ODOO_ADDONS = "odoo.addons";
+    public static final String ID = "id";
 }

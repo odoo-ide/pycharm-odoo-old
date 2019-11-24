@@ -14,7 +14,7 @@ public class OdooUtils {
     public static VirtualFile getOdooModuleDir(@NotNull VirtualFile file) {
         VirtualFile cur = file;
         while (cur != null) {
-            if (cur.findChild(OdooNames.MANIFEST) != null) {
+            if (cur.findChild(OdooNames.__MANIFEST__DOT_PY) != null) {
                 return cur;
             }
             cur = cur.getParent();

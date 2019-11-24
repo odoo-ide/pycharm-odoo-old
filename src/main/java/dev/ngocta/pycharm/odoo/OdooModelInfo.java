@@ -1,9 +1,7 @@
 package dev.ngocta.pycharm.odoo;
 
-import com.intellij.openapi.util.Key;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.util.CachedValue;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.jetbrains.python.psi.*;
@@ -17,7 +15,6 @@ public class OdooModelInfo {
     private final PsiDirectory myModule;
     private final List<String> myInherit;
     private final Map<String, String> myInherits;
-    private static final Key<CachedValue<OdooModelInfo>> KEY = new Key<>("OdooModelInfo");
 
     private OdooModelInfo(@NotNull String name,
                           @NotNull PsiDirectory module,
@@ -57,7 +54,7 @@ public class OdooModelInfo {
 
     @Nullable
     public static OdooModelInfo readFromClass(PyClass pyClass) {
-        return CachedValuesManager.getCachedValue(pyClass, KEY, () -> {
+        return CachedValuesManager.getCachedValue(pyClass, () -> {
             OdooModelInfo info = doReadFromClass(pyClass);
             return CachedValueProvider.Result.createSingleDependency(info, pyClass);
         });

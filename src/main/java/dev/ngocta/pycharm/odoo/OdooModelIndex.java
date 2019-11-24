@@ -3,8 +3,10 @@ package dev.ngocta.pycharm.odoo;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.GlobalSearchScopesCore;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
@@ -70,13 +72,11 @@ public class OdooModelIndex extends ScalarIndexExtension<String> {
     }
 
     @NotNull
-    public static List<PyClass> findModelClasses(@NotNull String model, @NotNull PsiDirectory module) {
+    public static List<PyClass> findModelClasses(@NotNull String model, @NotNull Project project, GlobalSearchScope scope) {
         List<PyClass> result = new LinkedList<>();
         FileBasedIndex index = FileBasedIndex.getInstance();
         Set<VirtualFile> files = new HashSet<>();
-        index.getFilesWithKey(NAME, Collections.singleton(model), files::add,
-                GlobalSearchScopesCore.directoryScope(module, true));
-        Project project = module.getProject();
+        index.getFilesWithKey(NAME, Collections.singleton(model), files::add, scope);
         PsiManager psiManager = PsiManager.getInstance(project);
         files.forEach(file -> {
             PsiFile psiFile = psiManager.findFile(file);
@@ -90,5 +90,16 @@ public class OdooModelIndex extends ScalarIndexExtension<String> {
             }
         });
         return result;
+    }
+
+    @NotNull
+    public static List<PyClass> findModelClasses(@NotNull String model, @NotNull PsiDirectory module) {
+        return findModelClasses(model, module.getProject(), GlobalSearchScopesCore.directoryScope(module, true));
+    }
+
+    public static boolean checkModelExists(@NotNull String model, @NotNull Project project) {
+        FileBasedIndex index = FileBasedIndex.getInstance();
+        Collection<String> models = index.getAllKeys(NAME, project);
+        return models.contains(model);
     }
 }

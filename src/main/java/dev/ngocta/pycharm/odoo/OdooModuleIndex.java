@@ -22,7 +22,7 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
     private DataIndexer<String, Void, FileContent> myDataIndexer = inputData -> {
         Map<String, Void> result = new HashMap<>();
         VirtualFile file = inputData.getFile();
-        if (OdooNames.MANIFEST.equals(file.getName())) {
+        if (OdooNames.__MANIFEST__DOT_PY.equals(file.getName())) {
             VirtualFile dir = file.getParent();
             if (dir != null) {
                 result.put(dir.getName(), null);
@@ -114,20 +114,25 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
         return result;
     }
 
-    @NotNull
-    public static List<PsiDirectory> getDepends(@NotNull String moduleName, @NotNull Project project) {
-        PsiFile manifest = getModuleManifest(moduleName, project);
+    public static List<PsiDirectory> getDepends(@NotNull PsiDirectory module) {
+        PsiFile manifest = module.findFile(OdooNames.__MANIFEST__DOT_PY);
         if (manifest != null) {
             return getDepends(manifest);
         }
         return Collections.emptyList();
     }
 
-    public static List<PsiDirectory> getDepends(@NotNull PsiDirectory module) {
-        PsiFile manifest = module.findFile(OdooNames.MANIFEST);
-        if (manifest != null) {
-            return getDepends(manifest);
+    public static List<PsiDirectory> getFlattenedDependsGraph(@NotNull PsiDirectory module) {
+        List<PsiDirectory> visitedNodes = new LinkedList<>();
+        List<PsiDirectory> queue = new LinkedList<>();
+        queue.add(module);
+        PsiDirectory node;
+        while (!queue.isEmpty()) {
+            node = queue.remove(0);
+            visitedNodes.remove(node);
+            visitedNodes.add(node);
+            queue.addAll(getDepends(node));
         }
-        return Collections.emptyList();
+        return visitedNodes;
     }
 }

@@ -27,8 +27,10 @@ public class OdooTypeProvider extends PyTypeProviderBase {
                     PyFunction func = parameterList.getContainingFunction();
                     if (func != null) {
                         final PyFunction.Modifier modifier = func.getModifier();
-                        PyClassType type = OdooModelClassType.create(pyClass, modifier == PyFunction.Modifier.CLASSMETHOD);
-                        return Ref.create(type);
+                        OdooModelClassType type = OdooModelClassType.create(pyClass, modifier == PyFunction.Modifier.CLASSMETHOD);
+                        if (type != null) {
+                            return Ref.create(type);
+                        }
                     }
                 }
             }
@@ -45,12 +47,12 @@ public class OdooTypeProvider extends PyTypeProviderBase {
         if (qualifier != null) {
             PyType qualifierType = context.getType(qualifier);
             if (OdooNames.ENV.equals(referenceName) && qualifierType instanceof OdooModelClassType) {
-                PyClass envClass = psiFacade.createClassByQName(OdooNames.ENVIRONMENT_QNAME, referenceExpression);
+                PyClass envClass = psiFacade.createClassByQName(OdooNames.ODOO_API_ENVIRONMENT, referenceExpression);
                 if (envClass != null) {
                     return new PyClassTypeImpl(envClass, false);
                 }
             } else if (OdooNames.USER.equals(referenceName) && qualifierType instanceof PyClassType) {
-                if (OdooNames.ENVIRONMENT_QNAME.equals(((PyClassType) qualifierType).getClassQName())) {
+                if (OdooNames.ODOO_API_ENVIRONMENT.equals(((PyClassType) qualifierType).getClassQName())) {
                     return findModelClassType(OdooNames.RES_USERS, referenceExpression, OdooRecordSetType.MODEL);
                 }
             }
@@ -182,7 +184,7 @@ public class OdooTypeProvider extends PyTypeProviderBase {
             PySubscriptionExpression subscription = (PySubscriptionExpression) callSite;
             return getTypeFromEnv(subscription, context);
         }
-        if (Arrays.asList(OdooNames.BROWSE_VARIANTS).contains(functionName) && callSite instanceof PyCallExpression) {
+        if (OdooNames.BROWSE_VARIANTS.contains(functionName) && callSite instanceof PyCallExpression) {
             PyCallExpression browse = (PyCallExpression) callSite;
             PyExpression callee = browse.getCallee();
             if (callee instanceof PyReferenceExpression) {
@@ -211,7 +213,7 @@ public class OdooTypeProvider extends PyTypeProviderBase {
         for (PyType candidateType : candidateTypes) {
             if (candidateType instanceof PyClassType) {
                 PyClassType classType = (PyClassType) candidateType;
-                if (OdooNames.ENVIRONMENT_QNAME.equals(classType.getClassQName())) {
+                if (OdooNames.ODOO_API_ENVIRONMENT.equals(classType.getClassQName())) {
                     PyExpression index = envExpression.getIndexExpression();
                     if (index instanceof PyLiteralExpression) {
                         String model = ((PyStringLiteralExpressionImpl) index).getStringValue();
