@@ -14,7 +14,7 @@ public class OdooInspectionExtension extends PyInspectionExtension {
             PyExpression qualifier = ((PyQualifiedExpression) node).getQualifier();
             if (qualifier != null && context.getType(qualifier) instanceof OdooModelClassType) {
                 String name = node.getName();
-                return OdooNames.ENV.equals(name) || OdooNames.ID.equals(name);
+                return OdooNames.IGNORED_UNRESOLVED_MODEL_MEMBERS.contains(name);
             }
         }
         return false;

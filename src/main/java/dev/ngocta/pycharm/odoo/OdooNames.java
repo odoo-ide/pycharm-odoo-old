@@ -38,4 +38,6 @@ public class OdooNames {
     public static final String ODOO_MODELS_BASE_MODEL = "odoo.models.BaseModel";
     public static final String ODOO_ADDONS = "odoo.addons";
     public static final String ID = "id";
+    public static final String _IDS = "_ids";
+    public static final List<String> IGNORED_UNRESOLVED_MODEL_MEMBERS = Arrays.asList(ENV, ID, _IDS);
 }

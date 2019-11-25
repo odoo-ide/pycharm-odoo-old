@@ -38,6 +38,16 @@ public class OdooTypeProvider extends PyTypeProviderBase {
                     }
                 }
             }
+        } else if (OdooNames.CREATE.equals(function.getName())) {
+            PyClass cls = function.getContainingClass();
+            PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(cls);
+            if (cls != null && (OdooNames.ODOO_MODELS_BASE_MODEL.equals(cls.getQualifiedName())
+                    || OdooModelInfo.readFromClass(cls) != null)) {
+                PyType type = PyUnionType.union(builtinCache.getListType(), builtinCache.getDictType());
+                if (type != null) {
+                    return Ref.create(type);
+                }
+            }
         }
         return null;
     }
