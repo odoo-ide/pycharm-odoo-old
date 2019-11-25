@@ -8,6 +8,8 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.GlobalSearchScopesCore;
+import com.intellij.psi.util.CachedValueProvider;
+import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
@@ -81,12 +83,24 @@ public class OdooModelIndex extends ScalarIndexExtension<String> {
         files.forEach(file -> {
             PsiFile psiFile = psiManager.findFile(file);
             if (psiFile instanceof PyFile) {
-                ((PyFile) psiFile).getTopLevelClasses().forEach(pyClass -> {
-                    OdooModelInfo info = OdooModelInfo.readFromClass(pyClass);
-                    if (info != null && info.getName().equals(model)) {
-                        result.add(pyClass);
-                    }
+                Map<String, List<PyClass>> cache = CachedValuesManager.getCachedValue(psiFile, () -> {
+                    return CachedValueProvider.Result.create(new HashMap<>(), psiFile);
                 });
+                List<PyClass> cachedClasses = cache.get(model);
+                if (cachedClasses != null) {
+                    result.addAll(cachedClasses);
+                }
+                if (cachedClasses == null) {
+                    List<PyClass> classes = new LinkedList<>();
+                    ((PyFile) psiFile).getTopLevelClasses().forEach(cls -> {
+                        OdooModelInfo info = OdooModelInfo.readFromClass(cls);
+                        if (info != null && info.getName().equals(model)) {
+                            classes.add(cls);
+                        }
+                    });
+                    cache.put(model, classes);
+                    result.addAll(classes);
+                }
             }
         });
         return result;
@@ -95,11 +109,5 @@ public class OdooModelIndex extends ScalarIndexExtension<String> {
     @NotNull
     public static List<PyClass> findModelClasses(@NotNull String model, @NotNull PsiDirectory module) {
         return findModelClasses(model, module.getProject(), GlobalSearchScopesCore.directoryScope(module, true));
-    }
-
-    public static boolean checkModelExists(@NotNull String model, @NotNull Project project) {
-        FileBasedIndex index = FileBasedIndex.getInstance();
-        Collection<String> models = index.getAllKeys(NAME, project);
-        return models.contains(model);
     }
 }

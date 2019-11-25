@@ -1,13 +1,22 @@
 package dev.ngocta.pycharm.odoo;
 
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import com.jetbrains.python.psi.PyFile;
+import com.intellij.psi.util.CachedValueProvider;
+import com.intellij.psi.util.CachedValuesManager;
+import com.intellij.psi.util.PsiModificationTracker;
+import com.jetbrains.python.psi.*;
+import com.jetbrains.python.psi.types.TypeEvalContext;
 import com.sun.istack.NotNull;
 import com.sun.istack.Nullable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class OdooUtils {
     @Nullable
@@ -36,5 +45,46 @@ public class OdooUtils {
 
     public static boolean isOdooModelFile(@Nullable PsiFile file) {
         return file instanceof PyFile && getOdooModuleDir(file.getVirtualFile()) != null;
+    }
+
+    @Nullable
+    public static PyClass createClassByQName(@NotNull String name, @NotNull PsiElement anchor) {
+        Project project = anchor.getProject();
+        Map<String, PyClass> cache = CachedValuesManager.getManager(project).getCachedValue(project, () -> {
+            return CachedValueProvider.Result.create(new HashMap<>(), ModificationTracker.NEVER_CHANGED);
+        });
+        PyClass cls = cache.get(name);
+        if (cls == null) {
+            PyPsiFacade psiFacade = PyPsiFacade.getInstance(project);
+            cls = psiFacade.createClassByQName(name, anchor);
+            cache.put(name, cls);
+        }
+        return cls;
+    }
+
+    @Nullable
+    public static PyFunction findMethodByName(@Nullable String name, @Nullable PyClass pyClass, @NotNull TypeEvalContext context) {
+        Map<String, PyFunction> cache = CachedValuesManager.getCachedValue(pyClass, () -> {
+            return CachedValueProvider.Result.create(new HashMap<>(), pyClass);
+        });
+        if (cache.containsKey(name)) {
+            return cache.get(name);
+        }
+        PyFunction method = pyClass.findMethodByName(name, false, context);
+        cache.put(name, method);
+        return method;
+    }
+
+    @Nullable
+    public static PyTargetExpression findClassAttribute(@Nullable String name, @Nullable PyClass pyClass, @NotNull TypeEvalContext context) {
+        Map<String, PyTargetExpression> cache = CachedValuesManager.getCachedValue(pyClass, () -> {
+            return CachedValueProvider.Result.create(new HashMap<>(), pyClass);
+        });
+        if (cache.containsKey(name)) {
+            return cache.get(name);
+        }
+        PyTargetExpression attribute = pyClass.findClassAttribute(name, false, context);
+        cache.put(name, attribute);
+        return attribute;
     }
 }

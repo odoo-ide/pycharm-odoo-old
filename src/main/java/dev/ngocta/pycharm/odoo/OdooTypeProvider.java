@@ -46,19 +46,18 @@ public class OdooTypeProvider extends PyTypeProviderBase {
     @Override
     public PyType getReferenceExpressionType(@NotNull PyReferenceExpression referenceExpression, @NotNull TypeEvalContext context) {
         Project project = referenceExpression.getProject();
-        PyPsiFacade psiFacade = PyPsiFacade.getInstance(project);
         String referenceName = referenceExpression.getName();
         PyExpression qualifier = referenceExpression.getQualifier();
         if (qualifier != null) {
             PyType qualifierType = context.getType(qualifier);
             if (OdooNames.ENV.equals(referenceName) && qualifierType instanceof OdooModelClassType) {
-                PyClass envClass = psiFacade.createClassByQName(OdooNames.ODOO_API_ENVIRONMENT, referenceExpression);
+                PyClass envClass = OdooUtils.createClassByQName(OdooNames.ODOO_API_ENVIRONMENT, referenceExpression);
                 if (envClass != null) {
                     return new PyClassTypeImpl(envClass, false);
                 }
             } else if (OdooNames.USER.equals(referenceName) && qualifierType instanceof PyClassType) {
                 if (OdooNames.ODOO_API_ENVIRONMENT.equals(((PyClassType) qualifierType).getClassQName())) {
-                    return new OdooModelClassType(OdooModelClass.get(OdooNames.RES_USERS, project), OdooRecordSetType.MODEL);
+                    return OdooModelClassType.create(OdooNames.RES_USERS, OdooRecordSetType.MODEL, project);
                 }
             }
         }
@@ -82,7 +81,6 @@ public class OdooTypeProvider extends PyTypeProviderBase {
         if (pyExpression instanceof PyCallExpression) {
             PyCallExpression callExpression = (PyCallExpression) pyExpression;
             PyExpression callee = callExpression.getCallee();
-            PyPsiFacade psiFacade = PyPsiFacade.getInstance(project);
             if (callee != null) {
                 String calleeName = callee.getName();
                 PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(field);
@@ -111,13 +109,13 @@ public class OdooTypeProvider extends PyTypeProviderBase {
                         case OdooNames.SELECTION:
                             return PyUnionType.union(builtinCache.getStrType(), null);
                         case OdooNames.DATE:
-                            PyClass dateClass = psiFacade.createClassByQName("datetime.date", field);
+                            PyClass dateClass = OdooUtils.createClassByQName("datetime.date", field);
                             if (dateClass != null) {
                                 return PyUnionType.union(context.getType(dateClass), null);
                             }
                             break;
                         case OdooNames.DATETIME:
-                            PyClass datetimeClass = psiFacade.createClassByQName("datetime.datetime", field);
+                            PyClass datetimeClass = OdooUtils.createClassByQName("datetime.datetime", field);
                             if (datetimeClass != null) {
                                 return PyUnionType.union(context.getType(datetimeClass), null);
                             }

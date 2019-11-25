@@ -15,7 +15,6 @@ import com.jetbrains.python.psi.impl.ResolveResultList;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
 import com.jetbrains.python.psi.resolve.RatedResolveResult;
 import com.jetbrains.python.psi.types.*;
-import org.apache.log4j.lf5.viewer.TrackingAdjustmentListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,29 +25,38 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
     private OdooModelClass myClass;
     private OdooRecordSetType myRecordSetType;
 
+    private OdooModelClassType(@NotNull OdooModelClass source, OdooRecordSetType recordSetType) {
+        myClass = source;
+        myRecordSetType = recordSetType;
+    }
+
     public static OdooModelClassType create(@NotNull String model, @Nullable OdooRecordSetType recordSetType, Project project) {
-        return new OdooModelClassType(OdooModelClass.get(model, project), recordSetType);
+        OdooModelClass cls = OdooModelClass.create(model, project);
+        return create(cls, recordSetType);
+    }
+
+    public static OdooModelClassType create(@NotNull OdooModelClass source, @Nullable OdooRecordSetType recordSetType) {
+        Map<OdooRecordSetType, OdooModelClassType> cache = CachedValuesManager.getCachedValue(source, () -> {
+            return CachedValueProvider.Result.create(new HashMap<>(), ModificationTracker.NEVER_CHANGED);
+        });
+        OdooModelClassType classType = cache.get(recordSetType);
+        if (classType == null) {
+            classType = new OdooModelClassType(source, recordSetType);
+            cache.put(recordSetType, classType);
+        }
+        return classType;
     }
 
     @Nullable
     public static OdooModelClassType create(@NotNull PyClass source, @Nullable OdooRecordSetType recordSetType) {
         if (source instanceof OdooModelClass) {
-            return new OdooModelClassType((OdooModelClass) source, recordSetType);
+            return create(source, recordSetType);
         }
         OdooModelInfo info = OdooModelInfo.readFromClass(source);
         if (info != null) {
-            return new OdooModelClassType(OdooModelClass.get(info.getName(), source.getProject()), recordSetType);
+            return create(info.getName(), recordSetType, source.getProject());
         }
         return null;
-    }
-
-    public OdooModelClassType(@NotNull OdooModelClass source, OdooRecordSetType recordSetType) {
-        myClass = source;
-        myRecordSetType = recordSetType;
-    }
-
-    public OdooModelClass getModelClass() {
-        return myClass;
     }
 
     public OdooRecordSetType getRecordSetType() {
@@ -56,7 +64,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
     }
 
     public OdooModelClassType getOneRecord() {
-        return new OdooModelClassType(myClass, OdooRecordSetType.ONE);
+        return OdooModelClassType.create(myClass, OdooRecordSetType.ONE);
     }
 
     @Nullable
@@ -71,7 +79,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
         List<PyClassLikeType> result = new LinkedList<>();
         for (PyClass cls : myClass.getSuperClasses(context)) {
             if (cls instanceof OdooModelClass) {
-                result.add(new OdooModelClassType((OdooModelClass) cls, myRecordSetType));
+                result.add(OdooModelClassType.create(cls, myRecordSetType));
             } else {
                 result.add(new PyClassTypeImpl(cls, isDefinition()));
             }
@@ -91,9 +99,9 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
         }
         TypeEvalContext context = resolveContext.getTypeEvalContext();
         for (PyClass cls : myClass.getAncestorClasses(context)) {
-            PsiElement member = cls.findClassAttribute(name, false, context);
+            PsiElement member = OdooUtils.findClassAttribute(name, cls, context);
             if (member == null) {
-                member = cls.findMethodByName(name, false, context);
+                member = OdooUtils.findMethodByName(name, cls, context);
             }
             if (member != null) {
                 return ResolveResultList.to(member);
@@ -142,13 +150,11 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
     @NotNull
     @Override
     public List<PyClassLikeType> getAncestorTypes(@NotNull TypeEvalContext context) {
-        return PyUtil.getParameterizedCachedValue(myClass, context, contextArg -> {
-            List<PyClassLikeType> result = new LinkedList<>();
-            myClass.getAncestorClasses(contextArg).forEach(cls -> {
-                result.add(new PyClassTypeImpl(cls, isDefinition()));
-            });
-            return result;
+        List<PyClassLikeType> result = new LinkedList<>();
+        myClass.getAncestorClasses(context).forEach(cls -> {
+            result.add(new PyClassTypeImpl(cls, isDefinition()));
         });
+        return result;
     }
 
     @Nullable
@@ -171,13 +177,13 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
     @NotNull
     @Override
     public PyClassLikeType toInstance() {
-        return myRecordSetType != null ? this : new OdooModelClassType(myClass, OdooRecordSetType.MODEL);
+        return myRecordSetType != null ? this : OdooModelClassType.create(myClass, OdooRecordSetType.MODEL);
     }
 
     @NotNull
     @Override
     public PyClassLikeType toClass() {
-        return myRecordSetType == null ? this : new OdooModelClassType(myClass, null);
+        return myRecordSetType == null ? this : OdooModelClassType.create(myClass, null);
     }
 
     @Nullable
