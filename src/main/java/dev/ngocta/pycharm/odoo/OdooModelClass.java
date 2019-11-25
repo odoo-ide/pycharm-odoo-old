@@ -32,14 +32,12 @@ import java.util.*;
 public class OdooModelClass extends PsiElementBase implements PyClass {
     private String myName;
     private Project myProject;
-    private final static Key<CachedValue<Map<String, OdooModelClass>>> REGISTRY_KEY = new Key<>("Registry");
-    private static final Key<CachedValue<PyClass>> BASE_MODEL_KEY = Key.create("BaseModel");
 
 
     public static OdooModelClass get(@NotNull String model, @NotNull Project project) {
-        Map<String, OdooModelClass> registry = CachedValuesManager.getManager(project).getCachedValue(project, REGISTRY_KEY, () -> {
+        Map<String, OdooModelClass> registry = CachedValuesManager.getManager(project).getCachedValue(project, () -> {
             return CachedValueProvider.Result.create(new HashMap<>(), ModificationTracker.NEVER_CHANGED);
-        }, false);
+        });
         return registry.getOrDefault(model, new OdooModelClass(model, project));
     }
 
@@ -85,10 +83,10 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @Nullable
     private static PyClass getBaseModelClass(@NotNull PsiElement anchor) {
         Project project = anchor.getProject();
-        return CachedValuesManager.getManager(project).getCachedValue(project, BASE_MODEL_KEY, () -> {
+        return CachedValuesManager.getManager(project).getCachedValue(project, () -> {
             PyClass cls = PyPsiFacade.getInstance(anchor.getProject()).createClassByQName(OdooNames.ODOO_MODELS_BASE_MODEL, anchor);
             return CachedValueProvider.Result.create(cls, cls);
-        }, true);
+        });
     }
 
     @NotNull
@@ -368,7 +366,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @Nullable
     @Override
     public PyClassLikeType getType(@NotNull TypeEvalContext context) {
-        return OdooModelClassType.create(this, true);
+        return OdooModelClassType.create(this, null);
     }
 
     @Nullable

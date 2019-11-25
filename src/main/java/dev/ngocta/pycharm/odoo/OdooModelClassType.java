@@ -26,9 +26,8 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
     private OdooModelClass myClass;
     private OdooRecordSetType myRecordSetType;
 
-    @Nullable
-    public static OdooModelClassType create(@NotNull PyClass source, boolean isDefinition) {
-        return create(source, isDefinition ? null : OdooRecordSetType.MULTI);
+    public static OdooModelClassType create(@NotNull String model, @Nullable OdooRecordSetType recordSetType, Project project) {
+        return new OdooModelClassType(OdooModelClass.get(model, project), recordSetType);
     }
 
     @Nullable
