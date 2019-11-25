@@ -3,20 +3,21 @@ package dev.ngocta.pycharm.odoo;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
+import com.intellij.psi.*;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiModificationTracker;
 import com.jetbrains.python.psi.*;
+import com.jetbrains.python.psi.types.PyClassLikeType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import com.sun.istack.NotNull;
 import com.sun.istack.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class OdooUtils {
     @Nullable
@@ -50,8 +51,8 @@ public class OdooUtils {
     @Nullable
     public static PyClass createClassByQName(@NotNull String name, @NotNull PsiElement anchor) {
         Project project = anchor.getProject();
-        Map<String, PyClass> cache = CachedValuesManager.getManager(project).getCachedValue(project, () -> {
-            return CachedValueProvider.Result.create(new HashMap<>(), ModificationTracker.NEVER_CHANGED);
+        ConcurrentMap<String, PyClass> cache = CachedValuesManager.getManager(project).getCachedValue(project, () -> {
+            return CachedValueProvider.Result.create(new ConcurrentHashMap<>(), ModificationTracker.NEVER_CHANGED);
         });
         PyClass cls = cache.get(name);
         if (cls == null) {
@@ -63,28 +64,35 @@ public class OdooUtils {
     }
 
     @Nullable
-    public static PyFunction findMethodByName(@Nullable String name, @Nullable PyClass pyClass, @NotNull TypeEvalContext context) {
-        Map<String, PyFunction> cache = CachedValuesManager.getCachedValue(pyClass, () -> {
-            return CachedValueProvider.Result.create(new HashMap<>(), pyClass);
-        });
-        if (cache.containsKey(name)) {
-            return cache.get(name);
+    public static PyFunction findMethodByName(@NotNull String name, @NotNull PyClass pyClass, @NotNull TypeEvalContext context) {
+        PsiElement member = findClassMember(name, pyClass, context);
+        if (member instanceof PyFunction) {
+            return (PyFunction) member;
         }
-        PyFunction method = pyClass.findMethodByName(name, false, context);
-        cache.put(name, method);
-        return method;
+        return null;
     }
 
     @Nullable
-    public static PyTargetExpression findClassAttribute(@Nullable String name, @Nullable PyClass pyClass, @NotNull TypeEvalContext context) {
-        Map<String, PyTargetExpression> cache = CachedValuesManager.getCachedValue(pyClass, () -> {
-            return CachedValueProvider.Result.create(new HashMap<>(), pyClass);
-        });
-        if (cache.containsKey(name)) {
-            return cache.get(name);
+    public static PyTargetExpression findClassAttribute(@NotNull String name, @NotNull PyClass pyClass, @NotNull TypeEvalContext context) {
+        PsiElement member = findClassMember(name, pyClass, context);
+        if (member instanceof PyTargetExpression) {
+            return (PyTargetExpression) member;
         }
-        PyTargetExpression attribute = pyClass.findClassAttribute(name, false, context);
-        cache.put(name, attribute);
-        return attribute;
+        return null;
+    }
+
+    @Nullable
+    public static PsiElement findClassMember(@NotNull String name, @NotNull PyClass pyClass, @NotNull TypeEvalContext context) {
+        Map<String, PsiElement> cache = CachedValuesManager.getCachedValue(pyClass, () -> {
+            Map<String, PsiElement> members = new HashMap<>();
+            pyClass.processClassLevelDeclarations((element, state) -> {
+                if (element instanceof PsiNamedElement) {
+                    members.put(((PsiNamedElement) element).getName(), element);
+                }
+                return true;
+            });
+            return CachedValueProvider.Result.create(members, pyClass);
+        });
+        return cache.get(name);
     }
 }

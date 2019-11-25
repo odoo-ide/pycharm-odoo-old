@@ -19,12 +19,14 @@ import com.jetbrains.python.psi.PyFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class OdooModelIndex extends ScalarIndexExtension<String> {
     public static final @NotNull ID<String, Void> NAME = ID.create("odoo.model");
 
     private DataIndexer<String, Void, FileContent> myDataIndexer = inputData -> {
-        HashMap<String, Void> result = new HashMap<>();
+        Map<String, Void> result = new HashMap<>();
         VirtualFile virtualFile = inputData.getFile();
         PsiFile psiFile = PsiManager.getInstance(inputData.getProject()).findFile(virtualFile);
         if (OdooUtils.isOdooModelFile(psiFile)) {
@@ -83,8 +85,8 @@ public class OdooModelIndex extends ScalarIndexExtension<String> {
         files.forEach(file -> {
             PsiFile psiFile = psiManager.findFile(file);
             if (psiFile instanceof PyFile) {
-                Map<String, List<PyClass>> cache = CachedValuesManager.getCachedValue(psiFile, () -> {
-                    return CachedValueProvider.Result.create(new HashMap<>(), psiFile);
+                ConcurrentMap<String, List<PyClass>> cache = CachedValuesManager.getCachedValue(psiFile, () -> {
+                    return CachedValueProvider.Result.create(new ConcurrentHashMap<>(), psiFile);
                 });
                 List<PyClass> cachedClasses = cache.get(model);
                 if (cachedClasses != null) {

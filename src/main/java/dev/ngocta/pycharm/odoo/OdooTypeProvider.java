@@ -30,7 +30,7 @@ public class OdooTypeProvider extends PyTypeProviderBase {
                     PyFunction func = parameterList.getContainingFunction();
                     if (func != null) {
                         final PyFunction.Modifier modifier = func.getModifier();
-                        OdooRecordSetType recordSetType = modifier == PyFunction.Modifier.CLASSMETHOD ? null : OdooRecordSetType.MULTI;
+                        OdooRecordSetType recordSetType = modifier == PyFunction.Modifier.CLASSMETHOD ? OdooRecordSetType.NONE : OdooRecordSetType.MULTI;
                         OdooModelClassType type = OdooModelClassType.create(pyClass, recordSetType);
                         if (type != null) {
                             return Ref.create(type);

@@ -26,6 +26,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class OdooModelClass extends PsiElementBase implements PyClass {
     private String myName;
@@ -37,8 +39,8 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     }
 
     public static OdooModelClass create(@NotNull String model, @NotNull Project project) {
-        Map<String, OdooModelClass> registry = CachedValuesManager.getManager(project).getCachedValue(project, () -> {
-            return CachedValueProvider.Result.create(new HashMap<>(), ModificationTracker.NEVER_CHANGED);
+        ConcurrentMap<String, OdooModelClass> registry = CachedValuesManager.getManager(project).getCachedValue(project, () -> {
+            return CachedValueProvider.Result.create(new ConcurrentHashMap<>(), ModificationTracker.NEVER_CHANGED);
         });
         OdooModelClass cls = registry.get(model);
         if (cls == null) {
@@ -57,7 +59,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @NotNull
     @Override
     public List<PyClass> getAncestorClasses(@Nullable TypeEvalContext context) {
-        return PyUtil.getParameterizedCachedValue(this, context, contextArg -> doGetAncestorClasses(contextArg, true));
+        return PyUtil.getParameterizedCachedValue(this, context, contextArg -> doGetAncestorClasses(context, true));
     }
 
     @NotNull
@@ -86,12 +88,15 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @NotNull
     @Override
     public List<PyClassLikeType> getSuperClassTypes(@NotNull TypeEvalContext context) {
-        return OdooModelClassType.create(this, null).getSuperClassTypes(context);
+        return OdooModelClassType.create(this, OdooRecordSetType.NONE).getSuperClassTypes(context);
     }
 
     @NotNull
     @Override
     public PyClass[] getSuperClasses(@Nullable TypeEvalContext context) {
+        if (context == null) {
+            return new PyClass[0];
+        }
         return PyUtil.getParameterizedCachedValue(this, context, contextArg -> {
             PyClass[] classes = new PyClass[0];
             if (contextArg == null) {
@@ -362,7 +367,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @Nullable
     @Override
     public PyClassLikeType getType(@NotNull TypeEvalContext context) {
-        return OdooModelClassType.create(this, null);
+        return OdooModelClassType.create(this, OdooRecordSetType.NONE);
     }
 
     @Nullable
@@ -503,6 +508,6 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @NotNull
     @Override
     public List<PyClassLikeType> getAncestorTypes(@NotNull TypeEvalContext context) {
-        return OdooModelClassType.create(myName, null, myProject).getAncestorTypes(context);
+        return OdooModelClassType.create(myName, OdooRecordSetType.NONE, myProject).getAncestorTypes(context);
     }
 }
