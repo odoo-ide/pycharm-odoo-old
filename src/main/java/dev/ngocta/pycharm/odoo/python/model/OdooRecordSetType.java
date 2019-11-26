@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo;
+package dev.ngocta.pycharm.odoo.python.model;
 
 public enum OdooRecordSetType {
     NONE,

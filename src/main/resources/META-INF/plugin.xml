@@ -16,15 +16,19 @@
 
     <extensions defaultExtensionNs="Pythonid">
         <!-- Add your extensions here -->
-        <importResolver implementation="dev.ngocta.pycharm.odoo.OdooImportResolver"/>
-        <pyModuleMembersProvider implementation="dev.ngocta.pycharm.odoo.OdooAddonsProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooTypeProvider" order="first"/>
-        <inspectionExtension implementation="dev.ngocta.pycharm.odoo.OdooInspectionExtension"/>
+        <importResolver implementation="dev.ngocta.pycharm.odoo.python.module.OdooAddonsImportResolver"/>
+        <pyModuleMembersProvider implementation="dev.ngocta.pycharm.odoo.python.module.OdooAddonsMembersProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.type.OdooSelfTypeProvider" order="first"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.type.OdooEnvTypeProvider" order="first"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.type.OdooFieldTypeProvider" order="first"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.type.OdooCreateMultiParamTypeProvider"
+                      order="first"/>
+        <inspectionExtension implementation="dev.ngocta.pycharm.odoo.python.OdooInspectionExtension"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.OdooModuleIndex"/>
-        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.OdooModelIndex"/>
+        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.python.module.OdooModuleIndex"/>
+        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelIndex"/>
     </extensions>
     <actions>
         <!-- Add your actions here -->

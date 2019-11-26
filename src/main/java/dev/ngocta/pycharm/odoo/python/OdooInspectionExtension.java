@@ -1,11 +1,14 @@
-package dev.ngocta.pycharm.odoo;
+package dev.ngocta.pycharm.odoo.python;
 
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.jetbrains.python.inspections.PyInspectionExtension;
 import com.jetbrains.python.psi.PyElement;
 import com.jetbrains.python.psi.PyExpression;
+import com.jetbrains.python.psi.PyExpressionStatement;
 import com.jetbrains.python.psi.PyQualifiedExpression;
 import com.jetbrains.python.psi.types.TypeEvalContext;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelClassType;
 import org.jetbrains.annotations.NotNull;
 
 public class OdooInspectionExtension extends PyInspectionExtension {
@@ -14,9 +17,22 @@ public class OdooInspectionExtension extends PyInspectionExtension {
             PyExpression qualifier = ((PyQualifiedExpression) node).getQualifier();
             if (qualifier != null && context.getType(qualifier) instanceof OdooModelClassType) {
                 String name = node.getName();
-                return OdooNames.IGNORED_UNRESOLVED_MODEL_MEMBERS.contains(name);
+                if (name != null) {
+                    switch (name) {
+                        case OdooNames.ENV:
+                        case OdooNames.ID:
+                        case OdooNames._IDS:
+                            return true;
+                    }
+                }
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean ignoreNoEffectStatement(@NotNull PyExpressionStatement expressionStatement) {
+        PsiFile file = expressionStatement.getContainingFile();
+        return file != null && OdooNames.__MANIFEST__DOT_PY.equals(file.getName());
     }
 }

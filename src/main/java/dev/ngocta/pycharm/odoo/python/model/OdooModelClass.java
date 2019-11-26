@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo;
+package dev.ngocta.pycharm.odoo.python.model;
 
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.Language;
@@ -22,10 +22,16 @@ import com.jetbrains.python.psi.stubs.PyClassStub;
 import com.jetbrains.python.psi.types.PyClassLikeType;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
+import dev.ngocta.pycharm.odoo.python.OdooNames;
+import dev.ngocta.pycharm.odoo.python.OdooUtils;
+import dev.ngocta.pycharm.odoo.python.module.OdooModuleIndex;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -76,7 +82,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
             }
             PsiFile anchor = context.getOrigin();
             if (firstLevel && anchor != null) {
-                PyClass baseClass = OdooUtils.createClassByQName(OdooNames.ODOO_MODELS_BASE_MODEL, anchor);
+                PyClass baseClass = OdooUtils.createClassByQName(OdooNames.BASE_MODEL_QNAME, anchor);
                 if (baseClass != null) {
                     result.add(baseClass);
                 }

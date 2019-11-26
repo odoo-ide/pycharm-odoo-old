@@ -1,10 +1,11 @@
-package dev.ngocta.pycharm.odoo;
+package dev.ngocta.pycharm.odoo.python.module;
 
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.jetbrains.python.psi.*;
+import dev.ngocta.pycharm.odoo.python.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

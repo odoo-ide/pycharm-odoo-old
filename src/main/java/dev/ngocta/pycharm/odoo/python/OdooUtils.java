@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo;
+package dev.ngocta.pycharm.odoo.python;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ModificationTracker;
@@ -6,15 +6,12 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
-import com.intellij.psi.util.PsiModificationTracker;
 import com.jetbrains.python.psi.*;
-import com.jetbrains.python.psi.types.PyClassLikeType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import com.sun.istack.NotNull;
 import com.sun.istack.Nullable;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

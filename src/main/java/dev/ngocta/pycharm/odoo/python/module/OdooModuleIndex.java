@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo;
+package dev.ngocta.pycharm.odoo.python.module;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -10,6 +10,7 @@ import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import com.jetbrains.python.PythonFileType;
+import dev.ngocta.pycharm.odoo.python.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

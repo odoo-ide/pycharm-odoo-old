@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo;
+package dev.ngocta.pycharm.odoo.python.model;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ModificationTracker;
@@ -10,14 +10,12 @@ import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.Processor;
-import com.jetbrains.python.psi.AccessDirection;
-import com.jetbrains.python.psi.PyCallSiteExpression;
-import com.jetbrains.python.psi.PyClass;
-import com.jetbrains.python.psi.PyExpression;
+import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.ResolveResultList;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
 import com.jetbrains.python.psi.resolve.RatedResolveResult;
 import com.jetbrains.python.psi.types.*;
+import dev.ngocta.pycharm.odoo.python.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 
-public class OdooModelClassType extends UserDataHolderBase implements PyClassType {
+public class OdooModelClassType extends UserDataHolderBase implements PyCollectionType {
     private OdooModelClass myClass;
     private OdooRecordSetType myRecordSetType;
 
@@ -115,6 +113,9 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
         for (PyClass cls : myClass.getAncestorClasses(context)) {
             PsiElement member = OdooUtils.findClassMember(name, cls, context);
             if (member != null) {
+                if (member instanceof PyFunction) {
+                    member = OdooModelFunction.wrap((PyFunction) member, this);
+                }
                 return ResolveResultList.to(member);
             }
         }
@@ -238,5 +239,20 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
     @Override
     public PyClass getPyClass() {
         return myClass;
+    }
+
+    @NotNull
+    @Override
+    public List<PyType> getElementTypes() {
+        return Collections.emptyList();
+    }
+
+    @Nullable
+    @Override
+    public PyType getIteratedItemType() {
+        if (myRecordSetType != OdooRecordSetType.NONE) {
+            return getOneRecord();
+        }
+        return null;
     }
 }

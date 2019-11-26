@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo;
+package dev.ngocta.pycharm.odoo.python.module;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDirectory;
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class OdooImportResolver implements PyImportResolver {
+public class OdooAddonsImportResolver implements PyImportResolver {
     @Override
     public @Nullable PsiElement resolveImportReference(@NotNull QualifiedName qualifiedName, @NotNull PyQualifiedNameResolveContext pyQualifiedNameResolveContext, boolean b) {
         List<String> components = qualifiedName.getComponents();

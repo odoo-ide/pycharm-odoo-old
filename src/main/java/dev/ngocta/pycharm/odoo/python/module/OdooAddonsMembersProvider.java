@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo;
+package dev.ngocta.pycharm.odoo.python.module;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDirectory;
@@ -6,13 +6,14 @@ import com.jetbrains.python.codeInsight.PyCustomMember;
 import com.jetbrains.python.psi.PyFile;
 import com.jetbrains.python.psi.types.PyModuleMembersProvider;
 import com.jetbrains.python.psi.types.TypeEvalContext;
+import dev.ngocta.pycharm.odoo.python.OdooNames;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-public class OdooAddonsProvider extends PyModuleMembersProvider {
+public class OdooAddonsMembersProvider extends PyModuleMembersProvider {
     @NotNull
     @Override
     protected Collection<PyCustomMember> getMembersByQName(@NotNull PyFile file, @NotNull String name, @NotNull TypeEvalContext context) {
