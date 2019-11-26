@@ -15,7 +15,7 @@ import com.jetbrains.python.psi.impl.ResolveResultList;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
 import com.jetbrains.python.psi.resolve.RatedResolveResult;
 import com.jetbrains.python.psi.types.*;
-import dev.ngocta.pycharm.odoo.python.OdooUtils;
+import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -111,12 +111,20 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         }
         TypeEvalContext context = resolveContext.getTypeEvalContext();
         for (PyClass cls : myClass.getAncestorClasses(context)) {
-            PsiElement member = OdooUtils.findClassMember(name, cls, context);
+            OdooModelInfo info = OdooModelInfo.readFromClass(cls);
+            PsiElement member = OdooPyUtils.findClassMember(name, cls);
             if (member != null) {
                 if (member instanceof PyFunction) {
                     member = OdooModelFunction.wrap((PyFunction) member, this);
                 }
                 return ResolveResultList.to(member);
+            }
+        }
+        List<OdooModelClass> children = myClass.getDelegationChildren(context);
+        for (OdooModelClass child : children) {
+            PyTargetExpression attr = child.findClassAttribute(name, true, context);
+            if (attr != null && OdooPyUtils.getModelFieldType(attr, context) != null) {
+                return ResolveResultList.to(attr);
             }
         }
         return null;
@@ -209,6 +217,14 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
             }
             return true;
         }, true, typeEvalContext);
+        myClass.getDelegationChildren(typeEvalContext).forEach(child -> {
+            child.visitClassAttributes(attr -> {
+                if (OdooPyUtils.getModelFieldType(attr, typeEvalContext) != null) {
+                    names.putIfAbsent(attr.getName(), attr);
+                }
+                return true;
+            }, true, typeEvalContext);
+        });
         return names.values().toArray();
     }
 

@@ -22,16 +22,13 @@ import com.jetbrains.python.psi.stubs.PyClassStub;
 import com.jetbrains.python.psi.types.PyClassLikeType;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
-import dev.ngocta.pycharm.odoo.python.OdooNames;
-import dev.ngocta.pycharm.odoo.python.OdooUtils;
+import dev.ngocta.pycharm.odoo.python.OdooPyNames;
+import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleIndex;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -82,7 +79,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
             }
             PsiFile anchor = context.getOrigin();
             if (firstLevel && anchor != null) {
-                PyClass baseClass = OdooUtils.createClassByQName(OdooNames.BASE_MODEL_QNAME, anchor);
+                PyClass baseClass = OdooPyUtils.createClassByQName(OdooPyNames.BASE_MODEL_QNAME, anchor);
                 if (baseClass != null) {
                     result.add(baseClass);
                 }
@@ -112,7 +109,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
             if (file == null) {
                 return classes;
             }
-            PsiDirectory module = OdooUtils.getOdooModuleDir(file);
+            PsiDirectory module = OdooPyUtils.getOdooModuleDir(file);
             if (module == null) {
                 return classes;
             }
@@ -169,7 +166,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     public PyFunction findMethodByName(@Nullable String name, boolean inherited, TypeEvalContext context) {
         if (inherited) {
             for (PyClass cls : getAncestorClasses(context)) {
-                PyFunction method = OdooUtils.findMethodByName(name, cls, context);
+                PyFunction method = OdooPyUtils.findMethodByName(name, cls);
                 if (method != null) {
                     return method;
                 }
@@ -260,7 +257,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     public PyTargetExpression findClassAttribute(@NotNull String name, boolean inherited, TypeEvalContext context) {
         if (inherited) {
             for (PyClass cls : getAncestorClasses(context)) {
-                PyTargetExpression attr = OdooUtils.findClassAttribute(name, cls, context);
+                PyTargetExpression attr = OdooPyUtils.findClassAttribute(name, cls);
                 if (attr != null) {
                     return attr;
                 }
@@ -515,5 +512,21 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @Override
     public List<PyClassLikeType> getAncestorTypes(@NotNull TypeEvalContext context) {
         return OdooModelClassType.create(myName, OdooRecordSetType.NONE, myProject).getAncestorTypes(context);
+    }
+
+    @NotNull
+    public List<OdooModelClass> getDelegationChildren(@NotNull TypeEvalContext context) {
+        Set<String> children = new HashSet<>();
+        getAncestorClasses(context).forEach(cls -> {
+            OdooModelInfo info = OdooModelInfo.readFromClass(cls);
+            if (info != null) {
+                children.addAll(info.getInherits().keySet());
+            }
+        });
+        List<OdooModelClass> result = new LinkedList<>();
+        children.forEach(child -> {
+            result.add(create(child, myProject));
+        });
+        return result;
     }
 }

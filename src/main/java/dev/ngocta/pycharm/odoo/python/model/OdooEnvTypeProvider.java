@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo.python.type;
+package dev.ngocta.pycharm.odoo.python.model;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Ref;
@@ -6,10 +6,8 @@ import com.jetbrains.python.PyNames;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.PyStringLiteralExpressionImpl;
 import com.jetbrains.python.psi.types.*;
-import dev.ngocta.pycharm.odoo.python.OdooNames;
-import dev.ngocta.pycharm.odoo.python.OdooUtils;
-import dev.ngocta.pycharm.odoo.python.model.OdooModelClassType;
-import dev.ngocta.pycharm.odoo.python.model.OdooRecordSetType;
+import dev.ngocta.pycharm.odoo.python.OdooPyNames;
+import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +40,7 @@ public class OdooEnvTypeProvider extends PyTypeProviderBase {
         for (PyType candidateType : candidateTypes) {
             if (candidateType instanceof PyClassType) {
                 PyClassType classType = (PyClassType) candidateType;
-                if (OdooNames.ENVIRONMENT_QNAME.equals(classType.getClassQName())) {
+                if (OdooPyNames.ENVIRONMENT_QNAME.equals(classType.getClassQName())) {
                     PyExpression index = expression.getIndexExpression();
                     if (index instanceof PyLiteralExpression) {
                         String model = ((PyStringLiteralExpressionImpl) index).getStringValue();
@@ -63,14 +61,14 @@ public class OdooEnvTypeProvider extends PyTypeProviderBase {
         PyExpression qualifier = referenceExpression.getQualifier();
         if (qualifier != null) {
             PyType qualifierType = context.getType(qualifier);
-            if (OdooNames.ENV.equals(referenceName) && qualifierType instanceof OdooModelClassType) {
-                PyClass envClass = OdooUtils.createClassByQName(OdooNames.ENVIRONMENT_QNAME, referenceExpression);
+            if (OdooPyNames.ENV.equals(referenceName) && qualifierType instanceof OdooModelClassType) {
+                PyClass envClass = OdooPyUtils.createClassByQName(OdooPyNames.ENVIRONMENT_QNAME, referenceExpression);
                 if (envClass != null) {
                     return new PyClassTypeImpl(envClass, false);
                 }
-            } else if (OdooNames.USER.equals(referenceName) && qualifierType instanceof PyClassType) {
-                if (OdooNames.ENVIRONMENT_QNAME.equals(((PyClassType) qualifierType).getClassQName())) {
-                    return OdooModelClassType.create(OdooNames.RES_USERS, OdooRecordSetType.MODEL, project);
+            } else if (OdooPyNames.USER.equals(referenceName) && qualifierType instanceof PyClassType) {
+                if (OdooPyNames.ENVIRONMENT_QNAME.equals(((PyClassType) qualifierType).getClassQName())) {
+                    return OdooModelClassType.create(OdooPyNames.RES_USERS, OdooRecordSetType.MODEL, project);
                 }
             }
         }

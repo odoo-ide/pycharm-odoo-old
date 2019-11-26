@@ -6,7 +6,7 @@ import com.jetbrains.python.psi.PyFunction;
 import com.jetbrains.python.psi.impl.PyFunctionImpl;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
-import dev.ngocta.pycharm.odoo.python.OdooNames;
+import dev.ngocta.pycharm.odoo.python.OdooPyNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,14 +17,14 @@ public class OdooModelFunction {
             switch (name) {
                 case PyNames.GETITEM:
                 case PyNames.ITER:
-                case OdooNames.BROWSE:
-                case OdooNames.CREATE:
-                case OdooNames.SUDO:
-                case OdooNames.FILTERED:
-                case OdooNames.SORTED:
-                case OdooNames.SEARCH:
-                case OdooNames.WITH_CONTEXT:
-                case OdooNames.WITH_ENV:
+                case OdooPyNames.BROWSE:
+                case OdooPyNames.CREATE:
+                case OdooPyNames.SUDO:
+                case OdooPyNames.FILTERED:
+                case OdooPyNames.SORTED:
+                case OdooPyNames.SEARCH:
+                case OdooPyNames.WITH_CONTEXT:
+                case OdooPyNames.WITH_ENV:
                     return new Wrapper(origin, modelClassType);
             }
         }

@@ -1,17 +1,18 @@
-package dev.ngocta.pycharm.odoo.python.type;
+package dev.ngocta.pycharm.odoo.python.model;
 
 import com.intellij.openapi.util.Ref;
 import com.intellij.psi.PsiElement;
 import com.jetbrains.python.psi.*;
+import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.PyTypeProviderBase;
+import com.jetbrains.python.psi.types.PyUnionType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
-import dev.ngocta.pycharm.odoo.python.model.OdooModelClassType;
-import dev.ngocta.pycharm.odoo.python.model.OdooRecordSetType;
+import dev.ngocta.pycharm.odoo.python.OdooPyNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class OdooSelfTypeProvider extends PyTypeProviderBase {
+public class OdooModelFunctionParamTypeProvider extends PyTypeProviderBase {
     @Nullable
     @Override
     public Ref<PyType> getParameterType(@NotNull PyNamedParameter param, @NotNull PyFunction function, @NotNull TypeEvalContext context) {
@@ -33,6 +34,18 @@ public class OdooSelfTypeProvider extends PyTypeProviderBase {
                 }
             }
         }
+
+        if (OdooPyNames.CREATE.equals(function.getName())) {
+            PyClass cls = function.getContainingClass();
+            PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(cls);
+            if (cls != null && (OdooPyNames.BASE_MODEL_QNAME.equals(cls.getQualifiedName()) || OdooModelInfo.readFromClass(cls) != null)) {
+                PyType type = PyUnionType.union(builtinCache.getListType(), builtinCache.getDictType());
+                if (type != null) {
+                    return Ref.create(type);
+                }
+            }
+        }
+
         return null;
     }
 }

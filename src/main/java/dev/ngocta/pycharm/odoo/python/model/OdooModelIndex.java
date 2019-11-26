@@ -15,7 +15,7 @@ import com.intellij.util.io.KeyDescriptor;
 import com.jetbrains.python.PythonFileType;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyFile;
-import dev.ngocta.pycharm.odoo.python.OdooUtils;
+import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -29,7 +29,7 @@ public class OdooModelIndex extends ScalarIndexExtension<String> {
         Map<String, Void> result = new HashMap<>();
         VirtualFile virtualFile = inputData.getFile();
         PsiFile psiFile = PsiManager.getInstance(inputData.getProject()).findFile(virtualFile);
-        if (OdooUtils.isOdooModelFile(psiFile)) {
+        if (OdooPyUtils.isOdooModelFile(psiFile)) {
             PyFile pyFile = (PyFile) psiFile;
             pyFile.getTopLevelClasses().forEach(pyClass -> {
                 OdooModelInfo info = OdooModelInfo.readFromClass(pyClass);

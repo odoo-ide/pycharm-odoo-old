@@ -5,8 +5,8 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.jetbrains.python.psi.*;
-import dev.ngocta.pycharm.odoo.python.OdooNames;
-import dev.ngocta.pycharm.odoo.python.OdooUtils;
+import dev.ngocta.pycharm.odoo.python.OdooPyNames;
+import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,7 +69,7 @@ public class OdooModelInfo {
             return null;
         }
 
-        PsiDirectory module = OdooUtils.getOdooModuleDir(psiFile);
+        PsiDirectory module = OdooPyUtils.getOdooModuleDir(psiFile);
         if (module == null) {
             return null;
         }
@@ -77,14 +77,14 @@ public class OdooModelInfo {
         List<String> inherit = new LinkedList<>();
         Map<String, String> inherits = new HashMap<>();
 
-        PyTargetExpression nameExpr = pyClass.findClassAttribute(OdooNames._NAME, false, null);
+        PyTargetExpression nameExpr = pyClass.findClassAttribute(OdooPyNames._NAME, false, null);
         if (nameExpr != null) {
             PyExpression valueExpr = nameExpr.findAssignedValue();
             if (valueExpr instanceof PyStringLiteralExpression) {
                 model = ((PyStringLiteralExpression) valueExpr).getStringValue();
             }
         }
-        PyTargetExpression inheritExpr = pyClass.findClassAttribute(OdooNames._INHERIT, false, null);
+        PyTargetExpression inheritExpr = pyClass.findClassAttribute(OdooPyNames._INHERIT, false, null);
         if (inheritExpr != null) {
             PyExpression valueExpr = inheritExpr.findAssignedValue();
             if (valueExpr instanceof PyStringLiteralExpression) {
@@ -97,7 +97,7 @@ public class OdooModelInfo {
                 inherit = PyUtil.strListValue(valueExpr);
             }
         }
-        PyTargetExpression inheritsExpr = pyClass.findClassAttribute(OdooNames._INHERITS, false, null);
+        PyTargetExpression inheritsExpr = pyClass.findClassAttribute(OdooPyNames._INHERITS, false, null);
         if (inheritsExpr != null) {
             PyExpression valueExpr = inheritsExpr.findAssignedValue();
             if (valueExpr instanceof PyDictLiteralExpression) {

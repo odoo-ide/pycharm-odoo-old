@@ -1,6 +1,6 @@
 package dev.ngocta.pycharm.odoo.python;
 
-public class OdooNames {
+public class OdooPyNames {
     public static final String __MANIFEST__DOT_PY = "__manifest__.py";
     public static final String DEPENDS = "depends";
     public static final String _NAME = "_name";
