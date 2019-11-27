@@ -136,18 +136,18 @@ public class OdooPyUtils {
                             case OdooPyNames.CHAR:
                             case OdooPyNames.TEXT:
                             case OdooPyNames.SELECTION:
-                                type = PyUnionType.union(builtinCache.getStrType(), null);
+                                type = builtinCache.getStrType();
                                 break;
                             case OdooPyNames.DATE:
                                 PyClass dateClass = OdooPyUtils.createClassByQName("datetime.date", field);
                                 if (dateClass != null) {
-                                    type = PyUnionType.union(context.getType(dateClass), null);
+                                    type = context.getType(dateClass);
                                 }
                                 break;
                             case OdooPyNames.DATETIME:
                                 PyClass datetimeClass = OdooPyUtils.createClassByQName("datetime.datetime", field);
                                 if (datetimeClass != null) {
-                                    type = PyUnionType.union(context.getType(datetimeClass), null);
+                                    type = context.getType(datetimeClass);
                                 }
                                 break;
                         }

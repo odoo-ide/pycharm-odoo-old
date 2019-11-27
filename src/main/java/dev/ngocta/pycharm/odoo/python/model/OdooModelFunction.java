@@ -53,32 +53,42 @@ public class OdooModelFunction {
         @Override
         public PyType getCallType(@NotNull TypeEvalContext context, @NotNull PyCallSiteExpression callSite) {
             String name = getName();
-            if (name != null && callSite instanceof PyCallExpression) {
-                PyCallExpression callExpression = ((PyCallExpression) callSite);
-                if (OdooPyNames.MAPPED.equals(name)) {
-                    PyType fieldType = getMappedParamType(callExpression, context);
-                    if (fieldType != null) {
-                        if (fieldType instanceof OdooModelClassType) {
-                            return ((OdooModelClassType) fieldType).getMultiRecordVariant();
-                        } else {
-                            PyClass cls = PyBuiltinCache.getInstance(callSite).getClass("list");
-                            if (cls != null) {
-                                return new PyCollectionTypeImpl(cls, false, Collections.singletonList(fieldType));
-                            }
-                        }
-                    }
-                    return null;
-                }
+            if (OdooPyNames.MAPPED.equals(name) && callSite instanceof PyCallExpression) {
+                return getMappedType(((PyCallExpression) callSite), context);
+            } else if (PyNames.GETITEM.equals(name) && callSite instanceof PySubscriptionExpression) {
+                return getItemType((PySubscriptionExpression) callSite, context);
             }
             return myModelClassType;
         }
 
         @Nullable
-        private PyType getMappedParamType(@NotNull PyCallExpression mapped, @NotNull TypeEvalContext context) {
+        private PyType getMappedType(@NotNull PyCallExpression mapped, @NotNull TypeEvalContext context) {
             PyStringLiteralExpression fieldPathExpression = mapped.getArgument(0, PyStringLiteralExpression.class);
             if (fieldPathExpression != null) {
                 String fieldPath = fieldPathExpression.getStringValue();
-                return myModelClassType.getFieldTypeByPath(fieldPath, context);
+                PyType fieldType = myModelClassType.getFieldTypeByPath(fieldPath, context);
+                if (fieldType != null) {
+                    if (fieldType instanceof OdooModelClassType) {
+                        return ((OdooModelClassType) fieldType).getMultiRecordVariant();
+                    } else {
+                        PyClass cls = PyBuiltinCache.getInstance(mapped).getClass("list");
+                        if (cls != null) {
+                            return new PyCollectionTypeImpl(cls, false, Collections.singletonList(fieldType));
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Nullable
+        private PyType getItemType(@NotNull PySubscriptionExpression subscriptionExpression, @NotNull TypeEvalContext context) {
+            PyExpression index = subscriptionExpression.getIndexExpression();
+            if (index instanceof PyStringLiteralExpression) {
+                String fieldName = ((PyStringLiteralExpression) index).getStringValue();
+                return myModelClassType.getFieldTypeByPath(Collections.singletonList(fieldName), context);
+            } else if (index instanceof PyNumericLiteralExpression) {
+                return myModelClassType.getOneRecordVariant();
             }
             return null;
         }
