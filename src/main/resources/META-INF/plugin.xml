@@ -18,7 +18,9 @@
         <!-- Add your extensions here -->
         <importResolver implementation="dev.ngocta.pycharm.odoo.python.module.OdooAddonsImportResolver"/>
         <pyModuleMembersProvider implementation="dev.ngocta.pycharm.odoo.python.module.OdooAddonsMembersProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelFunctionParamTypeProvider" order="first"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelFunctionSelfTypeProvider" order="first"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelFunctionCreateTypeProvider" order="first"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelFunctionFilteredTypeProvider" order="first"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooEnvTypeProvider" order="first"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooFieldTypeProvider" order="first"/>
         <inspectionExtension implementation="dev.ngocta.pycharm.odoo.python.OdooPyInspectionExtension"/>

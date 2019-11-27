@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiInvalidElementAccessException;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.util.CachedValueProvider;
@@ -11,10 +12,12 @@ import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.Processor;
 import com.jetbrains.python.psi.*;
+import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.impl.ResolveResultList;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
 import com.jetbrains.python.psi.resolve.RatedResolveResult;
 import com.jetbrains.python.psi.types.*;
+import dev.ngocta.pycharm.odoo.python.OdooPyNames;
 import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,8 +69,12 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         return myRecordSetType;
     }
 
-    public OdooModelClassType getOneRecord() {
+    public OdooModelClassType getOneRecordVariant() {
         return OdooModelClassType.create(myClass, OdooRecordSetType.ONE);
+    }
+
+    public OdooModelClassType getMultiRecordVariant() {
+        return OdooModelClassType.create(myClass, OdooRecordSetType.MULTI);
     }
 
     @Nullable
@@ -111,7 +118,6 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         }
         TypeEvalContext context = resolveContext.getTypeEvalContext();
         for (PyClass cls : myClass.getAncestorClasses(context)) {
-            OdooModelInfo info = OdooModelInfo.readFromClass(cls);
             PsiElement member = OdooPyUtils.findClassMember(name, cls);
             if (member != null) {
                 if (member instanceof PyFunction) {
@@ -122,8 +128,8 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         }
         List<OdooModelClass> children = myClass.getDelegationChildren(context);
         for (OdooModelClass child : children) {
-            PyTargetExpression attr = child.findClassAttribute(name, true, context);
-            if (attr != null && OdooPyUtils.getModelFieldType(attr, context) != null) {
+            PyTargetExpression attr = child.findField(name, context);
+            if (attr != null) {
                 return ResolveResultList.to(attr);
             }
         }
@@ -253,7 +259,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
 
     @NotNull
     @Override
-    public PyClass getPyClass() {
+    public OdooModelClass getPyClass() {
         return myClass;
     }
 
@@ -267,7 +273,45 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
     @Override
     public PyType getIteratedItemType() {
         if (myRecordSetType != OdooRecordSetType.NONE) {
-            return getOneRecord();
+            return getOneRecordVariant();
+        }
+        return null;
+    }
+
+    @Nullable
+    public PyType getFieldTypeByPath(@NotNull String path, @NotNull TypeEvalContext context) {
+        String[] fieldNames = path.split("\\.");
+        return getFieldTypeByPath(Arrays.asList(fieldNames), context);
+    }
+
+    @Nullable
+    public PyType getFieldTypeByPath(@NotNull List<String> fieldNames, @NotNull TypeEvalContext context) {
+        if (fieldNames.isEmpty()) {
+            return null;
+        }
+        PsiFile file = context.getOrigin();
+        if (file == null) {
+            return null;
+        }
+        PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(file);
+        PyType intType = builtinCache.getIntType();
+        boolean toId = OdooPyNames.ID.equals(fieldNames.get(fieldNames.size() - 1));
+        if (toId) {
+            fieldNames = fieldNames.subList(0, fieldNames.size() - 1);
+            if (fieldNames.isEmpty()) {
+                return intType;
+            }
+        }
+        PyTargetExpression field = myClass.findFieldByPath(fieldNames, context);
+        if (field != null) {
+            PyType fieldType = OdooPyUtils.getModelFieldType(field, context);
+            if (toId) {
+                if (fieldType instanceof OdooModelClassType) {
+                    return intType;
+                }
+                return null;
+            }
+            return fieldType;
         }
         return null;
     }

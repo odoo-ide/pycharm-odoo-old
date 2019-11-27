@@ -369,7 +369,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
 
     @Nullable
     @Override
-    public PyClassLikeType getType(@NotNull TypeEvalContext context) {
+    public OdooModelClassType getType(@NotNull TypeEvalContext context) {
         return OdooModelClassType.create(this, OdooRecordSetType.NONE);
     }
 
@@ -415,7 +415,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
 
     @Nullable
     @Override
-    public PyType getType(@NotNull TypeEvalContext context, TypeEvalContext.@NotNull Key key) {
+    public OdooModelClassType getType(@NotNull TypeEvalContext context, TypeEvalContext.@NotNull Key key) {
         return getType(context);
     }
 
@@ -528,5 +528,47 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
             result.add(create(child, myProject));
         });
         return result;
+    }
+
+    @Nullable
+    public PyTargetExpression findField(@NotNull String name, @NotNull TypeEvalContext context) {
+        PyTargetExpression attr = findClassAttribute(name, true, context);
+        if (attr != null && OdooPyUtils.getModelFieldType(attr, context) != null) {
+            return attr;
+        }
+        List<OdooModelClass> children = getDelegationChildren(context);
+        for (OdooModelClass child : children) {
+            PyTargetExpression field = child.findField(name, context);
+            if (field != null) {
+                return field;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public PyTargetExpression findFieldByPath(@NotNull String path, @NotNull TypeEvalContext context) {
+        String[] names = path.split("\\.");
+        return findFieldByPath(Arrays.asList(names), context);
+    }
+
+    @Nullable
+    public PyTargetExpression findFieldByPath(@NotNull List<String> fieldNames, @NotNull TypeEvalContext context) {
+        if (fieldNames.isEmpty()) {
+            return null;
+        }
+        String name = fieldNames.get(0);
+        PyTargetExpression field = findField(name, context);
+        if (fieldNames.size() == 1) {
+            return field;
+        }
+        if (field != null) {
+            PyType fieldType = OdooPyUtils.getModelFieldType(field, context);
+            if (fieldType instanceof OdooModelClassType) {
+                fieldNames = fieldNames.subList(1, fieldNames.size());
+                return ((OdooModelClassType) fieldType).getPyClass().findFieldByPath(fieldNames, context);
+            }
+        }
+        return null;
     }
 }

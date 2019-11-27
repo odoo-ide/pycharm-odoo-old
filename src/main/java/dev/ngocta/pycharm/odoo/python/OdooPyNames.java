@@ -22,6 +22,7 @@ public class OdooPyNames {
     public static final String ENV = "env";
     public static final String BROWSE = "browse";
     public static final String CREATE = "create";
+    public static final String MAPPED = "mapped";
     public static final String FILTERED = "filtered";
     public static final String SORTED = "sorted";
     public static final String SEARCH = "search";
