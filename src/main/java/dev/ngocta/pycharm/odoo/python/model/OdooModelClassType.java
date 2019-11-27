@@ -1,8 +1,10 @@
 package dev.ngocta.pycharm.odoo.python.model;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.openapi.util.UserDataHolderBase;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiInvalidElementAccessException;
@@ -11,6 +13,7 @@ import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.Processor;
+import com.jetbrains.python.codeInsight.completion.PythonLookupElement;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.impl.ResolveResultList;
@@ -213,25 +216,47 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
     }
 
     @Override
-    public Object[] getCompletionVariants(String completionPrefix, PsiElement location, ProcessingContext context) {
-        Map<String, PsiElement> names = new LinkedHashMap<>();
-        TypeEvalContext typeEvalContext = TypeEvalContext.codeCompletion(location.getProject(), location.getContainingFile());
+    public Object[] getCompletionVariants(String completionPrefix, PsiElement location, ProcessingContext processingContext) {
+        Map<String, Object> names = new LinkedHashMap<>();
+        names.put(OdooPyNames.ID, new PythonLookupElement(OdooPyNames.ID, null, "int", false, null, null));
+        TypeEvalContext context = TypeEvalContext.codeCompletion(location.getProject(), location.getContainingFile());
         visitMembers(member -> {
             if (member instanceof PsiNamedElement) {
                 String name = ((PsiNamedElement) member).getName();
-                names.putIfAbsent(name, member);
+                names.putIfAbsent(name, getCompletionLine((PsiNamedElement) member, context));
             }
             return true;
-        }, true, typeEvalContext);
-        myClass.getDelegationChildren(typeEvalContext).forEach(child -> {
+        }, true, context);
+        myClass.getDelegationChildren(context).forEach(child -> {
             child.visitClassAttributes(attr -> {
-                if (OdooPyUtils.getModelFieldType(attr, typeEvalContext) != null) {
-                    names.putIfAbsent(attr.getName(), attr);
+                if (OdooPyUtils.getModelFieldType(attr, context) != null) {
+                    names.putIfAbsent(attr.getName(), getCompletionLine(attr, context));
                 }
                 return true;
-            }, true, typeEvalContext);
+            }, true, context);
         });
         return names.values().toArray();
+    }
+
+    @Nullable
+    private PythonLookupElement getCompletionLine(@NotNull PsiNamedElement element, @NotNull TypeEvalContext context) {
+        String name = element.getName();
+        if (name != null) {
+            String tailText = null;
+            String typeText = null;
+            if (element instanceof PyTargetExpression) {
+                PyType fieldType = OdooPyUtils.getModelFieldType((PyTargetExpression) element, context);
+                if (fieldType != null) {
+                    typeText = fieldType.getName();
+                }
+            } else if (element instanceof PyFunction) {
+                List<PyCallableParameter> params = ((PyFunction) element).getParameters(context);
+                String paramsText = StringUtil.join(params, PyCallableParameter::getName, ", ");
+                tailText = "(" + paramsText + ")";
+            }
+            return new PythonLookupElement(element.getName(), tailText, typeText, false, element.getIcon(Iconable.ICON_FLAG_READ_STATUS), null);
+        }
+        return null;
     }
 
     @NotNull
