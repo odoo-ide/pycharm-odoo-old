@@ -12,11 +12,7 @@ import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.types.*;
 import com.sun.istack.NotNull;
 import com.sun.istack.Nullable;
-import dev.ngocta.pycharm.odoo.python.field.OdooFieldInfo;
-import dev.ngocta.pycharm.odoo.python.model.OdooModelClass;
-import dev.ngocta.pycharm.odoo.python.model.OdooModelClassTypeImpl;
-import dev.ngocta.pycharm.odoo.python.model.OdooModelInfo;
-import dev.ngocta.pycharm.odoo.python.model.OdooRecordSetType;
+import dev.ngocta.pycharm.odoo.python.model.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -102,19 +98,19 @@ public class OdooPyUtils {
 
     @Nullable
     public static PyType getFieldType(@NotNull PyTargetExpression field, @NotNull TypeEvalContext context) {
-        OdooFieldInfo info = OdooFieldInfo.readFromClassAttribute(field, context);
+        OdooFieldInfo info = OdooFieldInfo.get(field, context);
         if (info == null) {
             return null;
         }
         Project project = field.getProject();
         PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(field);
-        switch (info.getType()) {
+        switch (info.getClassName()) {
             case OdooPyNames.MANY2ONE:
             case OdooPyNames.ONE2MANY:
             case OdooPyNames.MANY2MANY:
                 if (info.getComodel() != null) {
-                    OdooRecordSetType recordSetType = OdooPyNames.MANY2ONE.equals(info.getType()) ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
-                    return OdooModelClassTypeImpl.create(info.getComodel(), recordSetType, project);
+                    OdooRecordSetType recordSetType = OdooPyNames.MANY2ONE.equals(info.getClassName()) ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
+                    return OdooModelClassType.create(info.getComodel(), recordSetType, project);
                 } else if (info.getRelated() != null) {
                     OdooModelClass modelClass = getContainingOdooModelClass(field, project);
                     if (modelClass != null) {

@@ -31,8 +31,8 @@ public class OdooModelFunctionFilteredTypeProvider extends PyTypeProviderBase {
                                     PyExpression qualifier = ((PyReferenceExpression) callee).getQualifier();
                                     if (qualifier != null) {
                                         PyType qualifierType = context.getType(qualifier);
-                                        if (qualifierType instanceof OdooModelClassTypeImpl) {
-                                            return ((OdooModelClassTypeImpl) qualifierType).getOneRecordVariant();
+                                        if (qualifierType instanceof OdooModelClassType) {
+                                            return ((OdooModelClassType) qualifierType).getOneRecordVariant();
                                         }
                                     }
                                 }

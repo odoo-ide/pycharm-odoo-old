@@ -24,7 +24,6 @@ import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.python.OdooPyNames;
 import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
-import dev.ngocta.pycharm.odoo.python.field.OdooFieldInfo;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleIndex;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -92,7 +91,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @NotNull
     @Override
     public List<PyClassLikeType> getSuperClassTypes(@NotNull TypeEvalContext context) {
-        return OdooModelClassTypeImpl.create(this, OdooRecordSetType.NONE).getSuperClassTypes(context);
+        return OdooModelClassType.create(this, OdooRecordSetType.NONE).getSuperClassTypes(context);
     }
 
     @NotNull
@@ -370,8 +369,8 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
 
     @Nullable
     @Override
-    public OdooModelClassTypeImpl getType(@NotNull TypeEvalContext context) {
-        return OdooModelClassTypeImpl.create(this, OdooRecordSetType.NONE);
+    public OdooModelClassType getType(@NotNull TypeEvalContext context) {
+        return OdooModelClassType.create(this, OdooRecordSetType.NONE);
     }
 
     @Nullable
@@ -416,7 +415,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
 
     @Nullable
     @Override
-    public OdooModelClassTypeImpl getType(@NotNull TypeEvalContext context, TypeEvalContext.@NotNull Key key) {
+    public OdooModelClassType getType(@NotNull TypeEvalContext context, TypeEvalContext.@NotNull Key key) {
         return getType(context);
     }
 
@@ -512,7 +511,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @NotNull
     @Override
     public List<PyClassLikeType> getAncestorTypes(@NotNull TypeEvalContext context) {
-        return OdooModelClassTypeImpl.create(myName, OdooRecordSetType.NONE, myProject).getAncestorTypes(context);
+        return OdooModelClassType.create(myName, OdooRecordSetType.NONE, myProject).getAncestorTypes(context);
     }
 
     @NotNull
@@ -534,7 +533,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @Nullable
     public PyTargetExpression findField(@NotNull String name, @NotNull TypeEvalContext context) {
         PyTargetExpression attr = findClassAttribute(name, true, context);
-        if (attr != null && OdooFieldInfo.readFromClassAttribute(attr, context) != null) {
+        if (attr != null && OdooFieldInfo.get(attr, context) != null) {
             return attr;
         }
         List<OdooModelClass> children = getDelegationChildren(context);
@@ -565,9 +564,9 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
         }
         if (field != null) {
             PyType fieldType = OdooPyUtils.getFieldType(field, context);
-            if (fieldType instanceof OdooModelClassTypeImpl) {
+            if (fieldType instanceof OdooModelClassType) {
                 fieldNames = fieldNames.subList(1, fieldNames.size());
-                return ((OdooModelClassTypeImpl) fieldType).getPyClass().findFieldByPath(fieldNames, context);
+                return ((OdooModelClassType) fieldType).getPyClass().findFieldByPath(fieldNames, context);
             }
         }
         return null;

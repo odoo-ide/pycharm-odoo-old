@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 
 public class OdooModelFunction {
-    public static PyFunction wrap(@NotNull PyFunction origin, @NotNull OdooModelClassTypeImpl modelClassType) {
+    public static PyFunction wrap(@NotNull PyFunction origin, @NotNull OdooModelClassType modelClassType) {
         String name = origin.getName();
         if (name != null) {
             switch (name) {
@@ -36,9 +36,9 @@ public class OdooModelFunction {
     }
 
     public static class Wrapper extends PyFunctionImpl {
-        OdooModelClassTypeImpl myModelClassType;
+        OdooModelClassType myModelClassType;
 
-        private Wrapper(@NotNull PyFunction origin, @NotNull OdooModelClassTypeImpl modelClassType) {
+        private Wrapper(@NotNull PyFunction origin, @NotNull OdooModelClassType modelClassType) {
             super(origin.getNode());
             myModelClassType = modelClassType;
         }
@@ -68,8 +68,8 @@ public class OdooModelFunction {
                 String fieldPath = fieldPathExpression.getStringValue();
                 PyType fieldType = myModelClassType.getFieldTypeByPath(fieldPath, context);
                 if (fieldType != null) {
-                    if (fieldType instanceof OdooModelClassTypeImpl) {
-                        return ((OdooModelClassTypeImpl) fieldType).getMultiRecordVariant();
+                    if (fieldType instanceof OdooModelClassType) {
+                        return ((OdooModelClassType) fieldType).getMultiRecordVariant();
                     } else {
                         PyClass cls = PyBuiltinCache.getInstance(mapped).getClass("list");
                         if (cls != null) {

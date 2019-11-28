@@ -8,14 +8,14 @@ import com.jetbrains.python.psi.PyExpression;
 import com.jetbrains.python.psi.PyExpressionStatement;
 import com.jetbrains.python.psi.PyQualifiedExpression;
 import com.jetbrains.python.psi.types.TypeEvalContext;
-import dev.ngocta.pycharm.odoo.python.model.OdooModelClassTypeImpl;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelClassType;
 import org.jetbrains.annotations.NotNull;
 
 public class OdooPyInspectionExtension extends PyInspectionExtension {
     public boolean ignoreUnresolvedReference(@NotNull PyElement node, @NotNull PsiReference reference, @NotNull TypeEvalContext context) {
         if (node instanceof PyQualifiedExpression) {
             PyExpression qualifier = ((PyQualifiedExpression) node).getQualifier();
-            if (qualifier != null && context.getType(qualifier) instanceof OdooModelClassTypeImpl) {
+            if (qualifier != null && context.getType(qualifier) instanceof OdooModelClassType) {
                 String name = node.getName();
                 if (name != null) {
                     switch (name) {

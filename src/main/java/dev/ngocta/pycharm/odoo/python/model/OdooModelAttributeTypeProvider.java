@@ -20,7 +20,7 @@ public class OdooModelAttributeTypeProvider extends PyTypeProviderBase {
         PyExpression qualifier = referenceExpression.getQualifier();
         if (qualifier != null) {
             PyType qualifierType = context.getType(qualifier);
-            OdooModelClassTypeImpl modelType = OdooPyUtils.unpackType(qualifierType, OdooModelClassTypeImpl.class);
+            OdooModelClassType modelType = OdooPyUtils.unpackType(qualifierType, OdooModelClassType.class);
             if (modelType != null) {
                 PyType type = modelType.getImplicitAttributeTypes(context).get(referenceName);
                 if (type == null) {

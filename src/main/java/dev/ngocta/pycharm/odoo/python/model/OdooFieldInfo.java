@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo.python.field;
+package dev.ngocta.pycharm.odoo.python.model;
 
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
@@ -13,7 +13,7 @@ import dev.ngocta.pycharm.odoo.python.OdooPyNames;
 import java.util.List;
 
 public class OdooFieldInfo {
-    private String myType = null;
+    private String myClassName = null;
     private String myComodel = null;
     private String myRelated = null;
 
@@ -21,10 +21,10 @@ public class OdooFieldInfo {
     }
 
     @Nullable
-    public static OdooFieldInfo readFromClassAttribute(@NotNull PyTargetExpression attribute, @NotNull TypeEvalContext context) {
-        return CachedValuesManager.getCachedValue(attribute, () -> {
+    public static OdooFieldInfo get(@NotNull PyTargetExpression field, @NotNull TypeEvalContext context) {
+        return CachedValuesManager.getCachedValue(field, () -> {
             OdooFieldInfo info = null;
-            PyExpression assignedValue = attribute.findAssignedValue();
+            PyExpression assignedValue = field.findAssignedValue();
             if (assignedValue instanceof PyCallExpression) {
                 PyCallExpression callExpression = (PyCallExpression) assignedValue;
                 PyExpression callee = callExpression.getCallee();
@@ -36,7 +36,7 @@ public class OdooFieldInfo {
                         for (PyClass cls : ancestor) {
                             if (OdooPyNames.FIELD_QNAME.equals(cls.getQualifiedName())) {
                                 info = new OdooFieldInfo();
-                                info.myType = callee.getName();
+                                info.myClassName = callee.getName();
                                 switch (calleeName) {
                                     case OdooPyNames.MANY2ONE:
                                     case OdooPyNames.ONE2MANY:
@@ -55,13 +55,13 @@ public class OdooFieldInfo {
                     }
                 }
             }
-            return CachedValueProvider.Result.create(info, attribute);
+            return CachedValueProvider.Result.create(info, field);
         });
     }
 
     @NotNull
-    public String getType() {
-        return myType;
+    public String getClassName() {
+        return myClassName;
     }
 
     public String getComodel() {
