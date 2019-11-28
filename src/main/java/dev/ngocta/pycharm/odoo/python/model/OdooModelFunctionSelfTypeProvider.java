@@ -23,7 +23,7 @@ public class OdooModelFunctionSelfTypeProvider extends PyTypeProviderBase {
                     if (func != null) {
                         final PyFunction.Modifier modifier = func.getModifier();
                         OdooRecordSetType recordSetType = modifier == PyFunction.Modifier.CLASSMETHOD ? OdooRecordSetType.NONE : OdooRecordSetType.MULTI;
-                        OdooModelClassType type = OdooModelClassType.create(pyClass, recordSetType);
+                        OdooModelClassTypeImpl type = OdooModelClassTypeImpl.create(pyClass, recordSetType);
                         if (type != null) {
                             return Ref.create(type);
                         }

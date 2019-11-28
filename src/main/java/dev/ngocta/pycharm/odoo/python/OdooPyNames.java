@@ -33,6 +33,7 @@ public class OdooPyNames {
     public static final String USER = "user";
     public static final String RES_USERS = "res.users";
     public static final String BASE_MODEL_QNAME = "odoo.models.BaseModel";
+    public static final String FIELD_QNAME = "odoo.fields.Field";
     public static final String ENVIRONMENT_QNAME = "odoo.api.Environment";
     public static final String DB_CURSOR_QNAME = "odoo.sql_db.Cursor";
     public static final String REGISTRY_QNAME = "odoo.modules.registry.Registry";

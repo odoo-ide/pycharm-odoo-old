@@ -12,8 +12,9 @@ import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.types.*;
 import com.sun.istack.NotNull;
 import com.sun.istack.Nullable;
+import dev.ngocta.pycharm.odoo.python.field.OdooFieldInfo;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelClass;
-import dev.ngocta.pycharm.odoo.python.model.OdooModelClassType;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelClassTypeImpl;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelInfo;
 import dev.ngocta.pycharm.odoo.python.model.OdooRecordSetType;
 
@@ -100,68 +101,48 @@ public class OdooPyUtils {
     }
 
     @Nullable
-    public static PyType getModelFieldType(@NotNull PyTargetExpression field, @NotNull TypeEvalContext context) {
-        return CachedValuesManager.getCachedValue(field, () -> {
-            PyType type = null;
-            Project project = field.getProject();
-            PyExpression assignedValue = field.findAssignedValue();
-            if (assignedValue instanceof PyCallExpression) {
-                PyCallExpression callExpression = (PyCallExpression) assignedValue;
-                PyExpression callee = callExpression.getCallee();
-                if (callee != null) {
-                    String calleeName = callee.getName();
-                    PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(field);
-                    if (calleeName != null) {
-                        switch (calleeName) {
-                            case OdooPyNames.MANY2ONE:
-                            case OdooPyNames.ONE2MANY:
-                            case OdooPyNames.MANY2MANY:
-                                PyStringLiteralExpression comodelExpression = callExpression.getArgument(0, OdooPyNames.COMODEL_NAME, PyStringLiteralExpression.class);
-                                if (comodelExpression != null) {
-                                    String comodel = comodelExpression.getStringValue();
-                                    OdooRecordSetType recordSetType = calleeName.equals(OdooPyNames.MANY2ONE) ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
-                                    type = OdooModelClassType.create(comodel, recordSetType, project);
-                                } else {
-                                    PyExpression relatedExpression = callExpression.getKeywordArgument(OdooPyNames.RELATED);
-                                    if (relatedExpression instanceof PyStringLiteralExpression) {
-                                        String related = ((PyStringLiteralExpression) relatedExpression).getStringValue();
-                                        OdooModelClass modelClass = getContainingOdooModelClass(field, project);
-                                        if (modelClass != null) {
-                                            PyTargetExpression relatedField = modelClass.findFieldByPath(related, context);
-                                            if (relatedField != null) {
-                                                type = getModelFieldType(relatedField, context);
-                                            }
-                                        }
-                                    }
-                                }
-                                break;
-                            case OdooPyNames.BOOLEAN:
-                                type = builtinCache.getBoolType();
-                                break;
-                            case OdooPyNames.INTEGER:
-                                type = builtinCache.getIntType();
-                                break;
-                            case OdooPyNames.FLOAT:
-                            case OdooPyNames.MONETARY:
-                                type = builtinCache.getFloatType();
-                                break;
-                            case OdooPyNames.CHAR:
-                            case OdooPyNames.TEXT:
-                            case OdooPyNames.SELECTION:
-                                type = builtinCache.getStrType();
-                                break;
-                            case OdooPyNames.DATE:
-                                type = getDateType(field);
-                                break;
-                            case OdooPyNames.DATETIME:
-                                type = getDatetimeType(field);
-                                break;
+    public static PyType getFieldType(@NotNull PyTargetExpression field, @NotNull TypeEvalContext context) {
+        OdooFieldInfo info = OdooFieldInfo.readFromClassAttribute(field, context);
+        if (info == null) {
+            return null;
+        }
+        Project project = field.getProject();
+        PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(field);
+        switch (info.getType()) {
+            case OdooPyNames.MANY2ONE:
+            case OdooPyNames.ONE2MANY:
+            case OdooPyNames.MANY2MANY:
+                if (info.getComodel() != null) {
+                    OdooRecordSetType recordSetType = OdooPyNames.MANY2ONE.equals(info.getType()) ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
+                    return OdooModelClassTypeImpl.create(info.getComodel(), recordSetType, project);
+                } else if (info.getRelated() != null) {
+                    OdooModelClass modelClass = getContainingOdooModelClass(field, project);
+                    if (modelClass != null) {
+                        PyTargetExpression relatedField = modelClass.findFieldByPath(info.getRelated(), context);
+                        if (relatedField != null) {
+                            return getFieldType(relatedField, context);
                         }
                     }
                 }
-            }
-            return CachedValueProvider.Result.createSingleDependency(type, field);
-        });
+                return null;
+            case OdooPyNames.BOOLEAN:
+                return builtinCache.getBoolType();
+            case OdooPyNames.INTEGER:
+                return builtinCache.getIntType();
+            case OdooPyNames.FLOAT:
+            case OdooPyNames.MONETARY:
+                return builtinCache.getFloatType();
+            case OdooPyNames.CHAR:
+            case OdooPyNames.TEXT:
+            case OdooPyNames.SELECTION:
+                return builtinCache.getStrType();
+            case OdooPyNames.DATE:
+                return getDateType(field);
+            case OdooPyNames.DATETIME:
+                return getDatetimeType(field);
+            default:
+                return null;
+        }
     }
 
     @Nullable
