@@ -255,6 +255,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         result.add(OdooPyNames._CONTEXT);
         result.add(OdooPyNames._CR);
         result.add(OdooPyNames._UID);
+        result.add(OdooPyNames.POOL);
         return result;
     }
 
@@ -300,6 +301,8 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
                     case OdooPyNames._CR:
                         result.put(field, OdooPyUtils.getDbCursorType(file));
                         break;
+                    case OdooPyNames.POOL:
+                        result.put(field, OdooPyUtils.getClassTypeByQName(OdooPyNames.REGISTRY_QNAME, file, false));
                 }
             });
         }
