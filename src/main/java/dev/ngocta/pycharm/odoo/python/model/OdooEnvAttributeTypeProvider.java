@@ -76,7 +76,7 @@ public class OdooEnvAttributeTypeProvider extends PyTypeProviderBase {
             candidateTypes = Collections.singleton(type);
         }
         return candidateTypes.stream().anyMatch(candidate -> {
-            return candidate.equals(OdooPyUtils.getEnvironmentType(anchor));
+            return candidate != null && candidate.equals(OdooPyUtils.getEnvironmentType(anchor));
         });
     }
 }
