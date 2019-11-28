@@ -33,7 +33,18 @@ public class OdooPyNames {
     public static final String RES_USERS = "res.users";
     public static final String BASE_MODEL_QNAME = "odoo.models.BaseModel";
     public static final String ENVIRONMENT_QNAME = "odoo.api.Environment";
+    public static final String DB_CURSOR_QNAME = "odoo.sql_db.Cursor";
     public static final String ODOO_ADDONS = "odoo.addons";
     public static final String ID = "id";
-    public static final String _IDS = "_ids";
+    public static final String DISPLAY_NAME = "display_name";
+    public static final String CREATE_UID = "create_uid";
+    public static final String CREATE_DATE = "create_date";
+    public static final String WRITE_UID = "write_uid";
+    public static final String WRITE_DATE = "write_date";
+    public static final String CONTEXT = "context";
+    public static final String CR = "cr";
+    public static final String UID = "uid";
+    public static final String _CONTEXT = "_context";
+    public static final String _CR = "_cr";
+    public static final String _UID = "_uid";
 }

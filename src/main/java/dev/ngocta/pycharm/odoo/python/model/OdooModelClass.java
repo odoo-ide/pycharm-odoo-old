@@ -79,7 +79,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
             }
             PsiFile anchor = context.getOrigin();
             if (firstLevel && anchor != null) {
-                PyClass baseClass = OdooPyUtils.createClassByQName(OdooPyNames.BASE_MODEL_QNAME, anchor);
+                PyClass baseClass = OdooPyUtils.getClassByQName(OdooPyNames.BASE_MODEL_QNAME, anchor);
                 if (baseClass != null) {
                     result.add(baseClass);
                 }

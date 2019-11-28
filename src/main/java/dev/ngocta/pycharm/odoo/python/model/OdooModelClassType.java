@@ -1,22 +1,22 @@
 package dev.ngocta.pycharm.odoo.python.model;
 
+import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiInvalidElementAccessException;
-import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.*;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
+import com.intellij.util.PlatformIcons;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.Processor;
 import com.jetbrains.python.codeInsight.completion.PythonLookupElement;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.impl.ResolveResultList;
+import com.jetbrains.python.psi.resolve.ImplicitResolveResult;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
 import com.jetbrains.python.psi.resolve.RatedResolveResult;
 import com.jetbrains.python.psi.types.*;
@@ -136,6 +136,9 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
                 return ResolveResultList.to(attr);
             }
         }
+        if (getImplicitAttributeNames(context).contains(name)) {
+            return Collections.singletonList(new ImplicitResolveResult(null, RatedResolveResult.RATE_NORMAL));
+        }
         return null;
     }
 
@@ -217,29 +220,110 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
 
     @Override
     public Object[] getCompletionVariants(String completionPrefix, PsiElement location, ProcessingContext processingContext) {
-        Map<String, Object> names = new LinkedHashMap<>();
-        names.put(OdooPyNames.ID, new PythonLookupElement(OdooPyNames.ID, null, "int", false, null, null));
         TypeEvalContext context = TypeEvalContext.codeCompletion(location.getProject(), location.getContainingFile());
+        List<LookupElement> implicitAttributeLines = getImplicitAttributeCompletionLines(context);
+        List<Object> lines = new LinkedList<>(implicitAttributeLines);
+        Set<String> names = new HashSet<>(getImplicitAttributeNames(context));
         visitMembers(member -> {
             if (member instanceof PsiNamedElement) {
                 String name = ((PsiNamedElement) member).getName();
-                names.putIfAbsent(name, getCompletionLine((PsiNamedElement) member, context));
+                if (!names.contains(name)) {
+                    lines.add(getCompletionLine((PsiNamedElement) member, context));
+                    names.add(name);
+                }
             }
             return true;
         }, true, context);
         myClass.getDelegationChildren(context).forEach(child -> {
             child.visitClassAttributes(attr -> {
                 if (OdooPyUtils.getModelFieldType(attr, context) != null) {
-                    names.putIfAbsent(attr.getName(), getCompletionLine(attr, context));
+                    String name = attr.getName();
+                    if (!names.contains(name)) {
+                        lines.add(getCompletionLine(attr, context));
+                        names.add(name);
+                    }
                 }
                 return true;
             }, true, context);
         });
-        return names.values().toArray();
+        return lines.toArray();
+    }
+
+    public Collection<String> getImplicitAttributeNames(@NotNull TypeEvalContext context) {
+        Collection<String> result = getMagicFieldNames(context);
+        result.add(OdooPyNames.ENV);
+        result.add(OdooPyNames._CONTEXT);
+        result.add(OdooPyNames._CR);
+        result.add(OdooPyNames._UID);
+        return result;
+    }
+
+    public Collection<String> getMagicFieldNames(@NotNull TypeEvalContext context) {
+        List<String> result = new LinkedList<>();
+        result.add(OdooPyNames.ID);
+        result.add(OdooPyNames.DISPLAY_NAME);
+        if (isEnableLogAccess()) {
+            result.add(OdooPyNames.CREATE_DATE);
+            result.add(OdooPyNames.CREATE_UID);
+            result.add(OdooPyNames.WRITE_DATE);
+            result.add(OdooPyNames.WRITE_UID);
+        }
+        return result;
+    }
+
+    public Map<String, PyType> getImplicitAttributeTypes(@NotNull TypeEvalContext context) {
+        Map<String, PyType> result = new HashMap<>();
+        PsiFile file = context.getOrigin();
+        if (file != null) {
+            PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(file);
+            getImplicitAttributeNames(context).forEach(field -> {
+                switch (field) {
+                    case OdooPyNames.ID:
+                    case OdooPyNames.CREATE_UID:
+                    case OdooPyNames.WRITE_UID:
+                    case OdooPyNames._UID:
+                        result.put(field, builtinCache.getIntType());
+                        break;
+                    case OdooPyNames.DISPLAY_NAME:
+                        result.put(field, builtinCache.getStrType());
+                        break;
+                    case OdooPyNames.CREATE_DATE:
+                    case OdooPyNames.WRITE_DATE:
+                        result.put(field, OdooPyUtils.getDatetimeType(file));
+                        break;
+                    case OdooPyNames.ENV:
+                        result.put(field, OdooPyUtils.getEnvironmentType(file));
+                        break;
+                    case OdooPyNames._CONTEXT:
+                        result.put(field, OdooPyUtils.getContextType(file));
+                        break;
+                    case OdooPyNames._CR:
+                        result.put(field, OdooPyUtils.getDbCursorType(file));
+                        break;
+                }
+            });
+        }
+        return result;
+    }
+
+    private boolean isEnableLogAccess() {
+        // TODO: check _log_access
+        return true;
+    }
+
+    @NotNull
+    private List<LookupElement> getImplicitAttributeCompletionLines(@NotNull TypeEvalContext context) {
+        List<LookupElement> result = new LinkedList<>();
+        getImplicitAttributeTypes(context).forEach((name, type) -> {
+            String typeText = type != null ? type.getName() : "";
+            LookupElement line = new PythonLookupElement(name, "", typeText, false, PlatformIcons.FIELD_ICON, null);
+            result.add(line);
+        });
+        return result;
     }
 
     @Nullable
-    private PythonLookupElement getCompletionLine(@NotNull PsiNamedElement element, @NotNull TypeEvalContext context) {
+    private LookupElement getCompletionLine(@NotNull PsiNamedElement element, @NotNull TypeEvalContext context) {
         String name = element.getName();
         if (name != null) {
             String tailText = null;

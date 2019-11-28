@@ -20,8 +20,6 @@ public class OdooPyInspectionExtension extends PyInspectionExtension {
                 if (name != null) {
                     switch (name) {
                         case OdooPyNames.ENV:
-                        case OdooPyNames.ID:
-                        case OdooPyNames._IDS:
                             return true;
                     }
                 }
