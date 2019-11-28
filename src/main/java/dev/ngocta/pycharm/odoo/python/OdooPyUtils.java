@@ -12,7 +12,9 @@ import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.types.*;
 import com.sun.istack.NotNull;
 import com.sun.istack.Nullable;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelClass;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelClassType;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelInfo;
 import dev.ngocta.pycharm.odoo.python.model.OdooRecordSetType;
 
 import java.util.HashMap;
@@ -119,6 +121,18 @@ public class OdooPyUtils {
                                     String comodel = comodelExpression.getStringValue();
                                     OdooRecordSetType recordSetType = calleeName.equals(OdooPyNames.MANY2ONE) ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
                                     type = OdooModelClassType.create(comodel, recordSetType, project);
+                                } else {
+                                    PyExpression relatedExpression = callExpression.getKeywordArgument(OdooPyNames.RELATED);
+                                    if (relatedExpression instanceof PyStringLiteralExpression) {
+                                        String related = ((PyStringLiteralExpression) relatedExpression).getStringValue();
+                                        OdooModelClass modelClass = getContainingOdooModelClass(field, project);
+                                        if (modelClass != null) {
+                                            PyTargetExpression relatedField = modelClass.findFieldByPath(related, context);
+                                            if (relatedField != null) {
+                                                type = getModelFieldType(relatedField, context);
+                                            }
+                                        }
+                                    }
                                 }
                                 break;
                             case OdooPyNames.BOOLEAN:
@@ -195,6 +209,18 @@ public class OdooPyUtils {
                 if (unpackedTypeClass.isInstance(member)) {
                     return unpackedTypeClass.cast(member);
                 }
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public static OdooModelClass getContainingOdooModelClass(@NotNull PyPossibleClassMember member, @NotNull Project project) {
+        PyClass cls = member.getContainingClass();
+        if (cls != null) {
+            OdooModelInfo info = OdooModelInfo.readFromClass(cls);
+            if (info != null) {
+                return OdooModelClass.create(info.getName(), project);
             }
         }
         return null;

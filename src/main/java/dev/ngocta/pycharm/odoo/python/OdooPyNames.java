@@ -19,6 +19,7 @@ public class OdooPyNames {
     public static final String ONE2MANY = "One2many";
     public static final String MANY2MANY = "Many2many";
     public static final String COMODEL_NAME = "comodel_name";
+    public static final String RELATED = "related";
     public static final String ENV = "env";
     public static final String BROWSE = "browse";
     public static final String CREATE = "create";
