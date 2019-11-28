@@ -1,5 +1,6 @@
 package dev.ngocta.pycharm.odoo.python.model;
 
+import com.intellij.codeInsight.completion.PrioritizedLookupElement;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Iconable;
@@ -341,11 +342,16 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
                             break;
                     }
                 }
-            } else if (type != null) {
+            }
+            if (typeText == null && type != null) {
                 typeText = type.getName();
             }
-            LookupElement line = new PythonLookupElement(name, null, typeText, false, PlatformIcons.FIELD_ICON, null);
-            result.add(line);
+            double priority = 200;
+            if (OdooPyNames.ID.equals(name)) {
+                priority = 2000;
+            }
+            LookupElement lookupElement = new PythonLookupElement(name, null, typeText, false, PlatformIcons.FIELD_ICON, null);
+            result.add(PrioritizedLookupElement.withPriority(lookupElement, priority));
         });
         return result;
     }
@@ -356,6 +362,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         if (name != null) {
             String tailText = null;
             String typeText = null;
+            double priority = 100;
             if (element instanceof PyTargetExpression) {
                 OdooFieldInfo info = OdooFieldInfo.get((PyTargetExpression) element, context);
                 PyType type = OdooPyUtils.getFieldType((PyTargetExpression) element, context);
@@ -364,13 +371,16 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
                     if (type instanceof OdooModelClassType) {
                         typeText = "(" + type.getName() + ") " + typeText;
                     }
+                    priority = 1000;
                 }
             } else if (element instanceof PyFunction) {
                 List<PyCallableParameter> params = ((PyFunction) element).getParameters(context);
                 String paramsText = StringUtil.join(params, PyCallableParameter::getName, ", ");
                 tailText = "(" + paramsText + ")";
             }
-            return new PythonLookupElement(element.getName(), tailText, typeText, false, element.getIcon(Iconable.ICON_FLAG_READ_STATUS), null);
+            LookupElement lookupElement = new PythonLookupElement(element.getName(), tailText, typeText, false,
+                    element.getIcon(Iconable.ICON_FLAG_READ_STATUS), null);
+            return PrioritizedLookupElement.withPriority(lookupElement, priority);
         }
         return null;
     }

@@ -51,4 +51,5 @@ public class OdooPyNames {
     public static final String _CR = "_cr";
     public static final String _UID = "_uid";
     public static final String POOL = "pool";
+    public static final String NAME = "NAME";
 }
