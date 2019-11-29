@@ -1,11 +1,11 @@
-package dev.ngocta.pycharm.odoo.python.module;
+package dev.ngocta.pycharm.odoo.module;
 
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.jetbrains.python.psi.*;
-import dev.ngocta.pycharm.odoo.python.OdooPyNames;
+import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +34,7 @@ public class OdooModuleInfo {
 
     @Nullable
     private static OdooModuleInfo doReadFromManifest(@NotNull PsiFile file) {
-        if (!(file instanceof PyFile) || !file.getName().equals(OdooPyNames.__MANIFEST__DOT_PY)) {
+        if (!(file instanceof PyFile) || !file.getName().equals(OdooNames.__MANIFEST__DOT_PY)) {
             return null;
         }
 
@@ -49,7 +49,7 @@ public class OdooModuleInfo {
             if (key instanceof PyStringLiteralExpression) {
                 String keyName = ((PyStringLiteralExpression) key).getStringValue();
                 PyExpression value = kvExpression.getValue();
-                if (keyName.equals(OdooPyNames.DEPENDS) && value instanceof PySequenceExpression) {
+                if (keyName.equals(OdooNames.DEPENDS) && value instanceof PySequenceExpression) {
                     depends = PyUtil.strListValue(value);
                     break;
                 }

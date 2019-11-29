@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo.python.model;
+package dev.ngocta.pycharm.odoo.model;
 
 import com.intellij.openapi.util.Ref;
 import com.intellij.psi.PsiElement;

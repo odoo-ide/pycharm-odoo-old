@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo.python.module;
+package dev.ngocta.pycharm.odoo.module;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -10,7 +10,7 @@ import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import com.jetbrains.python.PythonFileType;
-import dev.ngocta.pycharm.odoo.python.OdooPyNames;
+import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +23,7 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
     private DataIndexer<String, Void, FileContent> myDataIndexer = inputData -> {
         Map<String, Void> result = new HashMap<>();
         VirtualFile file = inputData.getFile();
-        if (OdooPyNames.__MANIFEST__DOT_PY.equals(file.getName())) {
+        if (OdooNames.__MANIFEST__DOT_PY.equals(file.getName())) {
             VirtualFile dir = file.getParent();
             if (dir != null) {
                 result.put(dir.getName(), null);
@@ -116,7 +116,7 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
     }
 
     public static List<PsiDirectory> getDepends(@NotNull PsiDirectory module) {
-        PsiFile manifest = module.findFile(OdooPyNames.__MANIFEST__DOT_PY);
+        PsiFile manifest = module.findFile(OdooNames.__MANIFEST__DOT_PY);
         if (manifest != null) {
             return getDepends(manifest);
         }

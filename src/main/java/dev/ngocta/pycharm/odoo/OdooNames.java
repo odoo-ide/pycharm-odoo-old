@@ -1,6 +1,6 @@
-package dev.ngocta.pycharm.odoo.python;
+package dev.ngocta.pycharm.odoo;
 
-public class OdooPyNames {
+public class OdooNames {
     public static final String __MANIFEST__DOT_PY = "__manifest__.py";
     public static final String DEPENDS = "depends";
     public static final String _NAME = "_name";
@@ -51,5 +51,4 @@ public class OdooPyNames {
     public static final String _CR = "_cr";
     public static final String _UID = "_uid";
     public static final String POOL = "pool";
-    public static final String NAME = "NAME";
 }

@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo.python.module;
+package dev.ngocta.pycharm.odoo.module;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDirectory;

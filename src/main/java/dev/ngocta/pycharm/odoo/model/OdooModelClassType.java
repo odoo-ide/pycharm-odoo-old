@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo.python.model;
+package dev.ngocta.pycharm.odoo.model;
 
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
 import com.intellij.codeInsight.lookup.LookupElement;
@@ -25,8 +25,8 @@ import com.jetbrains.python.psi.resolve.ImplicitResolveResult;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
 import com.jetbrains.python.psi.resolve.RatedResolveResult;
 import com.jetbrains.python.psi.types.*;
-import dev.ngocta.pycharm.odoo.python.OdooPyNames;
-import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
+import dev.ngocta.pycharm.odoo.OdooNames;
+import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,6 +38,8 @@ import java.util.concurrent.ConcurrentMap;
 public class OdooModelClassType extends UserDataHolderBase implements PyCollectionType {
     private OdooModelClass myClass;
     private OdooRecordSetType myRecordSetType;
+    private static final double FIELD_PRIORITY = 2;
+    private static final double FUNCTION_PRIORITY = 1;
 
     private OdooModelClassType(@NotNull OdooModelClass source, @NotNull OdooRecordSetType recordSetType) {
         myClass = source;
@@ -126,7 +128,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         }
         TypeEvalContext context = resolveContext.getTypeEvalContext();
         for (PyClass cls : myClass.getAncestorClasses(context)) {
-            PsiElement member = OdooPyUtils.findClassMember(name, cls);
+            PsiElement member = OdooUtils.findClassMember(name, cls);
             if (member != null) {
                 if (member instanceof PyFunction) {
                     member = OdooModelFunction.wrap((PyFunction) member, this);
@@ -241,7 +243,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         }, true, context);
         myClass.getDelegationChildren(context).forEach(child -> {
             child.visitClassAttributes(attr -> {
-                if (OdooPyUtils.getFieldType(attr, context) != null) {
+                if (OdooUtils.getFieldType(attr, context) != null) {
                     String name = attr.getName();
                     if (!names.contains(name)) {
                         lines.add(getCompletionLine(attr, context));
@@ -256,23 +258,23 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
 
     public Collection<String> getImplicitAttributeNames(@NotNull TypeEvalContext context) {
         Collection<String> result = getMagicFieldNames(context);
-        result.add(OdooPyNames.ENV);
-        result.add(OdooPyNames._CONTEXT);
-        result.add(OdooPyNames._CR);
-        result.add(OdooPyNames._UID);
-        result.add(OdooPyNames.POOL);
+        result.add(OdooNames.ENV);
+        result.add(OdooNames._CONTEXT);
+        result.add(OdooNames._CR);
+        result.add(OdooNames._UID);
+        result.add(OdooNames.POOL);
         return result;
     }
 
     public Collection<String> getMagicFieldNames(@NotNull TypeEvalContext context) {
         List<String> result = new LinkedList<>();
-        result.add(OdooPyNames.ID);
-        result.add(OdooPyNames.DISPLAY_NAME);
+        result.add(OdooNames.ID);
+        result.add(OdooNames.DISPLAY_NAME);
         if (isEnableLogAccess()) {
-            result.add(OdooPyNames.CREATE_DATE);
-            result.add(OdooPyNames.CREATE_UID);
-            result.add(OdooPyNames.WRITE_DATE);
-            result.add(OdooPyNames.WRITE_UID);
+            result.add(OdooNames.CREATE_DATE);
+            result.add(OdooNames.CREATE_UID);
+            result.add(OdooNames.WRITE_DATE);
+            result.add(OdooNames.WRITE_UID);
         }
         return result;
     }
@@ -284,30 +286,30 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
             PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(file);
             getImplicitAttributeNames(context).forEach(field -> {
                 switch (field) {
-                    case OdooPyNames.ID:
-                    case OdooPyNames.CREATE_UID:
-                    case OdooPyNames.WRITE_UID:
-                    case OdooPyNames._UID:
+                    case OdooNames.ID:
+                    case OdooNames.CREATE_UID:
+                    case OdooNames.WRITE_UID:
+                    case OdooNames._UID:
                         result.put(field, builtinCache.getIntType());
                         break;
-                    case OdooPyNames.DISPLAY_NAME:
+                    case OdooNames.DISPLAY_NAME:
                         result.put(field, builtinCache.getStrType());
                         break;
-                    case OdooPyNames.CREATE_DATE:
-                    case OdooPyNames.WRITE_DATE:
-                        result.put(field, OdooPyUtils.getDatetimeType(file));
+                    case OdooNames.CREATE_DATE:
+                    case OdooNames.WRITE_DATE:
+                        result.put(field, OdooUtils.getDatetimeType(file));
                         break;
-                    case OdooPyNames.ENV:
-                        result.put(field, OdooPyUtils.getEnvironmentType(file));
+                    case OdooNames.ENV:
+                        result.put(field, OdooUtils.getEnvironmentType(file));
                         break;
-                    case OdooPyNames._CONTEXT:
-                        result.put(field, OdooPyUtils.getContextType(file));
+                    case OdooNames._CONTEXT:
+                        result.put(field, OdooUtils.getContextType(file));
                         break;
-                    case OdooPyNames._CR:
-                        result.put(field, OdooPyUtils.getDbCursorType(file));
+                    case OdooNames._CR:
+                        result.put(field, OdooUtils.getDbCursorType(file));
                         break;
-                    case OdooPyNames.POOL:
-                        result.put(field, OdooPyUtils.getClassTypeByQName(OdooPyNames.REGISTRY_QNAME, file, false));
+                    case OdooNames.POOL:
+                        result.put(field, OdooUtils.getClassTypeByQName(OdooNames.REGISTRY_QNAME, file, false));
                 }
             });
         }
@@ -329,16 +331,16 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
                 if (typeName != null) {
                     switch (typeName) {
                         case PyNames.TYPE_INT:
-                            typeText = OdooPyNames.INTEGER;
+                            typeText = OdooNames.INTEGER;
                             break;
                         case PyNames.TYPE_DATE:
-                            typeText = OdooPyNames.DATE;
+                            typeText = OdooNames.DATE;
                             break;
                         case PyNames.TYPE_DATE_TIME:
-                            typeText = OdooPyNames.DATETIME;
+                            typeText = OdooNames.DATETIME;
                             break;
                         case PyNames.TYPE_STR:
-                            typeText = OdooPyNames.CHAR;
+                            typeText = OdooNames.CHAR;
                             break;
                     }
                 }
@@ -346,12 +348,8 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
             if (typeText == null && type != null) {
                 typeText = type.getName();
             }
-            double priority = 200;
-            if (OdooPyNames.ID.equals(name)) {
-                priority = 2000;
-            }
             LookupElement lookupElement = new PythonLookupElement(name, null, typeText, false, PlatformIcons.FIELD_ICON, null);
-            result.add(PrioritizedLookupElement.withPriority(lookupElement, priority));
+            result.add(PrioritizedLookupElement.withPriority(lookupElement, FIELD_PRIORITY));
         });
         return result;
     }
@@ -362,21 +360,22 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         if (name != null) {
             String tailText = null;
             String typeText = null;
-            double priority = 100;
+            double priority = 0;
             if (element instanceof PyTargetExpression) {
                 OdooFieldInfo info = OdooFieldInfo.get((PyTargetExpression) element, context);
-                PyType type = OdooPyUtils.getFieldType((PyTargetExpression) element, context);
+                PyType type = OdooUtils.getFieldType((PyTargetExpression) element, context);
                 if (info != null) {
                     typeText = info.getClassName();
                     if (type instanceof OdooModelClassType) {
                         typeText = "(" + type.getName() + ") " + typeText;
                     }
-                    priority = 1000;
+                    priority = FIELD_PRIORITY;
                 }
             } else if (element instanceof PyFunction) {
                 List<PyCallableParameter> params = ((PyFunction) element).getParameters(context);
                 String paramsText = StringUtil.join(params, PyCallableParameter::getName, ", ");
                 tailText = "(" + paramsText + ")";
+                priority = FUNCTION_PRIORITY;
             }
             LookupElement lookupElement = new PythonLookupElement(element.getName(), tailText, typeText, false,
                     element.getIcon(Iconable.ICON_FLAG_READ_STATUS), null);
@@ -446,7 +445,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         }
         PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(file);
         PyType intType = builtinCache.getIntType();
-        boolean toId = OdooPyNames.ID.equals(fieldNames.get(fieldNames.size() - 1));
+        boolean toId = OdooNames.ID.equals(fieldNames.get(fieldNames.size() - 1));
         if (toId) {
             fieldNames = fieldNames.subList(0, fieldNames.size() - 1);
             if (fieldNames.isEmpty()) {
@@ -455,7 +454,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         }
         PyTargetExpression field = myClass.findFieldByPath(fieldNames, context);
         if (field != null) {
-            PyType fieldType = OdooPyUtils.getFieldType(field, context);
+            PyType fieldType = OdooUtils.getFieldType(field, context);
             if (toId) {
                 if (fieldType instanceof OdooModelClassType) {
                     return intType;

@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo.python.model;
+package dev.ngocta.pycharm.odoo.model;
 
 import com.jetbrains.python.PyNames;
 import com.jetbrains.python.psi.*;
@@ -7,7 +7,7 @@ import com.jetbrains.python.psi.impl.PyFunctionImpl;
 import com.jetbrains.python.psi.types.PyCollectionTypeImpl;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
-import dev.ngocta.pycharm.odoo.python.OdooPyNames;
+import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,15 +20,15 @@ public class OdooModelFunction {
             switch (name) {
                 case PyNames.GETITEM:
                 case PyNames.ITER:
-                case OdooPyNames.BROWSE:
-                case OdooPyNames.CREATE:
-                case OdooPyNames.SUDO:
-                case OdooPyNames.MAPPED:
-                case OdooPyNames.FILTERED:
-                case OdooPyNames.SORTED:
-                case OdooPyNames.SEARCH:
-                case OdooPyNames.WITH_CONTEXT:
-                case OdooPyNames.WITH_ENV:
+                case OdooNames.BROWSE:
+                case OdooNames.CREATE:
+                case OdooNames.SUDO:
+                case OdooNames.MAPPED:
+                case OdooNames.FILTERED:
+                case OdooNames.SORTED:
+                case OdooNames.SEARCH:
+                case OdooNames.WITH_CONTEXT:
+                case OdooNames.WITH_ENV:
                     return new Wrapper(origin, modelClassType);
             }
         }
@@ -53,7 +53,7 @@ public class OdooModelFunction {
         @Override
         public PyType getCallType(@NotNull TypeEvalContext context, @NotNull PyCallSiteExpression callSite) {
             String name = getName();
-            if (OdooPyNames.MAPPED.equals(name) && callSite instanceof PyCallExpression) {
+            if (OdooNames.MAPPED.equals(name) && callSite instanceof PyCallExpression) {
                 return getMappedType(((PyCallExpression) callSite), context);
             } else if (PyNames.GETITEM.equals(name) && callSite instanceof PySubscriptionExpression) {
                 return getItemType((PySubscriptionExpression) callSite, context);

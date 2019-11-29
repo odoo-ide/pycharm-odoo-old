@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo.python.model;
+package dev.ngocta.pycharm.odoo.model;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Ref;
@@ -11,8 +11,8 @@ import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.PyTypeProviderBase;
 import com.jetbrains.python.psi.types.PyUnionType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
-import dev.ngocta.pycharm.odoo.python.OdooPyNames;
-import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
+import dev.ngocta.pycharm.odoo.OdooNames;
+import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,14 +51,14 @@ public class OdooEnvAttributeTypeProvider extends PyTypeProviderBase {
             PyType qualifierType = context.getType(qualifier);
             PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(referenceExpression);
             if (isEnvironmentType(qualifierType, referenceExpression)) {
-                if (OdooPyNames.USER.equals(referenceName)) {
-                    return OdooModelClassType.create(OdooPyNames.RES_USERS, OdooRecordSetType.MODEL, project);
-                } else if (OdooPyNames.CONTEXT.equals(referenceName)) {
-                    return OdooPyUtils.getContextType(referenceExpression);
-                } else if (OdooPyNames.UID.equals(referenceName)) {
+                if (OdooNames.USER.equals(referenceName)) {
+                    return OdooModelClassType.create(OdooNames.RES_USERS, OdooRecordSetType.MODEL, project);
+                } else if (OdooNames.CONTEXT.equals(referenceName)) {
+                    return OdooUtils.getContextType(referenceExpression);
+                } else if (OdooNames.UID.equals(referenceName)) {
                     return builtinCache.getIntType();
-                } else if (OdooPyNames.CR.equals(referenceName)) {
-                    return OdooPyUtils.getDbCursorType(referenceExpression);
+                } else if (OdooNames.CR.equals(referenceName)) {
+                    return OdooUtils.getDbCursorType(referenceExpression);
                 }
             }
         }
@@ -76,7 +76,7 @@ public class OdooEnvAttributeTypeProvider extends PyTypeProviderBase {
             candidateTypes = Collections.singleton(type);
         }
         return candidateTypes.stream().anyMatch(candidate -> {
-            return candidate != null && candidate.equals(OdooPyUtils.getEnvironmentType(anchor));
+            return candidate != null && candidate.equals(OdooUtils.getEnvironmentType(anchor));
         });
     }
 }

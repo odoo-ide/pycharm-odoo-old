@@ -16,19 +16,19 @@
 
     <extensions defaultExtensionNs="Pythonid">
         <!-- Add your extensions here -->
-        <importResolver implementation="dev.ngocta.pycharm.odoo.python.module.OdooAddonsImportResolver"/>
-        <pyModuleMembersProvider implementation="dev.ngocta.pycharm.odoo.python.module.OdooAddonsMembersProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelAttributeTypeProvider" order="first"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooEnvAttributeTypeProvider" order="first"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelFunctionSelfTypeProvider" order="first"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelFunctionCreateTypeProvider" order="first"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelFunctionFilteredTypeProvider" order="first"/>
-        <inspectionExtension implementation="dev.ngocta.pycharm.odoo.python.OdooPyInspectionExtension"/>
+        <importResolver implementation="dev.ngocta.pycharm.odoo.module.OdooAddonsImportResolver"/>
+        <pyModuleMembersProvider implementation="dev.ngocta.pycharm.odoo.module.OdooAddonsMembersProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelAttributeTypeProvider" order="first"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooEnvAttributeTypeProvider" order="first"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelFunctionSelfTypeProvider" order="first"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelFunctionCreateTypeProvider" order="first"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelFunctionFilteredTypeProvider" order="first"/>
+        <inspectionExtension implementation="dev.ngocta.pycharm.odoo.OdooInspectionExtension"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.python.module.OdooModuleIndex"/>
-        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelIndex"/>
+        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.module.OdooModuleIndex"/>
+        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.model.OdooModelIndex"/>
     </extensions>
     <actions>
         <!-- Add your actions here -->

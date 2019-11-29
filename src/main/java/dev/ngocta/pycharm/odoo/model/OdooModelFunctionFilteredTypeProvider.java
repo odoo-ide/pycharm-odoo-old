@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo.python.model;
+package dev.ngocta.pycharm.odoo.model;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiPolyVariantReference;
@@ -7,7 +7,7 @@ import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.PyTypeProviderBase;
 import com.jetbrains.python.psi.types.TypeEvalContext;
-import dev.ngocta.pycharm.odoo.python.OdooPyNames;
+import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +27,7 @@ public class OdooModelFunctionFilteredTypeProvider extends PyTypeProviderBase {
                         if (parent != null) {
                             PyExpression callee = ((PyCallExpression) parent).getCallee();
                             if (callee instanceof PyReferenceExpression) {
-                                if (OdooPyNames.FILTERED.equals(callee.getName())) {
+                                if (OdooNames.FILTERED.equals(callee.getName())) {
                                     PyExpression qualifier = ((PyReferenceExpression) callee).getQualifier();
                                     if (qualifier != null) {
                                         PyType qualifierType = context.getType(qualifier);

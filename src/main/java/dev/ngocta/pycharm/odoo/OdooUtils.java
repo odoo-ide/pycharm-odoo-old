@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo.python;
+package dev.ngocta.pycharm.odoo;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ModificationTracker;
@@ -12,19 +12,19 @@ import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.types.*;
 import com.sun.istack.NotNull;
 import com.sun.istack.Nullable;
-import dev.ngocta.pycharm.odoo.python.model.*;
+import dev.ngocta.pycharm.odoo.model.*;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class OdooPyUtils {
+public class OdooUtils {
     @Nullable
     public static VirtualFile getOdooModuleDir(@NotNull VirtualFile file) {
         VirtualFile cur = file;
         while (cur != null) {
-            if (cur.findChild(OdooPyNames.__MANIFEST__DOT_PY) != null) {
+            if (cur.findChild(OdooNames.__MANIFEST__DOT_PY) != null) {
                 return cur;
             }
             cur = cur.getParent();
@@ -105,11 +105,11 @@ public class OdooPyUtils {
         Project project = field.getProject();
         PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(field);
         switch (info.getClassName()) {
-            case OdooPyNames.MANY2ONE:
-            case OdooPyNames.ONE2MANY:
-            case OdooPyNames.MANY2MANY:
+            case OdooNames.MANY2ONE:
+            case OdooNames.ONE2MANY:
+            case OdooNames.MANY2MANY:
                 if (info.getComodel() != null) {
-                    OdooRecordSetType recordSetType = OdooPyNames.MANY2ONE.equals(info.getClassName()) ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
+                    OdooRecordSetType recordSetType = OdooNames.MANY2ONE.equals(info.getClassName()) ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
                     return OdooModelClassType.create(info.getComodel(), recordSetType, project);
                 } else if (info.getRelated() != null) {
                     OdooModelClass modelClass = getContainingOdooModelClass(field, project);
@@ -121,20 +121,20 @@ public class OdooPyUtils {
                     }
                 }
                 return null;
-            case OdooPyNames.BOOLEAN:
+            case OdooNames.BOOLEAN:
                 return builtinCache.getBoolType();
-            case OdooPyNames.INTEGER:
+            case OdooNames.INTEGER:
                 return builtinCache.getIntType();
-            case OdooPyNames.FLOAT:
-            case OdooPyNames.MONETARY:
+            case OdooNames.FLOAT:
+            case OdooNames.MONETARY:
                 return builtinCache.getFloatType();
-            case OdooPyNames.CHAR:
-            case OdooPyNames.TEXT:
-            case OdooPyNames.SELECTION:
+            case OdooNames.CHAR:
+            case OdooNames.TEXT:
+            case OdooNames.SELECTION:
                 return builtinCache.getStrType();
-            case OdooPyNames.DATE:
+            case OdooNames.DATE:
                 return getDateType(field);
-            case OdooPyNames.DATETIME:
+            case OdooNames.DATETIME:
                 return getDatetimeType(field);
             default:
                 return null;
@@ -143,7 +143,7 @@ public class OdooPyUtils {
 
     @Nullable
     public static PyClassType getClassTypeByQName(@NotNull String name, @NotNull PsiElement anchor, boolean isDefinition) {
-        PyClass cls = OdooPyUtils.getClassByQName(name, anchor);
+        PyClass cls = OdooUtils.getClassByQName(name, anchor);
         if (cls != null) {
             return new PyClassTypeImpl(cls, isDefinition);
         }
@@ -162,7 +162,7 @@ public class OdooPyUtils {
 
     @Nullable
     public static PyClassType getEnvironmentType(@NotNull PsiElement anchor) {
-        return getClassTypeByQName(OdooPyNames.ENVIRONMENT_QNAME, anchor, false);
+        return getClassTypeByQName(OdooNames.ENVIRONMENT_QNAME, anchor, false);
     }
 
     @NotNull
@@ -173,7 +173,7 @@ public class OdooPyUtils {
 
     @Nullable
     public static PyClassType getDbCursorType(@NotNull PsiElement anchor) {
-        return getClassTypeByQName(OdooPyNames.DB_CURSOR_QNAME, anchor, false);
+        return getClassTypeByQName(OdooNames.DB_CURSOR_QNAME, anchor, false);
     }
 
     @Nullable

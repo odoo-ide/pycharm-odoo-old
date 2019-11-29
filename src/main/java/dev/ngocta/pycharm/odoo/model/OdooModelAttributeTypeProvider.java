@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo.python.model;
+package dev.ngocta.pycharm.odoo.model;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiPolyVariantReference;
@@ -8,7 +8,7 @@ import com.jetbrains.python.psi.PyTargetExpression;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.PyTypeProviderBase;
 import com.jetbrains.python.psi.types.TypeEvalContext;
-import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
+import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,14 +20,14 @@ public class OdooModelAttributeTypeProvider extends PyTypeProviderBase {
         PyExpression qualifier = referenceExpression.getQualifier();
         if (qualifier != null) {
             PyType qualifierType = context.getType(qualifier);
-            OdooModelClassType modelType = OdooPyUtils.unpackType(qualifierType, OdooModelClassType.class);
+            OdooModelClassType modelType = OdooUtils.unpackType(qualifierType, OdooModelClassType.class);
             if (modelType != null) {
                 PyType type = modelType.getImplicitAttributeTypes(context).get(referenceName);
                 if (type == null) {
                     PsiPolyVariantReference variantReference = referenceExpression.getReference();
                     PsiElement psiElement = variantReference.resolve();
                     if (psiElement instanceof PyTargetExpression) {
-                        type = OdooPyUtils.getFieldType((PyTargetExpression) psiElement, context);
+                        type = OdooUtils.getFieldType((PyTargetExpression) psiElement, context);
                     }
                 }
                 return type;
