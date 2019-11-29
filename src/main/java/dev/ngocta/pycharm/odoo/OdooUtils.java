@@ -110,7 +110,7 @@ public class OdooUtils {
             case OdooNames.MANY2MANY:
                 if (info.getComodel() != null) {
                     OdooRecordSetType recordSetType = OdooNames.MANY2ONE.equals(info.getClassName()) ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
-                    return OdooModelClassType.create(info.getComodel(), recordSetType, project);
+                    return new OdooModelClassType(info.getComodel(), recordSetType, project);
                 } else if (info.getRelated() != null) {
                     OdooModelClass modelClass = getContainingOdooModelClass(field, project);
                     if (modelClass != null) {

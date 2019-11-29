@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentMap;
 public class OdooModelIndex extends ScalarIndexExtension<String> {
     public static final @NotNull ID<String, Void> NAME = ID.create("odoo.model");
 
-    private DataIndexer<String, Void, FileContent> myDataIndexer = inputData -> {
+    private final DataIndexer<String, Void, FileContent> myDataIndexer = inputData -> {
         Map<String, Void> result = new HashMap<>();
         VirtualFile virtualFile = inputData.getFile();
         PsiFile psiFile = PsiManager.getInstance(inputData.getProject()).findFile(virtualFile);

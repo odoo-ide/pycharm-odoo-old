@@ -18,6 +18,7 @@ public class OdooModelFunctionCreateTypeProvider extends PyTypeProviderBase {
     @Override
     public Ref<PyType> getParameterType(@NotNull PyNamedParameter param, @NotNull PyFunction function, @NotNull TypeEvalContext context) {
         if (OdooNames.CREATE.equals(function.getName())) {
+            // TODO: check decorator
             PyClass cls = function.getContainingClass();
             PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(cls);
             if (cls != null && (OdooNames.BASE_MODEL_QNAME.equals(cls.getQualifiedName()) || OdooModelInfo.readFromClass(cls) != null)) {

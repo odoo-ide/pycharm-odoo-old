@@ -33,8 +33,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class OdooModelClass extends PsiElementBase implements PyClass {
-    private String myName;
-    private Project myProject;
+    private final String myName;
+    private final Project myProject;
 
     private OdooModelClass(@NotNull String name, @NotNull Project project) {
         myName = name;
@@ -91,7 +91,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @NotNull
     @Override
     public List<PyClassLikeType> getSuperClassTypes(@NotNull TypeEvalContext context) {
-        return OdooModelClassType.create(this, OdooRecordSetType.NONE).getSuperClassTypes(context);
+        return new OdooModelClassType(this, OdooRecordSetType.NONE).getSuperClassTypes(context);
     }
 
     @NotNull
@@ -370,7 +370,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @Nullable
     @Override
     public OdooModelClassType getType(@NotNull TypeEvalContext context) {
-        return OdooModelClassType.create(this, OdooRecordSetType.NONE);
+        return new OdooModelClassType(this, OdooRecordSetType.NONE);
     }
 
     @Nullable
@@ -511,7 +511,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @NotNull
     @Override
     public List<PyClassLikeType> getAncestorTypes(@NotNull TypeEvalContext context) {
-        return OdooModelClassType.create(myName, OdooRecordSetType.NONE, myProject).getAncestorTypes(context);
+        return new OdooModelClassType(myName, OdooRecordSetType.NONE, myProject).getAncestorTypes(context);
     }
 
     @NotNull

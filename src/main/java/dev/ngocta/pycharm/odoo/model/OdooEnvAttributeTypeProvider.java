@@ -33,7 +33,7 @@ public class OdooEnvAttributeTypeProvider extends PyTypeProviderBase {
                 PyExpression index = subscription.getIndexExpression();
                 if (index instanceof PyLiteralExpression) {
                     String model = ((PyStringLiteralExpressionImpl) index).getStringValue();
-                    OdooModelClassType modelClassType = OdooModelClassType.create(model, OdooRecordSetType.MODEL, project);
+                    OdooModelClassType modelClassType = new OdooModelClassType(model, OdooRecordSetType.MODEL, project);
                     return Ref.create(modelClassType);
                 }
             }
@@ -52,7 +52,7 @@ public class OdooEnvAttributeTypeProvider extends PyTypeProviderBase {
             PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(referenceExpression);
             if (isEnvironmentType(qualifierType, referenceExpression)) {
                 if (OdooNames.USER.equals(referenceName)) {
-                    return OdooModelClassType.create(OdooNames.RES_USERS, OdooRecordSetType.MODEL, project);
+                    return new OdooModelClassType(OdooNames.RES_USERS, OdooRecordSetType.MODEL, project);
                 } else if (OdooNames.CONTEXT.equals(referenceName)) {
                     return OdooUtils.getContextType(referenceExpression);
                 } else if (OdooNames.UID.equals(referenceName)) {

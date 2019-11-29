@@ -36,7 +36,7 @@ public class OdooModelFunction {
     }
 
     public static class Wrapper extends PyFunctionImpl {
-        OdooModelClassType myModelClassType;
+        final OdooModelClassType myModelClassType;
 
         private Wrapper(@NotNull PyFunction origin, @NotNull OdooModelClassType modelClassType) {
             super(origin.getNode());
