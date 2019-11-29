@@ -29,6 +29,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.module.OdooModuleIndex"/>
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.model.OdooModelIndex"/>
+        <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.model.OdooComputeFunctionReferenceContributor" language="Python"/>
     </extensions>
     <actions>
         <!-- Add your actions here -->
