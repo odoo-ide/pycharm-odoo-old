@@ -18,6 +18,6 @@ public class OdooComputeFunctionReferenceContributor extends PsiReferenceContrib
 
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
-        registrar.registerReferenceProvider(COMPUTE_STRING_PATTERN, new OdooComputeFunctionProvider());
+        registrar.registerReferenceProvider(COMPUTE_STRING_PATTERN, new OdooComputeFunctionReferenceProvider());
     }
 }
