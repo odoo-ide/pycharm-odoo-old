@@ -24,7 +24,6 @@ import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.OdooUtils;
-import dev.ngocta.pycharm.odoo.module.OdooModuleIndex;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -113,27 +112,22 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
             if (module == null) {
                 return classes;
             }
-            List<PyClass> classList = new LinkedList<>();
-            List<PsiDirectory> modules = OdooModuleIndex.getFlattenedDependsGraph(module);
+            List<PyClass> modelClasses = OdooModelIndex.findModelClasses(getName(), module, true);
             List<String> superModels = new LinkedList<>();
-            modules.forEach(mod -> {
-                List<PyClass> modelClasses = OdooModelIndex.findModelClasses(getName(), mod);
-                modelClasses.forEach(modelClass -> {
-                    classList.add(modelClass);
-                    OdooModelInfo info = OdooModelInfo.readFromClass(modelClass);
-                    if (info != null) {
-                        info.getInherit().forEach(inherit -> {
-                            if (!inherit.equals(getName())) {
-                                superModels.add(0, inherit);
-                            }
-                        });
-                    }
-                });
+            modelClasses.forEach(modelClass -> {
+                OdooModelInfo info = OdooModelInfo.readFromClass(modelClass);
+                if (info != null) {
+                    info.getInherit().forEach(inherit -> {
+                        if (!inherit.equals(getName())) {
+                            superModels.add(0, inherit);
+                        }
+                    });
+                }
             });
             superModels.stream().distinct().forEach(model -> {
-                classList.add(OdooModelClass.create(model, myProject));
+                modelClasses.add(OdooModelClass.create(model, myProject));
             });
-            return classList.toArray(classes);
+            return modelClasses.toArray(classes);
         });
     }
 
