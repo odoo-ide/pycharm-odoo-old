@@ -134,4 +134,10 @@ public class OdooModelIndex extends ScalarIndexExtension<String> {
         }
         return Collections.emptyList();
     }
+
+    @NotNull
+    public static Collection<String> getAllModels(@NotNull Project project) {
+        FileBasedIndex index = FileBasedIndex.getInstance();
+        return new HashSet<>(index.getAllKeys(NAME, project));
+    }
 }

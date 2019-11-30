@@ -35,4 +35,10 @@ public class OdooModelNameReference extends PsiReferenceBase<PyStringLiteralExpr
     public PsiElement resolve() {
         return null;
     }
+
+    @NotNull
+    @Override
+    public Object[] getVariants() {
+        return OdooModelIndex.getAllModels(getElement().getProject()).toArray();
+    }
 }
