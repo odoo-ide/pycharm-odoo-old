@@ -3,6 +3,7 @@ package dev.ngocta.pycharm.odoo.model;
 import com.intellij.psi.*;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyStringLiteralExpression;
+import com.jetbrains.python.psi.PyUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,9 +19,15 @@ public class OdooModelNameReference extends PsiReferenceBase<PyStringLiteralExpr
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
         String model = getElement().getStringValue();
-        List<PyClass> targets = OdooModelIndex.findModelClasses(model, getElement(), true);
-        Collections.reverse(targets);
-        return PsiElementResolveResult.createResults(targets);
+        PsiFile file = getElement().getContainingFile();
+        if (file != null) {
+            return PyUtil.getParameterizedCachedValue(file, model, modelArg -> {
+                List<PyClass> targets = OdooModelIndex.findModelClasses(modelArg, getElement(), true);
+                Collections.reverse(targets);
+                return PsiElementResolveResult.createResults(targets);
+            });
+        }
+        return new ResolveResult[0];
     }
 
     @Nullable
