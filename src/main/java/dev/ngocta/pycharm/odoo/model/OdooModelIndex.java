@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 public class OdooModelIndex extends ScalarIndexExtension<String> {
     public static final @NotNull ID<String, Void> NAME = ID.create("odoo.model");
@@ -111,6 +112,7 @@ public class OdooModelIndex extends ScalarIndexExtension<String> {
         return result;
     }
 
+    @NotNull
     public static List<PyClass> findModelClasses(@NotNull String model, @NotNull PsiDirectory module, boolean includeDependModules) {
         Project project = module.getProject();
         if (includeDependModules) {
@@ -136,8 +138,24 @@ public class OdooModelIndex extends ScalarIndexExtension<String> {
     }
 
     @NotNull
-    public static Collection<String> getAllModels(@NotNull Project project) {
+    public static Set<String> getAllModels(@NotNull GlobalSearchScope scope) {
         FileBasedIndex index = FileBasedIndex.getInstance();
-        return new HashSet<>(index.getAllKeys(NAME, project));
+        Set<String> result = new HashSet<>();
+        index.processAllKeys(NAME, model -> {
+            result.add(model);
+            return true;
+        }, scope, null);
+        return result;
+    }
+
+    @NotNull
+    public static Set<String> getAllModels(@NotNull PsiElement anchor) {
+        PsiDirectory module = OdooUtils.getOdooModuleDir(anchor);
+        if (module != null) {
+            List<PsiDirectory> modules = OdooModuleIndex.getFlattenedDependsGraph(module);
+            VirtualFile[] files = modules.stream().map(PsiDirectory::getVirtualFile).collect(Collectors.toList()).toArray(VirtualFile.EMPTY_ARRAY);
+            return getAllModels(GlobalSearchScopesCore.directoriesScope(anchor.getProject(), true, files));
+        }
+        return Collections.emptySet();
     }
 }

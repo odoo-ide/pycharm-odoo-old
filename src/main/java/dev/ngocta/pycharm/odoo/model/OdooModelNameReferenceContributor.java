@@ -7,6 +7,7 @@ import com.intellij.psi.PsiReferenceContributor;
 import com.intellij.psi.PsiReferenceRegistrar;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
+import com.jetbrains.python.PyTokenTypes;
 import com.jetbrains.python.psi.*;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
@@ -36,8 +37,32 @@ public class OdooModelNameReferenceContributor extends PsiReferenceContributor {
                 }
             });
 
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> INHERIT_PATTERN =
+            psiElement(PyStringLiteralExpression.class).afterSiblingSkipping(
+                    psiElement().withElementType(PyTokenTypes.EQ),
+                    psiElement(PyTargetExpression.class).withName(OdooNames._INHERIT));
+
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> INHERIT_LIST_PATTERN =
+            psiElement(PyStringLiteralExpression.class).withParent(
+                    psiElement(PyListLiteralExpression.class).afterSiblingSkipping(
+                            psiElement().withElementType(PyTokenTypes.EQ),
+                            psiElement(PyTargetExpression.class).withName(OdooNames._INHERIT)));
+
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> ENV_PATTERN =
+            psiElement(PyStringLiteralExpression.class).withParent(PySubscriptionExpression.class).afterSiblingSkipping(
+                    psiElement().withElementType(PyTokenTypes.LBRACE),
+                    psiElement(PyReferenceExpression.class).with(new PatternCondition<PyReferenceExpression>("env") {
+                        @Override
+                        public boolean accepts(@NotNull PyReferenceExpression pyReferenceExpression, ProcessingContext context) {
+                            return OdooNames.ENV.equals(pyReferenceExpression.getName());
+                        }
+                    }));
+
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
+        registrar.registerReferenceProvider(INHERIT_PATTERN, new OdooModelNameInheritReferenceProvider());
+        registrar.registerReferenceProvider(INHERIT_LIST_PATTERN, new OdooModelNameInheritReferenceProvider());
         registrar.registerReferenceProvider(COMODEL_NAME_PATTERN, new OdooModelNameReferenceProvider());
+        registrar.registerReferenceProvider(ENV_PATTERN, new OdooModelNameReferenceProvider());
     }
 }

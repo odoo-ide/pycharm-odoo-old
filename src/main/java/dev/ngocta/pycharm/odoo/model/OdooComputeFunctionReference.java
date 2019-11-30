@@ -21,8 +21,18 @@ public class OdooComputeFunctionReference extends PsiReferenceBase<PyStringLiter
         PyClass cls = PsiTreeUtil.getParentOfType(getElement(), PyClass.class);
         if (cls != null) {
             TypeEvalContext context = TypeEvalContext.codeAnalysis(getElement().getProject(), getElement().getContainingFile());
-            return cls.findMethodByName(getElement().getStringValue(), false, context);
+            return cls.findMethodByName(getValue(), false, context);
         }
         return null;
+    }
+
+    @NotNull
+    @Override
+    public Object[] getVariants() {
+        PyClass cls = PsiTreeUtil.getParentOfType(getElement(), PyClass.class);
+        if (cls != null) {
+            return cls.getMethods();
+        }
+        return new Object[0];
     }
 }

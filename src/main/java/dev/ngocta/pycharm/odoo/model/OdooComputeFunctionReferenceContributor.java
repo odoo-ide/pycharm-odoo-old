@@ -13,7 +13,7 @@ import static com.intellij.patterns.PlatformPatterns.psiElement;
 public class OdooComputeFunctionReferenceContributor extends PsiReferenceContributor {
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> COMPUTE_STRING_PATTERN =
             psiElement(PyStringLiteralExpression.class).withParent(
-                    psiElement(PyKeywordArgument.class).withName(OdooNames.COMPUTE));
+                    psiElement(PyKeywordArgument.class).withName(OdooNames.COMPUTE, OdooNames.INVERSE, OdooNames.SEARCH));
 
 
     @Override

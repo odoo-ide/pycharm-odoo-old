@@ -36,7 +36,7 @@ public class OdooUtils {
     public static PsiDirectory getOdooModuleDir(@NotNull PsiElement element) {
         PsiFile file = element.getContainingFile();
         if (file != null) {
-            VirtualFile virtualFile = getOdooModuleDir(file.getVirtualFile());
+            VirtualFile virtualFile = getOdooModuleDir(file.getOriginalFile().getVirtualFile());
             if (virtualFile != null) {
                 return PsiManager.getInstance(element.getProject()).findDirectory(virtualFile);
             }

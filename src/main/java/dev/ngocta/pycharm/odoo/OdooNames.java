@@ -51,4 +51,5 @@ public class OdooNames {
     public static final String _UID = "_uid";
     public static final String POOL = "pool";
     public static final String COMPUTE = "compute";
+    public static final String INVERSE = "inverse";
 }

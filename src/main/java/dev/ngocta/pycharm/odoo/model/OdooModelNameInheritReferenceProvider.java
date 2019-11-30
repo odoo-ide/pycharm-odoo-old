@@ -9,12 +9,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 
-public class OdooModelNameReferenceProvider extends PsiReferenceProvider {
+public class OdooModelNameInheritReferenceProvider extends PsiReferenceProvider {
     @NotNull
     @Override
     public PsiReference[] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
         if (element instanceof PyStringLiteralExpression) {
-            PsiReference ref = new OdooModelNameReference(element);
+            PsiReference ref = new OdooModelNameInheritReference(element);
             return Collections.singletonList(ref).toArray(PsiReference.EMPTY_ARRAY);
         }
         return new PsiReference[0];
