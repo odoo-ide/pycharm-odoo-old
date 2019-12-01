@@ -53,5 +53,6 @@ public class OdooNames {
     public static final String MODEL_CR = "_cr";
     public static final String MODEL_UID = "_uid";
     public static final String MODEL_POOL = "pool";
+    public static final String MODEL_FIELDS = "_fields";
     public static final String MODULE_BASE = "base";
 }

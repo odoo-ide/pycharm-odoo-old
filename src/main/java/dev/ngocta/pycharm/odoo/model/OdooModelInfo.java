@@ -82,6 +82,9 @@ public class OdooModelInfo {
             PyExpression valueExpr = nameExpr.findAssignedValue();
             if (valueExpr instanceof PyStringLiteralExpression) {
                 model = ((PyStringLiteralExpression) valueExpr).getStringValue();
+                if (model.isEmpty()) {
+                    return null;
+                }
             }
         }
         PyTargetExpression inheritExpr = pyClass.findClassAttribute(OdooNames.MODEL_INHERIT, false, null);
