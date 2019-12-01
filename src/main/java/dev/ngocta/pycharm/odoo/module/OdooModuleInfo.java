@@ -34,7 +34,7 @@ public class OdooModuleInfo {
 
     @Nullable
     private static OdooModuleInfo doReadFromManifest(@NotNull PsiFile file) {
-        if (!(file instanceof PyFile) || !file.getName().equals(OdooNames.__MANIFEST__DOT_PY)) {
+        if (!(file instanceof PyFile) || !file.getName().equals(OdooNames.MANIFEST)) {
             return null;
         }
 

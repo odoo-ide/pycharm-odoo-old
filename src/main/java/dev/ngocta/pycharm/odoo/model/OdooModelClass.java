@@ -5,7 +5,6 @@ import com.intellij.lang.Language;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
@@ -108,11 +107,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
             if (file == null) {
                 return classes;
             }
-            PsiDirectory module = OdooUtils.getOdooModuleDir(file);
-            if (module == null) {
-                return classes;
-            }
-            List<PyClass> modelClasses = OdooModelIndex.findModelClasses(getName(), module, true);
+            List<PyClass> modelClasses = OdooModelIndex.findModelClasses(getName(), file, true);
             List<String> superModels = new LinkedList<>();
             modelClasses.forEach(modelClass -> {
                 OdooModelInfo info = OdooModelInfo.readFromClass(modelClass);

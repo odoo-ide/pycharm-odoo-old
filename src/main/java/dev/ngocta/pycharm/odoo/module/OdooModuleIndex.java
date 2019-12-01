@@ -23,7 +23,7 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
     private DataIndexer<String, Void, FileContent> myDataIndexer = inputData -> {
         Map<String, Void> result = new HashMap<>();
         VirtualFile file = inputData.getFile();
-        if (OdooNames.__MANIFEST__DOT_PY.equals(file.getName())) {
+        if (OdooNames.MANIFEST.equals(file.getName())) {
             VirtualFile dir = file.getParent();
             if (dir != null) {
                 result.put(dir.getName(), null);
@@ -116,7 +116,7 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
     }
 
     public static List<PsiDirectory> getDepends(@NotNull PsiDirectory module) {
-        PsiFile manifest = module.findFile(OdooNames.__MANIFEST__DOT_PY);
+        PsiFile manifest = module.findFile(OdooNames.MANIFEST);
         if (manifest != null) {
             return getDepends(manifest);
         }

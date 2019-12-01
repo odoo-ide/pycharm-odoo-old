@@ -17,6 +17,7 @@ import com.jetbrains.python.PythonFileType;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyFile;
 import com.jetbrains.python.psi.PyUtil;
+import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.OdooUtils;
 import dev.ngocta.pycharm.odoo.module.OdooModuleIndex;
 import org.jetbrains.annotations.NotNull;
@@ -131,6 +132,9 @@ public class OdooModelIndex extends ScalarIndexExtension<String> {
     @NotNull
     public static List<PyClass> findModelClasses(@NotNull String model, @NotNull PsiElement anchor, boolean includeDependModules) {
         PsiDirectory module = OdooUtils.getOdooModuleDir(anchor);
+        if (module == null) {
+            module = OdooModuleIndex.getModule(OdooNames.MODULE_BASE, anchor.getProject());
+        }
         if (module != null) {
             return findModelClasses(model, module, includeDependModules);
         }

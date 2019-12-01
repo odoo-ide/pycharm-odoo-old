@@ -22,7 +22,7 @@
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooEnvAttributeTypeProvider" order="first"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelFunctionSelfTypeProvider" order="first"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelFunctionCreateTypeProvider" order="first"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelFunctionFilteredTypeProvider" order="first"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelFunctionLambdaTypeProvider" order="first"/>
         <inspectionExtension implementation="dev.ngocta.pycharm.odoo.OdooInspectionExtension"/>
     </extensions>
 

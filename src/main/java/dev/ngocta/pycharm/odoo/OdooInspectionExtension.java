@@ -17,12 +17,7 @@ public class OdooInspectionExtension extends PyInspectionExtension {
             PyExpression qualifier = ((PyQualifiedExpression) node).getQualifier();
             if (qualifier != null && context.getType(qualifier) instanceof OdooModelClassType) {
                 String name = node.getName();
-                if (name != null) {
-                    switch (name) {
-                        case OdooNames.ENV:
-                            return true;
-                    }
-                }
+                return OdooNames.ENV.equals(name);
             }
         }
         return false;
@@ -31,6 +26,6 @@ public class OdooInspectionExtension extends PyInspectionExtension {
     @Override
     public boolean ignoreNoEffectStatement(@NotNull PyExpressionStatement expressionStatement) {
         PsiFile file = expressionStatement.getContainingFile();
-        return file != null && OdooNames.__MANIFEST__DOT_PY.equals(file.getName());
+        return file != null && OdooNames.MANIFEST.equals(file.getName());
     }
 }

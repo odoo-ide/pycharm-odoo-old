@@ -5,9 +5,11 @@ import com.intellij.psi.PsiPolyVariantReference;
 import com.jetbrains.python.psi.PyExpression;
 import com.jetbrains.python.psi.PyReferenceExpression;
 import com.jetbrains.python.psi.PyTargetExpression;
+import com.jetbrains.python.psi.types.PyClassType;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.PyTypeProviderBase;
 import com.jetbrains.python.psi.types.TypeEvalContext;
+import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +23,7 @@ public class OdooModelAttributeTypeProvider extends PyTypeProviderBase {
         if (qualifier != null) {
             PyType qualifierType = context.getType(qualifier);
             OdooModelClassType modelType = OdooUtils.unpackType(qualifierType, OdooModelClassType.class);
-            if (modelType != null) {
+            if (modelType != null && modelType.getRecordSetType() != OdooRecordSetType.NONE) {
                 PyType type = modelType.getImplicitAttributeTypes(context).get(referenceName);
                 if (type == null) {
                     PsiPolyVariantReference variantReference = referenceExpression.getReference();

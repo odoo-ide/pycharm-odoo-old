@@ -6,6 +6,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.jetbrains.python.PyNames;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.PyBuiltinCache;
@@ -24,7 +25,7 @@ public class OdooUtils {
     public static VirtualFile getOdooModuleDir(@NotNull VirtualFile file) {
         VirtualFile cur = file;
         while (cur != null) {
-            if (cur.findChild(OdooNames.__MANIFEST__DOT_PY) != null) {
+            if (cur.findChild(OdooNames.MANIFEST) != null) {
                 return cur;
             }
             cur = cur.getParent();
@@ -112,7 +113,7 @@ public class OdooUtils {
                     OdooRecordSetType recordSetType = OdooNames.MANY2ONE.equals(info.getClassName()) ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
                     return new OdooModelClassType(info.getComodel(), recordSetType, project);
                 } else if (info.getRelated() != null) {
-                    OdooModelClass modelClass = getContainingOdooModelClass(field, project);
+                    OdooModelClass modelClass = getContainingOdooModelClass(field);
                     if (modelClass != null) {
                         PyTargetExpression relatedField = modelClass.findFieldByPath(info.getRelated(), context);
                         if (relatedField != null) {
@@ -191,13 +192,12 @@ public class OdooUtils {
         return null;
     }
 
-    @Nullable
-    public static OdooModelClass getContainingOdooModelClass(@NotNull PyPossibleClassMember member, @NotNull Project project) {
-        PyClass cls = member.getContainingClass();
+    public static OdooModelClass getContainingOdooModelClass(@NotNull PsiElement element) {
+        PyClass cls = PsiTreeUtil.getParentOfType(element, PyClass.class);
         if (cls != null) {
             OdooModelInfo info = OdooModelInfo.readFromClass(cls);
             if (info != null) {
-                return OdooModelClass.create(info.getName(), project);
+                return OdooModelClass.create(info.getName(), element.getProject());
             }
         }
         return null;

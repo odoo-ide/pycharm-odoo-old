@@ -241,10 +241,10 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
     public Collection<String> getImplicitAttributeNames(@NotNull TypeEvalContext context) {
         Collection<String> result = getMagicFieldNames(context);
         result.add(OdooNames.ENV);
-        result.add(OdooNames._CONTEXT);
-        result.add(OdooNames._CR);
-        result.add(OdooNames._UID);
-        result.add(OdooNames.POOL);
+        result.add(OdooNames.MODEL_CONTEXT);
+        result.add(OdooNames.MODEL_CR);
+        result.add(OdooNames.MODEL_UID);
+        result.add(OdooNames.MODEL_POOL);
         return result;
     }
 
@@ -271,7 +271,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
                     case OdooNames.ID:
                     case OdooNames.CREATE_UID:
                     case OdooNames.WRITE_UID:
-                    case OdooNames._UID:
+                    case OdooNames.MODEL_UID:
                         result.put(field, builtinCache.getIntType());
                         break;
                     case OdooNames.DISPLAY_NAME:
@@ -284,13 +284,13 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
                     case OdooNames.ENV:
                         result.put(field, OdooUtils.getEnvironmentType(file));
                         break;
-                    case OdooNames._CONTEXT:
+                    case OdooNames.MODEL_CONTEXT:
                         result.put(field, OdooUtils.getContextType(file));
                         break;
-                    case OdooNames._CR:
+                    case OdooNames.MODEL_CR:
                         result.put(field, OdooUtils.getDbCursorType(file));
                         break;
-                    case OdooNames.POOL:
+                    case OdooNames.MODEL_POOL:
                         result.put(field, OdooUtils.getClassTypeByQName(OdooNames.REGISTRY_QNAME, file, false));
                 }
             });
