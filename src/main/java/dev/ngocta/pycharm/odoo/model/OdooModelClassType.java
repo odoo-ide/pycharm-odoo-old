@@ -50,7 +50,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         if (source instanceof OdooModelClass) {
             return new OdooModelClassType((OdooModelClass) source, recordSetType);
         }
-        if (OdooNames.BASE_MODEL_QNAME.equals(source.getQualifiedName())) {
+        if (OdooNames.BASE_MODEL_CLASS_QNAME.equals(source.getQualifiedName())) {
             return new OdooModelClassType("", recordSetType, source.getProject());
         }
         OdooModelInfo info = OdooModelInfo.readFromClass(source);
@@ -295,7 +295,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
                         result.put(field, OdooUtils.getDbCursorType(file));
                         break;
                     case OdooNames.MODEL_POOL:
-                        result.put(field, OdooUtils.getClassTypeByQName(OdooNames.REGISTRY_QNAME, file, false));
+                        result.put(field, OdooUtils.getClassTypeByQName(OdooNames.REGISTRY_CLASS_QNAME, file, false));
                 }
             });
         }

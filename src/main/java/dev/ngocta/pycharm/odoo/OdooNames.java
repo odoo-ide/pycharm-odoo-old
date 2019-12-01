@@ -34,10 +34,10 @@ public class OdooNames {
     public static final String WITH_CONTEXT = "with_context";
     public static final String WITH_ENV = "with_env";
     public static final String RES_USERS = "res.users";
-    public static final String BASE_MODEL_QNAME = "odoo.models.BaseModel";
-    public static final String ENVIRONMENT_QNAME = "odoo.api.Environment";
-    public static final String DB_CURSOR_QNAME = "odoo.sql_db.Cursor";
-    public static final String REGISTRY_QNAME = "odoo.modules.registry.Registry";
+    public static final String BASE_MODEL_CLASS_QNAME = "odoo.models.BaseModel";
+    public static final String ENVIRONMENT_CLASS_QNAME = "odoo.api.Environment";
+    public static final String DB_CURSOR_CLASS_QNAME = "odoo.sql_db.Cursor";
+    public static final String REGISTRY_CLASS_QNAME = "odoo.modules.registry.Registry";
     public static final String ODOO_ADDONS = "odoo.addons";
     public static final String ID = "id";
     public static final String DISPLAY_NAME = "display_name";
@@ -55,4 +55,7 @@ public class OdooNames {
     public static final String MODEL_POOL = "pool";
     public static final String MODEL_FIELDS = "_fields";
     public static final String MODULE_BASE = "base";
+    public static final String REQUEST_QNAME = "odoo.http.request";
+    public static final String HTTP_REQUEST_CLASS_NAME = "odoo.http.HttpRequest";
+    public static final String JSON_REQUEST_CLASS_NAME = "odoo.http.JsonRequest";
 }

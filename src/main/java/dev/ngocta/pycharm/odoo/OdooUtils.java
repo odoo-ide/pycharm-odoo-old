@@ -163,7 +163,7 @@ public class OdooUtils {
 
     @Nullable
     public static PyClassType getEnvironmentType(@NotNull PsiElement anchor) {
-        return getClassTypeByQName(OdooNames.ENVIRONMENT_QNAME, anchor, false);
+        return getClassTypeByQName(OdooNames.ENVIRONMENT_CLASS_QNAME, anchor, false);
     }
 
     @NotNull
@@ -174,7 +174,7 @@ public class OdooUtils {
 
     @Nullable
     public static PyClassType getDbCursorType(@NotNull PsiElement anchor) {
-        return getClassTypeByQName(OdooNames.DB_CURSOR_QNAME, anchor, false);
+        return getClassTypeByQName(OdooNames.DB_CURSOR_CLASS_QNAME, anchor, false);
     }
 
     @Nullable
