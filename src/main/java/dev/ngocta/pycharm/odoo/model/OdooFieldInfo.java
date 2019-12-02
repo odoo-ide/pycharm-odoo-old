@@ -56,11 +56,11 @@ public class OdooFieldInfo {
                             case OdooNames.MANY2ONE:
                             case OdooNames.ONE2MANY:
                             case OdooNames.MANY2MANY:
-                                PyStringLiteralExpression comodelExpression = callExpression.getArgument(0, OdooNames.FIELD_COMODEL_NAME, PyStringLiteralExpression.class);
+                                PyStringLiteralExpression comodelExpression = callExpression.getArgument(0, OdooNames.COMODEL_NAME, PyStringLiteralExpression.class);
                                 if (comodelExpression != null) {
                                     info.myComodel = comodelExpression.getStringValue();
                                 } else {
-                                    PyExpression relatedExpression = callExpression.getKeywordArgument(OdooNames.FIELD_RELATED);
+                                    PyExpression relatedExpression = callExpression.getKeywordArgument(OdooNames.RELATED);
                                     if (relatedExpression instanceof PyStringLiteralExpression) {
                                         info.myRelated = ((PyStringLiteralExpression) relatedExpression).getStringValue();
                                     }

@@ -51,13 +51,13 @@ public class OdooEnvAttributeTypeProvider extends PyTypeProviderBase {
             PyType qualifierType = context.getType(qualifier);
             PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(referenceExpression);
             if (isEnvironmentType(qualifierType, referenceExpression)) {
-                if (OdooNames.ENV_USER.equals(referenceName)) {
+                if (OdooNames.USER.equals(referenceName)) {
                     return new OdooModelClassType(OdooNames.RES_USERS, OdooRecordSetType.MODEL, project);
-                } else if (OdooNames.ENV_CONTEXT.equals(referenceName)) {
+                } else if (OdooNames.CONTEXT.equals(referenceName)) {
                     return OdooUtils.getContextType(referenceExpression);
-                } else if (OdooNames.ENV_UID.equals(referenceName)) {
+                } else if (OdooNames.UID.equals(referenceName)) {
                     return builtinCache.getIntType();
-                } else if (OdooNames.ENV_CR.equals(referenceName)) {
+                } else if (OdooNames.CR.equals(referenceName)) {
                     return OdooUtils.getDbCursorType(referenceExpression);
                 }
             }

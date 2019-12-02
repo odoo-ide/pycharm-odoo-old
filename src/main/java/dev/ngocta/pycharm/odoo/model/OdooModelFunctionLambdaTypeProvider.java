@@ -26,7 +26,7 @@ public class OdooModelFunctionLambdaTypeProvider extends PyTypeProviderBase {
                     if (parent instanceof PyLambdaExpression) {
                         if (parent.getParent() instanceof PyKeywordArgument) {
                             PyKeywordArgument arg = (PyKeywordArgument) parent.getParent();
-                            if (OdooNames.FIELD_DEFAULT.equals(arg.getKeyword())) {
+                            if (OdooNames.DEFAULT.equals(arg.getKeyword())) {
                                 OdooModelClass cls = OdooUtils.getContainingOdooModelClass(referenceExpression);
                                 if (cls != null) {
                                     return new OdooModelClassType(cls, OdooRecordSetType.MODEL);

@@ -244,11 +244,11 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
     public Collection<String> getImplicitAttributeNames(@NotNull TypeEvalContext context) {
         Collection<String> result = getMagicFieldNames(context);
         result.add(OdooNames.ENV);
-        result.add(OdooNames.MODEL_CONTEXT);
-        result.add(OdooNames.MODEL_CR);
-        result.add(OdooNames.MODEL_UID);
-        result.add(OdooNames.MODEL_POOL);
-        result.add(OdooNames.MODEL_FIELDS);
+        result.add(OdooNames._CONTEXT);
+        result.add(OdooNames._CR);
+        result.add(OdooNames._UID);
+        result.add(OdooNames.POOL);
+        result.add(OdooNames._FIELDS);
         return result;
     }
 
@@ -273,9 +273,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
             getImplicitAttributeNames(context).forEach(field -> {
                 switch (field) {
                     case OdooNames.ID:
-                    case OdooNames.CREATE_UID:
-                    case OdooNames.WRITE_UID:
-                    case OdooNames.MODEL_UID:
+                    case OdooNames._UID:
                         result.put(field, builtinCache.getIntType());
                         break;
                     case OdooNames.DISPLAY_NAME:
@@ -285,16 +283,20 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
                     case OdooNames.WRITE_DATE:
                         result.put(field, OdooUtils.getDatetimeType(file));
                         break;
+                    case OdooNames.CREATE_UID:
+                    case OdooNames.WRITE_UID:
+                        result.put(field, new OdooModelClassType(OdooNames.RES_USERS, OdooRecordSetType.MULTI, getProject()));
+                        break;
                     case OdooNames.ENV:
                         result.put(field, OdooUtils.getEnvironmentType(file));
                         break;
-                    case OdooNames.MODEL_CONTEXT:
+                    case OdooNames._CONTEXT:
                         result.put(field, OdooUtils.getContextType(file));
                         break;
-                    case OdooNames.MODEL_CR:
+                    case OdooNames._CR:
                         result.put(field, OdooUtils.getDbCursorType(file));
                         break;
-                    case OdooNames.MODEL_POOL:
+                    case OdooNames.POOL:
                         result.put(field, OdooUtils.getClassTypeByQName(OdooNames.REGISTRY_CLASS_QNAME, file, false));
                 }
             });
