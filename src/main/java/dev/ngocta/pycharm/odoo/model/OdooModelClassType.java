@@ -1,7 +1,10 @@
 package dev.ngocta.pycharm.odoo.model;
 
+import com.intellij.codeInsight.completion.BasicInsertHandler;
+import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
 import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.util.UserDataHolderBase;
@@ -14,7 +17,7 @@ import com.intellij.util.PlatformIcons;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.Processor;
 import com.jetbrains.python.PyNames;
-import com.jetbrains.python.codeInsight.completion.PythonLookupElement;
+import com.jetbrains.python.codeInsight.completion.PyFunctionInsertHandler;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.impl.ResolveResultList;
@@ -336,7 +339,9 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
             if (typeText == null && type != null) {
                 typeText = type.getName();
             }
-            LookupElement lookupElement = new PythonLookupElement(name, null, typeText, false, PlatformIcons.FIELD_ICON, null);
+            LookupElement lookupElement = LookupElementBuilder.create(name)
+                    .withTypeText(typeText)
+                    .withIcon(PlatformIcons.FIELD_ICON);
             result.add(PrioritizedLookupElement.withPriority(lookupElement, FIELD_PRIORITY));
         });
         return result;
@@ -349,6 +354,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
             String tailText = null;
             String typeText = null;
             double priority = 0;
+            InsertHandler<LookupElement> insertHandler = new BasicInsertHandler<>();
             if (element instanceof PyTargetExpression) {
                 OdooFieldInfo info = OdooFieldInfo.get((PyTargetExpression) element, context);
                 PyType type = OdooUtils.getFieldType((PyTargetExpression) element, context);
@@ -364,9 +370,13 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
                 String paramsText = StringUtil.join(params, PyCallableParameter::getName, ", ");
                 tailText = "(" + paramsText + ")";
                 priority = FUNCTION_PRIORITY;
+                insertHandler = PyFunctionInsertHandler.INSTANCE;
             }
-            LookupElement lookupElement = new PythonLookupElement(element.getName(), tailText, typeText, false,
-                    element.getIcon(Iconable.ICON_FLAG_READ_STATUS), null);
+            LookupElement lookupElement = LookupElementBuilder.create(element)
+                    .withTailText(tailText)
+                    .withTypeText(typeText)
+                    .withIcon(element.getIcon(Iconable.ICON_FLAG_READ_STATUS))
+                    .withInsertHandler(insertHandler);
             return PrioritizedLookupElement.withPriority(lookupElement, priority);
         }
         return null;
