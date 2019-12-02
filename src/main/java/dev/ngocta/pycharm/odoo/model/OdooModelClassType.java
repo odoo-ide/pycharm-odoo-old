@@ -451,4 +451,15 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         }
         return null;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        return o != null && getClass() == o.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(myClass);
+    }
 }
