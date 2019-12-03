@@ -32,6 +32,7 @@
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.model.OdooModelIndex"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.model.OdooComputeFunctionReferenceContributor" language="Python"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.model.OdooModelNameReferenceContributor" language="Python"/>
+        <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.GotoClassAttributeContributor"/>
     </extensions>
     <actions>
         <!-- Add your actions here -->

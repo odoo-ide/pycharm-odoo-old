@@ -14,8 +14,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class OdooAddonsImportResolver implements PyImportResolver {
+    @Nullable
     @Override
-    public @Nullable PsiElement resolveImportReference(@NotNull QualifiedName qualifiedName, @NotNull PyQualifiedNameResolveContext pyQualifiedNameResolveContext, boolean b) {
+    public PsiElement resolveImportReference(@NotNull QualifiedName qualifiedName, @NotNull PyQualifiedNameResolveContext pyQualifiedNameResolveContext, boolean b) {
         List<String> components = qualifiedName.getComponents();
         Project project = pyQualifiedNameResolveContext.getProject();
         if (components.size() > 2 && components.get(0).equals("odoo") && components.get(1).equals("addons")) {

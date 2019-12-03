@@ -18,8 +18,9 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version 'PC-2019.2'
+    version 'PC-2019.3'
     downloadSources = true
+    plugins 'python-ce'
 }
 patchPluginXml {
     changeNotes """
