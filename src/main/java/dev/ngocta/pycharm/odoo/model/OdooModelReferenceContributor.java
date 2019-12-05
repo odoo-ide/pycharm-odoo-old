@@ -26,8 +26,8 @@ public class OdooModelReferenceContributor extends PsiReferenceContributor {
                             PyExpression callee = callExpression.getCallee();
                             if (callee instanceof PyReferenceExpression) {
                                 String calleeName = callee.getName();
-                                if (OdooNames.MANY2ONE.equals(calleeName) || OdooNames.ONE2MANY.equals(calleeName) || OdooNames.MANY2MANY.equals(calleeName)) {
-                                    PyStringLiteralExpression comodelExpression = callExpression.getArgument(0, OdooNames.COMODEL_NAME, PyStringLiteralExpression.class);
+                                if (OdooNames.FIELD_TYPE_MANY2ONE.equals(calleeName) || OdooNames.FIELD_TYPE_ONE2MANY.equals(calleeName) || OdooNames.FIELD_TYPE_MANY2MANY.equals(calleeName)) {
+                                    PyStringLiteralExpression comodelExpression = callExpression.getArgument(0, OdooNames.FIELD_PARAM_COMODEL_NAME, PyStringLiteralExpression.class);
                                     return stringExpression.equals(comodelExpression);
                                 }
                             }
@@ -40,13 +40,13 @@ public class OdooModelReferenceContributor extends PsiReferenceContributor {
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> INHERIT_PATTERN =
             psiElement(PyStringLiteralExpression.class).afterSiblingSkipping(
                     psiElement().withElementType(PyTokenTypes.EQ),
-                    psiElement(PyTargetExpression.class).withName(OdooNames._INHERIT));
+                    psiElement(PyTargetExpression.class).withName(OdooNames.MODEL_INHERIT));
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> INHERIT_LIST_PATTERN =
             psiElement(PyStringLiteralExpression.class).withParent(
                     psiElement(PyListLiteralExpression.class).afterSiblingSkipping(
                             psiElement().withElementType(PyTokenTypes.EQ),
-                            psiElement(PyTargetExpression.class).withName(OdooNames._INHERIT)));
+                            psiElement(PyTargetExpression.class).withName(OdooNames.MODEL_INHERIT)));
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> ENV_PATTERN =
             psiElement(PyStringLiteralExpression.class).withParent(PySubscriptionExpression.class).afterSiblingSkipping(

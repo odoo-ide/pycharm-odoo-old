@@ -36,7 +36,7 @@ public class OdooManifestReferenceContributor extends PsiReferenceContributor {
                 parent = parent.getParent();
                 if (parent instanceof PyKeyValueExpression) {
                     PsiFile file = parent.getContainingFile();
-                    if (file != null && OdooNames.MANIFEST.equals(file.getName())) {
+                    if (file != null && OdooNames.MANIFEST_FILE_NAME.equals(file.getName())) {
                         PyExpression keyExpression = ((PyKeyValueExpression) parent).getKey();
                         return keyExpression instanceof PyStringLiteralExpression
                                 && myKeys.contains(((PyStringLiteralExpression) keyExpression).getStringValue());
@@ -48,9 +48,10 @@ public class OdooManifestReferenceContributor extends PsiReferenceContributor {
     }
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> DEPEND_PATTERN =
-            psiElement(PyStringLiteralExpression.class).with(new ListItemPatternCondition(OdooNames.DEPENDS));
+            psiElement(PyStringLiteralExpression.class).with(new ListItemPatternCondition(OdooNames.MANIFEST_DEPENDS));
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> FILE_PATTERN =
-            psiElement(PyStringLiteralExpression.class).with(new ListItemPatternCondition("data", "demo", "qweb"));
+            psiElement(PyStringLiteralExpression.class).with(new ListItemPatternCondition(
+                    OdooNames.MANIFEST_DATA, OdooNames.MANIFEST_DEMO, OdooNames.MANIFEST_QWEB));
 
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {

@@ -242,23 +242,23 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
     public Collection<String> getImplicitAttributeNames(@NotNull TypeEvalContext context) {
         Collection<String> result = getMagicFieldNames(context);
         result.add(OdooNames.ENV);
-        result.add(OdooNames._CONTEXT);
-        result.add(OdooNames._CR);
-        result.add(OdooNames._UID);
-        result.add(OdooNames.POOL);
-        result.add(OdooNames._FIELDS);
+        result.add(OdooNames.MODEL_CONTEXT);
+        result.add(OdooNames.MODEL_CR);
+        result.add(OdooNames.MODEL_UID);
+        result.add(OdooNames.MODEL_POOL);
+        result.add(OdooNames.MODEL_FIELDS);
         return result;
     }
 
     public Collection<String> getMagicFieldNames(@NotNull TypeEvalContext context) {
         List<String> result = new LinkedList<>();
-        result.add(OdooNames.ID);
-        result.add(OdooNames.DISPLAY_NAME);
+        result.add(OdooNames.FIELD_ID);
+        result.add(OdooNames.FIELD_DISPLAY_NAME);
         if (isEnableLogAccess()) {
-            result.add(OdooNames.CREATE_DATE);
-            result.add(OdooNames.CREATE_UID);
-            result.add(OdooNames.WRITE_DATE);
-            result.add(OdooNames.WRITE_UID);
+            result.add(OdooNames.FIELD_CREATE_DATE);
+            result.add(OdooNames.FIELD_CREATE_UID);
+            result.add(OdooNames.FIELD_WRITE_DATE);
+            result.add(OdooNames.FIELD_WRITE_UID);
         }
         return result;
     }
@@ -270,31 +270,31 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
             PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(file);
             getImplicitAttributeNames(context).forEach(field -> {
                 switch (field) {
-                    case OdooNames.ID:
-                    case OdooNames._UID:
+                    case OdooNames.FIELD_ID:
+                    case OdooNames.MODEL_UID:
                         result.put(field, builtinCache.getIntType());
                         break;
-                    case OdooNames.DISPLAY_NAME:
+                    case OdooNames.FIELD_DISPLAY_NAME:
                         result.put(field, builtinCache.getStrType());
                         break;
-                    case OdooNames.CREATE_DATE:
-                    case OdooNames.WRITE_DATE:
+                    case OdooNames.FIELD_CREATE_DATE:
+                    case OdooNames.FIELD_WRITE_DATE:
                         result.put(field, OdooUtils.getDatetimeType(file));
                         break;
-                    case OdooNames.CREATE_UID:
-                    case OdooNames.WRITE_UID:
+                    case OdooNames.FIELD_CREATE_UID:
+                    case OdooNames.FIELD_WRITE_UID:
                         result.put(field, new OdooModelClassType(OdooNames.RES_USERS, OdooRecordSetType.MULTI, getProject()));
                         break;
                     case OdooNames.ENV:
                         result.put(field, OdooUtils.getEnvironmentType(file));
                         break;
-                    case OdooNames._CONTEXT:
+                    case OdooNames.MODEL_CONTEXT:
                         result.put(field, OdooUtils.getContextType(file));
                         break;
-                    case OdooNames._CR:
+                    case OdooNames.MODEL_CR:
                         result.put(field, OdooUtils.getDbCursorType(file));
                         break;
-                    case OdooNames.POOL:
+                    case OdooNames.MODEL_POOL:
                         result.put(field, OdooUtils.getClassTypeByQName(OdooNames.REGISTRY_CLASS_QNAME, file, false));
                 }
             });
@@ -317,16 +317,16 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
                 if (typeName != null) {
                     switch (typeName) {
                         case PyNames.TYPE_INT:
-                            typeText = OdooNames.INTEGER;
+                            typeText = OdooNames.FIELD_TYPE_INTEGER;
                             break;
                         case PyNames.TYPE_DATE:
-                            typeText = OdooNames.DATE;
+                            typeText = OdooNames.FIELD_TYPE_DATE;
                             break;
                         case PyNames.TYPE_DATE_TIME:
-                            typeText = OdooNames.DATETIME;
+                            typeText = OdooNames.FIELD_TYPE_DATETIME;
                             break;
                         case PyNames.TYPE_STR:
-                            typeText = OdooNames.CHAR;
+                            typeText = OdooNames.FIELD_TYPE_CHAR;
                             break;
                     }
                 }
@@ -438,7 +438,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         }
         PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(file);
         PyType intType = builtinCache.getIntType();
-        boolean toId = OdooNames.ID.equals(fieldNames.get(fieldNames.size() - 1));
+        boolean toId = OdooNames.FIELD_ID.equals(fieldNames.get(fieldNames.size() - 1));
         if (toId) {
             fieldNames = fieldNames.subList(0, fieldNames.size() - 1);
             if (fieldNames.isEmpty()) {

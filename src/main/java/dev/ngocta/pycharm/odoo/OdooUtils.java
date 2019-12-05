@@ -29,7 +29,7 @@ public class OdooUtils {
     public static VirtualFile getOdooModuleDir(@NotNull VirtualFile file) {
         VirtualFile cur = file;
         while (cur != null) {
-            if (cur.findChild(OdooNames.MANIFEST) != null) {
+            if (cur.findChild(OdooNames.MANIFEST_FILE_NAME) != null) {
                 return cur;
             }
             cur = cur.getParent();
@@ -62,11 +62,11 @@ public class OdooUtils {
         Project project = field.getProject();
         PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(field);
         switch (info.getClassName()) {
-            case OdooNames.MANY2ONE:
-            case OdooNames.ONE2MANY:
-            case OdooNames.MANY2MANY:
+            case OdooNames.FIELD_TYPE_MANY2ONE:
+            case OdooNames.FIELD_TYPE_ONE2MANY:
+            case OdooNames.FIELD_TYPE_MANY2MANY:
                 if (info.getComodel() != null) {
-                    OdooRecordSetType recordSetType = OdooNames.MANY2ONE.equals(info.getClassName()) ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
+                    OdooRecordSetType recordSetType = OdooNames.FIELD_TYPE_MANY2ONE.equals(info.getClassName()) ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
                     return new OdooModelClassType(info.getComodel(), recordSetType, project);
                 } else if (info.getRelated() != null) {
                     OdooModelClass modelClass = getContainingOdooModelClass(field);
@@ -78,20 +78,20 @@ public class OdooUtils {
                     }
                 }
                 return null;
-            case OdooNames.BOOLEAN:
+            case OdooNames.FIELD_TYPE_BOOLEAN:
                 return builtinCache.getBoolType();
-            case OdooNames.INTEGER:
+            case OdooNames.FIELD_TYPE_INTEGER:
                 return builtinCache.getIntType();
-            case OdooNames.FLOAT:
-            case OdooNames.MONETARY:
+            case OdooNames.FIELD_TYPE_FLOAT:
+            case OdooNames.FIELD_TYPE_MONETARY:
                 return builtinCache.getFloatType();
-            case OdooNames.CHAR:
-            case OdooNames.TEXT:
-            case OdooNames.SELECTION:
+            case OdooNames.FIELD_TYPE_CHAR:
+            case OdooNames.FIELD_TYPE_TEXT:
+            case OdooNames.FIELD_TYPE_SELECTION:
                 return builtinCache.getStrType();
-            case OdooNames.DATE:
+            case OdooNames.FIELD_TYPE_DATE:
                 return getDateType(field);
-            case OdooNames.DATETIME:
+            case OdooNames.FIELD_TYPE_DATETIME:
                 return getDatetimeType(field);
             default:
                 return null;

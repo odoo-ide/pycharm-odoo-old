@@ -34,7 +34,7 @@ public class OdooModuleInfo {
 
     @Nullable
     private static OdooModuleInfo doReadFromManifest(@NotNull PsiFile file) {
-        if (!(file instanceof PyFile) || !file.getName().equals(OdooNames.MANIFEST)) {
+        if (!(file instanceof PyFile) || !file.getName().equals(OdooNames.MANIFEST_FILE_NAME)) {
             return null;
         }
 
@@ -49,7 +49,7 @@ public class OdooModuleInfo {
             if (key instanceof PyStringLiteralExpression) {
                 String keyName = ((PyStringLiteralExpression) key).getStringValue();
                 PyExpression value = kvExpression.getValue();
-                if (keyName.equals(OdooNames.DEPENDS) && value instanceof PySequenceExpression) {
+                if (keyName.equals(OdooNames.MANIFEST_DEPENDS) && value instanceof PySequenceExpression) {
                     depends = PyUtil.strListValue(value);
                     break;
                 }

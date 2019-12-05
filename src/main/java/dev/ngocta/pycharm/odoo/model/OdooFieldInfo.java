@@ -20,20 +20,20 @@ public class OdooFieldInfo {
     private String myComodel = null;
     private String myRelated = null;
     private static final Set<String> knownFieldClassNames = new HashSet<>(Arrays.asList(
-            OdooNames.MANY2ONE,
-            OdooNames.ONE2MANY,
-            OdooNames.MANY2MANY,
-            OdooNames.INTEGER,
-            OdooNames.FLOAT,
-            OdooNames.BOOLEAN,
-            OdooNames.INTEGER,
-            OdooNames.FLOAT,
-            OdooNames.MONETARY,
-            OdooNames.CHAR,
-            OdooNames.TEXT,
-            OdooNames.SELECTION,
-            OdooNames.DATE,
-            OdooNames.DATETIME
+            OdooNames.FIELD_TYPE_MANY2ONE,
+            OdooNames.FIELD_TYPE_ONE2MANY,
+            OdooNames.FIELD_TYPE_MANY2MANY,
+            OdooNames.FIELD_TYPE_INTEGER,
+            OdooNames.FIELD_TYPE_FLOAT,
+            OdooNames.FIELD_TYPE_BOOLEAN,
+            OdooNames.FIELD_TYPE_INTEGER,
+            OdooNames.FIELD_TYPE_FLOAT,
+            OdooNames.FIELD_TYPE_MONETARY,
+            OdooNames.FIELD_TYPE_CHAR,
+            OdooNames.FIELD_TYPE_TEXT,
+            OdooNames.FIELD_TYPE_SELECTION,
+            OdooNames.FIELD_TYPE_DATE,
+            OdooNames.FIELD_TYPE_DATETIME
     ));
 
     private OdooFieldInfo() {
@@ -53,14 +53,14 @@ public class OdooFieldInfo {
                         info = new OdooFieldInfo();
                         info.myClassName = callee.getName();
                         switch (calleeName) {
-                            case OdooNames.MANY2ONE:
-                            case OdooNames.ONE2MANY:
-                            case OdooNames.MANY2MANY:
-                                PyStringLiteralExpression comodelExpression = callExpression.getArgument(0, OdooNames.COMODEL_NAME, PyStringLiteralExpression.class);
+                            case OdooNames.FIELD_TYPE_MANY2ONE:
+                            case OdooNames.FIELD_TYPE_ONE2MANY:
+                            case OdooNames.FIELD_TYPE_MANY2MANY:
+                                PyStringLiteralExpression comodelExpression = callExpression.getArgument(0, OdooNames.FIELD_PARAM_COMODEL_NAME, PyStringLiteralExpression.class);
                                 if (comodelExpression != null) {
                                     info.myComodel = comodelExpression.getStringValue();
                                 } else {
-                                    PyExpression relatedExpression = callExpression.getKeywordArgument(OdooNames.RELATED);
+                                    PyExpression relatedExpression = callExpression.getKeywordArgument(OdooNames.FIELD_PARAM_RELATED);
                                     if (relatedExpression instanceof PyStringLiteralExpression) {
                                         info.myRelated = ((PyStringLiteralExpression) relatedExpression).getStringValue();
                                     }

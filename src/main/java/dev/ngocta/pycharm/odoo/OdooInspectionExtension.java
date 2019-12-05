@@ -26,6 +26,6 @@ public class OdooInspectionExtension extends PyInspectionExtension {
     @Override
     public boolean ignoreNoEffectStatement(@NotNull PyExpressionStatement expressionStatement) {
         PsiFile file = expressionStatement.getContainingFile();
-        return file != null && OdooNames.MANIFEST.equals(file.getName());
+        return file != null && OdooNames.MANIFEST_FILE_NAME.equals(file.getName());
     }
 }
