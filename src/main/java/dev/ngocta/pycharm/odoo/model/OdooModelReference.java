@@ -11,8 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-public class OdooModelNameReference extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
-    public OdooModelNameReference(@NotNull PsiElement element) {
+public class OdooModelReference extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
+    public OdooModelReference(@NotNull PsiElement element) {
         super(element);
     }
 

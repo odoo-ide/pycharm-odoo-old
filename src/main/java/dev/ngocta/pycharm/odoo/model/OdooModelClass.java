@@ -155,7 +155,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     public PyFunction findMethodByName(@Nullable String name, boolean inherited, TypeEvalContext context) {
         if (inherited) {
             for (PyClass cls : getAncestorClasses(context)) {
-                PyFunction method = OdooUtils.findMethodByName(name, cls);
+                PyFunction method = cls.findMethodByName(name, false, context);
                 if (method != null) {
                     return method;
                 }
@@ -246,7 +246,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     public PyTargetExpression findClassAttribute(@NotNull String name, boolean inherited, TypeEvalContext context) {
         if (inherited) {
             for (PyClass cls : getAncestorClasses(context)) {
-                PyTargetExpression attr = OdooUtils.findClassAttribute(name, cls);
+                PyTargetExpression attr = cls.findClassAttribute(name, false, context);
                 if (attr != null) {
                     return attr;
                 }

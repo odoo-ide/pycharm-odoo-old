@@ -5,23 +5,23 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.jetbrains.python.psi.PyClass;
-import com.jetbrains.python.psi.PyStringLiteralExpression;
 import com.jetbrains.python.psi.types.TypeEvalContext;
+import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class OdooComputeFunctionReference extends PsiReferenceBase<PyStringLiteralExpression> implements PsiReference {
-    public OdooComputeFunctionReference(@NotNull PyStringLiteralExpression element) {
+public class OdooComputeFunctionReference extends PsiReferenceBase<PsiElement> implements PsiReference {
+    public OdooComputeFunctionReference(@NotNull PsiElement element) {
         super(element);
     }
 
     @Nullable
     @Override
     public PsiElement resolve() {
-        PyClass cls = PsiTreeUtil.getParentOfType(getElement(), PyClass.class);
+        OdooModelClass cls = OdooUtils.getContainingOdooModelClass(getElement());
         if (cls != null) {
             TypeEvalContext context = TypeEvalContext.codeAnalysis(getElement().getProject(), getElement().getContainingFile());
-            return cls.findMethodByName(getValue(), false, context);
+            return cls.findMethodByName(getValue(), true, context);
         }
         return null;
     }

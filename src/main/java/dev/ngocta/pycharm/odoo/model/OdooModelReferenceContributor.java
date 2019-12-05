@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
-public class OdooModelNameReferenceContributor extends PsiReferenceContributor {
+public class OdooModelReferenceContributor extends PsiReferenceContributor {
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> COMODEL_NAME_PATTERN =
             psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("comodel") {
                 @Override
@@ -60,9 +60,9 @@ public class OdooModelNameReferenceContributor extends PsiReferenceContributor {
 
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
-        registrar.registerReferenceProvider(INHERIT_PATTERN, new OdooModelNameInheritReferenceProvider());
-        registrar.registerReferenceProvider(INHERIT_LIST_PATTERN, new OdooModelNameInheritReferenceProvider());
-        registrar.registerReferenceProvider(COMODEL_NAME_PATTERN, new OdooModelNameReferenceProvider());
-        registrar.registerReferenceProvider(ENV_PATTERN, new OdooModelNameReferenceProvider());
+        registrar.registerReferenceProvider(INHERIT_PATTERN, new OdooModelInheritReferenceProvider());
+        registrar.registerReferenceProvider(INHERIT_LIST_PATTERN, new OdooModelInheritReferenceProvider());
+        registrar.registerReferenceProvider(COMODEL_NAME_PATTERN, new OdooModelReferenceProvider());
+        registrar.registerReferenceProvider(ENV_PATTERN, new OdooModelReferenceProvider());
     }
 }

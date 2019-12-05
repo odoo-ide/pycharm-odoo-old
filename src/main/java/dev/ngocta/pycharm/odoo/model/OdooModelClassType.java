@@ -20,7 +20,6 @@ import com.jetbrains.python.PyNames;
 import com.jetbrains.python.codeInsight.completion.PyFunctionInsertHandler;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.PyBuiltinCache;
-import com.jetbrains.python.psi.impl.ResolveResultList;
 import com.jetbrains.python.psi.resolve.ImplicitResolveResult;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
 import com.jetbrains.python.psi.resolve.RatedResolveResult;
@@ -31,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 
 public class OdooModelClassType extends UserDataHolderBase implements PyCollectionType {
@@ -114,34 +114,30 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         if (!inherited) {
             return null;
         }
+        List<RatedResolveResult> result = new LinkedList<>();
         TypeEvalContext context = resolveContext.getTypeEvalContext();
-        for (PyClass cls : myClass.getAncestorClasses(context)) {
-            PsiElement member = OdooUtils.findClassMember(name, cls);
-            if (member != null) {
-                if (member instanceof PyFunction) {
-                    member = OdooModelFunction.wrap((PyFunction) member, this);
+        visitMembers(element -> {
+            if (element instanceof PsiNamedElement && name.equals(((PsiNamedElement) element).getName())) {
+                if (element instanceof PyFunction) {
+                    element = OdooModelFunction.wrap((PyFunction) element, this);
                 }
-                return ResolveResultList.to(member);
+                result.add(new RatedResolveResult(RatedResolveResult.RATE_NORMAL, element));
             }
+            return true;
+        }, true, context);
+        if (result.isEmpty() && getImplicitAttributeNames(context).contains(name)) {
+            result.add(new ImplicitResolveResult(null, RatedResolveResult.RATE_NORMAL));
         }
-        List<OdooModelClass> children = myClass.getDelegationChildren(context);
-        for (OdooModelClass child : children) {
-            PyTargetExpression attr = child.findField(name, context);
-            if (attr != null) {
-                return ResolveResultList.to(attr);
-            }
-        }
-        if (getImplicitAttributeNames(context).contains(name)) {
-            return Collections.singletonList(new ImplicitResolveResult(null, RatedResolveResult.RATE_NORMAL));
-        }
-        return null;
+        return result;
     }
 
     @Override
     public void visitMembers(@NotNull Processor<PsiElement> processor, boolean inherited,
                              @NotNull TypeEvalContext context) {
         if (inherited) {
-            myClass.getAncestorClasses(context).forEach(cls -> {
+            Stream.concat(
+                    myClass.getAncestorClasses(context).stream(),
+                    myClass.getDelegationChildren(context).stream()).forEach(cls -> {
                 cls.processClassLevelDeclarations((element, state) -> {
                     processor.process(element);
                     return true;

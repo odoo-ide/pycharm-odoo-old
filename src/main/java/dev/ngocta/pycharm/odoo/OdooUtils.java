@@ -3,20 +3,24 @@ package dev.ngocta.pycharm.odoo;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.jetbrains.python.PyNames;
-import com.jetbrains.python.psi.*;
+import com.jetbrains.python.psi.PyClass;
+import com.jetbrains.python.psi.PyFile;
+import com.jetbrains.python.psi.PyPsiFacade;
+import com.jetbrains.python.psi.PyTargetExpression;
 import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.types.*;
 import com.sun.istack.NotNull;
 import com.sun.istack.Nullable;
 import dev.ngocta.pycharm.odoo.model.*;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -47,54 +51,6 @@ public class OdooUtils {
 
     public static boolean isOdooModelFile(@Nullable PsiFile file) {
         return file instanceof PyFile && getOdooModuleDir(file.getVirtualFile()) != null;
-    }
-
-    @Nullable
-    public static PyClass getClassByQName(@NotNull String name, @NotNull PsiElement anchor) {
-        Project project = anchor.getProject();
-        ConcurrentMap<String, PyClass> cache = CachedValuesManager.getManager(project).getCachedValue(project, () -> {
-            return CachedValueProvider.Result.create(new ConcurrentHashMap<>(), ModificationTracker.NEVER_CHANGED);
-        });
-        PyClass cls = cache.get(name);
-        if (cls == null) {
-            PyPsiFacade psiFacade = PyPsiFacade.getInstance(project);
-            cls = psiFacade.createClassByQName(name, anchor);
-            cache.put(name, cls);
-        }
-        return cls;
-    }
-
-    @Nullable
-    public static PyFunction findMethodByName(@NotNull String name, @NotNull PyClass pyClass) {
-        PsiElement member = findClassMember(name, pyClass);
-        if (member instanceof PyFunction) {
-            return (PyFunction) member;
-        }
-        return null;
-    }
-
-    @Nullable
-    public static PyTargetExpression findClassAttribute(@NotNull String name, @NotNull PyClass pyClass) {
-        PsiElement member = findClassMember(name, pyClass);
-        if (member instanceof PyTargetExpression) {
-            return (PyTargetExpression) member;
-        }
-        return null;
-    }
-
-    @Nullable
-    public static PsiElement findClassMember(@NotNull String name, @NotNull PyClass pyClass) {
-        Map<String, PsiElement> cache = CachedValuesManager.getCachedValue(pyClass, () -> {
-            Map<String, PsiElement> members = new HashMap<>();
-            pyClass.processClassLevelDeclarations((element, state) -> {
-                if (element instanceof PsiNamedElement) {
-                    members.put(((PsiNamedElement) element).getName(), element);
-                }
-                return true;
-            });
-            return CachedValueProvider.Result.create(members, pyClass);
-        });
-        return cache.get(name);
     }
 
     @Nullable
@@ -140,6 +96,21 @@ public class OdooUtils {
             default:
                 return null;
         }
+    }
+
+    @Nullable
+    public static PyClass getClassByQName(@NotNull String name, @NotNull PsiElement anchor) {
+        Project project = anchor.getProject();
+        ConcurrentMap<String, PyClass> cache = CachedValuesManager.getManager(project).getCachedValue(project, () -> {
+            return CachedValueProvider.Result.create(new ConcurrentHashMap<>(), ModificationTracker.NEVER_CHANGED);
+        });
+        PyClass cls = cache.get(name);
+        if (cls == null) {
+            PyPsiFacade psiFacade = PyPsiFacade.getInstance(project);
+            cls = psiFacade.createClassByQName(name, anchor);
+            cache.put(name, cls);
+        }
+        return cls;
     }
 
     @Nullable

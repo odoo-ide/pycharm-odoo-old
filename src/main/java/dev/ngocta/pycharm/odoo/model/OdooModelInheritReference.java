@@ -9,8 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Set;
 
-public class OdooModelNameInheritReference extends OdooModelNameReference {
-    public OdooModelNameInheritReference(@NotNull PsiElement element) {
+public class OdooModelInheritReference extends OdooModelReference {
+    public OdooModelInheritReference(@NotNull PsiElement element) {
         super(element);
     }
 
