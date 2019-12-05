@@ -121,7 +121,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
                 if (element instanceof PyFunction) {
                     element = OdooModelFunction.wrap((PyFunction) element, this);
                 }
-                result.add(new RatedResolveResult(RatedResolveResult.RATE_NORMAL, element));
+                result.add(new ImplicitResolveResult(element, RatedResolveResult.RATE_NORMAL));
             }
             return true;
         }, true, context);
@@ -139,8 +139,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
                     myClass.getAncestorClasses(context).stream(),
                     myClass.getDelegationChildren(context).stream()).forEach(cls -> {
                 cls.processClassLevelDeclarations((element, state) -> {
-                    processor.process(element);
-                    return true;
+                    return processor.process(element);
                 });
             });
         }
