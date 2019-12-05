@@ -34,6 +34,7 @@
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.model.OdooComputeFunctionReferenceContributor" language="Python"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.model.OdooModelReferenceContributor" language="Python"/>
         <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.GotoClassAttributeContributor"/>
+        <dom.fileMetaData implementation="dev.ngocta.pycharm.odoo.xml.OdooDomFileMetaData" rootTagName="odoo"/>
     </extensions>
     <actions>
         <!-- Add your actions here -->
