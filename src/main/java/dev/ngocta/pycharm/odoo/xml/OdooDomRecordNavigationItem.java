@@ -10,11 +10,11 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-public class OdooDomRecordNavigation implements NavigationItem {
+public class OdooDomRecordNavigationItem implements NavigationItem {
     private final OdooDomRecord myRecord;
     private final XmlTag myTag;
 
-    public OdooDomRecordNavigation(OdooDomRecord record) {
+    public OdooDomRecordNavigationItem(OdooDomRecord record) {
         myRecord = record;
         myTag = record.getXmlTag();
     }

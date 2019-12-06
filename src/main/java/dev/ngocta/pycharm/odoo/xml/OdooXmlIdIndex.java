@@ -7,6 +7,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.xml.XmlFile;
+import com.intellij.util.Processor;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
@@ -15,6 +16,7 @@ import com.intellij.util.xml.DomManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.*;
 import java.util.*;
 
 public class OdooXmlIdIndex extends ScalarIndexExtension<String> {
@@ -45,14 +47,39 @@ public class OdooXmlIdIndex extends ScalarIndexExtension<String> {
                     });
                 }
             } else if ("csv".equals(file.getExtension())) {
-//                try {
-//                    InputStream inputStream = file.getInputStream();
-//                    Reader reader = new InputStreamReader(inputStream);
-//                } catch (IOException ignored) {
-//                }
+                processCsvRecord(file, id -> {
+                    result.put(id, null);
+                    return true;
+                });
             }
             return result;
         };
+    }
+
+    private void processCsvRecord(@NotNull VirtualFile file, @NotNull Processor<String> processor) {
+        try {
+            InputStream inputStream = file.getInputStream();
+            Reader reader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(reader);
+            bufferedReader.readLine();
+            while (true) {
+                String line = bufferedReader.readLine();
+                if (line == null) {
+                    break;
+                }
+                String[] cols = line.split(",", 1);
+                if (cols.length >= 1) {
+                    String firstCol = cols[0];
+                    if (firstCol.startsWith("\"")) {
+                        firstCol = firstCol.substring(1, firstCol.length() - 1);
+                    }
+                    if (!processor.process(firstCol)) {
+                        break;
+                    }
+                }
+            }
+        } catch (IOException ignored) {
+        }
     }
 
     @NotNull
@@ -110,7 +137,7 @@ public class OdooXmlIdIndex extends ScalarIndexExtension<String> {
                     List<OdooDomRecord> records = root.getAllRecords();
                     for (OdooDomRecord record : records) {
                         if (xmlId.equals(record.getQualifiedId(file))) {
-                            result.add(new OdooDomRecordNavigation(record));
+                            result.add(new OdooDomRecordNavigationItem(record));
                         }
                     }
                 }
