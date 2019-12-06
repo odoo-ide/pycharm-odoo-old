@@ -1,14 +1,11 @@
 package dev.ngocta.pycharm.odoo.xml;
 
-import com.intellij.navigation.NavigationItem;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiPolyVariantReference;
-import com.intellij.psi.PsiReferenceBase;
-import com.intellij.psi.ResolveResult;
+import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.LinkedList;
 
 public class OdooXmlIdReference extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
     public OdooXmlIdReference(@NotNull PsiElement element) {
@@ -18,8 +15,10 @@ public class OdooXmlIdReference extends PsiReferenceBase<PsiElement> implements 
     @NotNull
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
-        Collection<NavigationItem> definitions = OdooXmlIdIndex.findRecordDefinitions(getValue(), getElement().getProject());
-        return new ResolveResult[0];
+        Collection<OdooRecordDefinition> definitions = OdooXmlIdIndex.findRecordDefinitions(getValue(), getElement().getProject());
+        Collection<PsiElement> elements = new LinkedList<>();
+        definitions.forEach(def -> elements.add(def.getNavigationElement()));
+        return PsiElementResolveResult.createResults(elements);
     }
 
     @Nullable

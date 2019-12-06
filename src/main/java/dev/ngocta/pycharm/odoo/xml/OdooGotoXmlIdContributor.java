@@ -24,7 +24,7 @@ public class OdooGotoXmlIdContributor implements ChooseByNameContributorEx {
 
     @Override
     public void processElementsWithName(@NotNull String name, @NotNull Processor<NavigationItem> processor, @NotNull FindSymbolParameters parameters) {
-        Collection<NavigationItem> items = OdooXmlIdIndex.findRecordDefinitions(name, parameters.getProject());
+        Collection<OdooRecordDefinition> items = OdooXmlIdIndex.findRecordDefinitions(name, parameters.getProject());
         items.forEach(processor::process);
     }
 }

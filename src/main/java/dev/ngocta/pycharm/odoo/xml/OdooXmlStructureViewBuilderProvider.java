@@ -15,6 +15,7 @@ public class OdooXmlStructureViewBuilderProvider implements XmlStructureViewBuil
     @Nullable
     @Override
     public StructureViewBuilder createStructureViewBuilder(@NotNull XmlFile file) {
+        // Own dom is not completed, fallback to default structure view
         if (DomManager.getDomManager(file.getProject()).getFileElement(file, OdooDomRoot.class) != null) {
             return new TreeBasedStructureViewBuilder() {
                 @Override
