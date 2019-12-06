@@ -4,7 +4,7 @@ import com.intellij.util.xml.SubTagList;
 
 import java.util.List;
 
-public interface OdooRecordTagContainer {
+public interface OdooDomRecordContainer {
     @SubTagList("record")
-    List<OdooRecordTag> getRecords();
+    List<OdooDomRecord> getRecords();
 }

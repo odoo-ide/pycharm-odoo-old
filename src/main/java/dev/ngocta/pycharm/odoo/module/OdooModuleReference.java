@@ -24,7 +24,7 @@ public class OdooModuleReference extends PsiReferenceBase<PsiElement> {
     @Override
     public Object[] getVariants() {
         Collection<PsiDirectory> modules = OdooModuleIndex.getAllModules(getElement().getProject());
-        PsiDirectory module = OdooUtils.getOdooModuleDir(getElement());
+        PsiDirectory module = OdooUtils.getOdooModule(getElement());
         if (module != null) {
             modules.remove(module);
         }

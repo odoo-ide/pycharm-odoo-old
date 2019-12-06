@@ -30,11 +30,14 @@
     <extensions defaultExtensionNs="com.intellij">
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.module.OdooModuleIndex"/>
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.model.OdooModelIndex"/>
+        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.xml.OdooXmlIdIndex"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.module.OdooManifestReferenceContributor" language="Python"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.model.OdooComputeFunctionReferenceContributor" language="Python"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.model.OdooModelReferenceContributor" language="Python"/>
-        <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.GotoClassAttributeContributor"/>
         <dom.fileMetaData implementation="dev.ngocta.pycharm.odoo.xml.OdooDomFileMetaData" rootTagName="odoo"/>
+        <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.GotoClassAttributeContributor"/>
+        <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.xml.OdooGotoXmlIdContributor"/>
+        <xmlStructureViewBuilderProvider implementation="dev.ngocta.pycharm.odoo.xml.OdooXmlStructureViewBuilderProvider" order="first"/>
     </extensions>
     <actions>
         <!-- Add your actions here -->

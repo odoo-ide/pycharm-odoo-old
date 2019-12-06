@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentMap;
 
 public class OdooUtils {
     @Nullable
-    public static VirtualFile getOdooModuleDir(@NotNull VirtualFile file) {
+    public static VirtualFile getOdooModuleDirectory(@NotNull VirtualFile file) {
         VirtualFile cur = file;
         while (cur != null) {
             if (cur.findChild(OdooNames.MANIFEST_FILE_NAME) != null) {
@@ -38,19 +38,23 @@ public class OdooUtils {
     }
 
     @Nullable
-    public static PsiDirectory getOdooModuleDir(@NotNull PsiElement element) {
+    public static PsiDirectory getOdooModule(@NotNull PsiElement element) {
         PsiFile file = element.getContainingFile();
         if (file != null) {
-            VirtualFile virtualFile = getOdooModuleDir(file.getOriginalFile().getVirtualFile());
-            if (virtualFile != null) {
-                return PsiManager.getInstance(element.getProject()).findDirectory(virtualFile);
+            VirtualFile virtualFile = file.getVirtualFile();
+            if (virtualFile == null) {
+                virtualFile = file.getOriginalFile().getVirtualFile();
+            }
+            VirtualFile dir = getOdooModuleDirectory(virtualFile);
+            if (dir != null) {
+                return PsiManager.getInstance(element.getProject()).findDirectory(dir);
             }
         }
         return null;
     }
 
     public static boolean isOdooModelFile(@Nullable PsiFile file) {
-        return file instanceof PyFile && getOdooModuleDir(file.getVirtualFile()) != null;
+        return file instanceof PyFile && getOdooModuleDirectory(file.getVirtualFile()) != null;
     }
 
     @Nullable

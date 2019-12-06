@@ -131,7 +131,7 @@ public class OdooModelIndex extends ScalarIndexExtension<String> {
 
     @NotNull
     public static List<PyClass> findModelClasses(@NotNull String model, @NotNull PsiElement anchor, boolean includeDependModules) {
-        PsiDirectory module = OdooUtils.getOdooModuleDir(anchor);
+        PsiDirectory module = OdooUtils.getOdooModule(anchor);
         if (module == null) {
             module = OdooModuleIndex.getModule(OdooNames.MODULE_BASE, anchor.getProject());
         }
@@ -154,7 +154,7 @@ public class OdooModelIndex extends ScalarIndexExtension<String> {
 
     @NotNull
     public static Set<String> getAllModels(@NotNull PsiElement anchor) {
-        PsiDirectory module = OdooUtils.getOdooModuleDir(anchor);
+        PsiDirectory module = OdooUtils.getOdooModule(anchor);
         if (module != null) {
             List<PsiDirectory> modules = OdooModuleIndex.getFlattenedDependsGraph(module);
             VirtualFile[] files = modules.stream().map(PsiDirectory::getVirtualFile).collect(Collectors.toList()).toArray(VirtualFile.EMPTY_ARRAY);

@@ -69,7 +69,7 @@ public class OdooModelInfo {
             return null;
         }
 
-        PsiDirectory module = OdooUtils.getOdooModuleDir(psiFile);
+        PsiDirectory module = OdooUtils.getOdooModule(psiFile);
         if (module == null) {
             return null;
         }

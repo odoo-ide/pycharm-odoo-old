@@ -1,58 +1,55 @@
 package dev.ngocta.pycharm.odoo.xml;
 
-import com.intellij.ide.highlighter.XmlFileType;
-import com.intellij.psi.PsiDirectory;
+import com.intellij.navigation.NavigationItem;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.indexing.*;
-import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.DomManager;
-import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class OdooXmlIdIndex extends FileBasedIndexExtension<String, String> {
-    private static final ID<String, String> NAME = ID.create("odoo.xml.id");
+public class OdooXmlIdIndex extends ScalarIndexExtension<String> {
+    private static final ID<String, Void> NAME = ID.create("odoo.xml.id");
 
     @NotNull
     @Override
-    public ID<String, String> getName() {
+    public ID<String, Void> getName() {
         return NAME;
     }
 
     @NotNull
     @Override
-    public DataIndexer<String, String, FileContent> getIndexer() {
+    public DataIndexer<String, Void, FileContent> getIndexer() {
         return inputData -> {
-            Map<String, String> result = new HashMap<>();
-            PsiFile file = inputData.getPsiFile();
-            if (file instanceof XmlFile) {
-                PsiDirectory module = OdooUtils.getOdooModuleDir(file);
-                if (module != null) {
-                    DomManager manager = DomManager.getDomManager(file.getProject());
-                    DomFileElement<OdooRootTag> fileElement = manager.getFileElement((XmlFile) file, OdooRootTag.class);
-                    if (fileElement != null) {
-                        OdooRootTag root = fileElement.getRootElement();
-                        List<OdooRecordTag> tags = root.getRecords();
-                        root.getData().forEach(data -> {
-                            tags.addAll(data.getRecords());
-                        });
-                        tags.forEach(tag -> {
-                            String id = tag.getId().getValue();
-                            String model = tag.getModel().getValue();
-                            if (id != null && model != null) {
-                                result.put(id, model);
-                            }
-                        });
-                    }
+            Map<String, Void> result = new HashMap<>();
+            VirtualFile file = inputData.getFile();
+            PsiFile psiFile = inputData.getPsiFile();
+            if (psiFile instanceof XmlFile) {
+                OdooDomRoot root = getDomRoot((XmlFile) psiFile);
+                if (root != null) {
+                    List<OdooDomRecord> tags = root.getAllRecords();
+                    tags.forEach(tag -> {
+                        String id = tag.getQualifiedId(file);
+                        if (id != null) {
+                            result.put(id, null);
+                        }
+                    });
                 }
+            } else if ("csv".equals(file.getExtension())) {
+//                try {
+//                    InputStream inputStream = file.getInputStream();
+//                    Reader reader = new InputStreamReader(inputStream);
+//                } catch (IOException ignored) {
+//                }
             }
             return result;
         };
@@ -64,25 +61,61 @@ public class OdooXmlIdIndex extends FileBasedIndexExtension<String, String> {
         return EnumeratorStringDescriptor.INSTANCE;
     }
 
-    @NotNull
-    @Override
-    public DataExternalizer<String> getValueExternalizer() {
-        return EnumeratorStringDescriptor.INSTANCE;
-    }
-
     @Override
     public int getVersion() {
-        return 0;
+        return 1;
     }
 
     @NotNull
     @Override
     public FileBasedIndex.InputFilter getInputFilter() {
-        return new DefaultFileTypeSpecificInputFilter(XmlFileType.INSTANCE);
+        return file -> {
+            String extension = file.getExtension();
+            return "xml".equals(extension) || "csv".equals(extension);
+        };
     }
 
     @Override
     public boolean dependsOnFileContent() {
         return true;
+    }
+
+    @Nullable
+    private static OdooDomRoot getDomRoot(@NotNull XmlFile xmlFile) {
+        DomManager domManager = DomManager.getDomManager(xmlFile.getProject());
+        DomFileElement<OdooDomRoot> fileElement = domManager.getFileElement(xmlFile, OdooDomRoot.class);
+        if (fileElement != null) {
+            return fileElement.getRootElement();
+        }
+        return null;
+    }
+
+    @NotNull
+    public static Collection<String> getAllXmlIds(@NotNull Project project) {
+        FileBasedIndex index = FileBasedIndex.getInstance();
+        return index.getAllKeys(NAME, project);
+    }
+
+    @NotNull
+    public static Collection<NavigationItem> findRecordDefinitions(@NotNull String xmlId, @NotNull Project project) {
+        FileBasedIndex index = FileBasedIndex.getInstance();
+        Collection<VirtualFile> files = index.getContainingFiles(NAME, xmlId, GlobalSearchScope.allScope(project));
+        PsiManager psiManager = PsiManager.getInstance(project);
+        Collection<NavigationItem> result = new LinkedList<>();
+        files.forEach(file -> {
+            PsiFile psiFile = psiManager.findFile(file);
+            if (psiFile instanceof XmlFile) {
+                OdooDomRoot root = getDomRoot((XmlFile) psiFile);
+                if (root != null) {
+                    List<OdooDomRecord> records = root.getAllRecords();
+                    for (OdooDomRecord record : records) {
+                        if (xmlId.equals(record.getQualifiedId(file))) {
+                            result.add(new OdooDomRecordNavigation(record));
+                        }
+                    }
+                }
+            }
+        });
+        return result;
     }
 }
