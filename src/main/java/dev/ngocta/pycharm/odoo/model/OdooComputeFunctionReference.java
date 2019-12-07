@@ -19,7 +19,7 @@ public class OdooComputeFunctionReference extends PsiReferenceBase<PsiElement> i
     public PsiElement resolve() {
         OdooModelClass cls = OdooModelUtils.getContainingOdooModelClass(getElement());
         if (cls != null) {
-            TypeEvalContext context = TypeEvalContext.codeAnalysis(getElement().getProject(), getElement().getContainingFile());
+            TypeEvalContext context = TypeEvalContext.userInitiated(getElement().getProject(), getElement().getContainingFile());
             return cls.findMethodByName(getValue(), true, context);
         }
         return null;

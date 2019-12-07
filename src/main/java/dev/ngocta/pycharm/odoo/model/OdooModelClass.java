@@ -78,13 +78,17 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
             }
             PsiFile anchor = context.getOrigin();
             if (firstLevel && anchor != null) {
-                PyClass baseClass = OdooUtils.getClassByQName(OdooNames.BASE_MODEL_CLASS_QNAME, anchor);
+                PyClass baseClass = getBaseModelClass(anchor);
                 if (baseClass != null) {
                     result.add(baseClass);
                 }
             }
         }
         return result;
+    }
+
+    private PyClass getBaseModelClass(@NotNull PsiElement anchor) {
+        return OdooUtils.getClassByQName(OdooNames.BASE_MODEL_CLASS_QNAME, anchor);
     }
 
     @NotNull
@@ -514,16 +518,21 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
             }
         });
         List<OdooModelClass> result = new LinkedList<>();
-        children.forEach(child -> {
-            result.add(create(child, myProject));
-        });
+        children.forEach(child -> result.add(create(child, myProject)));
         return result;
     }
 
     public boolean visitField(Processor<PyTargetExpression> processor, @NotNull TypeEvalContext context) {
-        for (PyClass cls : getAncestorClasses(context)) {
+        List<PyClass> ancestorClasses = getAncestorClasses(context);
+        if (context.getOrigin() != null) {
+            PyClass baseClass = getBaseModelClass(context.getOrigin());
+            if (baseClass != null) {
+                ancestorClasses.remove(baseClass);
+            }
+        }
+        for (PyClass cls : ancestorClasses) {
             if (!cls.visitClassAttributes(attr -> {
-                if (OdooFieldInfo.getInfo(attr, context) != null) {
+                if (OdooFieldInfo.getInfo(attr) != null) {
                     return processor.process(attr);
                 }
                 return true;

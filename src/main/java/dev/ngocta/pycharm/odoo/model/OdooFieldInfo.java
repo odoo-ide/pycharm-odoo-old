@@ -44,7 +44,7 @@ public class OdooFieldInfo {
     }
 
     @Nullable
-    public static OdooFieldInfo getInfo(@NotNull PyTargetExpression field, @NotNull TypeEvalContext context) {
+    public static OdooFieldInfo getInfo(@NotNull PyTargetExpression field) {
         return CachedValuesManager.getCachedValue(field, () -> {
             OdooFieldInfo info = getInfoInner(field);
             return CachedValueProvider.Result.create(info, field);
@@ -99,7 +99,7 @@ public class OdooFieldInfo {
 
     @Nullable
     public static PyType getFieldType(@NotNull PyTargetExpression field, @NotNull TypeEvalContext context) {
-        OdooFieldInfo info = getInfo(field, context);
+        OdooFieldInfo info = getInfo(field);
         if (info == null) {
             return null;
         }

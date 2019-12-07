@@ -341,7 +341,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
             double priority = 0;
             InsertHandler<LookupElement> insertHandler = new BasicInsertHandler<>();
             if (element instanceof PyTargetExpression) {
-                OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) element, context);
+                OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) element);
                 PyType type = OdooFieldInfo.getFieldType((PyTargetExpression) element, context);
                 if (info != null) {
                     typeText = info.getTypeName();
