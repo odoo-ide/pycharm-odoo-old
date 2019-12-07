@@ -13,7 +13,7 @@ public class OdooModelUtils {
     public static OdooModelClass getContainingOdooModelClass(@NotNull PsiElement element) {
         PyClass cls = PsiTreeUtil.getParentOfType(element, PyClass.class);
         if (cls != null) {
-            OdooModelInfo info = OdooModelInfo.readFromClass(cls);
+            OdooModelInfo info = OdooModelInfo.getInfo(cls);
             if (info != null) {
                 return OdooModelClass.create(info.getName(), element.getProject());
             }

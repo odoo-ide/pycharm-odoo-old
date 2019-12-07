@@ -46,40 +46,46 @@ public class OdooFieldInfo {
     @Nullable
     public static OdooFieldInfo getInfo(@NotNull PyTargetExpression field, @NotNull TypeEvalContext context) {
         return CachedValuesManager.getCachedValue(field, () -> {
-            OdooFieldInfo info = null;
-            PyExpression assignedValue = field.findAssignedValue();
-            if (assignedValue instanceof PyCallExpression) {
-                PyCallExpression callExpression = (PyCallExpression) assignedValue;
-                PyExpression callee = callExpression.getCallee();
-                if (callee != null && callee.getName() != null) {
-                    String calleeName = callee.getName();
-                    if (knownFieldClassNames.contains(calleeName)) {
-                        info = new OdooFieldInfo();
-                        info.myClassName = callee.getName();
-                        switch (calleeName) {
-                            case OdooNames.FIELD_TYPE_MANY2ONE:
-                            case OdooNames.FIELD_TYPE_ONE2MANY:
-                            case OdooNames.FIELD_TYPE_MANY2MANY:
-                                PyStringLiteralExpression comodelExpression = callExpression.getArgument(0, OdooNames.FIELD_PARAM_COMODEL_NAME, PyStringLiteralExpression.class);
-                                if (comodelExpression != null) {
-                                    info.myComodel = comodelExpression.getStringValue();
-                                } else {
-                                    PyExpression relatedExpression = callExpression.getKeywordArgument(OdooNames.FIELD_PARAM_RELATED);
-                                    if (relatedExpression instanceof PyStringLiteralExpression) {
-                                        info.myRelated = ((PyStringLiteralExpression) relatedExpression).getStringValue();
-                                    }
-                                }
-                                break;
-                        }
-                    }
-                }
-            }
+            OdooFieldInfo info = getInfoInner(field);
             return CachedValueProvider.Result.create(info, field);
         });
     }
 
+    @Nullable
+    private static OdooFieldInfo getInfoInner(@NotNull PyTargetExpression field) {
+        PyExpression assignedValue = field.findAssignedValue();
+        if (assignedValue instanceof PyCallExpression) {
+            PyCallExpression callExpression = (PyCallExpression) assignedValue;
+            PyExpression callee = callExpression.getCallee();
+            if (callee != null && callee.getName() != null) {
+                String calleeName = callee.getName();
+                if (knownFieldClassNames.contains(calleeName)) {
+                    OdooFieldInfo info = new OdooFieldInfo();
+                    info.myClassName = callee.getName();
+                    switch (calleeName) {
+                        case OdooNames.FIELD_TYPE_MANY2ONE:
+                        case OdooNames.FIELD_TYPE_ONE2MANY:
+                        case OdooNames.FIELD_TYPE_MANY2MANY:
+                            PyStringLiteralExpression comodelExpression = callExpression.getArgument(0, OdooNames.FIELD_PARAM_COMODEL_NAME, PyStringLiteralExpression.class);
+                            if (comodelExpression != null) {
+                                info.myComodel = comodelExpression.getStringValue();
+                            } else {
+                                PyExpression relatedExpression = callExpression.getKeywordArgument(OdooNames.FIELD_PARAM_RELATED);
+                                if (relatedExpression instanceof PyStringLiteralExpression) {
+                                    info.myRelated = ((PyStringLiteralExpression) relatedExpression).getStringValue();
+                                }
+                            }
+                            break;
+                    }
+                    return info;
+                }
+            }
+        }
+        return null;
+    }
+
     @NotNull
-    public String getClassName() {
+    public String getTypeName() {
         return myClassName;
     }
 
@@ -99,12 +105,12 @@ public class OdooFieldInfo {
         }
         Project project = field.getProject();
         PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(field);
-        switch (info.getClassName()) {
+        switch (info.getTypeName()) {
             case OdooNames.FIELD_TYPE_MANY2ONE:
             case OdooNames.FIELD_TYPE_ONE2MANY:
             case OdooNames.FIELD_TYPE_MANY2MANY:
                 if (info.getComodel() != null) {
-                    OdooRecordSetType recordSetType = OdooNames.FIELD_TYPE_MANY2ONE.equals(info.getClassName()) ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
+                    OdooRecordSetType recordSetType = OdooNames.FIELD_TYPE_MANY2ONE.equals(info.getTypeName()) ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
                     return new OdooModelClassType(info.getComodel(), recordSetType, project);
                 } else if (info.getRelated() != null) {
                     OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(field);

@@ -4,6 +4,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.lang.Language;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ModificationTracker;
+import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -60,17 +61,17 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @NotNull
     @Override
     public List<PyClass> getAncestorClasses(@Nullable TypeEvalContext context) {
-        return PyUtil.getParameterizedCachedValue(this, context, contextArg -> doGetAncestorClasses(context, true));
+        return PyUtil.getParameterizedCachedValue(this, context, contextArg -> getAncestorClassesInner(context, true));
     }
 
     @NotNull
-    private List<PyClass> doGetAncestorClasses(@Nullable TypeEvalContext context, boolean firstLevel) {
+    private List<PyClass> getAncestorClassesInner(@Nullable TypeEvalContext context, boolean firstLevel) {
         List<PyClass> result = new LinkedList<>();
         if (context != null) {
             PyClass[] classes = getSuperClasses(context);
             for (PyClass cls : classes) {
                 if (cls instanceof OdooModelClass) {
-                    result.addAll(((OdooModelClass) cls).doGetAncestorClasses(context, false));
+                    result.addAll(((OdooModelClass) cls).getAncestorClassesInner(context, false));
                 } else {
                     result.add(cls);
                 }
@@ -110,7 +111,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
             List<PyClass> modelClasses = OdooModelIndex.findModelClasses(getName(), file, true);
             List<String> superModels = new LinkedList<>();
             modelClasses.forEach(modelClass -> {
-                OdooModelInfo info = OdooModelInfo.readFromClass(modelClass);
+                OdooModelInfo info = OdooModelInfo.getInfo(modelClass);
                 if (info != null) {
                     info.getInherit().forEach(inherit -> {
                         if (!inherit.equals(getName())) {
@@ -507,7 +508,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     public List<OdooModelClass> getDelegationChildren(@NotNull TypeEvalContext context) {
         Set<String> children = new HashSet<>();
         getAncestorClasses(context).forEach(cls -> {
-            OdooModelInfo info = OdooModelInfo.readFromClass(cls);
+            OdooModelInfo info = OdooModelInfo.getInfo(cls);
             if (info != null) {
                 children.addAll(info.getInherits().keySet());
             }
@@ -519,20 +520,36 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
         return result;
     }
 
-    @Nullable
-    public PyTargetExpression findField(@NotNull String name, @NotNull TypeEvalContext context) {
-        PyTargetExpression attr = findClassAttribute(name, true, context);
-        if (attr != null && OdooFieldInfo.getInfo(attr, context) != null) {
-            return attr;
-        }
-        List<OdooModelClass> children = getDelegationChildren(context);
-        for (OdooModelClass child : children) {
-            PyTargetExpression field = child.findField(name, context);
-            if (field != null) {
-                return field;
+    public boolean visitField(Processor<PyTargetExpression> processor, @NotNull TypeEvalContext context) {
+        for (PyClass cls : getAncestorClasses(context)) {
+            if (!cls.visitClassAttributes(attr -> {
+                if (OdooFieldInfo.getInfo(attr, context) != null) {
+                    return processor.process(attr);
+                }
+                return true;
+            }, false, context)) {
+                return false;
             }
         }
-        return null;
+        for (OdooModelClass cls : getDelegationChildren(context)) {
+            if (!cls.visitField(processor, context)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Nullable
+    public PyTargetExpression findField(@NotNull String name, @NotNull TypeEvalContext context) {
+        Ref<PyTargetExpression> ref = new Ref<>();
+        visitField(attr -> {
+            if (name.equals(attr.getName())) {
+                ref.set(attr);
+                return false;
+            }
+            return true;
+        }, context);
+        return ref.get();
     }
 
     @Nullable

@@ -103,7 +103,7 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
     private static List<PsiDirectory> getDepends(@NotNull PsiFile manifest) {
         List<PsiDirectory> result = new LinkedList<>();
         Project project = manifest.getProject();
-        OdooModuleInfo info = OdooModuleInfo.readFromManifest(manifest);
+        OdooModuleInfo info = OdooModuleInfo.getInfo(manifest);
         if (info != null) {
             info.getDepends().forEach(s -> {
                 PsiDirectory module = getModule(s, project);

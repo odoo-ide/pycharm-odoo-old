@@ -5,7 +5,6 @@ import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.openapi.fileTypes.FileTypeEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.util.UserDataHolderBase;
@@ -31,7 +30,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 
 public class OdooModelClassType extends UserDataHolderBase implements PyCollectionType {
@@ -57,7 +55,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         if (OdooNames.BASE_MODEL_CLASS_QNAME.equals(source.getQualifiedName())) {
             return new OdooModelClassType("", recordSetType, source.getProject());
         }
-        OdooModelInfo info = OdooModelInfo.readFromClass(source);
+        OdooModelInfo info = OdooModelInfo.getInfo(source);
         if (info != null) {
             return new OdooModelClassType(info.getName(), recordSetType, source.getProject());
         }
@@ -122,7 +120,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
                 if (element instanceof PyFunction) {
                     element = OdooModelFunction.wrapIfNeeded((PyFunction) element, this);
                 }
-                result.add(new ImplicitResolveResult(element, RatedResolveResult.RATE_NORMAL));
+                result.add(new RatedResolveResult(RatedResolveResult.RATE_NORMAL, element));
             }
             return true;
         }, true, context);
@@ -136,13 +134,16 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
     public void visitMembers(@NotNull Processor<PsiElement> processor, boolean inherited,
                              @NotNull TypeEvalContext context) {
         if (inherited) {
-            Stream.concat(
-                    myClass.getAncestorClasses(context).stream(),
-                    myClass.getDelegationChildren(context).stream()).forEach(cls -> {
-                cls.processClassLevelDeclarations((element, state) -> {
-                    return processor.process(element);
-                });
-            });
+            for (PyClass cls : myClass.getAncestorClasses(context)) {
+                if (!cls.processClassLevelDeclarations((element, state) -> processor.process(element))) {
+                    return;
+                }
+            }
+            for (OdooModelClass cls : myClass.getDelegationChildren(context)) {
+                if (!cls.visitField(processor::process, context)) {
+                    return;
+                }
+            }
         }
     }
 
@@ -225,18 +226,6 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
             }
             return true;
         }, true, context);
-        myClass.getDelegationChildren(context).forEach(child -> {
-            child.visitClassAttributes(attr -> {
-                if (OdooFieldInfo.getFieldType(attr, context) != null) {
-                    String name = attr.getName();
-                    if (!names.contains(name)) {
-                        lines.add(getCompletionLine(attr, context));
-                        names.add(name);
-                    }
-                }
-                return true;
-            }, true, context);
-        });
         return lines.toArray();
     }
 
@@ -355,7 +344,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
                 OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) element, context);
                 PyType type = OdooFieldInfo.getFieldType((PyTargetExpression) element, context);
                 if (info != null) {
-                    typeText = info.getClassName();
+                    typeText = info.getTypeName();
                     if (type instanceof OdooModelClassType) {
                         typeText = "(" + type.getName() + ") " + typeText;
                     }

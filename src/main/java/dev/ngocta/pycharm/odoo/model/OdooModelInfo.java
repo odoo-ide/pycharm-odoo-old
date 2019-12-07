@@ -14,16 +14,13 @@ import java.util.*;
 
 public class OdooModelInfo {
     private final String myName;
-    private final PsiDirectory myModule;
     private final List<String> myInherit;
     private final Map<String, String> myInherits;
 
     private OdooModelInfo(@NotNull String name,
-                          @NotNull PsiDirectory module,
                           @Nullable List<String> inherit,
                           @Nullable Map<String, String> inherits) {
         myName = name;
-        myModule = module;
         if (inherit == null) {
             inherit = Collections.emptyList();
         }
@@ -40,11 +37,6 @@ public class OdooModelInfo {
     }
 
     @NotNull
-    public PsiDirectory getModule() {
-        return myModule;
-    }
-
-    @NotNull
     public List<String> getInherit() {
         return myInherit;
     }
@@ -55,15 +47,15 @@ public class OdooModelInfo {
     }
 
     @Nullable
-    public static OdooModelInfo readFromClass(PyClass pyClass) {
+    public static OdooModelInfo getInfo(PyClass pyClass) {
         return CachedValuesManager.getCachedValue(pyClass, () -> {
-            OdooModelInfo info = doReadFromClass(pyClass);
+            OdooModelInfo info = getInfoInner(pyClass);
             return CachedValueProvider.Result.createSingleDependency(info, pyClass);
         });
     }
 
     @Nullable
-    private static OdooModelInfo doReadFromClass(PyClass pyClass) {
+    private static OdooModelInfo getInfoInner(PyClass pyClass) {
         PsiFile psiFile = pyClass.getContainingFile();
         if (psiFile == null) {
             return null;
@@ -115,7 +107,7 @@ public class OdooModelInfo {
         }
 
         if (model != null) {
-            return new OdooModelInfo(model, module, inherit, inherits);
+            return new OdooModelInfo(model, inherit, inherits);
         }
         return null;
     }

@@ -21,7 +21,7 @@ public class OdooModelFunctionCreateTypeProvider extends PyTypeProviderBase {
             // TODO: check decorator
             PyClass cls = function.getContainingClass();
             PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(cls);
-            if (cls != null && (OdooNames.BASE_MODEL_CLASS_QNAME.equals(cls.getQualifiedName()) || OdooModelInfo.readFromClass(cls) != null)) {
+            if (cls != null && (OdooNames.BASE_MODEL_CLASS_QNAME.equals(cls.getQualifiedName()) || OdooModelInfo.getInfo(cls) != null)) {
                 PyType type = PyUnionType.union(builtinCache.getListType(), builtinCache.getDictType());
                 if (type != null) {
                     return Ref.create(type);

@@ -25,20 +25,20 @@ public class OdooModuleInfo {
     }
 
     @Nullable
-    public static OdooModuleInfo readFromManifest(@NotNull PsiFile file) {
-        return CachedValuesManager.getCachedValue(file, () -> {
-            OdooModuleInfo info = doReadFromManifest(file);
-            return CachedValueProvider.Result.createSingleDependency(info, file.getVirtualFile());
+    public static OdooModuleInfo getInfo(@NotNull PsiFile manifest) {
+        return CachedValuesManager.getCachedValue(manifest, () -> {
+            OdooModuleInfo info = getInfoInner(manifest);
+            return CachedValueProvider.Result.createSingleDependency(info, manifest.getVirtualFile());
         });
     }
 
     @Nullable
-    private static OdooModuleInfo doReadFromManifest(@NotNull PsiFile file) {
-        if (!(file instanceof PyFile) || !file.getName().equals(OdooNames.MANIFEST_FILE_NAME)) {
+    private static OdooModuleInfo getInfoInner(@NotNull PsiFile manifest) {
+        if (!(manifest instanceof PyFile) || !manifest.getName().equals(OdooNames.MANIFEST_FILE_NAME)) {
             return null;
         }
 
-        PyDictLiteralExpression dictExpression = PsiTreeUtil.findChildOfType(file, PyDictLiteralExpression.class);
+        PyDictLiteralExpression dictExpression = PsiTreeUtil.findChildOfType(manifest, PyDictLiteralExpression.class);
         if (dictExpression == null) {
             return null;
         }

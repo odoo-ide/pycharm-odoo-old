@@ -37,7 +37,7 @@ public class OdooModelIndex extends ScalarIndexExtension<String> {
         if (OdooUtils.isOdooModelFile(psiFile)) {
             PyFile pyFile = (PyFile) psiFile;
             pyFile.getTopLevelClasses().forEach(pyClass -> {
-                OdooModelInfo info = OdooModelInfo.readFromClass(pyClass);
+                OdooModelInfo info = OdooModelInfo.getInfo(pyClass);
                 if (info != null) {
                     result.put(info.getName(), null);
                 }
@@ -100,7 +100,7 @@ public class OdooModelIndex extends ScalarIndexExtension<String> {
                 if (cachedClasses == null) {
                     List<PyClass> classes = new LinkedList<>();
                     ((PyFile) psiFile).getTopLevelClasses().forEach(cls -> {
-                        OdooModelInfo info = OdooModelInfo.readFromClass(cls);
+                        OdooModelInfo info = OdooModelInfo.getInfo(cls);
                         if (info != null && info.getName().equals(model)) {
                             classes.add(cls);
                         }
