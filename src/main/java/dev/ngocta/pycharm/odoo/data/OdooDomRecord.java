@@ -1,7 +1,6 @@
-package dev.ngocta.pycharm.odoo.xml;
+package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.Attribute;

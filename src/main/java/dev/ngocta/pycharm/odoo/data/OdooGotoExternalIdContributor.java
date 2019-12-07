@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo.xml;
+package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.navigation.ChooseByNameContributorEx;
 import com.intellij.navigation.NavigationItem;
@@ -12,19 +12,19 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
-public class OdooGotoXmlIdContributor implements ChooseByNameContributorEx {
+public class OdooGotoExternalIdContributor implements ChooseByNameContributorEx {
     @Override
     public void processNames(@NotNull Processor<String> processor, @NotNull GlobalSearchScope scope, @Nullable IdFilter filter) {
         Project project = scope.getProject();
         if (project != null) {
-            Collection<String> ids = OdooXmlIdIndex.getAllXmlIds(project);
+            Collection<String> ids = OdooExternalIdIndex.getAllExternalIds(project);
             ids.forEach(processor::process);
         }
     }
 
     @Override
     public void processElementsWithName(@NotNull String name, @NotNull Processor<NavigationItem> processor, @NotNull FindSymbolParameters parameters) {
-        Collection<OdooRecordDefinition> items = OdooXmlIdIndex.findRecordDefinitions(name, parameters.getProject());
+        Collection<OdooRecordDefinition> items = OdooExternalIdIndex.findRecordDefinitions(name, parameters.getProject());
         items.forEach(processor::process);
     }
 }

@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo.xml;
+package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
@@ -87,6 +87,12 @@ public class OdooRecordCsvDefinition extends FakePsiElement implements OdooRecor
 
     @Override
     public void navigate(boolean requestFocus) {
-        (new OpenFileDescriptor(myProject, myFile)).navigate(requestFocus);
+        OdooDataUtils.processCsvRecord(myFile, (id, lineNumber) -> {
+            if (id.equals(myId)) {
+                (new OpenFileDescriptor(myProject, myFile, lineNumber - 1, 0)).navigate(requestFocus);
+                return false;
+            }
+            return true;
+        });
     }
 }

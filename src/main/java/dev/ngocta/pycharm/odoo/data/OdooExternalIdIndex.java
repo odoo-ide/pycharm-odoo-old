@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo.xml;
+package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -6,24 +6,18 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.xml.XmlFile;
-import com.intellij.util.Processor;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.DomManager;
-import dev.ngocta.pycharm.odoo.OdooUtils;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.InputStream;
 import java.util.*;
 
-public class OdooXmlIdIndex extends ScalarIndexExtension<String> {
-    private static final ID<String, Void> NAME = ID.create("odoo.xml.id");
+public class OdooExternalIdIndex extends ScalarIndexExtension<String> {
+    private static final ID<String, Void> NAME = ID.create("odoo.external.id");
     private static final String EXT_CSV = "csv";
     private static final String EXT_XML = "xml";
 
@@ -52,7 +46,7 @@ public class OdooXmlIdIndex extends ScalarIndexExtension<String> {
                     });
                 }
             } else if (EXT_CSV.equals(file.getExtension())) {
-                processCsvRecord(file, id -> {
+                OdooDataUtils.processCsvRecord(file, (id, lineNumber) -> {
                     result.put(id, null);
                     return true;
                 });
@@ -86,32 +80,6 @@ public class OdooXmlIdIndex extends ScalarIndexExtension<String> {
         return true;
     }
 
-    private static void processCsvRecord(@NotNull VirtualFile file, @NotNull Processor<String> processor) {
-        VirtualFile moduleDirectory = OdooUtils.getOdooModuleDirectory(file);
-        if (moduleDirectory == null) {
-            return;
-        }
-        try {
-            InputStream inputStream = file.getInputStream();
-            CSVParser parser = CSVParser.parse(inputStream, file.getCharset(), CSVFormat.DEFAULT.withHeader());
-            if (!parser.getHeaderNames().contains("id")) {
-                return;
-            }
-            for (CSVRecord strings : parser) {
-                String id = strings.get("id");
-                if (id != null) {
-                    if (!id.contains(".")) {
-                        id = moduleDirectory.getName() + "." + id;
-                    }
-                    if (!processor.process(id)) {
-                        break;
-                    }
-                }
-            }
-        } catch (Exception ignored) {
-        }
-    }
-
     @Nullable
     private static OdooDomRoot getDomRoot(@NotNull XmlFile xmlFile) {
         DomManager domManager = DomManager.getDomManager(xmlFile.getProject());
@@ -123,7 +91,7 @@ public class OdooXmlIdIndex extends ScalarIndexExtension<String> {
     }
 
     @NotNull
-    public static Collection<String> getAllXmlIds(@NotNull Project project) {
+    public static Collection<String> getAllExternalIds(@NotNull Project project) {
         FileBasedIndex index = FileBasedIndex.getInstance();
         return index.getAllKeys(NAME, project);
     }
@@ -150,13 +118,7 @@ public class OdooXmlIdIndex extends ScalarIndexExtension<String> {
                     }
                 }
             } else if (EXT_CSV.equals(extension)) {
-                processCsvRecord(file, s -> {
-                    if (id.equals(s)) {
-                        result.add(new OdooRecordCsvDefinition(s, file, project));
-                        return false;
-                    }
-                    return true;
-                });
+                result.add(new OdooRecordCsvDefinition(id, file, project));
             }
         });
         return result;

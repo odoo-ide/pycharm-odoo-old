@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo.xml;
+package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.util.xml.DomFileDescription;
 

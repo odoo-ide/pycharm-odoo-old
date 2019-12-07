@@ -30,14 +30,14 @@
     <extensions defaultExtensionNs="com.intellij">
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.module.OdooModuleIndex"/>
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.model.OdooModelIndex"/>
-        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.xml.OdooXmlIdIndex"/>
+        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.data.OdooExternalIdIndex"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.module.OdooManifestReferenceContributor" language="Python"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.model.OdooComputeFunctionReferenceContributor" language="Python"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.model.OdooModelReferenceContributor" language="Python"/>
-        <dom.fileMetaData implementation="dev.ngocta.pycharm.odoo.xml.OdooDomFileMetaData" rootTagName="odoo"/>
+        <dom.fileMetaData implementation="dev.ngocta.pycharm.odoo.data.OdooDomFileMetaData" rootTagName="odoo"/>
         <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.GotoClassAttributeContributor"/>
-        <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.xml.OdooGotoXmlIdContributor"/>
-        <xmlStructureViewBuilderProvider implementation="dev.ngocta.pycharm.odoo.xml.OdooXmlStructureViewBuilderProvider" order="first"/>
+        <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.data.OdooGotoExternalIdContributor"/>
+        <xmlStructureViewBuilderProvider implementation="dev.ngocta.pycharm.odoo.data.OdooXmlStructureViewBuilderProvider" order="first"/>
     </extensions>
     <actions>
         <!-- Add your actions here -->
