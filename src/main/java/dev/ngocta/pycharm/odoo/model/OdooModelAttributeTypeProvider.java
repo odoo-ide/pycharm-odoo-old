@@ -8,7 +8,7 @@ import com.jetbrains.python.psi.PyTargetExpression;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.PyTypeProviderBase;
 import com.jetbrains.python.psi.types.TypeEvalContext;
-import dev.ngocta.pycharm.odoo.OdooUtils;
+import dev.ngocta.pycharm.odoo.OdooTypeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,13 +20,16 @@ public class OdooModelAttributeTypeProvider extends PyTypeProviderBase {
         PyExpression qualifier = referenceExpression.getQualifier();
         if (referenceName != null && qualifier != null) {
             PyType qualifierType = context.getType(qualifier);
-            OdooModelClassType modelType = OdooUtils.unpackType(qualifierType, OdooModelClassType.class);
+            OdooModelClassType modelType = (OdooModelClassType) OdooTypeUtils.extractType(qualifierType, pyType -> pyType instanceof OdooModelClassType);
             if (modelType != null && modelType.getRecordSetType() != OdooRecordSetType.NONE) {
+                if (modelType.getImplicitAttributeNames(context).contains(referenceName)) {
+                    return modelType.getImplicitAttributeTypes(context).get(referenceName);
+                }
                 Ref<PyType> ref = new Ref<>();
                 modelType.visitMembers(element -> {
                     if (element instanceof PsiNamedElement && referenceName.equals(((PsiNamedElement) element).getName())) {
                         if (element instanceof PyTargetExpression) {
-                            PyType type = OdooUtils.getFieldType((PyTargetExpression) element, context);
+                            PyType type = OdooFieldInfo.getFieldType((PyTargetExpression) element, context);
                             if (type != null) {
                                 ref.set(type);
                             }

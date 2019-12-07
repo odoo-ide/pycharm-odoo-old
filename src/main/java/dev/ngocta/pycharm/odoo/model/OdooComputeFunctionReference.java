@@ -6,7 +6,6 @@ import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.types.TypeEvalContext;
-import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +17,7 @@ public class OdooComputeFunctionReference extends PsiReferenceBase<PsiElement> i
     @Nullable
     @Override
     public PsiElement resolve() {
-        OdooModelClass cls = OdooUtils.getContainingOdooModelClass(getElement());
+        OdooModelClass cls = OdooModelUtils.getContainingOdooModelClass(getElement());
         if (cls != null) {
             TypeEvalContext context = TypeEvalContext.codeAnalysis(getElement().getProject(), getElement().getContainingFile());
             return cls.findMethodByName(getValue(), true, context);

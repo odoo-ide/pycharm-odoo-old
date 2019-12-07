@@ -9,17 +9,11 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.jetbrains.python.PyNames;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyFile;
 import com.jetbrains.python.psi.PyPsiFacade;
-import com.jetbrains.python.psi.PyTargetExpression;
-import com.jetbrains.python.psi.impl.PyBuiltinCache;
-import com.jetbrains.python.psi.types.*;
 import com.sun.istack.NotNull;
 import com.sun.istack.Nullable;
-import dev.ngocta.pycharm.odoo.model.*;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -58,51 +52,6 @@ public class OdooUtils {
     }
 
     @Nullable
-    public static PyType getFieldType(@NotNull PyTargetExpression field, @NotNull TypeEvalContext context) {
-        OdooFieldInfo info = OdooFieldInfo.get(field, context);
-        if (info == null) {
-            return null;
-        }
-        Project project = field.getProject();
-        PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(field);
-        switch (info.getClassName()) {
-            case OdooNames.FIELD_TYPE_MANY2ONE:
-            case OdooNames.FIELD_TYPE_ONE2MANY:
-            case OdooNames.FIELD_TYPE_MANY2MANY:
-                if (info.getComodel() != null) {
-                    OdooRecordSetType recordSetType = OdooNames.FIELD_TYPE_MANY2ONE.equals(info.getClassName()) ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
-                    return new OdooModelClassType(info.getComodel(), recordSetType, project);
-                } else if (info.getRelated() != null) {
-                    OdooModelClass modelClass = getContainingOdooModelClass(field);
-                    if (modelClass != null) {
-                        PyTargetExpression relatedField = modelClass.findFieldByPath(info.getRelated(), context);
-                        if (relatedField != null) {
-                            return getFieldType(relatedField, context);
-                        }
-                    }
-                }
-                return null;
-            case OdooNames.FIELD_TYPE_BOOLEAN:
-                return builtinCache.getBoolType();
-            case OdooNames.FIELD_TYPE_INTEGER:
-                return builtinCache.getIntType();
-            case OdooNames.FIELD_TYPE_FLOAT:
-            case OdooNames.FIELD_TYPE_MONETARY:
-                return builtinCache.getFloatType();
-            case OdooNames.FIELD_TYPE_CHAR:
-            case OdooNames.FIELD_TYPE_TEXT:
-            case OdooNames.FIELD_TYPE_SELECTION:
-                return builtinCache.getStrType();
-            case OdooNames.FIELD_TYPE_DATE:
-                return getDateType(field);
-            case OdooNames.FIELD_TYPE_DATETIME:
-                return getDatetimeType(field);
-            default:
-                return null;
-        }
-    }
-
-    @Nullable
     public static PyClass getClassByQName(@NotNull String name, @NotNull PsiElement anchor) {
         Project project = anchor.getProject();
         ConcurrentMap<String, PyClass> cache = CachedValuesManager.getManager(project).getCachedValue(project, () -> {
@@ -117,64 +66,4 @@ public class OdooUtils {
         return cls;
     }
 
-    @Nullable
-    public static PyClassType getClassTypeByQName(@NotNull String name, @NotNull PsiElement anchor, boolean isDefinition) {
-        PyClass cls = OdooUtils.getClassByQName(name, anchor);
-        if (cls != null) {
-            return new PyClassTypeImpl(cls, isDefinition);
-        }
-        return null;
-    }
-
-    @Nullable
-    public static PyClassType getDateType(@NotNull PsiElement anchor) {
-        return getClassTypeByQName(PyNames.TYPE_DATE, anchor, false);
-    }
-
-    @Nullable
-    public static PyClassType getDatetimeType(@NotNull PsiElement anchor) {
-        return getClassTypeByQName(PyNames.TYPE_DATE_TIME, anchor, false);
-    }
-
-    @Nullable
-    public static PyClassType getEnvironmentType(@NotNull PsiElement anchor) {
-        return getClassTypeByQName(OdooNames.ENVIRONMENT_CLASS_QNAME, anchor, false);
-    }
-
-    @NotNull
-    public static PyClassType getContextType(@NotNull PsiElement anchor) {
-        PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(anchor);
-        return builtinCache.getDictType();
-    }
-
-    @Nullable
-    public static PyClassType getDbCursorType(@NotNull PsiElement anchor) {
-        return getClassTypeByQName(OdooNames.DB_CURSOR_CLASS_QNAME, anchor, false);
-    }
-
-    @Nullable
-    public static <T extends PyType> T unpackType(PyType type, Class<T> unpackedTypeClass) {
-        if (unpackedTypeClass.isInstance(type)) {
-            return unpackedTypeClass.cast(type);
-        }
-        if (type instanceof PyUnionType) {
-            for (PyType member : ((PyUnionType) type).getMembers()) {
-                if (unpackedTypeClass.isInstance(member)) {
-                    return unpackedTypeClass.cast(member);
-                }
-            }
-        }
-        return null;
-    }
-
-    public static OdooModelClass getContainingOdooModelClass(@NotNull PsiElement element) {
-        PyClass cls = PsiTreeUtil.getParentOfType(element, PyClass.class);
-        if (cls != null) {
-            OdooModelInfo info = OdooModelInfo.readFromClass(cls);
-            if (info != null) {
-                return OdooModelClass.create(info.getName(), element.getProject());
-            }
-        }
-        return null;
-    }
 }

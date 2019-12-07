@@ -5,6 +5,7 @@ import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.openapi.fileTypes.FileTypeEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.util.UserDataHolderBase;
@@ -25,7 +26,7 @@ import com.jetbrains.python.psi.resolve.PyResolveContext;
 import com.jetbrains.python.psi.resolve.RatedResolveResult;
 import com.jetbrains.python.psi.types.*;
 import dev.ngocta.pycharm.odoo.OdooNames;
-import dev.ngocta.pycharm.odoo.OdooUtils;
+import dev.ngocta.pycharm.odoo.OdooTypeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -119,7 +120,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         visitMembers(element -> {
             if (element instanceof PsiNamedElement && name.equals(((PsiNamedElement) element).getName())) {
                 if (element instanceof PyFunction) {
-                    element = OdooModelFunction.wrap((PyFunction) element, this);
+                    element = OdooModelFunction.wrapIfNeeded((PyFunction) element, this);
                 }
                 result.add(new ImplicitResolveResult(element, RatedResolveResult.RATE_NORMAL));
             }
@@ -226,7 +227,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         }, true, context);
         myClass.getDelegationChildren(context).forEach(child -> {
             child.visitClassAttributes(attr -> {
-                if (OdooUtils.getFieldType(attr, context) != null) {
+                if (OdooFieldInfo.getFieldType(attr, context) != null) {
                     String name = attr.getName();
                     if (!names.contains(name)) {
                         lines.add(getCompletionLine(attr, context));
@@ -279,23 +280,23 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
                         break;
                     case OdooNames.FIELD_CREATE_DATE:
                     case OdooNames.FIELD_WRITE_DATE:
-                        result.put(field, OdooUtils.getDatetimeType(file));
+                        result.put(field, OdooTypeUtils.getDatetimeType(file));
                         break;
                     case OdooNames.FIELD_CREATE_UID:
                     case OdooNames.FIELD_WRITE_UID:
                         result.put(field, new OdooModelClassType(OdooNames.RES_USERS, OdooRecordSetType.MULTI, getProject()));
                         break;
                     case OdooNames.ENV:
-                        result.put(field, OdooUtils.getEnvironmentType(file));
+                        result.put(field, OdooTypeUtils.getEnvironmentType(file));
                         break;
                     case OdooNames.MODEL_CONTEXT:
-                        result.put(field, OdooUtils.getContextType(file));
+                        result.put(field, OdooTypeUtils.getContextType(file));
                         break;
                     case OdooNames.MODEL_CR:
-                        result.put(field, OdooUtils.getDbCursorType(file));
+                        result.put(field, OdooTypeUtils.getDbCursorType(file));
                         break;
                     case OdooNames.MODEL_POOL:
-                        result.put(field, OdooUtils.getClassTypeByQName(OdooNames.REGISTRY_CLASS_QNAME, file, false));
+                        result.put(field, OdooTypeUtils.getClassTypeByQName(OdooNames.REGISTRY_CLASS_QNAME, file, false));
                 }
             });
         }
@@ -351,8 +352,8 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
             double priority = 0;
             InsertHandler<LookupElement> insertHandler = new BasicInsertHandler<>();
             if (element instanceof PyTargetExpression) {
-                OdooFieldInfo info = OdooFieldInfo.get((PyTargetExpression) element, context);
-                PyType type = OdooUtils.getFieldType((PyTargetExpression) element, context);
+                OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) element, context);
+                PyType type = OdooFieldInfo.getFieldType((PyTargetExpression) element, context);
                 if (info != null) {
                     typeText = info.getClassName();
                     if (type instanceof OdooModelClassType) {
@@ -447,7 +448,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         }
         PyTargetExpression field = myClass.findFieldByPath(fieldNames, context);
         if (field != null) {
-            PyType fieldType = OdooUtils.getFieldType(field, context);
+            PyType fieldType = OdooFieldInfo.getFieldType(field, context);
             if (toId) {
                 if (fieldType instanceof OdooModelClassType) {
                     return intType;

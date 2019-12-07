@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 
 public class OdooModelFunction {
-    public static PyFunction wrap(@NotNull PyFunction origin, @NotNull OdooModelClassType modelClassType) {
+    public static PyFunction wrapIfNeeded(@NotNull PyFunction origin, @NotNull OdooModelClassType modelClassType) {
         String name = origin.getName();
         if (name != null) {
             switch (name) {

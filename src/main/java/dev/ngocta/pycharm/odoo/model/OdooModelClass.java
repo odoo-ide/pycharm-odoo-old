@@ -522,7 +522,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @Nullable
     public PyTargetExpression findField(@NotNull String name, @NotNull TypeEvalContext context) {
         PyTargetExpression attr = findClassAttribute(name, true, context);
-        if (attr != null && OdooFieldInfo.get(attr, context) != null) {
+        if (attr != null && OdooFieldInfo.getInfo(attr, context) != null) {
             return attr;
         }
         List<OdooModelClass> children = getDelegationChildren(context);
@@ -552,7 +552,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
             return field;
         }
         if (field != null) {
-            PyType fieldType = OdooUtils.getFieldType(field, context);
+            PyType fieldType = OdooFieldInfo.getFieldType(field, context);
             if (fieldType instanceof OdooModelClassType) {
                 fieldNames = fieldNames.subList(1, fieldNames.size());
                 return ((OdooModelClassType) fieldType).getPyClass().findFieldByPath(fieldNames, context);

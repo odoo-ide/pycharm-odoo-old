@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo.model;
+package dev.ngocta.pycharm.odoo;
 
 import com.intellij.openapi.util.Ref;
 import com.intellij.psi.PsiElement;
@@ -9,8 +9,6 @@ import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.PyTypeProviderBase;
 import com.jetbrains.python.psi.types.PyUnionType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
-import dev.ngocta.pycharm.odoo.OdooNames;
-import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,8 +18,8 @@ public class OdooWebRequestTypeProvider extends PyTypeProviderBase {
         if (referenceTarget instanceof PyTargetExpression && OdooNames.REQUEST_QNAME.equals(((PyTargetExpression) referenceTarget).getQualifiedName())) {
             return CachedValuesManager.getCachedValue(referenceTarget, () -> {
                 Ref<PyType> result = null;
-                PyType httpRequestType = OdooUtils.getClassTypeByQName(OdooNames.HTTP_REQUEST_CLASS_QNAME, referenceTarget, false);
-                PyType jsonRequestType = OdooUtils.getClassTypeByQName(OdooNames.JSON_REQUEST_CLASS_QNAME, referenceTarget, false);
+                PyType httpRequestType = OdooTypeUtils.getClassTypeByQName(OdooNames.HTTP_REQUEST_CLASS_QNAME, referenceTarget, false);
+                PyType jsonRequestType = OdooTypeUtils.getClassTypeByQName(OdooNames.JSON_REQUEST_CLASS_QNAME, referenceTarget, false);
                 if (httpRequestType != null && jsonRequestType != null) {
                     result = Ref.create(PyUnionType.union(httpRequestType, jsonRequestType));
                 }

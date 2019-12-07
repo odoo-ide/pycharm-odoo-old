@@ -8,7 +8,6 @@ import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.PyTypeProviderBase;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
-import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +26,7 @@ public class OdooModelFunctionLambdaTypeProvider extends PyTypeProviderBase {
                         if (parent.getParent() instanceof PyKeywordArgument) {
                             PyKeywordArgument arg = (PyKeywordArgument) parent.getParent();
                             if (OdooNames.FIELD_PARAM_DEFAULT.equals(arg.getKeyword())) {
-                                OdooModelClass cls = OdooUtils.getContainingOdooModelClass(referenceExpression);
+                                OdooModelClass cls = OdooModelUtils.getContainingOdooModelClass(referenceExpression);
                                 if (cls != null) {
                                     return new OdooModelClassType(cls, OdooRecordSetType.MODEL);
                                 }
