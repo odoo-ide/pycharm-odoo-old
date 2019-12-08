@@ -9,7 +9,7 @@ import com.jetbrains.python.psi.types.TypeEvalContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class OdooModelFunctionSelfTypeProvider extends PyTypeProviderBase {
+public class OdooSelfTypeProvider extends PyTypeProviderBase {
     @Nullable
     @Override
     public Ref<PyType> getParameterType(@NotNull PyNamedParameter param, @NotNull PyFunction function, @NotNull TypeEvalContext context) {
@@ -22,7 +22,8 @@ public class OdooModelFunctionSelfTypeProvider extends PyTypeProviderBase {
                     PyFunction func = parameterList.getContainingFunction();
                     if (func != null) {
                         final PyFunction.Modifier modifier = func.getModifier();
-                        OdooRecordSetType recordSetType = modifier == PyFunction.Modifier.CLASSMETHOD ? OdooRecordSetType.NONE : OdooRecordSetType.MULTI;
+                        OdooRecordSetType recordSetType =
+                                modifier == PyFunction.Modifier.CLASSMETHOD ? OdooRecordSetType.NONE : OdooRecordSetType.MULTI;
                         OdooModelClassType type = OdooModelClassType.create(pyClass, recordSetType);
                         if (type != null) {
                             return Ref.create(type);

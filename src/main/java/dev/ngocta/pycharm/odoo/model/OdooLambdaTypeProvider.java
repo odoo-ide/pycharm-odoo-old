@@ -11,7 +11,7 @@ import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class OdooModelFunctionLambdaTypeProvider extends PyTypeProviderBase {
+public class OdooLambdaTypeProvider extends PyTypeProviderBase {
     @Nullable
     @Override
     public PyType getReferenceExpressionType(@NotNull PyReferenceExpression referenceExpression, @NotNull TypeEvalContext context) {

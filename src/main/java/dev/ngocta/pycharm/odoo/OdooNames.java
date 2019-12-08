@@ -27,15 +27,9 @@ public class OdooNames {
     public static final String FIELD_PARAM_INVERSE = "inverse";
     public static final String FIELD_PARAM_DEFAULT = "default";
     public static final String ENV = "env";
-    public static final String BROWSE = "browse";
-    public static final String CREATE = "create";
     public static final String MAPPED = "mapped";
     public static final String FILTERED = "filtered";
-    public static final String SORTED = "sorted";
     public static final String SEARCH = "search";
-    public static final String SUDO = "sudo";
-    public static final String WITH_CONTEXT = "with_context";
-    public static final String WITH_ENV = "with_env";
     public static final String RES_USERS = "res.users";
     public static final String BASE_MODEL_CLASS_QNAME = "odoo.models.BaseModel";
     public static final String ENVIRONMENT_CLASS_QNAME = "odoo.api.Environment";
@@ -58,7 +52,4 @@ public class OdooNames {
     public static final String MODEL_POOL = "pool";
     public static final String MODEL_FIELDS = "_fields";
     public static final String MODULE_BASE = "base";
-    public static final String REQUEST_QNAME = "odoo.http.request";
-    public static final String HTTP_REQUEST_CLASS_QNAME = "odoo.http.HttpRequest";
-    public static final String JSON_REQUEST_CLASS_QNAME = "odoo.http.JsonRequest";
 }

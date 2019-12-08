@@ -52,9 +52,6 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         if (source instanceof OdooModelClass) {
             return new OdooModelClassType((OdooModelClass) source, recordSetType);
         }
-        if (OdooNames.BASE_MODEL_CLASS_QNAME.equals(source.getQualifiedName())) {
-            return new OdooModelClassType("", recordSetType, source.getProject());
-        }
         OdooModelInfo info = OdooModelInfo.getInfo(source);
         if (info != null) {
             return new OdooModelClassType(info.getName(), recordSetType, source.getProject());
@@ -117,8 +114,8 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
         TypeEvalContext context = resolveContext.getTypeEvalContext();
         visitMembers(element -> {
             if (element instanceof PsiNamedElement && name.equals(((PsiNamedElement) element).getName())) {
-                if (element instanceof PyFunction) {
-                    element = OdooModelFunction.wrapIfNeeded((PyFunction) element, this);
+                if (PyNames.GETITEM.equals(name)) {
+                    element = new OdooModelGetItemFunction((PyFunction) element, this);
                 }
                 result.add(new RatedResolveResult(RatedResolveResult.RATE_NORMAL, element));
             }
