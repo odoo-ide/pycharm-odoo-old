@@ -37,7 +37,7 @@ public class OdooExternalIdIndex extends ScalarIndexExtension<String> {
             if (psiFile instanceof XmlFile) {
                 OdooDomRoot root = getDomRoot((XmlFile) psiFile);
                 if (root != null) {
-                    List<OdooDomRecord> tags = root.getAllRecords();
+                    List<OdooDomRecord> tags = root.getAllRecordVariants();
                     tags.forEach(tag -> {
                         String id = tag.getQualifiedId(file);
                         if (id != null) {
@@ -63,7 +63,7 @@ public class OdooExternalIdIndex extends ScalarIndexExtension<String> {
 
     @Override
     public int getVersion() {
-        return 0;
+        return 3;
     }
 
     @NotNull
@@ -97,11 +97,11 @@ public class OdooExternalIdIndex extends ScalarIndexExtension<String> {
     }
 
     @NotNull
-    public static Collection<OdooRecordDefinition> findRecordDefinitions(@NotNull String id, @NotNull Project project) {
+    public static Collection<OdooRecordItem> findRecordDefinitions(@NotNull String id, @NotNull Project project) {
         FileBasedIndex index = FileBasedIndex.getInstance();
         Collection<VirtualFile> files = index.getContainingFiles(NAME, id, GlobalSearchScope.allScope(project));
         PsiManager psiManager = PsiManager.getInstance(project);
-        Collection<OdooRecordDefinition> result = new LinkedList<>();
+        Collection<OdooRecordItem> result = new LinkedList<>();
         files.forEach(file -> {
             String extension = file.getExtension();
             if (EXT_XML.equals(extension)) {
@@ -109,16 +109,16 @@ public class OdooExternalIdIndex extends ScalarIndexExtension<String> {
                 if (psiFile instanceof XmlFile) {
                     OdooDomRoot root = getDomRoot((XmlFile) psiFile);
                     if (root != null) {
-                        List<OdooDomRecord> records = root.getAllRecords();
+                        List<OdooDomRecord> records = root.getAllRecordVariants();
                         for (OdooDomRecord record : records) {
                             if (id.equals(record.getQualifiedId(file))) {
-                                result.add(new OdooRecordXmlDefinition(record));
+                                result.add(new OdooRecordItemXml(record));
                             }
                         }
                     }
                 }
             } else if (EXT_CSV.equals(extension)) {
-                result.add(new OdooRecordCsvDefinition(id, file, project));
+                result.add(new OdooRecordItemCsv(id, file, project));
             }
         });
         return result;

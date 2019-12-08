@@ -12,9 +12,9 @@ public interface OdooDomRoot extends DomElement, OdooDomRecordContainer {
     @SubTagList("data")
     List<OdooDomData> getData();
 
-    default List<OdooDomRecord> getAllRecords() {
-        List<OdooDomRecord> result = new LinkedList<>(getRecords());
-        getData().forEach(data -> result.addAll(data.getRecords()));
+    default List<OdooDomRecord> getAllRecordVariants() {
+        List<OdooDomRecord> result = new LinkedList<>(getRecordVariants());
+        getData().forEach(data -> result.addAll(data.getRecordVariants()));
         return result;
     }
 }

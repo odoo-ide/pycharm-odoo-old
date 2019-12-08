@@ -8,11 +8,11 @@ import com.intellij.psi.xml.XmlTag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class OdooRecordXmlDefinition implements OdooRecordDefinition {
+public class OdooRecordItemXml implements OdooRecordItem {
     private final OdooDomRecord myRecord;
     private final XmlTag myTag;
 
-    public OdooRecordXmlDefinition(OdooDomRecord record) {
+    public OdooRecordItemXml(OdooDomRecord record) {
         myRecord = record;
         myTag = record.getXmlTag();
     }
@@ -26,7 +26,7 @@ public class OdooRecordXmlDefinition implements OdooRecordDefinition {
     @NotNull
     @Override
     public String getModel() {
-        String model = myRecord.getModel().getValue();
+        String model = myRecord.getModel();
         if (model != null) {
             return model;
         }

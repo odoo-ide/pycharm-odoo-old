@@ -7,13 +7,7 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface OdooRecordDefinition extends NavigationItem {
-    @NotNull
-    String getId();
-
-    @NotNull
-    String getModel();
-
+public interface OdooRecordItem extends OdooRecord, NavigationItem {
     @Nullable
     VirtualFile getFile();
 
@@ -29,6 +23,6 @@ public interface OdooRecordDefinition extends NavigationItem {
     @Nullable
     @Override
     default ItemPresentation getPresentation() {
-        return new OdooRecordPresentation(this);
+        return new OdooRecordItemPresentation(this);
     }
 }

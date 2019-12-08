@@ -9,15 +9,17 @@ import com.intellij.util.xml.GenericAttributeValue;
 import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 
-public interface OdooDomRecord extends DomElement {
+public interface OdooDomRecord extends DomElement, OdooRecord {
     @Attribute("id")
-    GenericAttributeValue<String> getId();
+    GenericAttributeValue<String> getIdAttr();
 
-    @Attribute("model")
-    GenericAttributeValue<String> getModel();
+    @Override
+    default String getId() {
+        return getIdAttr().getValue();
+    }
 
     default String getQualifiedId(@NotNull VirtualFile xmlFile) {
-        String id = getId().getValue();
+        String id = getId();
         if (id != null && !id.contains(".")) {
             VirtualFile moduleDir = OdooUtils.getOdooModuleDirectory(xmlFile);
             if (moduleDir != null) {
