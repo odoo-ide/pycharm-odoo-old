@@ -53,17 +53,7 @@ public class OdooUtils {
 
     @Nullable
     public static PyClass getClassByQName(@NotNull String name, @NotNull PsiElement anchor) {
-        Project project = anchor.getProject();
-        ConcurrentMap<String, PyClass> cache = CachedValuesManager.getManager(project).getCachedValue(project, () -> {
-            return CachedValueProvider.Result.create(new ConcurrentHashMap<>(), ModificationTracker.NEVER_CHANGED);
-        });
-        PyClass cls = cache.get(name);
-        if (cls == null) {
-            PyPsiFacade psiFacade = PyPsiFacade.getInstance(project);
-            cls = psiFacade.createClassByQName(name, anchor);
-            cache.put(name, cls);
-        }
-        return cls;
+        PyPsiFacade psiFacade = PyPsiFacade.getInstance(anchor.getProject());
+        return psiFacade.createClassByQName(name, anchor);
     }
-
 }
