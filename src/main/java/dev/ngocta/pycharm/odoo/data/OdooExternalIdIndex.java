@@ -97,7 +97,7 @@ public class OdooExternalIdIndex extends ScalarIndexExtension<String> {
     }
 
     @NotNull
-    public static Collection<OdooRecordItem> findRecordDefinitions(@NotNull String id, @NotNull Project project) {
+    public static Collection<OdooRecordItem> findRecordItemByExternalId(@NotNull String id, @NotNull Project project) {
         FileBasedIndex index = FileBasedIndex.getInstance();
         Collection<VirtualFile> files = index.getContainingFiles(NAME, id, GlobalSearchScope.allScope(project));
         PsiManager psiManager = PsiManager.getInstance(project);

@@ -15,9 +15,9 @@ public class OdooExternalIdReference extends PsiReferenceBase<PsiElement> implem
     @NotNull
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
-        Collection<OdooRecordItem> definitions = OdooExternalIdIndex.findRecordDefinitions(getValue(), getElement().getProject());
+        Collection<OdooRecordItem> items = OdooExternalIdIndex.findRecordItemByExternalId(getValue(), getElement().getProject());
         Collection<PsiElement> elements = new LinkedList<>();
-        definitions.forEach(def -> elements.add(def.getNavigationElement()));
+        items.forEach(def -> elements.add(def.getNavigationElement()));
         return PsiElementResolveResult.createResults(elements);
     }
 
