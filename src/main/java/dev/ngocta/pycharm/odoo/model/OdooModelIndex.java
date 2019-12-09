@@ -16,7 +16,6 @@ import com.intellij.util.io.KeyDescriptor;
 import com.jetbrains.python.PythonFileType;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyFile;
-import com.jetbrains.python.psi.PyUtil;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.OdooUtils;
 import dev.ngocta.pycharm.odoo.module.OdooModuleIndex;
@@ -123,9 +122,7 @@ public class OdooModelIndex extends ScalarIndexExtension<String> {
             });
             return result;
         } else {
-            return PyUtil.getParameterizedCachedValue(module, model, modelArg -> {
-                return findModelClasses(modelArg, project, GlobalSearchScopesCore.directoryScope(module, true));
-            });
+            return findModelClasses(model, project, GlobalSearchScopesCore.directoryScope(module, true));
         }
     }
 

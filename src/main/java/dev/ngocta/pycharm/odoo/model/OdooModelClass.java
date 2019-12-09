@@ -61,7 +61,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @NotNull
     @Override
     public List<PyClass> getAncestorClasses(@Nullable TypeEvalContext context) {
-        return PyUtil.getParameterizedCachedValue(this, context, contextArg -> getAncestorClassesInner(context, true));
+        return getAncestorClassesInner(context, true);
     }
 
     @NotNull
@@ -100,35 +100,30 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @NotNull
     @Override
     public PyClass[] getSuperClasses(@Nullable TypeEvalContext context) {
+        PyClass[] classes = new PyClass[0];
         if (context == null) {
-            return new PyClass[0];
+            return classes;
         }
-        return PyUtil.getParameterizedCachedValue(this, context, contextArg -> {
-            PyClass[] classes = new PyClass[0];
-            if (contextArg == null) {
-                return classes;
+        PsiFile file = context.getOrigin();
+        if (file == null) {
+            return classes;
+        }
+        List<PyClass> modelClasses = OdooModelIndex.findModelClasses(getName(), file, true);
+        List<String> superModels = new LinkedList<>();
+        modelClasses.forEach(modelClass -> {
+            OdooModelInfo info = OdooModelInfo.getInfo(modelClass);
+            if (info != null) {
+                info.getInherit().forEach(inherit -> {
+                    if (!inherit.equals(getName())) {
+                        superModels.add(0, inherit);
+                    }
+                });
             }
-            PsiFile file = contextArg.getOrigin();
-            if (file == null) {
-                return classes;
-            }
-            List<PyClass> modelClasses = OdooModelIndex.findModelClasses(getName(), file, true);
-            List<String> superModels = new LinkedList<>();
-            modelClasses.forEach(modelClass -> {
-                OdooModelInfo info = OdooModelInfo.getInfo(modelClass);
-                if (info != null) {
-                    info.getInherit().forEach(inherit -> {
-                        if (!inherit.equals(getName())) {
-                            superModels.add(0, inherit);
-                        }
-                    });
-                }
-            });
-            superModels.stream().distinct().forEach(model -> {
-                modelClasses.add(OdooModelClass.create(model, myProject));
-            });
-            return modelClasses.toArray(classes);
         });
+        superModels.stream().distinct().forEach(model -> {
+            modelClasses.add(OdooModelClass.create(model, myProject));
+        });
+        return modelClasses.toArray(classes);
     }
 
     @Nullable

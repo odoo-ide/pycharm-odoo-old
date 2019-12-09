@@ -2,7 +2,6 @@ package dev.ngocta.pycharm.odoo.model;
 
 import com.intellij.psi.*;
 import com.jetbrains.python.psi.PyClass;
-import com.jetbrains.python.psi.PyUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,9 +24,7 @@ public class OdooModelReference extends PsiReferenceBase<PsiElement> implements 
     protected List<PyClass> findModelClasses() {
         PsiFile file = getElement().getContainingFile();
         if (file != null) {
-            return PyUtil.getParameterizedCachedValue(file, getValue(), model -> {
-                return OdooModelIndex.findModelClasses(model, getElement(), true);
-            });
+            return OdooModelIndex.findModelClasses(getValue(), getElement(), true);
         }
         return Collections.emptyList();
     }
