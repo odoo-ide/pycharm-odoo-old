@@ -3,7 +3,6 @@ package dev.ngocta.pycharm.odoo;
 import com.intellij.psi.PsiElement;
 import com.jetbrains.python.PyNames;
 import com.jetbrains.python.psi.PyClass;
-import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.types.PyClassType;
 import com.jetbrains.python.psi.types.PyClassTypeImpl;
 import com.jetbrains.python.psi.types.PyType;
@@ -39,17 +38,6 @@ public class OdooTypeUtils {
     @Nullable
     public static PyClassType getEnvironmentType(@NotNull PsiElement anchor) {
         return getClassTypeByQName(OdooNames.ENVIRONMENT_CLASS_QNAME, anchor, false);
-    }
-
-    @NotNull
-    public static PyClassType getContextType(@NotNull PsiElement anchor) {
-        PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(anchor);
-        return builtinCache.getDictType();
-    }
-
-    @Nullable
-    public static PyClassType getDbCursorType(@NotNull PsiElement anchor) {
-        return getClassTypeByQName(OdooNames.DB_CURSOR_CLASS_QNAME, anchor, false);
     }
 
     @Nullable

@@ -9,10 +9,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 
-public class OdooModelGetItemFunction extends PyFunctionImpl {
+public class OdooModelGetItemWrapper extends PyFunctionImpl {
     final OdooModelClassType myModelClassType;
 
-    public OdooModelGetItemFunction(@NotNull PyFunction origin, @NotNull OdooModelClassType modelClassType) {
+    public OdooModelGetItemWrapper(@NotNull PyFunction origin, @NotNull OdooModelClassType modelClassType) {
         super(origin.getNode());
         myModelClassType = modelClassType;
     }
@@ -32,7 +32,7 @@ public class OdooModelGetItemFunction extends PyFunctionImpl {
                 String fieldName = ((PyStringLiteralExpression) index).getStringValue();
                 return myModelClassType.getFieldTypeByPath(Collections.singletonList(fieldName), context);
             } else if (index instanceof PyNumericLiteralExpression) {
-                return myModelClassType.getOneRecordVariant();
+                return myModelClassType.withOneRecord();
             }
         }
         return null;

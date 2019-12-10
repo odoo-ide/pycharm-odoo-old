@@ -28,7 +28,7 @@ public class OdooMappedTypeProvider extends PyTypeProviderBase {
                     PyType fieldType = ((OdooModelClassType) qualifierType).getFieldTypeByPath(fieldPath, context);
                     if (fieldType != null) {
                         if (fieldType instanceof OdooModelClassType) {
-                            result.set(((OdooModelClassType) fieldType).getMultiRecordVariant());
+                            result.set(((OdooModelClassType) fieldType).withMultiRecord());
                         } else {
                             PyClass cls = PyBuiltinCache.getInstance(callSite).getClass("list");
                             if (cls != null) {

@@ -41,7 +41,7 @@ public class OdooLambdaTypeProvider extends PyTypeProviderBase {
                                         if (qualifier != null) {
                                             PyType qualifierType = context.getType(qualifier);
                                             if (qualifierType instanceof OdooModelClassType) {
-                                                return ((OdooModelClassType) qualifierType).getOneRecordVariant();
+                                                return ((OdooModelClassType) qualifierType).withOneRecord();
                                             }
                                         }
                                     }

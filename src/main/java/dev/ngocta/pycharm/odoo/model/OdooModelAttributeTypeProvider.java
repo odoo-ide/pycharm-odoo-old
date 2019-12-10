@@ -22,9 +22,6 @@ public class OdooModelAttributeTypeProvider extends PyTypeProviderBase {
             PyType qualifierType = context.getType(qualifier);
             OdooModelClassType modelType = (OdooModelClassType) OdooTypeUtils.extractType(qualifierType, pyType -> pyType instanceof OdooModelClassType);
             if (modelType != null && modelType.getRecordSetType() != OdooRecordSetType.NONE) {
-                if (modelType.getImplicitAttributeNames(context).contains(referenceName)) {
-                    return modelType.getImplicitAttributeTypes(context).get(referenceName);
-                }
                 Ref<PyType> ref = new Ref<>();
                 modelType.visitMembers(element -> {
                     if (element instanceof PsiNamedElement && referenceName.equals(((PsiNamedElement) element).getName())) {

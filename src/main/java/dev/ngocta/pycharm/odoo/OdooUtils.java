@@ -12,6 +12,9 @@ import com.sun.istack.NotNull;
 import com.sun.istack.Nullable;
 
 public class OdooUtils {
+    private OdooUtils() {
+    }
+
     @Nullable
     public static VirtualFile getOdooModuleDirectory(@NotNull VirtualFile file) {
         VirtualFile cur = file;

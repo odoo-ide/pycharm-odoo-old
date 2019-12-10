@@ -20,10 +20,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class OdooFieldInfo {
-    private String myClassName = null;
+    private final PyTargetExpression myField;
+    private final String myTypeName;
     private String myComodel = null;
     private String myRelated = null;
-    private static final Set<String> knownFieldClassNames = new HashSet<>(Arrays.asList(
+    private static final Set<String> knownFieldTypeNames = new HashSet<>(Arrays.asList(
             OdooNames.FIELD_TYPE_MANY2ONE,
             OdooNames.FIELD_TYPE_ONE2MANY,
             OdooNames.FIELD_TYPE_MANY2MANY,
@@ -40,7 +41,10 @@ public class OdooFieldInfo {
             OdooNames.FIELD_TYPE_DATETIME
     ));
 
-    private OdooFieldInfo() {
+    private OdooFieldInfo(@NotNull PyTargetExpression field,
+                          @NotNull String typeName) {
+        myField = field;
+        myTypeName = typeName;
     }
 
     @Nullable
@@ -59,9 +63,8 @@ public class OdooFieldInfo {
             PyExpression callee = callExpression.getCallee();
             if (callee != null && callee.getName() != null) {
                 String calleeName = callee.getName();
-                if (knownFieldClassNames.contains(calleeName)) {
-                    OdooFieldInfo info = new OdooFieldInfo();
-                    info.myClassName = callee.getName();
+                if (knownFieldTypeNames.contains(calleeName)) {
+                    OdooFieldInfo info = new OdooFieldInfo(field, calleeName);
                     switch (calleeName) {
                         case OdooNames.FIELD_TYPE_MANY2ONE:
                         case OdooNames.FIELD_TYPE_ONE2MANY:
@@ -86,7 +89,7 @@ public class OdooFieldInfo {
 
     @NotNull
     public String getTypeName() {
-        return myClassName;
+        return myTypeName;
     }
 
     public String getComodel() {
@@ -98,24 +101,20 @@ public class OdooFieldInfo {
     }
 
     @Nullable
-    public static PyType getFieldType(@NotNull PyTargetExpression field, @NotNull TypeEvalContext context) {
-        OdooFieldInfo info = getInfo(field);
-        if (info == null) {
-            return null;
-        }
-        Project project = field.getProject();
-        PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(field);
-        switch (info.getTypeName()) {
+    public PyType getType(@NotNull TypeEvalContext context) {
+        Project project = myField.getProject();
+        PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(myField);
+        switch (myTypeName) {
             case OdooNames.FIELD_TYPE_MANY2ONE:
             case OdooNames.FIELD_TYPE_ONE2MANY:
             case OdooNames.FIELD_TYPE_MANY2MANY:
-                if (info.getComodel() != null) {
-                    OdooRecordSetType recordSetType = OdooNames.FIELD_TYPE_MANY2ONE.equals(info.getTypeName()) ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
-                    return new OdooModelClassType(info.getComodel(), recordSetType, project);
-                } else if (info.getRelated() != null) {
-                    OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(field);
+                if (myComodel != null) {
+                    OdooRecordSetType recordSetType = OdooNames.FIELD_TYPE_MANY2ONE.equals(myTypeName) ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
+                    return new OdooModelClassType(myComodel, recordSetType, project);
+                } else if (myRelated != null) {
+                    OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(myField);
                     if (modelClass != null) {
-                        PyTargetExpression relatedField = modelClass.findFieldByPath(info.getRelated(), context);
+                        PyTargetExpression relatedField = modelClass.findFieldByPath(myRelated, context);
                         if (relatedField != null) {
                             return getFieldType(relatedField, context);
                         }
@@ -134,12 +133,20 @@ public class OdooFieldInfo {
             case OdooNames.FIELD_TYPE_SELECTION:
                 return builtinCache.getStrType();
             case OdooNames.FIELD_TYPE_DATE:
-                return OdooTypeUtils.getDateType(field);
+                return OdooTypeUtils.getDateType(myField);
             case OdooNames.FIELD_TYPE_DATETIME:
-                return OdooTypeUtils.getDatetimeType(field);
+                return OdooTypeUtils.getDatetimeType(myField);
             default:
                 return null;
         }
     }
 
+    @Nullable
+    public static PyType getFieldType(@NotNull PyTargetExpression field, @NotNull TypeEvalContext context) {
+        OdooFieldInfo info = getInfo(field);
+        if (info != null) {
+            return info.getType(context);
+        }
+        return null;
+    }
 }

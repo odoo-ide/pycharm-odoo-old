@@ -7,7 +7,6 @@ import com.sun.istack.NotNull;
 
 public class OdooModelUtils {
     private OdooModelUtils() {
-
     }
 
     public static OdooModelClass getContainingOdooModelClass(@NotNull PsiElement element) {

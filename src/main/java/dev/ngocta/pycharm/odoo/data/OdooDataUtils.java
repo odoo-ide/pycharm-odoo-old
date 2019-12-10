@@ -12,7 +12,6 @@ import java.io.InputStream;
 
 public class OdooDataUtils {
     private OdooDataUtils() {
-
     }
 
     public static void processCsvRecord(@NotNull VirtualFile file, @NotNull PairProcessor<String, Integer> processor) {

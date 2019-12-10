@@ -19,7 +19,7 @@
         <importResolver implementation="dev.ngocta.pycharm.odoo.module.OdooAddonsImportResolver"/>
         <pyModuleMembersProvider implementation="dev.ngocta.pycharm.odoo.module.OdooAddonsMembersProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelAttributeTypeProvider" order="first"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooEnvAttributeTypeProvider" order="first"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooEnvironmentItemProvider" order="first"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooSelfTypeProvider" order="first"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooMappedTypeProvider" order="first"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooLambdaTypeProvider" order="first"/>
