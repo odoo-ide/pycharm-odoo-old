@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 
-public class OdooModelClassType extends UserDataHolderBase implements PyCollectionType {
+public class OdooModelClassType extends UserDataHolderBase implements PyClassType {
     private final OdooModelClass myClass;
     private final OdooRecordSetType myRecordSetType;
     private static final double COMPLETION_PRIORITY_FIELD = 2;
@@ -279,21 +279,6 @@ public class OdooModelClassType extends UserDataHolderBase implements PyCollecti
     @Override
     public OdooModelClass getPyClass() {
         return myClass;
-    }
-
-    @NotNull
-    @Override
-    public List<PyType> getElementTypes() {
-        return Collections.emptyList();
-    }
-
-    @Nullable
-    @Override
-    public PyType getIteratedItemType() {
-        if (myRecordSetType != OdooRecordSetType.NONE) {
-            return withOneRecord();
-        }
-        return null;
     }
 
     @Nullable
