@@ -12,7 +12,7 @@ import dev.ngocta.pycharm.odoo.OdooTypeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class OdooModelAttributeTypeProvider extends PyTypeProviderBase {
+public class OdooFieldTypeProvider extends PyTypeProviderBase {
     @Nullable
     @Override
     public PyType getReferenceExpressionType(@NotNull PyReferenceExpression referenceExpression, @NotNull TypeEvalContext context) {
