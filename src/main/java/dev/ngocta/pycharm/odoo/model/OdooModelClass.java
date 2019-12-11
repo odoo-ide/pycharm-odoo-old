@@ -517,7 +517,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @NotNull
     public List<OdooModelClass> getDelegationChildren(@NotNull TypeEvalContext context) {
         Set<String> children = new HashSet<>();
-        getAncestorClasses(context).forEach(cls -> {
+        getAncestorClasses(context, false).forEach(cls -> {
             OdooModelInfo info = OdooModelInfo.getInfo(cls);
             if (info != null) {
                 children.addAll(info.getInherits().keySet());
