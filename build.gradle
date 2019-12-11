@@ -21,7 +21,7 @@ dependencies {
 intellij {
     version 'PC-2019.3'
     downloadSources = true
-    plugins 'python-ce'
+    plugins = ['python-ce']
 }
 patchPluginXml {
     changeNotes """
