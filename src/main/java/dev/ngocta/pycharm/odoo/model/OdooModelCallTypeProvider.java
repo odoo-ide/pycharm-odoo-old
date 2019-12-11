@@ -7,6 +7,7 @@ import com.jetbrains.python.psi.types.PyClassType;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.PyTypeProviderBase;
 import com.jetbrains.python.psi.types.TypeEvalContext;
+import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,12 +36,19 @@ public class OdooModelCallTypeProvider extends PyTypeProviderBase {
                 PyType returnType = context.getReturnType(function);
                 Ref<PyType> ref = new Ref<>(returnType);
                 if (returnType instanceof PyClassType) {
-                    PyClass containingClass = function.getContainingClass();
                     PyClass returnClass = ((PyClassType) returnType).getPyClass();
-                    if (returnClass.equals(containingClass) || returnClass.equals(OdooModelUtils.getContainingOdooModelClass(containingClass))) {
-                        List<PyClass> receiverAncestors = ((OdooModelClassType) receiverType).getPyClass().getAncestorClasses(context);
-                        if (receiverAncestors.contains(containingClass)) {
-                            ref.set(receiverType);
+                    if (OdooNames.BASE_MODEL_CLASS_QNAME.equals(returnClass.getQualifiedName())) {
+                        ref.set(receiverType);
+                    } else if (returnClass instanceof OdooModelClass) {
+                        PyClass containingClass = function.getContainingClass();
+                        if (containingClass != null) {
+                            OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(containingClass);
+                            if (returnClass.equals(modelClass)) {
+                                List<PyClass> receiverAncestors = ((OdooModelClassType) receiverType).getPyClass().getAncestorClasses(context);
+                                if (receiverAncestors.contains(containingClass)) {
+                                    ref.set(receiverType);
+                                }
+                            }
                         }
                     }
                 }
