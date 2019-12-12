@@ -62,7 +62,7 @@ public class OdooSuperMembersProvider implements PyClassMembersProvider {
         if (modelCls != null) {
             List<PyClass> ancestors = modelCls.getAncestorClasses(context);
             int idx = ancestors.indexOf(cls);
-            if (idx > 0) {
+            if (idx >= 0) {
                 for (PyClass parent : ancestors.subList(idx, ancestors.size())) {
                     if (!parent.visitMethods(processor::process, false, context)) {
                         break;
