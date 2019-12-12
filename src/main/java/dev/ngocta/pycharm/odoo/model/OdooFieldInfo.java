@@ -25,6 +25,7 @@ public class OdooFieldInfo {
     private String myComodel = null;
     private String myRelated = null;
     private static final Set<String> knownFieldTypeNames = new HashSet<>(Arrays.asList(
+            OdooNames.FIELD_TYPE_ID,
             OdooNames.FIELD_TYPE_MANY2ONE,
             OdooNames.FIELD_TYPE_ONE2MANY,
             OdooNames.FIELD_TYPE_MANY2MANY,
@@ -115,14 +116,16 @@ public class OdooFieldInfo {
                     OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(myField);
                     if (modelClass != null) {
                         PyTargetExpression relatedField = modelClass.findFieldByPath(myRelated, context);
-                        if (relatedField != null) {
-                            return getFieldType(relatedField, context);
+                        OdooFieldInfo relatedFieldInfo = getInfo(relatedField);
+                        if (relatedFieldInfo != null) {
+                            return relatedFieldInfo.getType(context);
                         }
                     }
                 }
                 return null;
             case OdooNames.FIELD_TYPE_BOOLEAN:
                 return builtinCache.getBoolType();
+            case OdooNames.FIELD_TYPE_ID:
             case OdooNames.FIELD_TYPE_INTEGER:
                 return builtinCache.getIntType();
             case OdooNames.FIELD_TYPE_FLOAT:

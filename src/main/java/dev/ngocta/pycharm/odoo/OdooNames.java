@@ -9,6 +9,7 @@ public class OdooNames {
     public static final String MODEL_NAME = "_name";
     public static final String MODEL_INHERIT = "_inherit";
     public static final String MODEL_INHERITS = "_inherits";
+    public static final String FIELD_TYPE_ID = "Id";
     public static final String FIELD_TYPE_BOOLEAN = "Boolean";
     public static final String FIELD_TYPE_INTEGER = "Integer";
     public static final String FIELD_TYPE_FLOAT = "Float";

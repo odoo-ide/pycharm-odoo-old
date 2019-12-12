@@ -529,7 +529,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     }
 
     public boolean visitField(Processor<PyTargetExpression> processor, @NotNull TypeEvalContext context) {
-        List<PyClass> ancestorClasses = getAncestorClasses(context, false);
+        List<PyClass> ancestorClasses = getAncestorClasses(context);
         for (PyClass cls : ancestorClasses) {
             if (!cls.visitClassAttributes(attr -> {
                 if (OdooFieldInfo.getInfo(attr) != null) {
@@ -569,21 +569,29 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
 
     @Nullable
     public PyTargetExpression findFieldByPath(@NotNull List<String> fieldNames, @NotNull TypeEvalContext context) {
-        if (fieldNames.isEmpty()) {
+        List<PyTargetExpression> fields = findFieldsInPath(fieldNames, context);
+        if (fieldNames.size() != fields.size()) {
             return null;
+        }
+        return fields.get(fields.size() - 1);
+    }
+
+    public List<PyTargetExpression> findFieldsInPath(@NotNull List<String> fieldNames, @NotNull TypeEvalContext context) {
+        List<PyTargetExpression> result = new LinkedList<>();
+        if (fieldNames.isEmpty()) {
+            return result;
         }
         String name = fieldNames.get(0);
         PyTargetExpression field = findField(name, context);
-        if (fieldNames.size() == 1) {
-            return field;
-        }
         if (field != null) {
+            result.add(field);
             PyType fieldType = OdooFieldInfo.getFieldType(field, context);
             if (fieldType instanceof OdooModelClassType) {
                 fieldNames = fieldNames.subList(1, fieldNames.size());
-                return ((OdooModelClassType) fieldType).getPyClass().findFieldByPath(fieldNames, context);
+                OdooModelClass cls = ((OdooModelClassType) fieldType).getPyClass();
+                result.addAll(cls.findFieldsInPath(fieldNames, context));
             }
         }
-        return null;
+        return result;
     }
 }

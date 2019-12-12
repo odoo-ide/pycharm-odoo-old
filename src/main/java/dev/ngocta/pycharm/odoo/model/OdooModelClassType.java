@@ -10,7 +10,6 @@ import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiInvalidElementAccessException;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.util.ProcessingContext;
@@ -18,11 +17,9 @@ import com.intellij.util.Processor;
 import com.jetbrains.python.PyNames;
 import com.jetbrains.python.codeInsight.completion.PyFunctionInsertHandler;
 import com.jetbrains.python.psi.*;
-import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
 import com.jetbrains.python.psi.resolve.RatedResolveResult;
 import com.jetbrains.python.psi.types.*;
-import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -292,29 +289,9 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
         if (fieldNames.isEmpty()) {
             return null;
         }
-        PsiFile file = context.getOrigin();
-        if (file == null) {
-            return null;
-        }
-        PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(file);
-        PyType intType = builtinCache.getIntType();
-        boolean toId = OdooNames.FIELD_ID.equals(fieldNames.get(fieldNames.size() - 1));
-        if (toId) {
-            fieldNames = fieldNames.subList(0, fieldNames.size() - 1);
-            if (fieldNames.isEmpty()) {
-                return intType;
-            }
-        }
         PyTargetExpression field = myClass.findFieldByPath(fieldNames, context);
         if (field != null) {
-            PyType fieldType = OdooFieldInfo.getFieldType(field, context);
-            if (toId) {
-                if (fieldType instanceof OdooModelClassType) {
-                    return intType;
-                }
-                return null;
-            }
-            return fieldType;
+            return OdooFieldInfo.getFieldType(field, context);
         }
         return null;
     }
