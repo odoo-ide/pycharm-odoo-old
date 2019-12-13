@@ -14,7 +14,7 @@
                     <li>Model members (fields, function,...)</li>
                     <li>Odoo addons imports</li>
                     <li>Depends and data files path in manifest</li>
-                    <li>Model name in _inherit, env and comodel argument in relation field declaration</li>
+                    <li>Model name in _inherit, env and comodel argument in relation field declarations</li>
                     <li>Compute, inverse methods in field declaration</li>
                 </ul>
             </li>

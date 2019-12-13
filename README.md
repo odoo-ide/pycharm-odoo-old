@@ -1,35 +1,27 @@
 # pycharm-odoo
 Odoo is a great open source ERP. This plugin provides Odoo coding assistance in PyCharm.
 
-<h2>Features</h2>
-<ul>
-    <li>
-        Understands relations between modules, models (inheritance, extension and delegation) to resolve references and provide code completion for:
-        <ul>
-            <li>Model members (fields, function,...)</li>
-            <li>Odoo addons imports</li>
-            <li>Depends and data files path in manifest</li>
-            <li>Model name in _inherit, env and comodel argument in relation field declaration</li>
-            <li>Compute, inverse methods in field declaration</li>
-        </ul>
-    </li>
-    <li>
-        Quick search and navigate to XML ID in project
-    </li>
-</ul>
+## Features
+* Understands relations between modules, models (inheritance, extension and delegation) to resolve references and provide code completion for:
+    * Model members (fields, function,...)
+    * Odoo addons imports
+    * Depends and data files path in manifest
+    * Model name in _inherit, env and comodel argument in relation field declaration
+    * Compute, inverse methods in field declarations
+* Quick search and navigate to XML ID in project
 
-<h2>Planned features</h2>
-<ul>
-    <li>
-        Improve coding assistance in Python files such as resolving references and provide code completion for:
-        <ul>
-            <li>Field path in api.depends, mapped(), ...</li>
-            <li>XML ID in ref()</li>
-            <li>...</li>
-        </ul>
-    </li>
-    <li>
-        XML and Javascript coding assistance
-    </li>
-</ul>
+## Planned features
+* Improve coding assistance in Python files such as resolving references and provide code completion for:
+    * Field path in api.depends, mapped(), ...
+    * XML ID in ref()
+    * ...
+* XML and JavaScript coding assistance
 
+## Usage
+1. Install this plugin from Jetbrains Plugins Repository 
+2. Clone [odoo-stubs](https://github.com/trinhanhngoc/odoo-stubs) and attach to your project
+![](images/odoo-stubs.png)
+
+
+## Screencast
+https://www.youtube.com/watch?v=SMqepH2A4_4
