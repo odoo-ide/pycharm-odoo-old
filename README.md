@@ -18,7 +18,7 @@ Odoo is a great open source ERP. This plugin provides Odoo coding assistance in 
 * XML and JavaScript coding assistance
 
 ## Usage
-1. Install this plugin from Jetbrains Plugins Repository 
+1. Install this plugin from [Jetbrains Plugins Repository](https://plugins.jetbrains.com/plugin/13499-pycharm-odoo/)
 2. Clone [odoo-stubs](https://github.com/trinhanhngoc/odoo-stubs) and attach to your project
 ![](images/odoo-stubs.png)
 
