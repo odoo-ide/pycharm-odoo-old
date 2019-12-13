@@ -26,4 +26,11 @@ public class OdooExternalIdReference extends PsiReferenceBase<PsiElement> implem
     public PsiElement resolve() {
         return null;
     }
+
+    @NotNull
+    @Override
+    public Object[] getVariants() {
+        Collection<String> ids = OdooExternalIdIndex.getAllExternalIds(getElement().getProject());
+        return ids.toArray();
+    }
 }
