@@ -37,4 +37,5 @@ public class OdooNames {
     public static final String BASE_MODEL_CLASS_QNAME = "odoo.models.BaseModel";
     public static final String ENVIRONMENT_CLASS_QNAME = "odoo.api.Environment";
     public static final String MODULE_BASE = "base";
+    public static final String REF_QNAME = "odoo.api.Environment.ref";
 }

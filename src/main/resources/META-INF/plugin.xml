@@ -60,7 +60,8 @@
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooMappedTypeProvider" order="first"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooLambdaTypeProvider" order="first"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelCallTypeProvider" order="first"/>
-        <pyClassMembersProvider implementation="dev.ngocta.pycharm.odoo.model.OdooSuperMembersProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.data.OdooRefTypeProvider"/>
+        <pyClassMembersProvider implementation="dev.ngocta.pycharm.odoo.model.OdooSuperMembersProvider" order="first"/>
         <inspectionExtension implementation="dev.ngocta.pycharm.odoo.OdooInspectionExtension"/>
     </extensions>
 
