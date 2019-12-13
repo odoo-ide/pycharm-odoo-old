@@ -6,6 +6,9 @@ public class OdooNames {
     public static final String MANIFEST_DATA = "data";
     public static final String MANIFEST_DEMO = "demo";
     public static final String MANIFEST_QWEB = "qweb";
+    public static final String ODOO = "odoo";
+    public static final String ADDONS = "addons";
+    public static final String ODOO_ADDONS = "odoo.addons";
     public static final String MODEL_NAME = "_name";
     public static final String MODEL_INHERIT = "_inherit";
     public static final String MODEL_INHERITS = "_inherits";
@@ -33,7 +36,5 @@ public class OdooNames {
     public static final String FILTERED = "filtered";
     public static final String BASE_MODEL_CLASS_QNAME = "odoo.models.BaseModel";
     public static final String ENVIRONMENT_CLASS_QNAME = "odoo.api.Environment";
-    public static final String ODOO_ADDONS = "odoo.addons";
-    public static final String FIELD_ID = "id";
     public static final String MODULE_BASE = "base";
 }

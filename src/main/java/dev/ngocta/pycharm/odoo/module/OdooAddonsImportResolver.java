@@ -7,6 +7,7 @@ import com.intellij.psi.util.QualifiedName;
 import com.jetbrains.python.psi.impl.PyImportResolver;
 import com.jetbrains.python.psi.resolve.PyQualifiedNameResolveContext;
 import com.jetbrains.python.psi.resolve.PyResolveImportUtil;
+import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,11 +18,11 @@ public class OdooAddonsImportResolver implements PyImportResolver {
     @Override
     public PsiElement resolveImportReference(@NotNull QualifiedName name, @NotNull PyQualifiedNameResolveContext context, boolean withRoot) {
         List<String> components = name.getComponents();
-        if (components.size() < 1 || !components.get(0).equals("odoo")) {
+        if (components.size() < 1 || !OdooNames.ODOO.equals(components.get(0))) {
             return null;
         }
         Project project = context.getProject();
-        if (components.size() > 2 && components.get(1).equals("addons")) {
+        if (components.size() > 2 && OdooNames.ADDONS.equals(components.get(1))) {
             String moduleName = components.get(2);
             PsiDirectory module = OdooModuleIndex.getModule(moduleName, project);
             QualifiedName relatedName = name.subQualifiedName(3, name.getComponentCount());
