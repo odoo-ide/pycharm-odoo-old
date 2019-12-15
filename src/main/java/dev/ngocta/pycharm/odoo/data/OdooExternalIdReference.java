@@ -1,11 +1,15 @@
 package dev.ngocta.pycharm.odoo.data;
 
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.*;
+import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
 public class OdooExternalIdReference extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
     public OdooExternalIdReference(@NotNull PsiElement element) {
@@ -30,7 +34,14 @@ public class OdooExternalIdReference extends PsiReferenceBase<PsiElement> implem
     @NotNull
     @Override
     public Object[] getVariants() {
-        Collection<String> ids = OdooExternalIdIndex.getAllExternalIds(getElement().getProject());
-        return ids.toArray();
+        List<OdooRecord> records = OdooExternalIdIndex.getAvailableRecords(getElement());
+        List<LookupElement> elements = new LinkedList<>();
+        records.forEach(record -> {
+            LookupElement element = LookupElementBuilder.create(record.getId())
+                    .withTypeText(record.getModel())
+                    .withIcon(PlatformIcons.XML_TAG_ICON);
+            elements.add(element);
+        });
+        return elements.toArray();
     }
 }

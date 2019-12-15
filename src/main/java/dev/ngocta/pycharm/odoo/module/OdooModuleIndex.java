@@ -3,6 +3,7 @@ package dev.ngocta.pycharm.odoo.module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -11,6 +12,7 @@ import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import com.jetbrains.python.PythonFileType;
 import dev.ngocta.pycharm.odoo.OdooNames;
+import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -135,5 +137,13 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
             queue.addAll(getDepends(node));
         }
         return visitedNodes;
+    }
+
+    public static List<PsiDirectory> getFlattenedDependsGraph(@NotNull PsiElement anchor) {
+        PsiDirectory module = OdooUtils.getOdooModule(anchor);
+        if (module != null) {
+            return OdooModuleIndex.getFlattenedDependsGraph(module);
+        }
+        return Collections.emptyList();
     }
 }
