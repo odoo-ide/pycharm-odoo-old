@@ -1,5 +1,6 @@
 package dev.ngocta.pycharm.odoo.module;
 
+import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
@@ -8,6 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 public class OdooModuleReference extends PsiReferenceBase<PsiElement> {
     public OdooModuleReference(@NotNull PsiElement element) {

@@ -66,8 +66,19 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
 
     @NotNull
     private List<PyClass> getAncestorClasses(@Nullable TypeEvalContext context, boolean withBaseClass) {
-        List<PyClass> result = new LinkedList<>();
-        if (context != null) {
+        List<PyClass> result = new LinkedList<>(getAncestorClassesWithoutBase(context));
+        if (withBaseClass) {
+            PyClass baseClass = getBaseModelClass(context);
+            if (baseClass != null) {
+                result.add(baseClass);
+            }
+        }
+        return result;
+    }
+
+    private List<PyClass> getAncestorClassesWithoutBase(@Nullable TypeEvalContext context) {
+        return PyUtil.getParameterizedCachedValue(this, context, param -> {
+            List<PyClass> result = new LinkedList<>();
             PyClass[] classes = getSuperClasses(context);
             for (PyClass cls : classes) {
                 if (cls instanceof OdooModelClass) {
@@ -75,24 +86,18 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
                 } else {
                     result.add(cls);
                     for (PyClass subCls : cls.getSuperClasses(context)) {
-                        if (!subCls.isSubclass(OdooNames.BASE_MODEL_CLASS_QNAME, context)) {
+                        if (!subCls.isSubclass(OdooNames.BASE_MODEL_QNAME, context)) {
                             result.add(subCls);
                         }
                     }
                 }
             }
-            if (withBaseClass) {
-                PyClass baseClass = getBaseModelClass(context);
-                if (baseClass != null) {
-                    result.add(baseClass);
-                }
-            }
-        }
-        return result;
+            return result;
+        });
     }
 
     private PyClass getBaseModelClass(@NotNull PsiElement anchor) {
-        return OdooUtils.getClassByQName(OdooNames.BASE_MODEL_CLASS_QNAME, anchor);
+        return OdooUtils.getClassByQName(OdooNames.BASE_MODEL_QNAME, anchor);
     }
 
     private PyClass getBaseModelClass(@Nullable TypeEvalContext context) {

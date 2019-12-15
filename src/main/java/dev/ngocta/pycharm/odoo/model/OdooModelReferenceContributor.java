@@ -30,7 +30,7 @@ public class OdooModelReferenceContributor extends PsiReferenceContributor {
                             if (callee instanceof PyReferenceExpression) {
                                 String calleeName = callee.getName();
                                 if (OdooNames.FIELD_TYPE_MANY2ONE.equals(calleeName) || OdooNames.FIELD_TYPE_ONE2MANY.equals(calleeName) || OdooNames.FIELD_TYPE_MANY2MANY.equals(calleeName)) {
-                                    PyStringLiteralExpression comodelExpression = callExpression.getArgument(0, OdooNames.FIELD_PARAM_COMODEL_NAME, PyStringLiteralExpression.class);
+                                    PyStringLiteralExpression comodelExpression = callExpression.getArgument(0, OdooNames.FIELD_ATTR_COMODEL, PyStringLiteralExpression.class);
                                     return stringExpression.equals(comodelExpression);
                                 }
                             }
@@ -65,8 +65,8 @@ public class OdooModelReferenceContributor extends PsiReferenceContributor {
 
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
-        registrar.registerReferenceProvider(INHERIT_PATTERN, new OdooModelInheritReferenceProvider());
-        registrar.registerReferenceProvider(INHERIT_LIST_PATTERN, new OdooModelInheritReferenceProvider());
+        registrar.registerReferenceProvider(INHERIT_PATTERN, new OdooModelReferenceProvider());
+        registrar.registerReferenceProvider(INHERIT_LIST_PATTERN, new OdooModelReferenceProvider());
         registrar.registerReferenceProvider(COMODEL_NAME_PATTERN, new OdooModelReferenceProvider());
         registrar.registerReferenceProvider(ENV_PATTERN, new OdooModelReferenceProvider());
     }

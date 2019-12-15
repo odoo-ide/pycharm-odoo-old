@@ -18,7 +18,7 @@ public class OdooFieldTypeProvider extends PyTypeProviderBase {
     public PyType getReferenceExpressionType(@NotNull PyReferenceExpression referenceExpression, @NotNull TypeEvalContext context) {
         String referenceName = referenceExpression.getName();
         PyExpression qualifier = referenceExpression.getQualifier();
-        if (referenceName != null && qualifier != null) {
+        if (referenceName != null && qualifier != null && context.getOrigin() != null) {
             PyType qualifierType = context.getType(qualifier);
             OdooModelClassType modelType = (OdooModelClassType) OdooTypeUtils.extractType(qualifierType, pyType -> pyType instanceof OdooModelClassType);
             if (modelType != null && modelType.getRecordSetType() != OdooRecordSetType.NONE) {

@@ -46,8 +46,12 @@ public class OdooModelInfo {
         return myInherits;
     }
 
+    public boolean isOriginal() {
+        return !myInherit.contains(myName) && !myInherits.containsKey(myName);
+    }
+
     @Nullable
-    public static OdooModelInfo getInfo(PyClass pyClass) {
+    public static OdooModelInfo getInfo(@NotNull PyClass pyClass) {
         return CachedValuesManager.getCachedValue(pyClass, () -> {
             OdooModelInfo info = getInfoInner(pyClass);
             return CachedValueProvider.Result.createSingleDependency(info, pyClass);
@@ -55,7 +59,7 @@ public class OdooModelInfo {
     }
 
     @Nullable
-    private static OdooModelInfo getInfoInner(PyClass pyClass) {
+    private static OdooModelInfo getInfoInner(@NotNull PyClass pyClass) {
         PsiFile psiFile = pyClass.getContainingFile();
         if (psiFile == null) {
             return null;

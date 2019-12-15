@@ -37,7 +37,7 @@ public class OdooModelCallTypeProvider extends PyTypeProviderBase {
                 Ref<PyType> ref = new Ref<>(returnType);
                 if (returnType instanceof PyClassType) {
                     PyClass returnClass = ((PyClassType) returnType).getPyClass();
-                    if (OdooNames.BASE_MODEL_CLASS_QNAME.equals(returnClass.getQualifiedName())) {
+                    if (OdooNames.BASE_MODEL_QNAME.equals(returnClass.getQualifiedName())) {
                         ref.set(receiverType);
                     } else if (returnClass instanceof OdooModelClass) {
                         PyClass containingClass = function.getContainingClass();

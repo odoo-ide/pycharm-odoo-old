@@ -41,7 +41,7 @@
         <h2>NOTE</h2>
         You also need to clone and attach <a href="https://github.com/trinhanhngoc/odoo-stubs">Python stubs for Odoo</a> to project.
         Please visit <a href="https://github.com/trinhanhngoc/pycharm-odoo">github page</a> for more info such as screencast and usage.
-    ]]></description>
+        ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->

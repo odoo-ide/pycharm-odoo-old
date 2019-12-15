@@ -37,7 +37,7 @@ public class OdooTypeUtils {
 
     @Nullable
     public static PyClassType getEnvironmentType(@NotNull PsiElement anchor) {
-        return getClassTypeByQName(OdooNames.ENVIRONMENT_CLASS_QNAME, anchor, false);
+        return getClassTypeByQName(OdooNames.ENVIRONMENT_QNAME, anchor, false);
     }
 
     @Nullable

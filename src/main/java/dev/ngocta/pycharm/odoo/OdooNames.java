@@ -25,17 +25,17 @@ public class OdooNames {
     public static final String FIELD_TYPE_MANY2ONE = "Many2one";
     public static final String FIELD_TYPE_ONE2MANY = "One2many";
     public static final String FIELD_TYPE_MANY2MANY = "Many2many";
-    public static final String FIELD_PARAM_COMODEL_NAME = "comodel_name";
-    public static final String FIELD_PARAM_RELATED = "related";
-    public static final String FIELD_PARAM_COMPUTE = "compute";
-    public static final String FIELD_PARAM_INVERSE = "inverse";
-    public static final String FIELD_PARAM_SEARCH = "search";
-    public static final String FIELD_PARAM_DEFAULT = "default";
+    public static final String FIELD_ATTR_COMODEL = "comodel_name";
+    public static final String FIELD_ATTR_RELATED = "related";
+    public static final String FIELD_ATTR_COMPUTE = "compute";
+    public static final String FIELD_ATTR_INVERSE = "inverse";
+    public static final String FIELD_ATTR_SEARCH = "search";
+    public static final String FIELD_ATTR_DEFAULT = "default";
     public static final String ENV = "env";
     public static final String MAPPED = "mapped";
     public static final String FILTERED = "filtered";
-    public static final String BASE_MODEL_CLASS_QNAME = "odoo.models.BaseModel";
-    public static final String ENVIRONMENT_CLASS_QNAME = "odoo.api.Environment";
+    public static final String BASE_MODEL_QNAME = "odoo.models.BaseModel";
+    public static final String ENVIRONMENT_QNAME = "odoo.api.Environment";
     public static final String MODULE_BASE = "base";
     public static final String REF_QNAME = "odoo.api.Environment.ref";
 }

@@ -15,15 +15,12 @@ import com.sun.istack.Nullable;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.OdooTypeUtils;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class OdooFieldInfo {
-    private final PyTargetExpression myField;
+    private PyTargetExpression myField;
     private final String myTypeName;
-    private String myComodel = null;
-    private String myRelated = null;
+    private final Map<String, String> myAttributes;
     private static final Set<String> knownFieldTypeNames = new HashSet<>(Arrays.asList(
             OdooNames.FIELD_TYPE_ID,
             OdooNames.FIELD_TYPE_MANY2ONE,
@@ -43,9 +40,26 @@ public class OdooFieldInfo {
     ));
 
     private OdooFieldInfo(@NotNull PyTargetExpression field,
-                          @NotNull String typeName) {
+                          @NotNull String typeName,
+                          @NotNull Map<String, String> attributes) {
         myField = field;
         myTypeName = typeName;
+        myAttributes = attributes;
+    }
+
+    @NotNull
+    public String getTypeName() {
+        return myTypeName;
+    }
+
+    @Nullable
+    public String getComodel() {
+        return myAttributes.get(OdooNames.FIELD_ATTR_COMODEL);
+    }
+
+    @Nullable
+    public String getRelated() {
+        return myAttributes.get(OdooNames.FIELD_ATTR_RELATED);
     }
 
     @Nullable
@@ -65,57 +79,44 @@ public class OdooFieldInfo {
             if (callee != null && callee.getName() != null) {
                 String calleeName = callee.getName();
                 if (knownFieldTypeNames.contains(calleeName)) {
-                    OdooFieldInfo info = new OdooFieldInfo(field, calleeName);
+                    Map<String, String> attributes = new HashMap<>();
                     switch (calleeName) {
                         case OdooNames.FIELD_TYPE_MANY2ONE:
                         case OdooNames.FIELD_TYPE_ONE2MANY:
                         case OdooNames.FIELD_TYPE_MANY2MANY:
-                            PyStringLiteralExpression comodelExpression = callExpression.getArgument(0, OdooNames.FIELD_PARAM_COMODEL_NAME, PyStringLiteralExpression.class);
+                            PyStringLiteralExpression comodelExpression = callExpression.getArgument(0, OdooNames.FIELD_ATTR_COMODEL, PyStringLiteralExpression.class);
                             if (comodelExpression != null) {
-                                info.myComodel = comodelExpression.getStringValue();
+                                attributes.put(OdooNames.FIELD_ATTR_COMODEL, comodelExpression.getStringValue());
                             } else {
-                                PyExpression relatedExpression = callExpression.getKeywordArgument(OdooNames.FIELD_PARAM_RELATED);
+                                PyExpression relatedExpression = callExpression.getKeywordArgument(OdooNames.FIELD_ATTR_RELATED);
                                 if (relatedExpression instanceof PyStringLiteralExpression) {
-                                    info.myRelated = ((PyStringLiteralExpression) relatedExpression).getStringValue();
+                                    attributes.put(OdooNames.FIELD_ATTR_RELATED, ((PyStringLiteralExpression) relatedExpression).getStringValue());
                                 }
                             }
                             break;
                     }
-                    return info;
+                    return new OdooFieldInfo(field, calleeName, attributes);
                 }
             }
         }
         return null;
     }
 
-    @NotNull
-    public String getTypeName() {
-        return myTypeName;
-    }
-
-    public String getComodel() {
-        return myComodel;
-    }
-
-    public String getRelated() {
-        return myRelated;
-    }
-
     @Nullable
     public PyType getType(@NotNull TypeEvalContext context) {
         Project project = myField.getProject();
         PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(myField);
-        switch (myTypeName) {
+        switch (getTypeName()) {
             case OdooNames.FIELD_TYPE_MANY2ONE:
             case OdooNames.FIELD_TYPE_ONE2MANY:
             case OdooNames.FIELD_TYPE_MANY2MANY:
-                if (myComodel != null) {
+                if (getComodel() != null) {
                     OdooRecordSetType recordSetType = OdooNames.FIELD_TYPE_MANY2ONE.equals(myTypeName) ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
-                    return new OdooModelClassType(myComodel, recordSetType, project);
-                } else if (myRelated != null) {
+                    return new OdooModelClassType(getComodel(), recordSetType, project);
+                } else if (getRelated() != null) {
                     OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(myField);
                     if (modelClass != null) {
-                        PyTargetExpression relatedField = modelClass.findFieldByPath(myRelated, context);
+                        PyTargetExpression relatedField = modelClass.findFieldByPath(getRelated(), context);
                         OdooFieldInfo relatedFieldInfo = getInfo(relatedField);
                         if (relatedFieldInfo != null) {
                             return relatedFieldInfo.getType(context);

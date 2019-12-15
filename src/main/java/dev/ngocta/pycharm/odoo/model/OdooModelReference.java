@@ -1,11 +1,15 @@
 package dev.ngocta.pycharm.odoo.model;
 
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.*;
+import com.intellij.util.PlatformIcons;
 import com.jetbrains.python.psi.PyClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -38,11 +42,12 @@ public class OdooModelReference extends PsiReferenceBase<PsiElement> implements 
     @NotNull
     @Override
     public Object[] getVariants() {
-        return getVariantsInner().toArray();
-    }
-
-    @NotNull
-    protected Set<String> getVariantsInner() {
-        return OdooModelIndex.getAllModels(getElement());
+        List<LookupElement> elements = new LinkedList<>();
+        Set<String> models = OdooModelIndex.getAvailableModels(getElement());
+        models.forEach(model -> {
+            LookupElement element = LookupElementBuilder.create(model).withIcon(PlatformIcons.CLASS_ICON);
+            elements.add(element);
+        });
+        return elements.toArray();
     }
 }
