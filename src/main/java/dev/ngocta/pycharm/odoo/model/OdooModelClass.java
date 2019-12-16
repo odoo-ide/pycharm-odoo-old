@@ -30,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class OdooModelClass extends PsiElementBase implements PyClass {
     private final String myName;
@@ -77,7 +78,10 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     }
 
     private List<PyClass> getAncestorClassesWithoutBase(@Nullable TypeEvalContext context) {
-        return PyUtil.getParameterizedCachedValue(this, context, param -> {
+        if (context == null || context.getOrigin() == null) {
+            return Collections.emptyList();
+        }
+        return PyUtil.getParameterizedCachedValue(this, context.getOrigin(), param -> {
             List<PyClass> result = new LinkedList<>();
             PyClass[] classes = getSuperClasses(context);
             for (PyClass cls : classes) {
