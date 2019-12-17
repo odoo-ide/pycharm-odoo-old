@@ -54,12 +54,12 @@ public class OdooModelReferenceContributor extends PsiReferenceContributor {
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> ENV_PATTERN =
             psiElement(PyStringLiteralExpression.class).withParent(PySubscriptionExpression.class).afterSiblingSkipping(
                     psiElement().withElementType(PyTokenTypes.LBRACE),
-                    psiElement(PyReferenceExpression.class).with(new PatternCondition<PyReferenceExpression>("env") {
+                    psiElement(PyExpression.class).with(new PatternCondition<PyExpression>("env") {
                         @Override
-                        public boolean accepts(@NotNull PyReferenceExpression pyReferenceExpression, ProcessingContext context) {
-                            TypeEvalContext typeEvalContext = TypeEvalContext.userInitiated(pyReferenceExpression.getProject(), pyReferenceExpression.getContainingFile());
-                            PyType referenceType = typeEvalContext.getType(pyReferenceExpression);
-                            return OdooTypeUtils.isEnvironmentType(referenceType, pyReferenceExpression);
+                        public boolean accepts(@NotNull PyExpression expression, ProcessingContext context) {
+                            TypeEvalContext typeEvalContext = TypeEvalContext.userInitiated(expression.getProject(), expression.getContainingFile());
+                            PyType referenceType = typeEvalContext.getType(expression);
+                            return OdooTypeUtils.isEnvironmentType(referenceType, expression);
                         }
                     }));
 
