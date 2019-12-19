@@ -2,6 +2,7 @@ package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Ref;
+import com.intellij.openapi.util.text.StringUtil;
 import com.jetbrains.python.psi.PyCallExpression;
 import com.jetbrains.python.psi.PyCallSiteExpression;
 import com.jetbrains.python.psi.PyFunction;
@@ -29,7 +30,7 @@ public class OdooRefTypeProvider extends PyTypeProviderBase {
                 Collection<OdooRecordItem> items = OdooExternalIdIndex.findRecordItemByExternalId(id, project);
                 if (!items.isEmpty()) {
                     String model = items.iterator().next().getModel();
-                    if (!model.isEmpty()) {
+                    if (StringUtil.isNotEmpty(model)) {
                         return new Ref<>(new OdooModelClassType(model, OdooRecordSetType.ONE, project));
                     }
                 }

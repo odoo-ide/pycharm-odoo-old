@@ -1,6 +1,7 @@
 package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.navigation.ItemPresentation;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.PlatformIcons;
 
@@ -15,7 +16,11 @@ public class OdooRecordItemPresentation implements ItemPresentation {
 
     @Override
     public String getPresentableText() {
-        return myDefinition.getName() + " (" + myDefinition.getModel() + ")";
+        String text = myDefinition.getName();
+        if (StringUtil.isNotEmpty(myDefinition.getModel())) {
+            text += " (" + myDefinition.getModel() + ")";
+        }
+        return text;
     }
 
     @Override

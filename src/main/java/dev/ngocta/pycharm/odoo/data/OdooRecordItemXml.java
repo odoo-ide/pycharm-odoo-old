@@ -23,14 +23,10 @@ public class OdooRecordItemXml implements OdooRecordItem {
         return myRecord.getQualifiedId();
     }
 
-    @NotNull
+    @Nullable
     @Override
     public String getModel() {
-        String model = myRecord.getModel();
-        if (model != null) {
-            return model;
-        }
-        return "";
+        return myRecord.getModel();
     }
 
     @Nullable

@@ -1,6 +1,7 @@
 package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
@@ -46,7 +47,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, String>
                     tags.forEach(tag -> {
                         String id = tag.getQualifiedId(file);
                         if (id != null) {
-                            result.put(id, tag.getModel());
+                            result.put(id, StringUtil.notNullize(tag.getModel()));
                         }
                     });
                 }
@@ -66,8 +67,9 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, String>
         return EnumeratorStringDescriptor.INSTANCE;
     }
 
+    @NotNull
     @Override
-    public @NotNull DataExternalizer<String> getValueExternalizer() {
+    public DataExternalizer<String> getValueExternalizer() {
         return EnumeratorStringDescriptor.INSTANCE;
     }
 
