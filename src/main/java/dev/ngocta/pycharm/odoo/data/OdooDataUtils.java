@@ -1,12 +1,16 @@
 package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.PairProcessor;
+import com.intellij.util.xml.DomFileElement;
+import com.intellij.util.xml.DomManager;
 import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
 
@@ -38,5 +42,15 @@ public class OdooDataUtils {
             }
         } catch (Exception ignored) {
         }
+    }
+
+    @Nullable
+    public static OdooDomRoot getDomRoot(@NotNull XmlFile xmlFile) {
+        DomManager domManager = DomManager.getDomManager(xmlFile.getProject());
+        DomFileElement<OdooDomRoot> fileElement = domManager.getFileElement(xmlFile, OdooDomRoot.class);
+        if (fileElement != null) {
+            return fileElement.getRootElement();
+        }
+        return null;
     }
 }

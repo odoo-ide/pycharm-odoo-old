@@ -13,11 +13,8 @@ import com.intellij.util.indexing.*;
 import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
-import com.intellij.util.xml.DomFileElement;
-import com.intellij.util.xml.DomManager;
 import dev.ngocta.pycharm.odoo.module.OdooModuleIndex;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,7 +38,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, String>
             VirtualFile file = inputData.getFile();
             PsiFile psiFile = inputData.getPsiFile();
             if (psiFile instanceof XmlFile) {
-                OdooDomRoot root = getDomRoot((XmlFile) psiFile);
+                OdooDomRoot root = OdooDataUtils.getDomRoot((XmlFile) psiFile);
                 if (root != null) {
                     List<OdooDomRecord> tags = root.getAllRecordVariants();
                     tags.forEach(tag -> {
@@ -90,16 +87,6 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, String>
     @Override
     public boolean dependsOnFileContent() {
         return true;
-    }
-
-    @Nullable
-    private static OdooDomRoot getDomRoot(@NotNull XmlFile xmlFile) {
-        DomManager domManager = DomManager.getDomManager(xmlFile.getProject());
-        DomFileElement<OdooDomRoot> fileElement = domManager.getFileElement(xmlFile, OdooDomRoot.class);
-        if (fileElement != null) {
-            return fileElement.getRootElement();
-        }
-        return null;
     }
 
     @NotNull
@@ -152,7 +139,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, String>
             if (EXT_XML.equals(extension)) {
                 PsiFile psiFile = psiManager.findFile(file);
                 if (psiFile instanceof XmlFile) {
-                    OdooDomRoot root = getDomRoot((XmlFile) psiFile);
+                    OdooDomRoot root = OdooDataUtils.getDomRoot((XmlFile) psiFile);
                     if (root != null) {
                         List<OdooDomRecord> records = root.getAllRecordVariants();
                         for (OdooDomRecord record : records) {

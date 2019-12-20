@@ -77,6 +77,7 @@
         <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.GotoClassAttributeContributor"/>
         <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.data.OdooGotoExternalIdContributor"/>
         <xmlStructureViewBuilderProvider implementation="dev.ngocta.pycharm.odoo.data.OdooXmlStructureViewBuilderProvider" order="first"/>
+        <lang.formatter implementationClass="dev.ngocta.pycharm.odoo.data.OdooXmlFormatter" language="XML" />
     </extensions>
     <actions>
         <!-- Add your actions here -->
