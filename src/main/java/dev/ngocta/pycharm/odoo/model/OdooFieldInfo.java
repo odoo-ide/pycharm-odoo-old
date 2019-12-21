@@ -3,10 +3,7 @@ package dev.ngocta.pycharm.odoo.model;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
-import com.jetbrains.python.psi.PyCallExpression;
-import com.jetbrains.python.psi.PyExpression;
-import com.jetbrains.python.psi.PyStringLiteralExpression;
-import com.jetbrains.python.psi.PyTargetExpression;
+import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
@@ -36,7 +33,8 @@ public class OdooFieldInfo {
             OdooNames.FIELD_TYPE_TEXT,
             OdooNames.FIELD_TYPE_SELECTION,
             OdooNames.FIELD_TYPE_DATE,
-            OdooNames.FIELD_TYPE_DATETIME
+            OdooNames.FIELD_TYPE_DATETIME,
+            OdooNames.FIELD_TYPE_BINARY
     ));
 
     private OdooFieldInfo(@NotNull PyTargetExpression field,
@@ -140,6 +138,8 @@ public class OdooFieldInfo {
                 return OdooTypeUtils.getDateType(myField);
             case OdooNames.FIELD_TYPE_DATETIME:
                 return OdooTypeUtils.getDatetimeType(myField);
+            case OdooNames.FIELD_TYPE_BINARY:
+                return builtinCache.getBytesType(PyPsiFacade.getInstance(project).getLanguageLevel(myField));
             default:
                 return null;
         }

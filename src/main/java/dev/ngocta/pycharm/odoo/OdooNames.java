@@ -21,6 +21,7 @@ public class OdooNames {
     public static final String FIELD_TYPE_TEXT = "Text";
     public static final String FIELD_TYPE_DATE = "Date";
     public static final String FIELD_TYPE_DATETIME = "Datetime";
+    public static final String FIELD_TYPE_BINARY = "Binary";
     public static final String FIELD_TYPE_SELECTION = "Selection";
     public static final String FIELD_TYPE_MANY2ONE = "Many2one";
     public static final String FIELD_TYPE_ONE2MANY = "One2many";
