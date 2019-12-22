@@ -7,8 +7,6 @@ import com.jetbrains.python.psi.types.TypeEvalContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-
 public class OdooModelGetItemWrapper extends PyFunctionImpl {
     final OdooModelClassType myModelClassType;
 
@@ -30,7 +28,7 @@ public class OdooModelGetItemWrapper extends PyFunctionImpl {
             PyExpression index = ((PySubscriptionExpression) callSite).getIndexExpression();
             if (index instanceof PyStringLiteralExpression) {
                 String fieldName = ((PyStringLiteralExpression) index).getStringValue();
-                return myModelClassType.getFieldTypeByPath(Collections.singletonList(fieldName), context);
+                return myModelClassType.getFieldTypeByPath(new String[]{fieldName}, context);
             } else if (index instanceof PyNumericLiteralExpression) {
                 return myModelClassType.withOneRecord();
             }

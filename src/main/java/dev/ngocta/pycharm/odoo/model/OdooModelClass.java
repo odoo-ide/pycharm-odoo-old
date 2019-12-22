@@ -572,30 +572,30 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @Nullable
     public PyTargetExpression findFieldByPath(@NotNull String path, @NotNull TypeEvalContext context) {
         String[] names = path.split("\\.");
-        return findFieldByPath(Arrays.asList(names), context);
+        return findFieldByPath(names, context);
     }
 
     @Nullable
-    public PyTargetExpression findFieldByPath(@NotNull List<String> fieldNames, @NotNull TypeEvalContext context) {
+    public PyTargetExpression findFieldByPath(@NotNull String[] fieldNames, @NotNull TypeEvalContext context) {
         List<PyTargetExpression> fields = findFieldsInPath(fieldNames, context);
-        if (fieldNames.size() != fields.size()) {
+        if (fieldNames.length != fields.size()) {
             return null;
         }
         return fields.get(fields.size() - 1);
     }
 
-    public List<PyTargetExpression> findFieldsInPath(@NotNull List<String> fieldNames, @NotNull TypeEvalContext context) {
+    public List<PyTargetExpression> findFieldsInPath(@NotNull String[] fieldNames, @NotNull TypeEvalContext context) {
         List<PyTargetExpression> result = new LinkedList<>();
-        if (fieldNames.isEmpty()) {
+        if (fieldNames.length == 0) {
             return result;
         }
-        String name = fieldNames.get(0);
+        String name = fieldNames[0];
         PyTargetExpression field = findField(name, context);
         if (field != null) {
             result.add(field);
             PyType fieldType = OdooFieldInfo.getFieldType(field, context);
             if (fieldType instanceof OdooModelClassType) {
-                fieldNames = fieldNames.subList(1, fieldNames.size());
+                fieldNames = Arrays.copyOfRange(fieldNames, 1, fieldNames.length);
                 OdooModelClass cls = ((OdooModelClassType) fieldType).getPyClass();
                 result.addAll(cls.findFieldsInPath(fieldNames, context));
             }

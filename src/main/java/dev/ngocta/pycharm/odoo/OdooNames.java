@@ -39,4 +39,5 @@ public class OdooNames {
     public static final String ENVIRONMENT_QNAME = "odoo.api.Environment";
     public static final String MODULE_BASE = "base";
     public static final String REF_QNAME = "odoo.api.Environment.ref";
+    public static final String DECORATOR_DEPENDS = "api.depends";
 }

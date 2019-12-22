@@ -1,21 +1,13 @@
 package dev.ngocta.pycharm.odoo.model;
 
-import com.intellij.codeInsight.completion.BasicInsertHandler;
-import com.intellij.codeInsight.completion.InsertHandler;
-import com.intellij.codeInsight.completion.PrioritizedLookupElement;
-import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.util.UserDataHolderBase;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiInvalidElementAccessException;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.Processor;
 import com.jetbrains.python.PyNames;
-import com.jetbrains.python.codeInsight.completion.PyFunctionInsertHandler;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
 import com.jetbrains.python.psi.resolve.RatedResolveResult;
@@ -29,8 +21,6 @@ import java.util.*;
 public class OdooModelClassType extends UserDataHolderBase implements PyClassType {
     private final OdooModelClass myClass;
     private final OdooRecordSetType myRecordSetType;
-    private static final double COMPLETION_PRIORITY_FIELD = 2;
-    private static final double COMPLETION_PRIORITY_FUNCTION = 1;
 
     public OdooModelClassType(@NotNull OdooModelClass source, @NotNull OdooRecordSetType recordSetType) {
         myClass = source;
@@ -206,47 +196,12 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
             if (member instanceof PsiNamedElement) {
                 String name = ((PsiNamedElement) member).getName();
                 if (!map.containsKey(name)) {
-                    map.put(name, createCompletionLine((PsiNamedElement) member, context));
+                    map.put(name, OdooModelUtils.createCompletionLine((PsiNamedElement) member, context));
                 }
             }
             return true;
         }, true, context);
         return map.values().toArray();
-    }
-
-    @Nullable
-    private LookupElement createCompletionLine(@NotNull PsiNamedElement element, @NotNull TypeEvalContext context) {
-        String name = element.getName();
-        if (name != null) {
-            String tailText = null;
-            String typeText = null;
-            double priority = 0;
-            InsertHandler<LookupElement> insertHandler = new BasicInsertHandler<>();
-            if (element instanceof PyTargetExpression) {
-                OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) element);
-                if (info != null) {
-                    typeText = info.getTypeName();
-                    PyType type = info.getType(context);
-                    if (type instanceof OdooModelClassType) {
-                        typeText = "(" + type.getName() + ") " + typeText;
-                    }
-                    priority = COMPLETION_PRIORITY_FIELD;
-                }
-            } else if (element instanceof PyFunction) {
-                List<PyCallableParameter> params = ((PyFunction) element).getParameters(context);
-                String paramsText = StringUtil.join(params, PyCallableParameter::getName, ", ");
-                tailText = "(" + paramsText + ")";
-                priority = COMPLETION_PRIORITY_FUNCTION;
-                insertHandler = PyFunctionInsertHandler.INSTANCE;
-            }
-            LookupElement lookupElement = LookupElementBuilder.create(element)
-                    .withTailText(tailText)
-                    .withTypeText(typeText)
-                    .withIcon(element.getIcon(Iconable.ICON_FLAG_READ_STATUS))
-                    .withInsertHandler(insertHandler);
-            return PrioritizedLookupElement.withPriority(lookupElement, priority);
-        }
-        return null;
     }
 
     @NotNull
@@ -281,12 +236,12 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
     @Nullable
     public PyType getFieldTypeByPath(@NotNull String path, @NotNull TypeEvalContext context) {
         String[] fieldNames = path.split("\\.");
-        return getFieldTypeByPath(Arrays.asList(fieldNames), context);
+        return getFieldTypeByPath(fieldNames, context);
     }
 
     @Nullable
-    public PyType getFieldTypeByPath(@NotNull List<String> fieldNames, @NotNull TypeEvalContext context) {
-        if (fieldNames.isEmpty()) {
+    public PyType getFieldTypeByPath(@NotNull String[] fieldNames, @NotNull TypeEvalContext context) {
+        if (fieldNames.length == 0) {
             return null;
         }
         PyTargetExpression field = myClass.findFieldByPath(fieldNames, context);
