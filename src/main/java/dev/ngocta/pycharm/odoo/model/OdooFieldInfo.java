@@ -52,7 +52,7 @@ public class OdooFieldInfo {
 
     @Nullable
     public String getComodel() {
-        return myAttributes.get(OdooNames.FIELD_ATTR_COMODEL);
+        return myAttributes.get(OdooNames.FIELD_ATTR_COMODEL_NAME);
     }
 
     @Nullable
@@ -82,9 +82,9 @@ public class OdooFieldInfo {
                         case OdooNames.FIELD_TYPE_MANY2ONE:
                         case OdooNames.FIELD_TYPE_ONE2MANY:
                         case OdooNames.FIELD_TYPE_MANY2MANY:
-                            PyStringLiteralExpression comodelExpression = callExpression.getArgument(0, OdooNames.FIELD_ATTR_COMODEL, PyStringLiteralExpression.class);
+                            PyStringLiteralExpression comodelExpression = callExpression.getArgument(0, OdooNames.FIELD_ATTR_COMODEL_NAME, PyStringLiteralExpression.class);
                             if (comodelExpression != null) {
-                                attributes.put(OdooNames.FIELD_ATTR_COMODEL, comodelExpression.getStringValue());
+                                attributes.put(OdooNames.FIELD_ATTR_COMODEL_NAME, comodelExpression.getStringValue());
                             } else {
                                 PyExpression relatedExpression = callExpression.getKeywordArgument(OdooNames.FIELD_ATTR_RELATED);
                                 if (relatedExpression instanceof PyStringLiteralExpression) {

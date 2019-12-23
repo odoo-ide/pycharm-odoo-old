@@ -7,20 +7,24 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.patterns.PatternCondition;
+import com.intellij.patterns.PsiElementPattern;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.util.ProcessingContext;
 import com.jetbrains.python.codeInsight.completion.PyFunctionInsertHandler;
-import com.jetbrains.python.psi.PyClass;
-import com.jetbrains.python.psi.PyFunction;
-import com.jetbrains.python.psi.PyTargetExpression;
-import com.jetbrains.python.psi.PyUtil;
+import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.types.PyCallableParameter;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
-import com.sun.istack.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
+
+import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class OdooModelUtils {
     private static final double COMPLETION_PRIORITY_FIELD = 2;
@@ -73,5 +77,28 @@ public class OdooModelUtils {
                 .withIcon(element.getIcon(Iconable.ICON_FLAG_READ_STATUS))
                 .withInsertHandler(insertHandler);
         return PrioritizedLookupElement.withPriority(lookupElement, priority);
+    }
+
+    public static PsiElementPattern.Capture<PyStringLiteralExpression> getFieldArgumentPattern(int index, String keyword, String... fieldType) {
+        return psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("fieldArgument") {
+            @Override
+            public boolean accepts(@NotNull PyStringLiteralExpression stringExpression, ProcessingContext context) {
+                PsiElement parent = stringExpression.getParent();
+                if (parent instanceof PyArgumentList || parent instanceof PyKeywordArgument) {
+                    PyCallExpression callExpression = PsiTreeUtil.getParentOfType(parent, PyCallExpression.class);
+                    if (callExpression != null) {
+                        PyExpression callee = callExpression.getCallee();
+                        if (callee instanceof PyReferenceExpression) {
+                            String calleeName = callee.getName();
+                            if (calleeName != null && Arrays.asList(fieldType).contains(calleeName)) {
+                                PyStringLiteralExpression comodelExpression = callExpression.getArgument(index, keyword, PyStringLiteralExpression.class);
+                                return stringExpression.equals(comodelExpression);
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
+        });
     }
 }

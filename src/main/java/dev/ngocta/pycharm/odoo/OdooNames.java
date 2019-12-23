@@ -26,7 +26,8 @@ public class OdooNames {
     public static final String FIELD_TYPE_MANY2ONE = "Many2one";
     public static final String FIELD_TYPE_ONE2MANY = "One2many";
     public static final String FIELD_TYPE_MANY2MANY = "Many2many";
-    public static final String FIELD_ATTR_COMODEL = "comodel_name";
+    public static final String FIELD_ATTR_COMODEL_NAME = "comodel_name";
+    public static final String FIELD_ATTR_INVERSE_NAME = "inverse_name";
     public static final String FIELD_ATTR_RELATED = "related";
     public static final String FIELD_ATTR_COMPUTE = "compute";
     public static final String FIELD_ATTR_INVERSE = "inverse";
@@ -40,4 +41,6 @@ public class OdooNames {
     public static final String MODULE_BASE = "base";
     public static final String REF_QNAME = "odoo.api.Environment.ref";
     public static final String DECORATOR_DEPENDS = "api.depends";
+    public static final String DECORATOR_CONSTRAINS = "api.constrains";
+    public static final String DECORATOR_ONCHANGE = "api.onchange";
 }

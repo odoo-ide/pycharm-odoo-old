@@ -15,23 +15,34 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class OdooFieldReference extends PsiReferenceBase<PsiElement> {
-    private final OdooModelClass myOriginModelClass;
-    private final OdooFieldReferenceSet myReferenceSet;
-    private final TypeEvalContext myContext;
+    private OdooModelClass myOriginModelClass;
+    private OdooFieldPathReferences myFieldPathReferences;
+    private TypeEvalContext myContext;
 
-    public OdooFieldReference(@NotNull PsiElement element, TextRange rangeInElement, OdooFieldReferenceSet referenceSet) {
+    public OdooFieldReference(@NotNull PsiElement element, @NotNull OdooModelClass modelClass) {
+        this(element, null, modelClass);
+    }
+
+    public OdooFieldReference(@NotNull PsiElement element, @NotNull TextRange rangeInElement, @NotNull OdooFieldPathReferences fieldPathReferences) {
+        this(element, rangeInElement, fieldPathReferences.getModelClass());
+        myFieldPathReferences = fieldPathReferences;
+    }
+
+    private OdooFieldReference(@NotNull PsiElement element, @Nullable TextRange rangeInElement, @NotNull OdooModelClass modelClass) {
         super(element, rangeInElement);
-        myReferenceSet = referenceSet;
-        myOriginModelClass = referenceSet.getModelClass();
-        myContext = TypeEvalContext.codeAnalysis(getElement().getProject(), getElement().getContainingFile());
+        myOriginModelClass = modelClass;
+        myContext = TypeEvalContext.codeAnalysis(element.getProject(), element.getContainingFile());
     }
 
     private OdooModelClass getModelClass() {
-        int idx = Arrays.asList(myReferenceSet.getReferences()).indexOf(this);
+        if (myFieldPathReferences == null) {
+            return myOriginModelClass;
+        }
+        int idx = Arrays.asList(myFieldPathReferences.getReferences()).indexOf(this);
         if (idx == 0) {
             return myOriginModelClass;
         }
-        String[] fieldNames = Arrays.copyOfRange(myReferenceSet.getFieldNames(), 0, idx);
+        String[] fieldNames = Arrays.copyOfRange(myFieldPathReferences.getFieldNames(), 0, idx);
         PyTargetExpression field = myOriginModelClass.findFieldByPath(fieldNames, myContext);
         if (field != null) {
             PyType type = OdooFieldInfo.getFieldType(field, myContext);
