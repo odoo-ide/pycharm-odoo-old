@@ -1,5 +1,6 @@
 package dev.ngocta.pycharm.odoo.model;
 
+import com.google.common.collect.ImmutableSet;
 import com.intellij.codeInsight.completion.BasicInsertHandler;
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
@@ -18,17 +19,38 @@ import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.types.PyCallableParameter;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
+import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class OdooModelUtils {
     private static final double COMPLETION_PRIORITY_FIELD = 2;
     private static final double COMPLETION_PRIORITY_FUNCTION = 1;
+    private static final Set<String> KNOWN_FIELD_TYPES = ImmutableSet.of(
+            OdooNames.FIELD_TYPE_ID,
+            OdooNames.FIELD_TYPE_MANY2ONE,
+            OdooNames.FIELD_TYPE_ONE2MANY,
+            OdooNames.FIELD_TYPE_MANY2MANY,
+            OdooNames.FIELD_TYPE_INTEGER,
+            OdooNames.FIELD_TYPE_FLOAT,
+            OdooNames.FIELD_TYPE_BOOLEAN,
+            OdooNames.FIELD_TYPE_INTEGER,
+            OdooNames.FIELD_TYPE_FLOAT,
+            OdooNames.FIELD_TYPE_MONETARY,
+            OdooNames.FIELD_TYPE_CHAR,
+            OdooNames.FIELD_TYPE_TEXT,
+            OdooNames.FIELD_TYPE_HTML,
+            OdooNames.FIELD_TYPE_SELECTION,
+            OdooNames.FIELD_TYPE_DATE,
+            OdooNames.FIELD_TYPE_DATETIME,
+            OdooNames.FIELD_TYPE_BINARY
+    );
 
     private OdooModelUtils() {
     }
@@ -100,5 +122,14 @@ public class OdooModelUtils {
                 return false;
             }
         });
+    }
+
+    public static boolean isFieldCallExpression(@com.sun.istack.NotNull PyCallExpression callExpression) {
+        PyExpression callee = callExpression.getCallee();
+        if (callee instanceof PyReferenceExpression) {
+            String calleeName = callee.getName();
+            return KNOWN_FIELD_TYPES.contains(calleeName);
+        }
+        return false;
     }
 }

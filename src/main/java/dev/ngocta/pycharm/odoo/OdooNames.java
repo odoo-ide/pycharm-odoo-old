@@ -19,6 +19,7 @@ public class OdooNames {
     public static final String FIELD_TYPE_MONETARY = "Monetary";
     public static final String FIELD_TYPE_CHAR = "Char";
     public static final String FIELD_TYPE_TEXT = "Text";
+    public static final String FIELD_TYPE_HTML = "Html";
     public static final String FIELD_TYPE_DATE = "Date";
     public static final String FIELD_TYPE_DATETIME = "Datetime";
     public static final String FIELD_TYPE_BINARY = "Binary";

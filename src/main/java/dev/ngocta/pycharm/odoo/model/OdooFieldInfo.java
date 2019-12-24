@@ -1,5 +1,6 @@
 package dev.ngocta.pycharm.odoo.model;
 
+import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
@@ -12,30 +13,14 @@ import com.sun.istack.Nullable;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.OdooTypeUtils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class OdooFieldInfo {
     private PyTargetExpression myField;
     private final String myTypeName;
     private final Map<String, String> myAttributes;
-    private static final Set<String> knownFieldTypeNames = new HashSet<>(Arrays.asList(
-            OdooNames.FIELD_TYPE_ID,
-            OdooNames.FIELD_TYPE_MANY2ONE,
-            OdooNames.FIELD_TYPE_ONE2MANY,
-            OdooNames.FIELD_TYPE_MANY2MANY,
-            OdooNames.FIELD_TYPE_INTEGER,
-            OdooNames.FIELD_TYPE_FLOAT,
-            OdooNames.FIELD_TYPE_BOOLEAN,
-            OdooNames.FIELD_TYPE_INTEGER,
-            OdooNames.FIELD_TYPE_FLOAT,
-            OdooNames.FIELD_TYPE_MONETARY,
-            OdooNames.FIELD_TYPE_CHAR,
-            OdooNames.FIELD_TYPE_TEXT,
-            OdooNames.FIELD_TYPE_SELECTION,
-            OdooNames.FIELD_TYPE_DATE,
-            OdooNames.FIELD_TYPE_DATETIME,
-            OdooNames.FIELD_TYPE_BINARY
-    ));
 
     private OdooFieldInfo(@NotNull PyTargetExpression field,
                           @NotNull String typeName,
@@ -73,12 +58,13 @@ public class OdooFieldInfo {
         PyExpression assignedValue = field.findAssignedValue();
         if (assignedValue instanceof PyCallExpression) {
             PyCallExpression callExpression = (PyCallExpression) assignedValue;
-            PyExpression callee = callExpression.getCallee();
-            if (callee != null && callee.getName() != null) {
-                String calleeName = callee.getName();
-                if (knownFieldTypeNames.contains(calleeName)) {
-                    Map<String, String> attributes = new HashMap<>();
-                    switch (calleeName) {
+            if (OdooModelUtils.isFieldCallExpression(callExpression)) {
+                Map<String, String> attributes = new HashMap<>();
+                String typeName = Optional.of(callExpression)
+                        .map(PyCallExpression::getCallee)
+                        .map(NavigationItem::getName).orElse(null);
+                if (typeName != null) {
+                    switch (typeName) {
                         case OdooNames.FIELD_TYPE_MANY2ONE:
                         case OdooNames.FIELD_TYPE_ONE2MANY:
                         case OdooNames.FIELD_TYPE_MANY2MANY:
@@ -93,7 +79,7 @@ public class OdooFieldInfo {
                             }
                             break;
                     }
-                    return new OdooFieldInfo(field, calleeName, attributes);
+                    return new OdooFieldInfo(field, typeName, attributes);
                 }
             }
         }
@@ -132,6 +118,7 @@ public class OdooFieldInfo {
                 return builtinCache.getFloatType();
             case OdooNames.FIELD_TYPE_CHAR:
             case OdooNames.FIELD_TYPE_TEXT:
+            case OdooNames.FIELD_TYPE_HTML:
             case OdooNames.FIELD_TYPE_SELECTION:
                 return builtinCache.getStrType();
             case OdooNames.FIELD_TYPE_DATE:
