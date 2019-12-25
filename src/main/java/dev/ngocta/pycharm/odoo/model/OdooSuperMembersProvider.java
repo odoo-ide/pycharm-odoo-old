@@ -55,10 +55,7 @@ public class OdooSuperMembersProvider implements PyClassMembersProvider {
 
     private void visitSuperMembers(@NotNull PyClassType type, @NotNull TypeEvalContext context, @NotNull Processor<PsiNamedElement> processor) {
         PyClass cls = type.getPyClass();
-        if (cls instanceof OdooModelClass) {
-            return;
-        }
-        OdooModelClass modelCls = OdooModelUtils.getContainingOdooModelClass(cls);
+        OdooModelClass modelCls = cls.getUserData(OdooModelClass.MODEL_CLASS);
         if (modelCls != null) {
             List<PyClass> ancestors = modelCls.getAncestorClasses(context);
             int idx = ancestors.indexOf(cls);
