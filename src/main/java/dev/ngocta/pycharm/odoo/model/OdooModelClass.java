@@ -1,5 +1,6 @@
 package dev.ngocta.pycharm.odoo.model;
 
+import com.google.common.collect.Lists;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.Language;
 import com.intellij.openapi.project.Project;
@@ -129,17 +130,17 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
         }
         List<PyClass> modelClasses = OdooModelIndex.findModelClasses(getName(), file, true);
         List<String> superModels = new LinkedList<>();
-        modelClasses.forEach(modelClass -> {
+        Lists.reverse(modelClasses).forEach(modelClass -> {
             OdooModelInfo info = OdooModelInfo.getInfo(modelClass);
             if (info != null) {
                 info.getInherit().forEach(inherit -> {
-                    if (!inherit.equals(getName())) {
-                        superModels.add(0, inherit);
+                    if (!inherit.equals(getName()) && !superModels.contains(inherit)) {
+                        superModels.add(inherit);
                     }
                 });
             }
         });
-        superModels.stream().distinct().forEach(model -> {
+        superModels.forEach(model -> {
             modelClasses.add(OdooModelClass.create(model, myProject));
         });
         return modelClasses.toArray(classes);
