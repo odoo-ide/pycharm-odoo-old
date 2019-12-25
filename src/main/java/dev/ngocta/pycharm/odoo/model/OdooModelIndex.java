@@ -45,7 +45,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
                 pyFile.getTopLevelClasses().forEach(pyClass -> {
                     OdooModelInfo info = OdooModelInfo.getInfo(pyClass);
                     if (info != null) {
-                        result.put(info.getName(), info.isOriginal());
+                        result.putIfAbsent(info.getName(), info.isOriginal());
                     }
                 });
             }
@@ -67,7 +67,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
 
     @Override
     public int getVersion() {
-        return 3;
+        return 4;
     }
 
     @NotNull
