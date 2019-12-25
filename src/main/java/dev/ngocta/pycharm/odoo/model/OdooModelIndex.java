@@ -1,5 +1,6 @@
 package dev.ngocta.pycharm.odoo.model;
 
+import com.google.common.collect.Lists;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
@@ -91,7 +92,9 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
         files.forEach(file -> {
             PsiFile psiFile = psiManager.findFile(file);
             if (psiFile instanceof PyFile) {
-                ((PyFile) psiFile).getTopLevelClasses().forEach(cls -> {
+                List<PyClass> classes = ((PyFile) psiFile).getTopLevelClasses();
+                classes = Lists.reverse(classes);
+                classes.forEach(cls -> {
                     OdooModelInfo info = OdooModelInfo.getInfo(cls);
                     if (info != null && info.getName().equals(model)) {
                         result.add(cls);
