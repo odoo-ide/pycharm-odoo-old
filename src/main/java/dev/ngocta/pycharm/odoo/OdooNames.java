@@ -44,4 +44,6 @@ public class OdooNames {
     public static final String DECORATOR_DEPENDS = "api.depends";
     public static final String DECORATOR_CONSTRAINS = "api.constrains";
     public static final String DECORATOR_ONCHANGE = "api.onchange";
+    public static final String REQUEST_RENDER_QNAME = "odoo.http.HttpRequest.render";
+    public static final String MODEL_IR_UI_VIEW = "ir.ui.view";
 }

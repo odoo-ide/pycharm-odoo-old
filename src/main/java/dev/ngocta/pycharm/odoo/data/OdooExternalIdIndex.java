@@ -90,7 +90,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, String>
     }
 
     @NotNull
-    public static Collection<String> getAllExternalIds(@NotNull Project project) {
+    public static Collection<String> getAllIds(@NotNull Project project) {
         FileBasedIndex index = FileBasedIndex.getInstance();
         return index.getAllKeys(NAME, project);
     }
@@ -129,7 +129,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, String>
     }
 
     @NotNull
-    public static Collection<OdooRecordItem> findRecordItemByExternalId(@NotNull String id, @NotNull Project project) {
+    public static Collection<OdooRecordItem> findRecordItemById(@NotNull String id, @NotNull Project project) {
         FileBasedIndex index = FileBasedIndex.getInstance();
         Collection<VirtualFile> files = index.getContainingFiles(NAME, id, GlobalSearchScope.allScope(project));
         PsiManager psiManager = PsiManager.getInstance(project);

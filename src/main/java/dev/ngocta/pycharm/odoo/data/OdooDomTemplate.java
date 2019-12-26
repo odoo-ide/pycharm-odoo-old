@@ -1,8 +1,10 @@
 package dev.ngocta.pycharm.odoo.data;
 
+import dev.ngocta.pycharm.odoo.OdooNames;
+
 public interface OdooDomTemplate extends OdooDomRecordShortcut {
     @Override
     default String getModel() {
-        return "ir.ui.view";
+        return OdooNames.MODEL_IR_UI_VIEW;
     }
 }

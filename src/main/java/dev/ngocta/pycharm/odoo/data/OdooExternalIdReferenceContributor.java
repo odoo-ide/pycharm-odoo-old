@@ -2,6 +2,7 @@ package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.patterns.PatternCondition;
 import com.intellij.patterns.PsiElementPattern;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceContributor;
 import com.intellij.psi.PsiReferenceRegistrar;
 import com.intellij.util.ProcessingContext;
@@ -34,8 +35,34 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                                 }
                             })));
 
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> REQUEST_RENDER_PATTERN =
+            psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("requestRender") {
+                @Override
+                public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression, ProcessingContext context) {
+                    PsiElement parent = pyStringLiteralExpression.getParent();
+                    if (parent instanceof PyArgumentList) {
+                        PyExpression[] args = ((PyArgumentList) parent).getArguments();
+                        if (args.length > 0 && pyStringLiteralExpression == args[0]) {
+                            PyCallExpression callExpression = ((PyArgumentList) parent).getCallExpression();
+                            if (callExpression != null) {
+                                PyExpression callee = callExpression.getCallee();
+                                if (callee instanceof PyReferenceExpression && "render".equals(callee.getName())) {
+                                    PsiElement target = ((PyReferenceExpression) callee).getReference().resolve();
+                                    if (target instanceof PyFunction && OdooNames.REQUEST_RENDER_QNAME.equals(((PyFunction) target).getQualifiedName())) {
+                                        context.put(OdooExternalIdReferenceProvider.ACCEPTED_MODEL, OdooNames.MODEL_IR_UI_VIEW);
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                }
+            });
+
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
         registrar.registerReferenceProvider(REF_PATTERN, new OdooExternalIdReferenceProvider());
+        registrar.registerReferenceProvider(REQUEST_RENDER_PATTERN, new OdooExternalIdReferenceProvider());
     }
 }
