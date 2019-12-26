@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.Language;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.TextRange;
@@ -36,7 +35,6 @@ import java.util.concurrent.ConcurrentMap;
 public class OdooModelClass extends PsiElementBase implements PyClass {
     private final String myName;
     private final Project myProject;
-    public static final Key<OdooModelClass> MODEL_CLASS = new Key<>("modelClass");
 
     private OdooModelClass(@NotNull String name, @NotNull Project project) {
         myName = name;
@@ -76,7 +74,6 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
                 result.add(baseClass);
             }
         }
-        result.forEach(cls -> cls.putUserData(MODEL_CLASS, this));
         return result;
     }
 
