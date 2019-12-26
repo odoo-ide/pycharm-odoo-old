@@ -54,14 +54,14 @@
         <!-- Add your extensions here -->
         <importResolver implementation="dev.ngocta.pycharm.odoo.module.OdooAddonsImportResolver"/>
         <pyModuleMembersProvider implementation="dev.ngocta.pycharm.odoo.module.OdooAddonsMembersProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooFieldTypeProvider" order="first"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooEnvironmentItemProvider" order="first"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooSelfTypeProvider" order="first"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooMappedTypeProvider" order="first"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooLambdaTypeProvider" order="first"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelCallTypeProvider" order="first"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooFieldTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooEnvironmentItemProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooSelfTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooMappedTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooLambdaTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelCallTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.data.OdooRefTypeProvider"/>
-        <pyClassMembersProvider implementation="dev.ngocta.pycharm.odoo.model.OdooSuperMembersProvider" order="first"/>
+        <pyClassMembersProvider implementation="dev.ngocta.pycharm.odoo.model.OdooSuperMembersProvider"/>
         <inspectionExtension implementation="dev.ngocta.pycharm.odoo.OdooInspectionExtension"/>
     </extensions>
 
