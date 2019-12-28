@@ -23,6 +23,18 @@ or download and install latest version at [here](https://github.com/trinhanhngoc
 2. Clone [odoo-stubs](https://github.com/trinhanhngoc/odoo-stubs) and attach to your project
 ![](images/odoo-stubs.png)
 
+## Screenshots
+![Model name completion](images/model-name-completion.png)
+
+![Go to model declaration](images/go-to-model-declaration.png)
+
+![Model member completion](images/model-member-completion-1.png)
+
+![Model member completion](images/model-member-completion-2.png)
+
+![Field path completion](images/field-path-completion.png)
+
+![Model member completion](images/model-member-completion-3.png)
 
 ## Screencast
 https://www.youtube.com/watch?v=SMqepH2A4_4
