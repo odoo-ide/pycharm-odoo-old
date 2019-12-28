@@ -8,13 +8,11 @@ Odoo is a great open source ERP. This plugin provides Odoo coding assistance in 
     * Depends and data files path in manifest
     * Model name in _inherit, env and comodel argument in relation field declaration
     * Compute, inverse methods in field declarations
+    * Field path in api.depends, mapped(), ...
+    * XML ID in env.ref(), request.render()
 * Quick search and navigate to XML ID in project
 
 ## Planned features
-* Improve coding assistance in Python files such as resolving references and provide code completion for:
-    * Field path in api.depends, mapped(), ...
-    * XML ID in ref()
-    * ...
 * XML and JavaScript coding assistance
 
 ## Usage
