@@ -24,7 +24,6 @@ import com.jetbrains.python.psi.types.PyClassLikeType;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
-import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,8 +67,8 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @NotNull
     private List<PyClass> getAncestorClasses(@Nullable TypeEvalContext context, boolean withBaseClass) {
         List<PyClass> result = new LinkedList<>(getAncestorClassesWithoutBase(context));
-        if (withBaseClass) {
-            PyClass baseClass = getBaseModelClass(context);
+        if (context != null && withBaseClass) {
+            PyClass baseClass = OdooModelUtils.getBaseModelClass(context.getOrigin());
             if (baseClass != null) {
                 result.add(baseClass);
             }
@@ -98,17 +97,6 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
             }
             return result;
         });
-    }
-
-    private PyClass getBaseModelClass(@NotNull PsiElement anchor) {
-        return OdooUtils.getClassByQName(OdooNames.BASE_MODEL_QNAME, anchor);
-    }
-
-    private PyClass getBaseModelClass(@Nullable TypeEvalContext context) {
-        if (context != null && context.getOrigin() != null) {
-            return getBaseModelClass(context.getOrigin());
-        }
-        return null;
     }
 
     @NotNull

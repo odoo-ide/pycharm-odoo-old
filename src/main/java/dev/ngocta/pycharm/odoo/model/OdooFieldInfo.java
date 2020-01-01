@@ -4,6 +4,7 @@ import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
+import com.intellij.util.ObjectUtils;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.types.PyType;
@@ -20,11 +21,11 @@ import java.util.Optional;
 public class OdooFieldInfo {
     private PyTargetExpression myField;
     private final String myTypeName;
-    private final Map<String, String> myAttributes;
+    private final Map<String, Object> myAttributes;
 
     private OdooFieldInfo(@NotNull PyTargetExpression field,
                           @NotNull String typeName,
-                          @NotNull Map<String, String> attributes) {
+                          @NotNull Map<String, Object> attributes) {
         myField = field;
         myTypeName = typeName;
         myAttributes = attributes;
@@ -37,12 +38,20 @@ public class OdooFieldInfo {
 
     @Nullable
     public String getComodel() {
-        return myAttributes.get(OdooNames.FIELD_ATTR_COMODEL_NAME);
+        return ObjectUtils.tryCast(myAttributes.get(OdooNames.FIELD_ATTR_COMODEL_NAME), String.class);
     }
 
     @Nullable
     public String getRelated() {
-        return myAttributes.get(OdooNames.FIELD_ATTR_RELATED);
+        return ObjectUtils.tryCast(myAttributes.get(OdooNames.FIELD_ATTR_RELATED), String.class);
+    }
+
+    public boolean isDelegate() {
+        Object value = myAttributes.get(OdooNames.FIELD_ATTR_DELEGATE);
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+        return false;
     }
 
     @Nullable
@@ -58,32 +67,56 @@ public class OdooFieldInfo {
         PyExpression assignedValue = field.findAssignedValue();
         if (assignedValue instanceof PyCallExpression) {
             PyCallExpression callExpression = (PyCallExpression) assignedValue;
-            if (OdooModelUtils.isFieldCallExpression(callExpression)) {
-                Map<String, String> attributes = new HashMap<>();
+            if (OdooModelUtils.isFieldDeclarationExpression(callExpression)) {
+                Map<String, Object> attributes = new HashMap<>();
                 String typeName = Optional.of(callExpression)
                         .map(PyCallExpression::getCallee)
                         .map(NavigationItem::getName).orElse(null);
                 if (typeName != null) {
-                    switch (typeName) {
-                        case OdooNames.FIELD_TYPE_MANY2ONE:
-                        case OdooNames.FIELD_TYPE_ONE2MANY:
-                        case OdooNames.FIELD_TYPE_MANY2MANY:
-                            PyStringLiteralExpression comodelExpression = callExpression.getArgument(0, OdooNames.FIELD_ATTR_COMODEL_NAME, PyStringLiteralExpression.class);
-                            if (comodelExpression != null) {
-                                attributes.put(OdooNames.FIELD_ATTR_COMODEL_NAME, comodelExpression.getStringValue());
-                            } else {
-                                PyExpression relatedExpression = callExpression.getKeywordArgument(OdooNames.FIELD_ATTR_RELATED);
-                                if (relatedExpression instanceof PyStringLiteralExpression) {
-                                    attributes.put(OdooNames.FIELD_ATTR_RELATED, ((PyStringLiteralExpression) relatedExpression).getStringValue());
-                                }
-                            }
-                            break;
+                    if (OdooNames.FIELD_TYPE_MANY2ONE.equals(typeName)
+                            || OdooNames.FIELD_TYPE_ONE2MANY.equals(typeName)
+                            || OdooNames.FIELD_TYPE_MANY2MANY.equals(typeName)) {
+                        String comodelName = getCallArgumentStringValue(callExpression, 0, OdooNames.FIELD_ATTR_COMODEL_NAME);
+                        attributes.put(OdooNames.FIELD_ATTR_COMODEL_NAME, comodelName);
+                    }
+                    String related = getCallArgumentStringValue(callExpression, OdooNames.FIELD_ATTR_RELATED);
+                    attributes.put(OdooNames.FIELD_ATTR_RELATED, related);
+                    if (OdooNames.FIELD_TYPE_MANY2ONE.equals(typeName)) {
+                        boolean delegate = getCallArgumentBooleanValue(callExpression, OdooNames.FIELD_ATTR_DELEGATE, false);
+                        attributes.put(OdooNames.FIELD_ATTR_DELEGATE, delegate);
                     }
                     return new OdooFieldInfo(field, typeName, attributes);
                 }
             }
         }
         return null;
+    }
+
+    @Nullable
+    private static String getCallArgumentStringValue(@NotNull PyCallExpression callExpression, @NotNull String keyword) {
+        PyExpression arg = callExpression.getKeywordArgument(keyword);
+        if (arg instanceof PyStringLiteralExpression) {
+            return ((PyStringLiteralExpression) arg).getStringValue();
+        }
+        return null;
+    }
+
+    @Nullable
+    private static String getCallArgumentStringValue(@NotNull PyCallExpression callExpression, int index, @NotNull String keyword) {
+        PyStringLiteralExpression arg = callExpression.getArgument(index, keyword, PyStringLiteralExpression.class);
+        if (arg != null) {
+            return arg.getStringValue();
+        }
+        return null;
+    }
+
+    @Nullable
+    private static boolean getCallArgumentBooleanValue(@NotNull PyCallExpression callExpression, @NotNull String keyword, boolean defaultValue) {
+        PyExpression arg = callExpression.getKeywordArgument(keyword);
+        if (arg instanceof PyBoolLiteralExpression) {
+            return ((PyBoolLiteralExpression) arg).getValue();
+        }
+        return defaultValue;
     }
 
     @Nullable

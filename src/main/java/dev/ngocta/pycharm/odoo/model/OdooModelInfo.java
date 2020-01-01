@@ -1,12 +1,9 @@
 package dev.ngocta.pycharm.odoo.model;
 
-import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.jetbrains.python.psi.*;
 import dev.ngocta.pycharm.odoo.OdooNames;
-import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,15 +57,11 @@ public class OdooModelInfo {
 
     @Nullable
     private static OdooModelInfo getInfoInner(@NotNull PyClass pyClass) {
-        PsiFile psiFile = pyClass.getContainingFile();
-        if (psiFile == null) {
+        PyClass baseModelClass = OdooModelUtils.getBaseModelClass(pyClass);
+        if (baseModelClass == null || !pyClass.isSubclass(baseModelClass, null)) {
             return null;
         }
 
-        PsiDirectory module = OdooUtils.getOdooModule(psiFile);
-        if (module == null) {
-            return null;
-        }
         String model = null;
         List<String> inherit = new LinkedList<>();
         Map<String, String> inherits = new HashMap<>();
@@ -96,6 +89,9 @@ public class OdooModelInfo {
                 inherit = PyUtil.strListValue(valueExpr);
             }
         }
+        if (model == null) {
+            return null;
+        }
         PyTargetExpression inheritsExpr = pyClass.findClassAttribute(OdooNames.MODEL_INHERITS, false, null);
         if (inheritsExpr != null) {
             PyExpression valueExpr = inheritsExpr.findAssignedValue();
@@ -109,10 +105,17 @@ public class OdooModelInfo {
                 });
             }
         }
+        pyClass.visitClassAttributes(attr -> {
+            String attrName = attr.getName();
+            if (attrName != null) {
+                OdooFieldInfo info = OdooFieldInfo.getInfo(attr);
+                if (info != null && info.isDelegate() && info.getComodel() != null) {
+                    inherits.put(info.getComodel(), attrName);
+                }
+            }
+            return true;
+        }, false, null);
 
-        if (model != null) {
-            return new OdooModelInfo(model, inherit, inherits);
-        }
-        return null;
+        return new OdooModelInfo(model, inherit, inherits);
     }
 }

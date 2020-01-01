@@ -92,7 +92,7 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                         public boolean accepts(@NotNull PyKeywordArgument pyKeywordArgument, ProcessingContext context) {
                             if (OdooNames.FIELD_ATTR_RELATED.equals(pyKeywordArgument.getKeyword())) {
                                 PyCallExpression callExpression = PsiTreeUtil.getParentOfType(pyKeywordArgument, PyCallExpression.class);
-                                if (callExpression != null && OdooModelUtils.isFieldCallExpression(callExpression)) {
+                                if (callExpression != null && OdooModelUtils.isFieldDeclarationExpression(callExpression)) {
                                     OdooModelClass cls = OdooModelUtils.getContainingOdooModelClass(pyKeywordArgument);
                                     if (cls != null) {
                                         context.put(OdooFieldReferenceProvider.MODEL_CLASS, cls);

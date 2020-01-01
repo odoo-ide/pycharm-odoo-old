@@ -12,6 +12,7 @@ import com.intellij.patterns.PatternCondition;
 import com.intellij.patterns.PsiElementPattern;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import com.jetbrains.python.codeInsight.completion.PyFunctionInsertHandler;
@@ -20,6 +21,7 @@ import com.jetbrains.python.psi.types.PyCallableParameter;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
+import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,6 +39,7 @@ public class OdooModelUtils {
             OdooNames.FIELD_TYPE_MANY2ONE,
             OdooNames.FIELD_TYPE_ONE2MANY,
             OdooNames.FIELD_TYPE_MANY2MANY,
+            OdooNames.FIELD_TYPE_REFERENCE,
             OdooNames.FIELD_TYPE_INTEGER,
             OdooNames.FIELD_TYPE_FLOAT,
             OdooNames.FIELD_TYPE_BOOLEAN,
@@ -124,12 +127,34 @@ public class OdooModelUtils {
         });
     }
 
-    public static boolean isFieldCallExpression(@com.sun.istack.NotNull PyCallExpression callExpression) {
+    public static boolean isFieldDeclarationExpression(@NotNull PyCallExpression callExpression) {
         PyExpression callee = callExpression.getCallee();
         if (callee instanceof PyReferenceExpression) {
             String calleeName = callee.getName();
-            return KNOWN_FIELD_TYPES.contains(calleeName);
+            if (KNOWN_FIELD_TYPES.contains(calleeName)) {
+                return true;
+            }
+            PsiReference ref = callee.getReference();
+            if (ref != null) {
+                PsiElement target = ref.resolve();
+                PyClass targetClass = null;
+                if (target instanceof PyClass) {
+                    targetClass = (PyClass) target;
+                } else if (target instanceof PyFunction && PyUtil.isInitMethod(target)) {
+                    targetClass = ((PyFunction) target).getContainingClass();
+                }
+                if (targetClass != null) {
+                    return targetClass.isSubclass(OdooNames.FIELD_QNAME, null);
+                }
+            }
         }
         return false;
+    }
+
+    public static PyClass getBaseModelClass(@Nullable PsiElement anchor) {
+        if (anchor != null) {
+            return OdooUtils.getClassByQName(OdooNames.BASE_MODEL_QNAME, anchor);
+        }
+        return null;
     }
 }
