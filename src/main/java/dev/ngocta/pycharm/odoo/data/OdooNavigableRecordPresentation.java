@@ -7,10 +7,10 @@ import com.intellij.util.PlatformIcons;
 
 import javax.swing.*;
 
-public class OdooRecordItemPresentation implements ItemPresentation {
-    private final OdooRecordItem myDefinition;
+public class OdooNavigableRecordPresentation implements ItemPresentation {
+    private final OdooNavigableRecord myDefinition;
 
-    public OdooRecordItemPresentation(OdooRecordItem definition) {
+    public OdooNavigableRecordPresentation(OdooNavigableRecord definition) {
         myDefinition = definition;
     }
 

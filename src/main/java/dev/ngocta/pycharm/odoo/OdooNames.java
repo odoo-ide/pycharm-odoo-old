@@ -48,5 +48,10 @@ public class OdooNames {
     public static final String DECORATOR_CONSTRAINS = "api.constrains";
     public static final String DECORATOR_ONCHANGE = "api.onchange";
     public static final String REQUEST_RENDER_QNAME = "odoo.http.HttpRequest.render";
-    public static final String MODEL_IR_UI_VIEW = "ir.ui.view";
+    public static final String IR_UI_VIEW = "ir.ui.view";
+    public static final String IR_UI_VIEW_MODEL = "model";
+    public static final String IR_ACTIONS_ACT_WINDOW = "ir.actions.act_window";
+    public static final String IR_ACTIONS_ACT_WINDOW_RES_MODEL = "res_model";
+    public static final String XML_FIELD_ATTR_NAME = "name";
+    public static final String XML_FIELD_ATTR_REF = "ref";
 }

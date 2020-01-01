@@ -9,12 +9,12 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.FakePsiElement;
 import org.jetbrains.annotations.NotNull;
 
-public class OdooRecordItemCsv extends FakePsiElement implements OdooRecordItem {
+public class OdooNavigableRecordCsv extends FakePsiElement implements OdooNavigableRecord {
     private final VirtualFile myFile;
     private final String myId;
     private final Project myProject;
 
-    public OdooRecordItemCsv(@NotNull String id, @NotNull VirtualFile file, @NotNull Project project) {
+    public OdooNavigableRecordCsv(@NotNull String id, @NotNull VirtualFile file, @NotNull Project project) {
         myId = id;
         myFile = file;
         myProject = project;
@@ -48,7 +48,7 @@ public class OdooRecordItemCsv extends FakePsiElement implements OdooRecordItem 
 
     @Override
     public ItemPresentation getPresentation() {
-        return new OdooRecordItemPresentation(this);
+        return new OdooNavigableRecordPresentation(this);
     }
 
     @NotNull

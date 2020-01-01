@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface OdooRecordItem extends OdooRecord, NavigationItem {
+public interface OdooNavigableRecord extends OdooRecord, NavigationItem {
     @Nullable
     VirtualFile getFile();
 
@@ -23,6 +23,6 @@ public interface OdooRecordItem extends OdooRecord, NavigationItem {
     @Nullable
     @Override
     default ItemPresentation getPresentation() {
-        return new OdooRecordItemPresentation(this);
+        return new OdooNavigableRecordPresentation(this);
     }
 }

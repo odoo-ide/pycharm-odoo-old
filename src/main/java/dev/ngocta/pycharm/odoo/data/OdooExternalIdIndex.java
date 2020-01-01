@@ -16,41 +16,44 @@ import com.intellij.util.io.KeyDescriptor;
 import dev.ngocta.pycharm.odoo.module.OdooModuleIndex;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class OdooExternalIdIndex extends FileBasedIndexExtension<String, String> {
-    private static final ID<String, String> NAME = ID.create("odoo.external.id");
+public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRecordBase> {
+    private static final ID<String, OdooRecordBase> NAME = ID.create("odoo.external.id");
     private static final String EXT_CSV = "csv";
     private static final String EXT_XML = "xml";
 
     @NotNull
     @Override
-    public ID<String, String> getName() {
+    public ID<String, OdooRecordBase> getName() {
         return NAME;
     }
 
     @NotNull
     @Override
-    public DataIndexer<String, String, FileContent> getIndexer() {
+    public DataIndexer<String, OdooRecordBase, FileContent> getIndexer() {
         return inputData -> {
-            Map<String, String> result = new HashMap<>();
+            Map<String, OdooRecordBase> result = new HashMap<>();
             VirtualFile file = inputData.getFile();
             PsiFile psiFile = inputData.getPsiFile();
             if (psiFile instanceof XmlFile) {
                 OdooDomRoot root = OdooDataUtils.getDomRoot((XmlFile) psiFile);
                 if (root != null) {
-                    List<OdooDomRecord> tags = root.getAllRecordVariants();
-                    tags.forEach(tag -> {
-                        String id = tag.getQualifiedId(file);
+                    List<OdooDomRecord> records = root.getAllRecordVariants();
+                    records.forEach(record -> {
+                        String id = record.getQualifiedId(file);
                         if (id != null) {
-                            result.put(id, StringUtil.notNullize(tag.getModel()));
+                            result.put(id, new OdooRecordBase(id, StringUtil.notNullize(record.getModel()), record.getSubType()));
                         }
                     });
                 }
             } else if (EXT_CSV.equals(file.getExtension())) {
                 OdooDataUtils.processCsvRecord(file, (id, lineNumber) -> {
-                    result.put(id, file.getNameWithoutExtension());
+                    result.put(id, new OdooRecordBase(id, file.getNameWithoutExtension(), null));
                     return true;
                 });
             }
@@ -66,13 +69,32 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, String>
 
     @NotNull
     @Override
-    public DataExternalizer<String> getValueExternalizer() {
-        return EnumeratorStringDescriptor.INSTANCE;
+    public DataExternalizer<OdooRecordBase> getValueExternalizer() {
+        return new DataExternalizer<OdooRecordBase>() {
+            @Override
+            public void save(@NotNull DataOutput out, OdooRecordBase value) throws IOException {
+                out.writeUTF(value.getId());
+                out.writeUTF(StringUtil.notNullize(value.getModel()));
+                out.writeUTF(Optional.ofNullable(value.getSubType()).map(Enum::name).orElse(""));
+            }
+
+            @Override
+            public OdooRecordBase read(@NotNull DataInput in) throws IOException {
+                String id = in.readUTF();
+                String model = in.readUTF();
+                OdooRecordSubType type = null;
+                try {
+                    type = OdooRecordSubType.valueOf(in.readUTF());
+                } catch (IllegalArgumentException ignored) {
+                }
+                return new OdooRecordBase(id, model, type);
+            }
+        };
     }
 
     @Override
     public int getVersion() {
-        return 4;
+        return 5;
     }
 
     @NotNull
@@ -121,7 +143,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, String>
         FileBasedIndex index = FileBasedIndex.getInstance();
         ids.forEach(id -> {
             index.processValues(NAME, id, null, (file, value) -> {
-                records.add(new OdooRecordBase(id, value));
+                records.add(value);
                 return false;
             }, GlobalSearchScope.allScope(anchor.getProject()));
         });
@@ -129,11 +151,11 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, String>
     }
 
     @NotNull
-    public static Collection<OdooRecordItem> findRecordItemById(@NotNull String id, @NotNull Project project) {
+    public static Collection<OdooNavigableRecord> findNavigableRecordById(@NotNull String id, @NotNull Project project) {
         FileBasedIndex index = FileBasedIndex.getInstance();
         Collection<VirtualFile> files = index.getContainingFiles(NAME, id, GlobalSearchScope.allScope(project));
         PsiManager psiManager = PsiManager.getInstance(project);
-        Collection<OdooRecordItem> result = new LinkedList<>();
+        Collection<OdooNavigableRecord> result = new LinkedList<>();
         files.forEach(file -> {
             String extension = file.getExtension();
             if (EXT_XML.equals(extension)) {
@@ -144,13 +166,13 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, String>
                         List<OdooDomRecord> records = root.getAllRecordVariants();
                         for (OdooDomRecord record : records) {
                             if (id.equals(record.getQualifiedId(file))) {
-                                result.add(new OdooRecordItemXml(record));
+                                result.add(new OdooNavigableRecordXml(record));
                             }
                         }
                     }
                 }
             } else if (EXT_CSV.equals(extension)) {
-                result.add(new OdooRecordItemCsv(id, file, project));
+                result.add(new OdooNavigableRecordCsv(id, file, project));
             }
         });
         return result;

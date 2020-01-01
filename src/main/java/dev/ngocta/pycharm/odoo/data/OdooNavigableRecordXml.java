@@ -8,11 +8,11 @@ import com.intellij.psi.xml.XmlTag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class OdooRecordItemXml implements OdooRecordItem {
+public class OdooNavigableRecordXml implements OdooNavigableRecord {
     private final OdooDomRecord myRecord;
     private final XmlTag myTag;
 
-    public OdooRecordItemXml(OdooDomRecord record) {
+    public OdooNavigableRecordXml(OdooDomRecord record) {
         myRecord = record;
         myTag = record.getXmlTag();
     }
