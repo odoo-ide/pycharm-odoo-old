@@ -1,7 +1,9 @@
 package dev.ngocta.pycharm.odoo.model;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
@@ -18,6 +20,7 @@ import com.intellij.util.io.KeyDescriptor;
 import com.jetbrains.python.PythonFileType;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyFile;
+import com.jetbrains.python.psi.PyUtil;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.OdooUtils;
 import dev.ngocta.pycharm.odoo.module.OdooModuleIndex;
@@ -83,7 +86,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
     }
 
     @NotNull
-    public static List<PyClass> findModelClasses(@NotNull String model, @NotNull Project project, GlobalSearchScope scope) {
+    private static List<PyClass> findModelClasses(@NotNull String model, @NotNull Project project, GlobalSearchScope scope) {
         List<PyClass> result = new LinkedList<>();
         FileBasedIndex index = FileBasedIndex.getInstance();
         Set<VirtualFile> files = new HashSet<>();
@@ -106,17 +109,19 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
     }
 
     @NotNull
-    public static List<PyClass> findModelClasses(@NotNull String model, @NotNull PsiDirectory module, boolean includeDependModules) {
-        Project project = module.getProject();
-        if (includeDependModules) {
-            List<PyClass> result = new LinkedList<>();
-            OdooModuleIndex.getFlattenedDependsGraph(module).forEach(mod -> {
-                result.addAll(findModelClasses(model, mod, false));
-            });
-            return result;
-        } else {
-            return findModelClasses(model, project, GlobalSearchScopesCore.directoryScope(module, true));
-        }
+    private static List<PyClass> findModelClasses(@NotNull String model, @NotNull PsiDirectory module, boolean includeDependModules) {
+        return PyUtil.getParameterizedCachedValue(module, Pair.create(model, includeDependModules), param -> {
+            Project project = module.getProject();
+            if (includeDependModules) {
+                List<PyClass> result = new LinkedList<>();
+                OdooModuleIndex.getFlattenedDependsGraph(module).forEach(mod -> {
+                    result.addAll(findModelClasses(model, mod, false));
+                });
+                return result;
+            } else {
+                return findModelClasses(model, project, GlobalSearchScopesCore.directoryScope(module, true));
+            }
+        });
     }
 
     @NotNull
@@ -125,10 +130,10 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
         if (module == null) {
             module = OdooModuleIndex.getModule(OdooNames.MODULE_BASE, anchor.getProject());
         }
-        if (module != null) {
-            return findModelClasses(model, module, includeDependModules);
+        if (module == null) {
+            return Collections.emptyList();
         }
-        return Collections.emptyList();
+        return ImmutableList.copyOf(findModelClasses(model, module, includeDependModules));
     }
 
     @NotNull

@@ -1,6 +1,7 @@
 package dev.ngocta.pycharm.odoo.model;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiInvalidElementAccessException;
@@ -95,17 +96,19 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
             return null;
         }
         TypeEvalContext context = resolveContext.getTypeEvalContext();
-        List<RatedResolveResult> result = new LinkedList<>();
-        visitMembers(element -> {
-            if (element instanceof PsiNamedElement && name.equals(((PsiNamedElement) element).getName())) {
-                if (PyNames.GETITEM.equals(name)) {
-                    element = new OdooModelGetItemWrapper((PyFunction) element, this);
+        return PyUtil.getParameterizedCachedValue(getPyClass(), Pair.create(name, context), param -> {
+            List<RatedResolveResult> result = new LinkedList<>();
+            visitMembers(element -> {
+                if (element instanceof PsiNamedElement && name.equals(((PsiNamedElement) element).getName())) {
+                    if (PyNames.GETITEM.equals(name)) {
+                        element = new OdooModelGetItemWrapper((PyFunction) element, this);
+                    }
+                    result.add(new RatedResolveResult(RatedResolveResult.RATE_NORMAL, element));
                 }
-                result.add(new RatedResolveResult(RatedResolveResult.RATE_NORMAL, element));
-            }
-            return true;
-        }, true, context);
-        return result;
+                return true;
+            }, true, context);
+            return result;
+        });
     }
 
     @Override
