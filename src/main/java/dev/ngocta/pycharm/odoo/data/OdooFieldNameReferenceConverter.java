@@ -13,8 +13,9 @@ public class OdooFieldNameReferenceConverter implements CustomReferenceConverter
     @NotNull
     @Override
     public PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
-        OdooDomRecord record = value.getParentOfType(OdooDomRecord.class, true);
-        if (record != null && record.getModel() != null && !record.getModel().isEmpty()) {
+        OdooDomRecordLike domRecord = value.getParentOfType(OdooDomRecordLike.class, true);
+        if (domRecord != null) {
+            OdooRecord record = domRecord.getRecord();
             String model = record.getModel();
             if (model != null && !model.isEmpty()) {
                 return new PsiReference[]{new OdooFieldReference(element, OdooModelClass.create(model, element.getProject()))};

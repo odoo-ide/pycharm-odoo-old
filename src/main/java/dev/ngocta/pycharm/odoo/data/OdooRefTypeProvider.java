@@ -27,9 +27,9 @@ public class OdooRefTypeProvider extends PyTypeProviderBase {
             PyStringLiteralExpression idExpression = ((PyCallExpression) callSite).getArgument(0, PyStringLiteralExpression.class);
             if (idExpression != null) {
                 String id = idExpression.getStringValue();
-                Collection<OdooNavigableRecord> items = OdooExternalIdIndex.findNavigableRecordById(id, project);
-                if (!items.isEmpty()) {
-                    String model = items.iterator().next().getModel();
+                Collection<OdooRecord> records = OdooExternalIdIndex.findRecordsById(id, project, callSite);
+                if (!records.isEmpty()) {
+                    String model = records.iterator().next().getModel();
                     if (StringUtil.isNotEmpty(model)) {
                         return new Ref<>(new OdooModelClassType(model, OdooRecordSetType.ONE, project));
                     }

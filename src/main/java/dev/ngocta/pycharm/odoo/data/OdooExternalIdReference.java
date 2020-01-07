@@ -2,16 +2,17 @@ package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.util.PlatformIcons;
 import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class OdooExternalIdReference extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
     private final String myModel;
@@ -31,16 +32,19 @@ public class OdooExternalIdReference extends PsiReferenceBase<PsiElement> implem
     @NotNull
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
+        PsiElement element = getElement();
         String id = getValue();
         if (!id.contains(".") && myAllowRelative) {
-            PsiDirectory module = OdooUtils.getOdooModule(getElement());
+            PsiDirectory module = OdooUtils.getOdooModule(element);
             if (module != null) {
                 id = module.getName() + "." + id;
             }
         }
-        Collection<OdooNavigableRecord> items = OdooExternalIdIndex.findNavigableRecordById(id, getElement().getProject());
-        Collection<PsiElement> elements = new LinkedList<>();
-        items.forEach(def -> elements.add(def.getNavigationElement()));
+        Project project = element.getProject();
+        List<OdooRecord> records = OdooExternalIdIndex.findRecordsById(id, project, element);
+        List<PsiElement> elements = records.stream()
+                .flatMap(item -> item.getElements(project).stream())
+                .collect(Collectors.toList());
         return PsiElementResolveResult.createResults(elements);
     }
 
@@ -61,11 +65,8 @@ public class OdooExternalIdReference extends PsiReferenceBase<PsiElement> implem
             if ((myModel == null || myModel.equals(record.getModel()))
                     && (mySubType == null || mySubType == record.getSubType())) {
                 String id = record.getId();
-                if (myAllowRelative && moduleName != null) {
-                    String[] splits = id.split("\\.");
-                    if (splits.length > 1 && splits[0].equals(moduleName)) {
-                        id = splits[1];
-                    }
+                if (myAllowRelative && record.getModule().equals(moduleName)) {
+                    id = record.getName();
                 }
                 LookupElement element = LookupElementBuilder.create(id)
                         .withTypeText(record.getModel())

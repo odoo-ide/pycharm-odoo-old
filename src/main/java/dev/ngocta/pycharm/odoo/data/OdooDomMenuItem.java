@@ -1,8 +1,10 @@
 package dev.ngocta.pycharm.odoo.data;
 
-public interface OdooDomMenuItem extends OdooDomRecordShortcut {
+import dev.ngocta.pycharm.odoo.OdooNames;
+
+public interface OdooDomMenuItem extends OdooDomRecordLike {
     @Override
-    default String getModel() {
-        return "ir.ui.menu";
+    default OdooRecord getRecord() {
+        return getRecord(OdooNames.IR_UI_MENU, null);
     }
 }

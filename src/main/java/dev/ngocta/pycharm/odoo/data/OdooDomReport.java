@@ -1,8 +1,10 @@
 package dev.ngocta.pycharm.odoo.data;
 
-public interface OdooDomReport extends OdooDomRecordShortcut {
+import dev.ngocta.pycharm.odoo.OdooNames;
+
+public interface OdooDomReport extends OdooDomRecordLike {
     @Override
-    default String getModel() {
-        return "ir.actions.report";
+    default OdooRecord getRecord() {
+        return getRecord(OdooNames.IR_ACTIONS_REPORT, null);
     }
 }

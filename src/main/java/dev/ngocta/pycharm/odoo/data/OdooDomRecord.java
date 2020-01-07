@@ -1,44 +1,20 @@
 package dev.ngocta.pycharm.odoo.data;
 
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.xml.XmlTag;
-import com.intellij.util.xml.Attribute;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.GenericAttributeValue;
-import com.intellij.util.xml.Required;
-import dev.ngocta.pycharm.odoo.OdooUtils;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.util.xml.*;
 
-public interface OdooDomRecord extends DomElement, OdooRecord {
-    @Attribute("id")
+import java.util.List;
+
+public interface OdooDomRecord extends OdooDomRecordLike {
+    @Attribute("model")
     @Required
-    GenericAttributeValue<String> getIdAttr();
+    @Referencing(OdooModelReferenceConverter.class)
+    GenericAttributeValue<String> getModel();
+
+    @SubTag("field")
+    List<OdooDomField> getFields();
 
     @Override
-    default String getId() {
-        return getIdAttr().getValue();
-    }
-
-    default String getQualifiedId(@NotNull VirtualFile xmlFile) {
-        String id = getId();
-        if (id != null && !id.contains(".")) {
-            VirtualFile moduleDir = OdooUtils.getOdooModuleDirectory(xmlFile);
-            if (moduleDir != null) {
-                id = moduleDir.getName() + "." + id;
-            }
-        }
-        return id;
-    }
-
-    default String getQualifiedId() {
-        XmlTag tag = getXmlTag();
-        if (tag != null) {
-            PsiFile file = tag.getContainingFile();
-            if (file != null) {
-                return getQualifiedId(file.getVirtualFile());
-            }
-        }
-        return null;
+    default OdooRecord getRecord() {
+        return getRecord(getModel().getStringValue(), null);
     }
 }

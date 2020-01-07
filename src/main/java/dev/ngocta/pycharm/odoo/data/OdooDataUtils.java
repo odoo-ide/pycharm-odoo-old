@@ -1,5 +1,7 @@
 package dev.ngocta.pycharm.odoo.data;
 
+import com.intellij.ide.highlighter.XmlFileType;
+import com.intellij.openapi.fileTypes.FileTypeRegistry;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.PairProcessor;
@@ -18,7 +20,8 @@ public class OdooDataUtils {
     private OdooDataUtils() {
     }
 
-    public static void processCsvRecord(@NotNull VirtualFile file, @NotNull PairProcessor<String, Integer> processor) {
+    public static void processCsvRecord(@NotNull VirtualFile file,
+                                        @NotNull PairProcessor<OdooRecord, Integer> processor) {
         VirtualFile moduleDirectory = OdooUtils.getOdooModuleDirectory(file);
         if (moduleDirectory == null) {
             return;
@@ -29,13 +32,13 @@ public class OdooDataUtils {
             if (!parser.getHeaderNames().contains("id")) {
                 return;
             }
-            for (CSVRecord record : parser) {
-                String id = record.get("id");
+            String model = file.getNameWithoutExtension();
+            String module = moduleDirectory.getName();
+            for (CSVRecord csvRecord : parser) {
+                String id = csvRecord.get("id");
                 if (id != null) {
-                    if (!id.contains(".")) {
-                        id = moduleDirectory.getName() + "." + id;
-                    }
-                    if (!processor.process(id, (int) parser.getCurrentLineNumber())) {
+                    OdooRecord record = new OdooRecordImpl(id, model, null, module, file);
+                    if (!processor.process(record, (int) parser.getCurrentLineNumber())) {
                         break;
                     }
                 }
@@ -52,5 +55,14 @@ public class OdooDataUtils {
             return fileElement.getRootElement();
         }
         return null;
+    }
+
+    public static boolean isCsvFile(@NotNull VirtualFile file) {
+        String extension = file.getExtension();
+        return extension != null && "csv".equals(extension.toLowerCase());
+    }
+
+    public static boolean isXmlFile(@NotNull VirtualFile file) {
+        return FileTypeRegistry.getInstance().isFileOfType(file, XmlFileType.INSTANCE);
     }
 }

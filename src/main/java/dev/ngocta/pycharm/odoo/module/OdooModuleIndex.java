@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.search.GlobalSearchScopes;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class OdooModuleIndex extends ScalarIndexExtension<String> {
     public static final @NotNull ID<String, Void> NAME = ID.create("odoo.module");
@@ -145,5 +147,14 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
             return OdooModuleIndex.getFlattenedDependsGraph(module);
         }
         return Collections.emptyList();
+    }
+
+    public static GlobalSearchScope getModuleAndDependsScope(@NotNull PsiElement anchor) {
+        List<PsiDirectory> modules = getFlattenedDependsGraph(anchor);
+        VirtualFile[] dirs = modules.stream().
+                map(PsiDirectory::getVirtualFile)
+                .collect(Collectors.toList())
+                .toArray(VirtualFile.EMPTY_ARRAY);
+        return GlobalSearchScopes.directoriesScope(anchor.getProject(), true, dirs);
     }
 }

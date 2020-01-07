@@ -1,8 +1,10 @@
 package dev.ngocta.pycharm.odoo.data;
 
-public interface OdooDomActWindow extends OdooDomRecordShortcut {
+import dev.ngocta.pycharm.odoo.OdooNames;
+
+public interface OdooDomActWindow extends OdooDomRecordLike {
     @Override
-    default String getModel() {
-        return "ir.actions.act_window";
+    default OdooRecord getRecord() {
+        return getRecord(OdooNames.IR_ACTIONS_ACT_WINDOW, null);
     }
 }

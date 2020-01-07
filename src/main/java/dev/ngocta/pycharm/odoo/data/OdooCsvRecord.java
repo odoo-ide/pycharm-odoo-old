@@ -1,28 +1,23 @@
 package dev.ngocta.pycharm.odoo.data;
 
-import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.FakePsiElement;
 import org.jetbrains.annotations.NotNull;
 
-public class OdooNavigableRecordCsv extends FakePsiElement implements OdooNavigableRecord {
+public class OdooCsvRecord extends FakePsiElement implements Navigatable {
     private final VirtualFile myFile;
-    private final String myId;
     private final Project myProject;
+    private final String myRecordId;
 
-    public OdooNavigableRecordCsv(@NotNull String id, @NotNull VirtualFile file, @NotNull Project project) {
-        myId = id;
+    public OdooCsvRecord(@NotNull VirtualFile file, @NotNull Project project, @NotNull String recordId) {
         myFile = file;
         myProject = project;
-    }
-
-    @Override
-    public String getName() {
-        return getId();
+        myRecordId = recordId;
     }
 
     @Override
@@ -46,29 +41,6 @@ public class OdooNavigableRecordCsv extends FakePsiElement implements OdooNaviga
         return myProject;
     }
 
-    @Override
-    public ItemPresentation getPresentation() {
-        return new OdooNavigableRecordPresentation(this);
-    }
-
-    @NotNull
-    @Override
-    public String getId() {
-        return myId;
-    }
-
-    @NotNull
-    @Override
-    public String getModel() {
-        return getFile().getNameWithoutExtension();
-    }
-
-    @NotNull
-    @Override
-    public VirtualFile getFile() {
-        return myFile;
-    }
-
     @NotNull
     @Override
     public PsiElement getNavigationElement() {
@@ -87,9 +59,10 @@ public class OdooNavigableRecordCsv extends FakePsiElement implements OdooNaviga
 
     @Override
     public void navigate(boolean requestFocus) {
-        OdooDataUtils.processCsvRecord(myFile, (id, lineNumber) -> {
-            if (id.equals(myId)) {
-                (new OpenFileDescriptor(myProject, myFile, lineNumber - 1, 0)).navigate(requestFocus);
+        OdooDataUtils.processCsvRecord(myFile, (data, lineNumber) -> {
+            if (myRecordId.equals(data.getId())) {
+                Navigatable navigatable = (new OpenFileDescriptor(myProject, myFile, lineNumber - 1, 0));
+                navigatable.navigate(requestFocus);
                 return false;
             }
             return true;

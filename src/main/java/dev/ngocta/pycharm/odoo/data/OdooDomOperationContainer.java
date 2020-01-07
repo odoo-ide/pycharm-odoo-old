@@ -1,13 +1,14 @@
 package dev.ngocta.pycharm.odoo.data;
 
+import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.SubTagList;
 import com.intellij.util.xml.SubTagsList;
 
 import java.util.List;
 
-public interface OdooDomRecordContainer {
+public interface OdooDomOperationContainer extends DomElement {
     @SubTagList("record")
-    List<OdooDomRecordBase> getRecords();
+    List<OdooDomRecord> getRecords();
 
     @SubTagList("template")
     List<OdooDomTemplate> getTemplates();
@@ -22,5 +23,5 @@ public interface OdooDomRecordContainer {
     List<OdooDomActWindow> getActWindows();
 
     @SubTagsList({"record", "template", "menuitem", "report", "act_window"})
-    List<OdooDomRecord> getRecordVariants();
+    List<OdooDomRecordLike> getRecordLikeItems();
 }

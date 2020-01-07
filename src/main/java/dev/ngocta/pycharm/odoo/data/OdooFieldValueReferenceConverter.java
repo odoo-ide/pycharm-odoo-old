@@ -14,9 +14,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 
 public class OdooFieldValueReferenceConverter implements CustomReferenceConverter<String> {
-    private static final ImmutableMap<String, String> modelNameFields = ImmutableMap.<String, String>builder()
-            .put(OdooNames.IR_UI_VIEW_MODEL, OdooNames.IR_UI_VIEW)
-            .put(OdooNames.IR_ACTIONS_ACT_WINDOW_RES_MODEL, OdooNames.IR_ACTIONS_ACT_WINDOW)
+    private static final ImmutableMap<String, String> knownModelNameFields = ImmutableMap.<String, String>builder()
+            .put("model", OdooNames.IR_UI_VIEW)
+            .put("res_model", OdooNames.IR_ACTIONS_ACT_WINDOW)
             .build();
 
     @NotNull
@@ -24,12 +24,12 @@ public class OdooFieldValueReferenceConverter implements CustomReferenceConverte
     public PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
         if (value instanceof OdooDomField) {
             String fieldName = ((OdooDomField) value).getName().getStringValue();
-            String model = modelNameFields.get(fieldName);
+            String model = knownModelNameFields.get(fieldName);
             if (model != null) {
                 DomElement parent = value.getParent();
-                if (parent instanceof OdooRecord) {
-                    String m = ((OdooRecord) parent).getModel();
-                    if (model.equals(m)) {
+                if (parent instanceof OdooDomRecord) {
+                    String recordModel = ((OdooDomRecord) parent).getModel().getStringValue();
+                    if (model.equals(recordModel)) {
                         return new PsiReference[]{new OdooModelReference(element)};
                     }
                 }
@@ -39,7 +39,6 @@ public class OdooFieldValueReferenceConverter implements CustomReferenceConverte
             if (field != null) {
                 XmlAttribute attribute = ((GenericAttributeValue<?>) value).getXmlAttribute();
                 if (attribute != null && OdooNames.XML_FIELD_ATTR_REF.equals(attribute.getName())) {
-                    String model = null;
                     PsiElement targetField = Optional.ofNullable(field.getName())
                             .map(GenericAttributeValue::getXmlAttributeValue)
                             .map(PsiElement::getReference)
@@ -48,10 +47,10 @@ public class OdooFieldValueReferenceConverter implements CustomReferenceConverte
                     if (targetField instanceof PyTargetExpression) {
                         OdooFieldInfo fieldInfo = OdooFieldInfo.getInfo((PyTargetExpression) targetField);
                         if (fieldInfo != null && OdooNames.FIELD_TYPE_MANY2ONE.equals(fieldInfo.getTypeName())) {
-                            model = fieldInfo.getComodel();
+                            String model = fieldInfo.getComodel();
+                            return new PsiReference[]{new OdooExternalIdReference(element, model, null, true)};
                         }
                     }
-                    return new PsiReference[]{new OdooExternalIdReference(element, model, null, true)};
                 }
             }
         }
