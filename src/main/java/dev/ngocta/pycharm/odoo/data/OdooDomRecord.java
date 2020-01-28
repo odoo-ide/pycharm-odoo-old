@@ -11,7 +11,7 @@ public interface OdooDomRecord extends OdooDomRecordLike {
     GenericAttributeValue<String> getModel();
 
     @SubTag("field")
-    List<OdooDomField> getFields();
+    List<OdooDomFieldAssignment> getFields();
 
     @Override
     default OdooRecord getRecord() {

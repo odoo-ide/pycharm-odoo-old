@@ -40,7 +40,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
         myProject = project;
     }
 
-    public static OdooModelClass create(@NotNull String model, @NotNull Project project) {
+    public static OdooModelClass getInstance(@NotNull String model, @NotNull Project project) {
         ConcurrentMap<String, OdooModelClass> registry = CachedValuesManager.getManager(project).getCachedValue(project, () -> {
             return CachedValueProvider.Result.create(new ConcurrentHashMap<>(), ModificationTracker.NEVER_CHANGED);
         });
@@ -129,7 +129,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
             }
         });
         superModels.forEach(model -> {
-            modelClasses.add(OdooModelClass.create(model, myProject));
+            modelClasses.add(OdooModelClass.getInstance(model, myProject));
         });
         return modelClasses.toArray(classes);
     }
@@ -150,6 +150,16 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @Override
     public PyFunction[] getMethods() {
         return new PyFunction[0];
+    }
+
+    @NotNull
+    public List<PyFunction> getMethods(@NotNull TypeEvalContext context) {
+        List<PyFunction> functions = new LinkedList<>();
+        visitMethods(func -> {
+            functions.add(func);
+            return true;
+        }, true, context);
+        return functions;
     }
 
     @NotNull
@@ -521,7 +531,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
             }
         });
         List<OdooModelClass> result = new LinkedList<>();
-        children.forEach(child -> result.add(create(child, myProject)));
+        children.forEach(child -> result.add(getInstance(child, myProject)));
         return result;
     }
 

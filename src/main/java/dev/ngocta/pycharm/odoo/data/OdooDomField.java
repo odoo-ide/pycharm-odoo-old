@@ -1,16 +1,13 @@
 package dev.ngocta.pycharm.odoo.data;
 
-import com.intellij.util.xml.*;
-import dev.ngocta.pycharm.odoo.OdooNames;
+import com.intellij.util.xml.Attribute;
+import com.intellij.util.xml.GenericAttributeValue;
+import com.intellij.util.xml.Referencing;
+import com.intellij.util.xml.Required;
 
-@Referencing(OdooFieldValueReferenceConverter.class)
-public interface OdooDomField extends GenericDomValue<String> {
-    @Attribute(OdooNames.XML_FIELD_ATTR_NAME)
+public interface OdooDomField extends OdooDomElement, OdooDomModelScoped {
+    @Attribute("name")
     @Required
     @Referencing(OdooFieldNameReferenceConverter.class)
     GenericAttributeValue<String> getName();
-
-    @Attribute(OdooNames.XML_FIELD_ATTR_REF)
-    @Referencing(OdooFieldValueReferenceConverter.class)
-    GenericAttributeValue<String> getRef();
 }

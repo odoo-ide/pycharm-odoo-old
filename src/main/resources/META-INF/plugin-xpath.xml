@@ -1,0 +1,5 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="XPathView">
+        <xpath.functionProvider implementation="dev.ngocta.pycharm.odoo.data.OdooXPathFunctionProvider"/>
+    </extensions>
+</idea-plugin>

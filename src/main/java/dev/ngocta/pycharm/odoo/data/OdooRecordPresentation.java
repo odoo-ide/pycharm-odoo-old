@@ -1,19 +1,22 @@
 package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.navigation.ItemPresentation;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.PlatformIcons;
-import dev.ngocta.pycharm.odoo.OdooUtils;
+import dev.ngocta.pycharm.odoo.module.OdooModule;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.util.Optional;
 
 public class OdooRecordPresentation implements ItemPresentation {
     private final OdooRecord myRecord;
+    private final Project myProject;
 
-    public OdooRecordPresentation(OdooRecord record) {
+    public OdooRecordPresentation(@NotNull OdooRecord record, @NotNull Project project) {
         myRecord = record;
+        myProject = project;
     }
 
     @Override
@@ -30,9 +33,9 @@ public class OdooRecordPresentation implements ItemPresentation {
         return Optional.ofNullable(myRecord.getDataFile())
                 .map(file -> {
                     String path = file.getPath();
-                    VirtualFile moduleDir = OdooUtils.getOdooModuleDirectory(file);
-                    if (moduleDir != null) {
-                        path = "/" + moduleDir.getName() + path.substring(moduleDir.getPath().length());
+                    OdooModule module = OdooModule.findModule(file, myProject);
+                    if (module != null) {
+                        path = "/" + module.getName() + path.substring(module.getDirectory().getVirtualFile().getPath().length());
                     }
                     return path;
                 })

@@ -1,5 +1,6 @@
 package dev.ngocta.pycharm.odoo.data;
 
+import com.intellij.util.xml.DomUtil;
 import com.intellij.util.xml.SubTagList;
 
 import java.util.LinkedList;
@@ -12,8 +13,8 @@ public interface OdooDomRoot extends OdooDomOperationContainer {
     List<OdooDomData> getGroups();
 
     default List<OdooDomRecordLike> getAllRecordLikeItems() {
-        List<OdooDomRecordLike> result = new LinkedList<>(getRecordLikeItems());
-        getGroups().forEach(group -> result.addAll(group.getRecordLikeItems()));
+        List<OdooDomRecordLike> result = new LinkedList<>(DomUtil.getChildrenOf(this, OdooDomRecordLike.class));
+        getGroups().forEach(group -> result.addAll(DomUtil.getChildrenOfType(group, OdooDomRecordLike.class)));
         return result;
     }
 }

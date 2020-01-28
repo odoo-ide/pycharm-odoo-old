@@ -76,7 +76,7 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                             if (callExpression != null) {
                                 PyStringLiteralExpression comodelNameExpression = callExpression.getArgument(0, OdooNames.FIELD_ATTR_COMODEL_NAME, PyStringLiteralExpression.class);
                                 if (comodelNameExpression != null) {
-                                    OdooModelClass cls = OdooModelClass.create(comodelNameExpression.getStringValue(), inverseNameExpression.getProject());
+                                    OdooModelClass cls = OdooModelClass.getInstance(comodelNameExpression.getStringValue(), inverseNameExpression.getProject());
                                     context.put(OdooFieldReferenceProvider.MODEL_CLASS, cls);
                                     return true;
                                 }

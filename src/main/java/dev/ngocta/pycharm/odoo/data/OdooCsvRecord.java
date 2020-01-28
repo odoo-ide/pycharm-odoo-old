@@ -59,7 +59,7 @@ public class OdooCsvRecord extends FakePsiElement implements Navigatable {
 
     @Override
     public void navigate(boolean requestFocus) {
-        OdooDataUtils.processCsvRecord(myFile, (data, lineNumber) -> {
+        OdooDataUtils.processCsvRecord(myFile, myProject, (data, lineNumber) -> {
             if (myRecordId.equals(data.getId())) {
                 Navigatable navigatable = (new OpenFileDescriptor(myProject, myFile, lineNumber - 1, 0));
                 navigatable.navigate(requestFocus);

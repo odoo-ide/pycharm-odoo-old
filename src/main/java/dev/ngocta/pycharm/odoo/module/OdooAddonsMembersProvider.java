@@ -1,7 +1,6 @@
 package dev.ngocta.pycharm.odoo.module;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiDirectory;
 import com.jetbrains.python.codeInsight.PyCustomMember;
 import com.jetbrains.python.psi.PyFile;
 import com.jetbrains.python.psi.types.PyModuleMembersProvider;
@@ -19,10 +18,10 @@ public class OdooAddonsMembersProvider extends PyModuleMembersProvider {
     protected Collection<PyCustomMember> getMembersByQName(@NotNull PyFile file, @NotNull String name, @NotNull TypeEvalContext context) {
         Project project = file.getProject();
         if (OdooNames.ODOO_ADDONS.equals(name)) {
-            Collection<PsiDirectory> modules = OdooModuleIndex.getAllModules(project);
+            Collection<OdooModule> modules = OdooModuleIndex.getAllModules(project);
             Collection<PyCustomMember> members = new ArrayList<>();
-            for (PsiDirectory module : modules) {
-                PyCustomMember member = new PyCustomMember(module.getName(), module);
+            for (OdooModule module : modules) {
+                PyCustomMember member = new PyCustomMember(module.getName(), module.getDirectory());
                 members.add(member);
             }
             return members;

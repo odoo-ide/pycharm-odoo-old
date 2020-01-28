@@ -14,11 +14,9 @@ import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import dev.ngocta.pycharm.odoo.OdooNames;
-import dev.ngocta.pycharm.odoo.OdooUtils;
 import dev.ngocta.pycharm.odoo.model.OdooModelIndex;
-import dev.ngocta.pycharm.odoo.module.OdooModuleIndex;
+import dev.ngocta.pycharm.odoo.module.OdooModule;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -42,7 +40,8 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
         return inputData -> {
             Map<String, OdooRecord> result = new HashMap<>();
             VirtualFile file = inputData.getFile();
-            PsiFile psiFile = PsiManager.getInstance(inputData.getProject()).findFile(file);
+            Project project = inputData.getProject();
+            PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
             if (psiFile instanceof XmlFile) {
                 OdooDomRoot root = OdooDataUtils.getDomRoot((XmlFile) psiFile);
                 if (root != null) {
@@ -55,7 +54,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                     });
                 }
             } else if (OdooDataUtils.isCsvFile(file)) {
-                OdooDataUtils.processCsvRecord(file, (record, lineNumber) -> {
+                OdooDataUtils.processCsvRecord(file, project, (record, lineNumber) -> {
                     result.put(record.getId(), record);
                     return true;
                 });
@@ -128,64 +127,105 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
 
     private static Collection<String> getImplicitIds(@NotNull Project project) {
         Set<String> ids = new HashSet<>();
-        processImplicitRecords(project, GlobalSearchScope.allScope(project), record -> ids.add(record.getId()));
+        processImplicitRecords(GlobalSearchScope.allScope(project), record -> ids.add(record.getId()));
         return ids;
     }
 
-    private static void processImplicitRecords(@NotNull Project project, @NotNull GlobalSearchScope scope, @NotNull Processor<OdooRecord> processor) {
-        processIrModelRecords(project, scope, processor);
+    private static boolean processImplicitRecords(@NotNull GlobalSearchScope scope, @NotNull Processor<OdooRecord> processor) {
+        return processIrModelRecords(scope, processor);
     }
 
-    private static void processIrModelRecords(@NotNull Project project, @NotNull GlobalSearchScope scope, @NotNull Processor<OdooRecord> processor) {
+    private static boolean processIrModelRecords(@NotNull GlobalSearchScope scope, @NotNull Processor<OdooRecord> processor) {
+        Project project = scope.getProject();
+        if (project == null) {
+            return true;
+        }
         FileBasedIndex index = FileBasedIndex.getInstance();
         Collection<String> models = index.getAllKeys(OdooModelIndex.NAME, project);
-        models.forEach(model -> {
-            index.processValues(OdooModelIndex.NAME, model, null, (file, value) -> {
-                VirtualFile moduleDir = OdooUtils.getOdooModuleDirectory(file);
-                if (moduleDir != null) {
+        for (String model : models) {
+            if (!index.processValues(OdooModelIndex.NAME, model, null, (file, value) -> {
+                OdooModule module = OdooModule.findModule(file, project);
+                if (module != null) {
                     String name = "model_" + model.replace(".", "_");
-                    String module = moduleDir.getName();
-                    return processor.process(new OdooRecordImpl(name, OdooNames.IR_MODEL, module, null, file));
+                    return processor.process(new OdooRecordImpl(name, OdooNames.IR_MODEL, module.getName(), null, file));
                 }
                 return true;
-            }, scope);
-        });
+            }, scope)) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    private static void processRecords(@NotNull Project project, @NotNull GlobalSearchScope scope, @NotNull Processor<OdooRecord> processor) {
+    private static boolean processRecordsByIds(@NotNull GlobalSearchScope scope,
+                                               @NotNull Processor<OdooRecord> processor,
+                                               @NotNull Collection<String> ids) {
         FileBasedIndex index = FileBasedIndex.getInstance();
-        Collection<String> ids = getIds(project);
         for (String id : ids) {
             if (!index.processValues(NAME, id, null, (file, value) -> {
                 value = new OdooRecordImpl(value.getName(), value.getModel(), value.getModule(), value.getSubType(), file);
                 return processor.process(value);
             }, scope)) {
-                return;
+                return false;
             }
         }
+        return true;
+    }
+
+    private static boolean processRecords(@NotNull GlobalSearchScope scope, @NotNull Processor<OdooRecord> processor) {
+        Project project = scope.getProject();
+        if (project == null) {
+            return true;
+        }
+        Collection<String> ids = getIds(project);
+        return processRecordsByIds(scope, processor, ids);
+    }
+
+    public static boolean processAllRecords(@NotNull GlobalSearchScope scope, @NotNull Processor<OdooRecord> processor) {
+        if (!processRecords(scope, processor)) {
+            return false;
+        }
+        return processImplicitRecords(scope, processor);
     }
 
     @NotNull
     public static List<OdooRecord> getAvailableRecords(@NotNull PsiElement anchor) {
-        Project project = anchor.getProject();
-        GlobalSearchScope scope = OdooModuleIndex.getModuleAndDependsScope(anchor);
+        OdooModule module = OdooModule.findModule(anchor);
+        if (module != null) {
+            GlobalSearchScope scope = module.getSearchScope();
+            return getAllRecords(scope);
+        }
+        return Collections.emptyList();
+    }
+
+    @NotNull
+    public static List<OdooRecord> getAllRecords(@NotNull GlobalSearchScope scope) {
         List<OdooRecord> records = new LinkedList<>();
-        processRecords(project, scope, records::add);
-        processImplicitRecords(project, scope, records::add);
+        processAllRecords(scope, records::add);
         return records;
     }
 
     @NotNull
-    public static List<OdooRecord> findRecordsById(@NotNull String id, @NotNull Project project, @Nullable PsiElement anchor) {
-        FileBasedIndex index = FileBasedIndex.getInstance();
+    public static List<OdooRecord> findRecordsById(@NotNull String id, @NotNull PsiElement anchor) {
+        Project project = anchor.getProject();
+        OdooModule module = OdooModule.findModule(anchor);
+        if (module != null) {
+            return findRecordsById(id, module.getSearchScope());
+        }
+        return findRecordsById(id, project);
+    }
+
+    @NotNull
+    public static List<OdooRecord> findRecordsById(@NotNull String id, @NotNull Project project) {
+        return findRecordsById(id, GlobalSearchScope.allScope(project));
+    }
+
+    @NotNull
+    public static List<OdooRecord> findRecordsById(@NotNull String id, @NotNull GlobalSearchScope scope) {
         List<OdooRecord> records = new LinkedList<>();
-        GlobalSearchScope scope = anchor == null ? GlobalSearchScope.allScope(project) : OdooModuleIndex.getModuleAndDependsScope(anchor);
-        index.processValues(NAME, id, null, (file, value) -> {
-            records.add(new OdooRecordImpl(value.getName(), value.getModel(), value.getModule(), value.getSubType(), file));
-            return true;
-        }, scope);
-        processImplicitRecords(project, scope, record -> {
-            if (record.getId().equals(id)) {
+        processRecordsByIds(scope, records::add, Collections.singleton(id));
+        processImplicitRecords(scope, record -> {
+            if (id.equals(record.getId())) {
                 records.add(record);
             }
             return true;

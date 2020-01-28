@@ -23,7 +23,7 @@ public class OdooEnvironmentItemProvider extends PyTypeProviderBase {
             Project project = subscription.getProject();
             PyExpression operand = subscription.getOperand();
             PyType operandType = context.getType(operand);
-            if (OdooTypeUtils.isEnvironmentType(operandType, callSite)) {
+            if (OdooPyUtils.isEnvironmentType(operandType, callSite)) {
                 PyExpression index = subscription.getIndexExpression();
                 if (index instanceof PyLiteralExpression) {
                     String model = ((PyStringLiteralExpressionImpl) index).getStringValue();

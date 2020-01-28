@@ -1,7 +1,7 @@
 package dev.ngocta.pycharm.odoo.module;
 
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.QualifiedName;
 import com.jetbrains.python.psi.impl.PyImportResolver;
@@ -17,18 +17,23 @@ public class OdooAddonsImportResolver implements PyImportResolver {
     @Nullable
     @Override
     public PsiElement resolveImportReference(@NotNull QualifiedName name, @NotNull PyQualifiedNameResolveContext context, boolean withRoot) {
+        Project project = context.getProject();
+        if (DumbService.isDumb(project)) {
+            return null;
+        }
         List<String> components = name.getComponents();
         if (components.size() < 1 || !OdooNames.ODOO.equals(components.get(0))) {
             return null;
         }
-        Project project = context.getProject();
         if (components.size() > 2 && OdooNames.ADDONS.equals(components.get(1))) {
             String moduleName = components.get(2);
-            PsiDirectory module = OdooModuleIndex.getModule(moduleName, project);
-            QualifiedName relatedName = name.subQualifiedName(3, name.getComponentCount());
-            List<PsiElement> refs = PyResolveImportUtil.resolveModuleAt(relatedName, module, context);
-            if (!refs.isEmpty()) {
-                return refs.get(0);
+            OdooModule module = OdooModuleIndex.getModule(moduleName, project);
+            if (module != null) {
+                QualifiedName relatedName = name.subQualifiedName(3, name.getComponentCount());
+                List<PsiElement> refs = PyResolveImportUtil.resolveModuleAt(relatedName, module.getDirectory(), context);
+                if (!refs.isEmpty()) {
+                    return refs.get(0);
+                }
             }
         } else {
             context = context.copyWithoutForeign().copyWithoutStubs();

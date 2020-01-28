@@ -4,6 +4,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.CustomReferenceConverter;
+import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.GenericDomValue;
 import dev.ngocta.pycharm.odoo.model.OdooFieldReference;
 import dev.ngocta.pycharm.odoo.model.OdooModelClass;
@@ -13,12 +14,11 @@ public class OdooFieldNameReferenceConverter implements CustomReferenceConverter
     @NotNull
     @Override
     public PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
-        OdooDomRecordLike domRecord = value.getParentOfType(OdooDomRecordLike.class, true);
-        if (domRecord != null) {
-            OdooRecord record = domRecord.getRecord();
-            String model = record.getModel();
+        DomElement parent = value.getParent();
+        if (parent instanceof OdooDomField) {
+            String model = ((OdooDomField) parent).getModel();
             if (model != null && !model.isEmpty()) {
-                return new PsiReference[]{new OdooFieldReference(element, OdooModelClass.create(model, element.getProject()))};
+                return new PsiReference[]{new OdooFieldReference(element, OdooModelClass.getInstance(model, element.getProject()))};
             }
         }
         return new PsiReference[0];

@@ -1,9 +1,7 @@
 package dev.ngocta.pycharm.odoo.module;
 
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
-import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,17 +15,18 @@ public class OdooModuleReference extends PsiReferenceBase<PsiElement> {
     @Nullable
     @Override
     public PsiElement resolve() {
-        return OdooModuleIndex.getModule(getValue(), getElement().getProject());
+        OdooModule module = OdooModuleIndex.getModule(getValue(), getElement().getProject());
+        return module != null ? module.getDirectory() : null;
     }
 
     @NotNull
     @Override
     public Object[] getVariants() {
-        Collection<PsiDirectory> modules = OdooModuleIndex.getAllModules(getElement().getProject());
-        PsiDirectory module = OdooUtils.getOdooModule(getElement());
+        Collection<OdooModule> modules = OdooModuleIndex.getAllModules(getElement().getProject());
+        OdooModule module = OdooModule.findModule(getElement());
         if (module != null) {
             modules.remove(module);
         }
-        return modules.toArray();
+        return modules.stream().map(OdooModule::getDirectory).toArray();
     }
 }

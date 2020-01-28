@@ -11,7 +11,7 @@ import com.jetbrains.python.psi.PyExpression;
 import com.jetbrains.python.psi.PyKeyValueExpression;
 import com.jetbrains.python.psi.PyListLiteralExpression;
 import com.jetbrains.python.psi.PyStringLiteralExpression;
-import dev.ngocta.pycharm.odoo.FilePathReferenceProvider;
+import dev.ngocta.pycharm.odoo.OdooFilePathReferenceProvider;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 
@@ -56,6 +56,6 @@ public class OdooManifestReferenceContributor extends PsiReferenceContributor {
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
         registrar.registerReferenceProvider(DEPEND_PATTERN, new OdooModuleReferenceProvider());
-        registrar.registerReferenceProvider(FILE_PATTERN, new FilePathReferenceProvider());
+        registrar.registerReferenceProvider(FILE_PATTERN, new OdooFilePathReferenceProvider());
     }
 }

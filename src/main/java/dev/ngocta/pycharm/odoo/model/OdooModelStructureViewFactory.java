@@ -7,7 +7,6 @@ import com.intellij.lang.PsiStructureViewFactory;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiFile;
 import com.jetbrains.python.structureView.PyStructureViewModel;
-import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +18,7 @@ public class OdooModelStructureViewFactory implements PsiStructureViewFactory {
             @NotNull
             @Override
             public StructureViewModel createStructureViewModel(@Nullable Editor editor) {
-                if (OdooUtils.getOdooModule(psiFile) != null) {
+                if (OdooModelUtils.isOdooModelFile(psiFile)) {
                     return new OdooModelStructureViewModel(psiFile, editor);
                 }
                 return new PyStructureViewModel(psiFile, editor);

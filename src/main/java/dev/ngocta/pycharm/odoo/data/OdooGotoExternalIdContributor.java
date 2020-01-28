@@ -25,7 +25,7 @@ public class OdooGotoExternalIdContributor implements ChooseByNameContributorEx 
     @Override
     public void processElementsWithName(@NotNull String name, @NotNull Processor<NavigationItem> processor, @NotNull FindSymbolParameters parameters) {
         Project project = parameters.getProject();
-        Collection<OdooRecord> records = OdooExternalIdIndex.findRecordsById(name, project, null);
+        Collection<OdooRecord> records = OdooExternalIdIndex.findRecordsById(name, project);
         records.forEach(record -> {
             record.getNavigationItems(project).forEach(processor::process);
         });

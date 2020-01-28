@@ -2,39 +2,18 @@ package dev.ngocta.pycharm.odoo.module;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.search.GlobalSearchScopes;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import com.jetbrains.python.PythonFileType;
-import dev.ngocta.pycharm.odoo.OdooNames;
-import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class OdooModuleIndex extends ScalarIndexExtension<String> {
     public static final @NotNull ID<String, Void> NAME = ID.create("odoo.module");
-
-    @NotNull
-    private DataIndexer<String, Void, FileContent> myDataIndexer = inputData -> {
-        Map<String, Void> result = new HashMap<>();
-        VirtualFile file = inputData.getFile();
-        if (OdooNames.MANIFEST_FILE_NAME.equals(file.getName())) {
-            VirtualFile dir = file.getParent();
-            if (dir != null) {
-                result.put(dir.getName(), null);
-            }
-        }
-        return result;
-    };
 
     @NotNull
     @Override
@@ -45,7 +24,17 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
     @NotNull
     @Override
     public DataIndexer<String, Void, FileContent> getIndexer() {
-        return myDataIndexer;
+        return inputData -> {
+            Map<String, Void> result = new HashMap<>();
+            VirtualFile file = inputData.getFile();
+            if (file.getName().equals(OdooModuleUtils.getManifestFileName(inputData.getProject()))) {
+                VirtualFile dir = file.getParent();
+                if (dir != null) {
+                    result.put(dir.getName(), null);
+                }
+            }
+            return result;
+        };
     }
 
     @NotNull
@@ -71,90 +60,25 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
     }
 
     @Nullable
-    private static PsiFile getModuleManifest(@NotNull String moduleName, @NotNull Project project) {
+    public static OdooModule getModule(@NotNull String moduleName, @NotNull Project project) {
         FileBasedIndex fileIndex = FileBasedIndex.getInstance();
         Collection<VirtualFile> files = fileIndex.getContainingFiles(NAME, moduleName, GlobalSearchScope.allScope(project));
         for (VirtualFile file : files) {
-            return PsiManager.getInstance(project).findFile(file);
-        }
-        return null;
-    }
-
-    @Nullable
-    public static PsiDirectory getModule(@NotNull String moduleName, @NotNull Project project) {
-        PsiFile manifest = getModuleManifest(moduleName, project);
-        if (manifest != null) {
-            return manifest.getContainingDirectory();
+            return OdooModule.findModule(file, project);
         }
         return null;
     }
 
     @NotNull
-    public static Collection<PsiDirectory> getAllModules(@NotNull Project project) {
-        FileBasedIndex fileIndex = FileBasedIndex.getInstance();
-        ArrayList<PsiDirectory> dirs = new ArrayList<>();
-        Collection<String> names = fileIndex.getAllKeys(NAME, project);
-        for (String name : names) {
-            PsiDirectory dir = getModule(name, project);
-            if (dir != null) {
-                dirs.add(dir);
+    public static List<OdooModule> getAllModules(@NotNull Project project) {
+        List<OdooModule> modules = new LinkedList<>();
+        Collection<String> moduleNames = FileBasedIndex.getInstance().getAllKeys(NAME, project);
+        for (String name : moduleNames) {
+            OdooModule module = getModule(name, project);
+            if (module != null) {
+                modules.add(module);
             }
         }
-        return dirs;
-    }
-
-    @NotNull
-    private static List<PsiDirectory> getDepends(@NotNull PsiFile manifest) {
-        List<PsiDirectory> result = new LinkedList<>();
-        Project project = manifest.getProject();
-        OdooModuleInfo info = OdooModuleInfo.getInfo(manifest);
-        if (info != null) {
-            info.getDepends().forEach(s -> {
-                PsiDirectory module = getModule(s, project);
-                if (module != null) {
-                    result.add(module);
-                }
-            });
-        }
-        return result;
-    }
-
-    public static List<PsiDirectory> getDepends(@NotNull PsiDirectory module) {
-        PsiFile manifest = module.findFile(OdooNames.MANIFEST_FILE_NAME);
-        if (manifest != null) {
-            return getDepends(manifest);
-        }
-        return Collections.emptyList();
-    }
-
-    public static List<PsiDirectory> getFlattenedDependsGraph(@NotNull PsiDirectory module) {
-        List<PsiDirectory> visitedNodes = new LinkedList<>();
-        List<PsiDirectory> queue = new LinkedList<>();
-        queue.add(module);
-        PsiDirectory node;
-        while (!queue.isEmpty()) {
-            node = queue.remove(0);
-            visitedNodes.remove(node);
-            visitedNodes.add(node);
-            queue.addAll(getDepends(node));
-        }
-        return visitedNodes;
-    }
-
-    public static List<PsiDirectory> getFlattenedDependsGraph(@NotNull PsiElement anchor) {
-        PsiDirectory module = OdooUtils.getOdooModule(anchor);
-        if (module != null) {
-            return OdooModuleIndex.getFlattenedDependsGraph(module);
-        }
-        return Collections.emptyList();
-    }
-
-    public static GlobalSearchScope getModuleAndDependsScope(@NotNull PsiElement anchor) {
-        List<PsiDirectory> modules = getFlattenedDependsGraph(anchor);
-        VirtualFile[] dirs = modules.stream().
-                map(PsiDirectory::getVirtualFile)
-                .collect(Collectors.toList())
-                .toArray(VirtualFile.EMPTY_ARRAY);
-        return GlobalSearchScopes.directoriesScope(anchor.getProject(), true, dirs);
+        return modules;
     }
 }

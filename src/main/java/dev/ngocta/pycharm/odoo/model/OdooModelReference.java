@@ -8,10 +8,7 @@ import com.jetbrains.python.psi.PyClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class OdooModelReference extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
     public OdooModelReference(@NotNull PsiElement element) {
@@ -43,7 +40,7 @@ public class OdooModelReference extends PsiReferenceBase<PsiElement> implements 
     @Override
     public Object[] getVariants() {
         List<LookupElement> elements = new LinkedList<>();
-        Set<String> models = OdooModelIndex.getAvailableModels(getElement());
+        Collection<String> models = OdooModelIndex.getAvailableModels(getElement());
         models.forEach(model -> {
             LookupElement element = LookupElementBuilder.create(model).withIcon(PlatformIcons.CLASS_ICON);
             elements.add(element);

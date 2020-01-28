@@ -3,6 +3,7 @@ package dev.ngocta.pycharm.odoo;
 import com.intellij.psi.PsiElement;
 import com.jetbrains.python.PyNames;
 import com.jetbrains.python.psi.PyClass;
+import com.jetbrains.python.psi.PyPsiFacade;
 import com.jetbrains.python.psi.types.PyClassType;
 import com.jetbrains.python.psi.types.PyClassTypeImpl;
 import com.jetbrains.python.psi.types.PyType;
@@ -12,13 +13,19 @@ import com.sun.istack.Nullable;
 
 import java.util.function.Predicate;
 
-public class OdooTypeUtils {
-    private OdooTypeUtils() {
+public class OdooPyUtils {
+    private OdooPyUtils() {
+    }
+
+    @Nullable
+    public static PyClass getClassByQName(@NotNull String name, @NotNull PsiElement anchor) {
+        PyPsiFacade psiFacade = PyPsiFacade.getInstance(anchor.getProject());
+        return psiFacade.createClassByQName(name, anchor);
     }
 
     @Nullable
     public static PyClassType getClassTypeByQName(@NotNull String name, @NotNull PsiElement anchor, boolean isDefinition) {
-        PyClass cls = OdooUtils.getClassByQName(name, anchor);
+        PyClass cls = getClassByQName(name, anchor);
         if (cls != null) {
             return new PyClassTypeImpl(cls, isDefinition);
         }

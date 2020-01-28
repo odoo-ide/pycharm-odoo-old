@@ -28,6 +28,26 @@ public class OdooNames {
     public static final String FIELD_TYPE_ONE2MANY = "One2many";
     public static final String FIELD_TYPE_MANY2MANY = "Many2many";
     public static final String FIELD_TYPE_REFERENCE = "Reference";
+    public static final String[] FIELD_TYPES = new String[]{
+            FIELD_TYPE_ID,
+            FIELD_TYPE_MANY2ONE,
+            FIELD_TYPE_ONE2MANY,
+            FIELD_TYPE_MANY2MANY,
+            FIELD_TYPE_REFERENCE,
+            FIELD_TYPE_INTEGER,
+            FIELD_TYPE_FLOAT,
+            FIELD_TYPE_BOOLEAN,
+            FIELD_TYPE_INTEGER,
+            FIELD_TYPE_FLOAT,
+            FIELD_TYPE_MONETARY,
+            FIELD_TYPE_CHAR,
+            FIELD_TYPE_TEXT,
+            FIELD_TYPE_HTML,
+            FIELD_TYPE_SELECTION,
+            FIELD_TYPE_DATE,
+            FIELD_TYPE_DATETIME,
+            FIELD_TYPE_BINARY
+    };
     public static final String FIELD_ATTR_COMODEL_NAME = "comodel_name";
     public static final String FIELD_ATTR_INVERSE_NAME = "inverse_name";
     public static final String FIELD_ATTR_RELATED = "related";
@@ -52,7 +72,16 @@ public class OdooNames {
     public static final String IR_ACTIONS_REPORT = "ir.actions.report";
     public static final String IR_UI_MENU = "ir.ui.menu";
     public static final String IR_ACTIONS_ACT_WINDOW = "ir.actions.act_window";
+    public static final String IR_ACTIONS_ACT_URL = "ir.actions.act_url";
+    public static final String IR_ACTIONS_SERVER = "ir.actions.server";
+    public static final String IR_ACTIONS_CLIENT = "ir.actions.client";
+    public static final String[] ACTION_MODELS = new String[]{
+            IR_ACTIONS_ACT_WINDOW,
+            IR_ACTIONS_ACT_URL,
+            IR_ACTIONS_SERVER,
+            IR_ACTIONS_CLIENT,
+            IR_ACTIONS_REPORT,
+    };
     public static final String IR_MODEL = "ir.model";
-    public static final String XML_FIELD_ATTR_NAME = "name";
-    public static final String XML_FIELD_ATTR_REF = "ref";
+    public static final String RES_GROUPS = "res.groups";
 }

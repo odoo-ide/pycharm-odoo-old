@@ -22,7 +22,7 @@ public class OdooRecordNavigationItem implements NavigationItem {
 
     @Override
     public ItemPresentation getPresentation() {
-        return new OdooRecordPresentation(myRecord);
+        return new OdooRecordPresentation(myRecord, myElement.getProject());
     }
 
     @Override

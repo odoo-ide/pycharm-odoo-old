@@ -12,7 +12,7 @@ import com.jetbrains.python.psi.types.TypeEvalContext;
 import com.sun.istack.NotNull;
 import com.sun.istack.Nullable;
 import dev.ngocta.pycharm.odoo.OdooNames;
-import dev.ngocta.pycharm.odoo.OdooTypeUtils;
+import dev.ngocta.pycharm.odoo.OdooPyUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -155,9 +155,9 @@ public class OdooFieldInfo {
             case OdooNames.FIELD_TYPE_SELECTION:
                 return builtinCache.getStrType();
             case OdooNames.FIELD_TYPE_DATE:
-                return OdooTypeUtils.getDateType(myField);
+                return OdooPyUtils.getDateType(myField);
             case OdooNames.FIELD_TYPE_DATETIME:
-                return OdooTypeUtils.getDatetimeType(myField);
+                return OdooPyUtils.getDatetimeType(myField);
             case OdooNames.FIELD_TYPE_BINARY:
                 return builtinCache.getBytesType(PyPsiFacade.getInstance(project).getLanguageLevel(myField));
             default:

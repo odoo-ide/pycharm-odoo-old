@@ -29,7 +29,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
     }
 
     public OdooModelClassType(@NotNull String model, @NotNull OdooRecordSetType recordSetType, @NotNull Project project) {
-        this(OdooModelClass.create(model, project), recordSetType);
+        this(OdooModelClass.getInstance(model, project), recordSetType);
     }
 
     @Nullable

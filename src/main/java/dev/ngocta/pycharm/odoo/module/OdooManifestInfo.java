@@ -12,10 +12,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-public class OdooModuleInfo {
+public class OdooManifestInfo {
     private List<String> myDepends;
 
-    private OdooModuleInfo(List<String> depends) {
+    private OdooManifestInfo(List<String> depends) {
         myDepends = depends;
     }
 
@@ -25,15 +25,15 @@ public class OdooModuleInfo {
     }
 
     @Nullable
-    public static OdooModuleInfo getInfo(@NotNull PsiFile manifest) {
+    public static OdooManifestInfo getInfo(@NotNull PsiFile manifest) {
         return CachedValuesManager.getCachedValue(manifest, () -> {
-            OdooModuleInfo info = getInfoInner(manifest);
+            OdooManifestInfo info = getInfoInner(manifest);
             return CachedValueProvider.Result.createSingleDependency(info, manifest.getVirtualFile());
         });
     }
 
     @Nullable
-    private static OdooModuleInfo getInfoInner(@NotNull PsiFile manifest) {
+    private static OdooManifestInfo getInfoInner(@NotNull PsiFile manifest) {
         if (!(manifest instanceof PyFile) || !manifest.getName().equals(OdooNames.MANIFEST_FILE_NAME)) {
             return null;
         }
@@ -59,6 +59,6 @@ public class OdooModuleInfo {
             depends = Collections.emptyList();
         }
 
-        return new OdooModuleInfo(depends);
+        return new OdooManifestInfo(depends);
     }
 }
