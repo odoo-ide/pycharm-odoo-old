@@ -8,7 +8,10 @@ import com.jetbrains.python.psi.PyClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 public class OdooModelReference extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
     public OdooModelReference(@NotNull PsiElement element) {
