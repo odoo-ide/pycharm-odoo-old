@@ -25,7 +25,7 @@ public class OdooModelReference extends PsiReferenceBase<PsiElement> implements 
     protected List<PyClass> findModelClasses() {
         PsiFile file = getElement().getContainingFile();
         if (file != null) {
-            return OdooModelIndex.findModelClasses(getValue(), getElement(), true);
+            return OdooModelIndex.findModelClasses(getValue(), getElement());
         }
         return Collections.emptyList();
     }

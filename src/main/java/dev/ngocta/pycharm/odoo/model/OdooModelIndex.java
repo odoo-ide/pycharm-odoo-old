@@ -108,41 +108,37 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
     }
 
     @NotNull
-    private static List<PyClass> findModelClasses(@NotNull String model, @NotNull OdooModule module, boolean includeDependModules) {
-        return PyUtil.getParameterizedCachedValue(module.getDirectory(), Pair.create(model, includeDependModules), param -> {
-            if (includeDependModules) {
-                List<PyClass> result = new LinkedList<>();
-                module.getFlattenedDependsGraph().forEach(mod -> {
-                    result.addAll(findModelClasses(model, mod, false));
-                });
-                return result;
-            } else {
-                return findModelClasses(model, module.getSearchScope(false));
-            }
+    private static List<PyClass> findModelClasses(@NotNull String model, @NotNull OdooModule module) {
+        return PyUtil.getParameterizedCachedValue(module.getDirectory(), model, param -> {
+            List<PyClass> result = new LinkedList<>();
+            module.getFlattenedDependsGraph().forEach(mod -> {
+                result.addAll(findModelClasses(model, mod.getSearchScope(false)));
+            });
+            return ImmutableList.copyOf(result);
         });
     }
 
     @NotNull
-    public static List<PyClass> findModelClasses(@NotNull String model, @NotNull PsiElement anchor, boolean includeDependModules) {
+    public static List<PyClass> findModelClasses(@NotNull String model, @NotNull PsiElement anchor) {
         OdooModule module = OdooModule.findModule(anchor);
         if (module == null) {
             return Collections.emptyList();
         }
-        return ImmutableList.copyOf(findModelClasses(model, module, includeDependModules));
+        return findModelClasses(model, module);
     }
 
     @NotNull
     public static Collection<String> getAvailableModels(@NotNull PsiElement anchor) {
-        Collection<String> models = getAllModels(anchor.getProject());
         OdooModule module = OdooModule.findModule(anchor);
         if (module != null) {
+            Collection<String> models = getAllModels(anchor.getProject());
             Set<String> result = new HashSet<>();
             module.getFlattenedDependsGraph().forEach(mod -> {
                 result.addAll(filterModels(models, mod.getSearchScope(false)));
             });
             return result;
         }
-        return getAllModels(anchor.getProject());
+        return Collections.emptyList();
     }
 
     @NotNull

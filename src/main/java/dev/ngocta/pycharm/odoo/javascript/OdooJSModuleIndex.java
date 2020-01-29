@@ -8,11 +8,12 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.util.CachedValueProvider;
+import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
-import com.jetbrains.python.psi.PyUtil;
 import dev.ngocta.pycharm.odoo.module.OdooModule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -67,7 +68,7 @@ public class OdooJSModuleIndex extends ScalarIndexExtension<String> {
     }
 
     private static Map<String, JSFunctionExpression> getModuleDefinesInFile(@NotNull JSFile file) {
-        return PyUtil.getParameterizedCachedValue(file, null, param -> {
+        return CachedValuesManager.getCachedValue(file, () -> {
             Map<String, JSFunctionExpression> result = new HashMap<>();
             for (JSExpressionStatement statement : PsiTreeUtil.getChildrenOfTypeAsList(file, JSExpressionStatement.class)) {
                 JSExpression expression = statement.getExpression();
@@ -86,7 +87,7 @@ public class OdooJSModuleIndex extends ScalarIndexExtension<String> {
                     }
                 }
             }
-            return result;
+            return CachedValueProvider.Result.create(result, file);
         });
     }
 

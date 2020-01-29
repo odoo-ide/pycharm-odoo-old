@@ -116,7 +116,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
         if (file == null) {
             return classes;
         }
-        List<PyClass> modelClasses = Lists.newArrayList(OdooModelIndex.findModelClasses(getName(), file, true));
+        List<PyClass> modelClasses = Lists.newArrayList(OdooModelIndex.findModelClasses(getName(), file));
         List<String> superModels = new LinkedList<>();
         Lists.reverse(modelClasses).forEach(modelClass -> {
             OdooModelInfo info = OdooModelInfo.getInfo(modelClass);
