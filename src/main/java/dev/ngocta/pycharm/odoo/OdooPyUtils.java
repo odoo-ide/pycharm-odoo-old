@@ -3,11 +3,10 @@ package dev.ngocta.pycharm.odoo;
 import com.intellij.psi.PsiElement;
 import com.jetbrains.python.PyNames;
 import com.jetbrains.python.psi.PyClass;
+import com.jetbrains.python.psi.PyExpression;
 import com.jetbrains.python.psi.PyPsiFacade;
-import com.jetbrains.python.psi.types.PyClassType;
-import com.jetbrains.python.psi.types.PyClassTypeImpl;
-import com.jetbrains.python.psi.types.PyType;
-import com.jetbrains.python.psi.types.PyUnionType;
+import com.jetbrains.python.psi.PyReferenceExpression;
+import com.jetbrains.python.psi.types.*;
 import com.sun.istack.NotNull;
 import com.sun.istack.Nullable;
 
@@ -67,5 +66,17 @@ public class OdooPyUtils {
         }
         PyType envType = getEnvironmentType(anchor);
         return envType != null && extractType(type, envType::equals) != null;
+    }
+
+    public static boolean isEnvironmentReferenceExpression(@NotNull PyExpression expression, @NotNull TypeEvalContext context) {
+        if (expression instanceof PyReferenceExpression) {
+            PyReferenceExpression referenceExpression = (PyReferenceExpression) expression;
+            if ("env".equals(referenceExpression.getName())) {
+                return true;
+            }
+            PyType type = context.getType(referenceExpression);
+            return isEnvironmentType(type, expression);
+        }
+        return false;
     }
 }

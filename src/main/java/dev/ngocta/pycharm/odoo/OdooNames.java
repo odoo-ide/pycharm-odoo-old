@@ -56,13 +56,11 @@ public class OdooNames {
     public static final String FIELD_ATTR_SEARCH = "search";
     public static final String FIELD_ATTR_DEFAULT = "default";
     public static final String FIELD_ATTR_DELEGATE = "delegate";
-    public static final String ENV = "env";
     public static final String MAPPED = "mapped";
     public static final String FILTERED = "filtered";
     public static final String BASE_MODEL_QNAME = "odoo.models.BaseModel";
     public static final String FIELD_QNAME = "odoo.fields.Field";
     public static final String ENVIRONMENT_QNAME = "odoo.api.Environment";
-    public static final String MODULE_BASE = "base";
     public static final String REF_QNAME = "odoo.api.Environment.ref";
     public static final String DECORATOR_DEPENDS = "api.depends";
     public static final String DECORATOR_CONSTRAINS = "api.constrains";

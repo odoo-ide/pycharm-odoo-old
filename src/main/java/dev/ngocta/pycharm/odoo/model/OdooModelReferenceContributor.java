@@ -40,8 +40,7 @@ public class OdooModelReferenceContributor extends PsiReferenceContributor {
                         @Override
                         public boolean accepts(@NotNull PyExpression expression, ProcessingContext context) {
                             TypeEvalContext typeEvalContext = TypeEvalContext.userInitiated(expression.getProject(), expression.getContainingFile());
-                            PyType referenceType = typeEvalContext.getType(expression);
-                            return OdooPyUtils.isEnvironmentType(referenceType, expression);
+                            return OdooPyUtils.isEnvironmentReferenceExpression(expression, typeEvalContext);
                         }
                     }));
 
