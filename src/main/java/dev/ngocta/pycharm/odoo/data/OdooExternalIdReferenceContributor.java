@@ -28,7 +28,7 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                                 public boolean accepts(@NotNull PyCallExpression call, ProcessingContext context) {
                                     PyExpression callee = call.getCallee();
                                     if (callee != null) {
-                                        TypeEvalContext typeEvalContext = TypeEvalContext.userInitiated(call.getProject(), call.getContainingFile());
+                                        TypeEvalContext typeEvalContext = TypeEvalContext.codeAnalysis(call.getProject(), call.getContainingFile());
                                         PyType calleeType = typeEvalContext.getType(callee);
                                         if (calleeType instanceof PyFunctionType) {
                                             PyCallable callable = ((PyFunctionType) calleeType).getCallable();
