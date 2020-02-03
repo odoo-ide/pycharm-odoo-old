@@ -40,6 +40,7 @@ public class OdooModule {
                 return dir;
             }
         }
+        element = element.getOriginalElement();
         return findModuleDirectory(element.getParent());
     }
 
