@@ -121,9 +121,14 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
     public static List<PyClass> findModelClasses(@NotNull String model, @NotNull PsiElement anchor) {
         OdooModule module = OdooModule.findModule(anchor);
         if (module == null) {
-            return Collections.emptyList();
+            return findModelClasses(model, anchor.getProject());
         }
         return findModelClasses(model, module);
+    }
+
+    @NotNull
+    public static List<PyClass> findModelClasses(@NotNull String model, @NotNull Project project) {
+        return findModelClasses(model, GlobalSearchScope.allScope(project));
     }
 
     @NotNull
