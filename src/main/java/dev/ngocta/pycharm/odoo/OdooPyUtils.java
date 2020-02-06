@@ -5,7 +5,6 @@ import com.jetbrains.python.PyNames;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyExpression;
 import com.jetbrains.python.psi.PyPsiFacade;
-import com.jetbrains.python.psi.PyReferenceExpression;
 import com.jetbrains.python.psi.types.*;
 import com.sun.istack.NotNull;
 import com.sun.istack.Nullable;
@@ -68,15 +67,11 @@ public class OdooPyUtils {
         return envType != null && extractType(type, envType::equals) != null;
     }
 
-    public static boolean isEnvironmentReferenceExpression(@NotNull PyExpression expression, @NotNull TypeEvalContext context) {
-        if (expression instanceof PyReferenceExpression) {
-            PyReferenceExpression referenceExpression = (PyReferenceExpression) expression;
-            if ("env".equals(referenceExpression.getName())) {
-                return true;
-            }
-            PyType type = context.getType(referenceExpression);
-            return isEnvironmentType(type, expression);
+    public static boolean isEnvironmentTypeExpression(@NotNull PyExpression expression, @NotNull TypeEvalContext context) {
+        if ("env".equals(expression.getName())) {
+            return true;
         }
-        return false;
+        PyType type = context.getType(expression);
+        return isEnvironmentType(type, expression);
     }
 }

@@ -7,7 +7,6 @@ import com.intellij.psi.PsiReferenceRegistrar;
 import com.intellij.util.ProcessingContext;
 import com.jetbrains.python.PyTokenTypes;
 import com.jetbrains.python.psi.*;
-import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.OdooPyUtils;
@@ -40,7 +39,7 @@ public class OdooModelReferenceContributor extends PsiReferenceContributor {
                         @Override
                         public boolean accepts(@NotNull PyExpression expression, ProcessingContext context) {
                             TypeEvalContext typeEvalContext = TypeEvalContext.userInitiated(expression.getProject(), expression.getContainingFile());
-                            return OdooPyUtils.isEnvironmentReferenceExpression(expression, typeEvalContext);
+                            return OdooPyUtils.isEnvironmentTypeExpression(expression, typeEvalContext);
                         }
                     }));
 
