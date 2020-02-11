@@ -105,11 +105,27 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                         }
                     }));
 
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> CURRENCY_FIELD_PATTERN =
+            OdooModelUtils.getFieldArgumentPattern(-1, OdooNames.FIELD_ATTR_CURRENCY_FIELD, OdooNames.FIELD_TYPE_MONETARY)
+                    .with(new PatternCondition<PyStringLiteralExpression>("currencyField") {
+                        @Override
+                        public boolean accepts(@NotNull PyStringLiteralExpression expression, ProcessingContext context) {
+                            OdooModelClass cls = OdooModelUtils.getContainingOdooModelClass(expression);
+                            if (cls != null) {
+                                context.put(OdooFieldReferenceProvider.MODEL_CLASS, cls);
+                                return true;
+                            }
+                            return false;
+                        }
+                    });
+
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
-        registrar.registerReferenceProvider(MAPPED_PATTERN, new OdooFieldReferenceProvider());
-        registrar.registerReferenceProvider(DECORATORS_PATTERN, new OdooFieldReferenceProvider());
-        registrar.registerReferenceProvider(ONE2MANY_INVERSE_NAME_PATTERN, new OdooFieldReferenceProvider());
-        registrar.registerReferenceProvider(RELATED_PATTERN, new OdooFieldReferenceProvider());
+        OdooFieldReferenceProvider provider = new OdooFieldReferenceProvider();
+        registrar.registerReferenceProvider(MAPPED_PATTERN, provider);
+        registrar.registerReferenceProvider(DECORATORS_PATTERN, provider);
+        registrar.registerReferenceProvider(ONE2MANY_INVERSE_NAME_PATTERN, provider);
+        registrar.registerReferenceProvider(RELATED_PATTERN, provider);
+        registrar.registerReferenceProvider(CURRENCY_FIELD_PATTERN, provider);
     }
 }

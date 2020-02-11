@@ -56,6 +56,7 @@ public class OdooNames {
     public static final String FIELD_ATTR_SEARCH = "search";
     public static final String FIELD_ATTR_DEFAULT = "default";
     public static final String FIELD_ATTR_DELEGATE = "delegate";
+    public static final String FIELD_ATTR_CURRENCY_FIELD = "currency_field";
     public static final String MAPPED = "mapped";
     public static final String FILTERED = "filtered";
     public static final String BASE_MODEL_QNAME = "odoo.models.BaseModel";
