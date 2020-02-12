@@ -5,6 +5,6 @@
     <extensions defaultExtensionNs="JavaScript">
         <moduleReferenceContributor implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSModuleReferenceContributor"/>
         <dialectSpecificHandlersFactory implementationClass="dev.ngocta.pycharm.odoo.javascript.OdooJSDialectSpecificHandlersFactory"
-                                        language="ECMAScript 6" order="first" />
+                                        language="ECMAScript 6" order="first"/>
     </extensions>
 </idea-plugin>

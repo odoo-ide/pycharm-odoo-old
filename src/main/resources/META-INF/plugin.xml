@@ -4,39 +4,48 @@
     <vendor email="atw1990@gmail.com" url="https://github.com/trinhanhngoc">Trịnh Anh Ngọc</vendor>
 
     <description><![CDATA[
-        This plugin provides coding assistance for Odoo - a great open source ERP.
+        Odoo Framework support for PyCharm
 
         <h2>Features</h2>
         <ul>
-            <li>
-                Understands relations between modules, models (inheritance, extension and delegation) to resolve references and provide code completion for:
-                <ul>
-                    <li>Model members (fields, function,...)</li>
-                    <li>Odoo addons imports</li>
-                    <li>Depends and data files path in manifest</li>
-                    <li>Model name in _inherit, env and comodel argument in relation field declarations</li>
-                    <li>Compute, inverse methods in field declaration</li>
-                    <li>Field path in api.depends, mapped(), ...</li>
-                    <li>XML ID in env.ref(), request.render()</li>
-                </ul>
-            </li>
-            <li>
-                Quick search and navigate to XML ID in project
-            </li>
-        </ul>
-
-        <h2>Planned features</h2>
-        <ul>
-            <li>XML and JavaScript coding assistance</li>
+            <li>Improve reference resolving and code completion for Python, XML and JavaScript files in Odoo</li>
+            <li>Improve Odoo XML formatter</li>
+            <li>Improve structure view for model class</li>
+            <li>Quick search and navigate to any XML ID in Odoo project</li>
+            <li>...</li>
         </ul>
 
         <h2>NOTE</h2>
-        You also need to clone and attach <a href="https://github.com/trinhanhngoc/odoo-stubs">Python stubs for Odoo</a> to project.
-        Please visit <a href="https://github.com/trinhanhngoc/pycharm-odoo">github page</a> for more info such as screencast and usage.
+        <ul>
+            <li>Clone and attach <a href="https://github.com/trinhanhngoc/odoo-stubs">Odoo Stubs</a> to project to improve code completion.</li>
+            <li>Install <a href="https://plugins.jetbrains.com/plugin/12478-xpathview--xslt">XPathView</a> to quick navigate to inherited element in XML view.</li>
+        </ul>
+
+        <h2>Screenshots</h2>
+        <h4>Python</h4>
+        <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/model-name-completion.png" alt="">
+        <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/go-to-model-declaration.png" alt="">
+        <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/model-member-completion-1.png" alt="">
+        <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/model-member-completion-2.png" alt="">
+        <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/model-member-completion-3.png" alt="">
+        <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/field-path-completion.png" alt="">
+        <h4>XML</h4>
+        <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/xml-completion.png" alt="">
+        <h4>JavaScript</h4>
+        <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/js-completion.png" alt="">
         ]]></description>
 
     <change-notes><![CDATA[
         <ul>
+            <li>
+                Version 3.0:
+                <ul>
+                    <li>Performance improvements and bug fixes</li>
+                    <li>Initial XML and JavaScript language support</li>
+                </ul>
+                Please install <a href="https://plugins.jetbrains.com/plugin/12478-xpathview--xslt">XPathView</a> plugin to quick navigate to inherited element in XML view.
+            </li>
+            </li>
             <li>
                 Version 2.0:
                 <ul>
