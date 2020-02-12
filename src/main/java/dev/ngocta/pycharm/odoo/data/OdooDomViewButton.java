@@ -14,12 +14,10 @@ import java.util.regex.Pattern;
 
 public interface OdooDomViewButton extends OdooDomModelScopedViewElement {
     @Attribute("name")
-    @Required
     @Referencing(ButtonNameReferencing.class)
     GenericAttributeValue<String> getName();
 
     @Attribute("type")
-    @Required
     GenericAttributeValue<String> getType();
 
     class ButtonNameReferencing implements CustomReferenceConverter<String> {
