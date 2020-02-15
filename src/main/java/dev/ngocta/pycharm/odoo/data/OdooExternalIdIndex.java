@@ -127,7 +127,10 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
 
     private static Collection<String> getImplicitIds(@NotNull Project project) {
         Set<String> ids = new HashSet<>();
-        processImplicitRecords(GlobalSearchScope.allScope(project), record -> ids.add(record.getId()));
+        processImplicitRecords(GlobalSearchScope.allScope(project), record -> {
+            ids.add(record.getId());
+            return true;
+        });
         return ids;
     }
 
