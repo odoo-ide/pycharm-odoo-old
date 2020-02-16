@@ -22,7 +22,7 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
             XmlPatterns.xmlAttributeValue().withLocalName(StandardPatterns.or(
                     StandardPatterns.string().startsWith("t-att-"),
                     StandardPatterns.string().oneOf(
-                            "eval", "attrs", "context", "options",
+                            "eval", "attrs", "context", "options", "domain", "filter_domain",
                             "t-if", "t-elif", "t-foreach", "t-value", "t-esc", "t-raw", "t-field", "t-options"))
             ).with(OdooDataUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
 
