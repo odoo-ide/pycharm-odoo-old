@@ -41,7 +41,11 @@ public class OdooModule {
             }
         }
         element = element.getOriginalElement();
-        return findModuleDirectory(element.getParent());
+        PsiElement parent = element.getParent();
+        if (parent == null) {
+            parent = element.getContext();
+        }
+        return findModuleDirectory(parent);
     }
 
     @Nullable

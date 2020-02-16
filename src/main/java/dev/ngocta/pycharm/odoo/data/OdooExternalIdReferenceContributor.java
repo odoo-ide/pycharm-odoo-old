@@ -5,8 +5,10 @@ import com.intellij.patterns.PsiElementPattern;
 import com.intellij.patterns.XmlAttributeValuePattern;
 import com.intellij.patterns.XmlPatterns;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReferenceContributor;
 import com.intellij.psi.PsiReferenceRegistrar;
+import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.util.ProcessingContext;
 import com.jetbrains.python.psi.*;
@@ -33,6 +35,21 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                                         if (calleeType instanceof PyFunctionType) {
                                             PyCallable callable = ((PyFunctionType) calleeType).getCallable();
                                             return callable instanceof PyFunction && OdooNames.REF_QNAME.equals(callable.getQualifiedName());
+                                        } else if ("ref".equals(callee.getName())) {
+                                            PsiFile file = call.getContainingFile();
+                                            if (file != null) {
+                                                PsiElement fileContext = file.getContext();
+                                                if (fileContext instanceof XmlAttributeValue) {
+                                                    PsiElement parent = fileContext.getParent();
+                                                    if (parent instanceof XmlAttribute) {
+                                                        XmlAttribute attribute = (XmlAttribute) parent;
+                                                        if ("eval".equals(attribute.getName())) {
+                                                            context.put(OdooExternalIdReferenceProvider.ALLOW_RELATIVE, true);
+                                                            return true;
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                     return false;
