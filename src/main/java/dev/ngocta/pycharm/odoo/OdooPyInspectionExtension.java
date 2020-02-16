@@ -10,7 +10,7 @@ import com.jetbrains.python.psi.PyReferenceExpression;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import org.jetbrains.annotations.NotNull;
 
-public class OdooInspectionExtension extends PyInspectionExtension {
+public class OdooPyInspectionExtension extends PyInspectionExtension {
     public boolean ignoreUnresolvedReference(@NotNull PyElement node, @NotNull PsiReference reference, @NotNull TypeEvalContext context) {
         if (node instanceof PyReferenceExpression) {
             return context.getOrigin() instanceof XmlFile;

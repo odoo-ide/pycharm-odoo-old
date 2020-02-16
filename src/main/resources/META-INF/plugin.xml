@@ -82,8 +82,9 @@
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelCallTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.data.OdooRefTypeProvider"/>
         <pyClassMembersProvider implementation="dev.ngocta.pycharm.odoo.model.OdooSuperMembersProvider"/>
-        <inspectionExtension implementation="dev.ngocta.pycharm.odoo.OdooInspectionExtension"/>
+        <inspectionExtension implementation="dev.ngocta.pycharm.odoo.OdooPyInspectionExtension"/>
         <pyAnnotator implementation="dev.ngocta.pycharm.odoo.OdooPyAnnotator"/>
+        <runnableScriptFilter implementation="dev.ngocta.pycharm.odoo.OdooPyRunnableScriptFilter"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
