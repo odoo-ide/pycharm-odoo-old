@@ -128,6 +128,9 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
                 });
             }
         });
+        if (!getName().equals("base")) {
+            superModels.add("base");
+        }
         superModels.forEach(model -> {
             modelClasses.add(OdooModelClass.getInstance(model, myProject));
         });
