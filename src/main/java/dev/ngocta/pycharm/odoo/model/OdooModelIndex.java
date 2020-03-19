@@ -15,6 +15,7 @@ import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import com.jetbrains.python.PythonFileType;
 import com.jetbrains.python.psi.PyClass;
+import com.jetbrains.python.psi.PyElementVisitor;
 import com.jetbrains.python.psi.PyFile;
 import com.jetbrains.python.psi.PyUtil;
 import dev.ngocta.pycharm.odoo.module.OdooModule;
@@ -39,11 +40,14 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
             VirtualFile virtualFile = inputData.getFile();
             PsiFile psiFile = PsiManager.getInstance(inputData.getProject()).findFile(virtualFile);
             if (OdooModelUtils.isOdooModelFile(psiFile)) {
-                PyFile pyFile = (PyFile) psiFile;
-                pyFile.getTopLevelClasses().forEach(pyClass -> {
-                    OdooModelInfo info = OdooModelInfo.getInfo(pyClass);
-                    if (info != null) {
-                        result.putIfAbsent(info.getName(), info.isOriginal());
+                psiFile.acceptChildren(new PyElementVisitor() {
+                    @Override
+                    public void visitPyClass(PyClass node) {
+                        super.visitPyClass(node);
+                        OdooModelInfo info = OdooModelInfo.getInfo(node);
+                        if (info != null) {
+                            result.putIfAbsent(info.getName(), info.isOriginal());
+                        }
                     }
                 });
             }
