@@ -24,10 +24,15 @@
         <h2>Screenshots</h2>
         <h4>Python</h4>
         <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/model-name-completion.png" alt="">
+        <br>
         <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/go-to-model-declaration.png" alt="">
+        <br>
         <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/model-member-completion-1.png" alt="">
+        <br>
         <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/model-member-completion-2.png" alt="">
+        <br>
         <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/model-member-completion-3.png" alt="">
+        <br>
         <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/field-path-completion.png" alt="">
         <h4>XML</h4>
         <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/xml-completion.png" alt="">
@@ -37,6 +42,12 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>
+                Version 3.1:
+                <ul>
+                    <li>Bug fixes</li>
+                </ul>
+            </li>
             <li>
                 Version 3.0:
                 <ul>
