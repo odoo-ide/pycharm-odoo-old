@@ -1,13 +1,13 @@
 package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.openapi.util.TextRange;
-import com.intellij.patterns.StandardPatterns;
-import com.intellij.patterns.XmlAttributeValuePattern;
-import com.intellij.patterns.XmlPatterns;
+import com.intellij.patterns.*;
 import com.intellij.psi.ElementManipulators;
 import com.intellij.psi.InjectedLanguagePlaces;
 import com.intellij.psi.LanguageInjector;
 import com.intellij.psi.PsiLanguageInjectionHost;
+import com.intellij.psi.xml.XmlTag;
+import com.intellij.util.ProcessingContext;
 import com.jetbrains.python.PythonLanguage;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,12 +18,26 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
     private static final Pattern RE_PATTERN_PY = Pattern.compile("\\s*(.+)\\s*", Pattern.DOTALL);
     private static final Pattern RE_PATTERN_PY_TEMPLATE = Pattern.compile("(?:#\\{\\s*(.+?)\\s*})|(?:\\{\\{\\s*(.+?)\\s*}})", Pattern.DOTALL);
 
-    public static final XmlAttributeValuePattern PY_PATTERN =
-            XmlPatterns.xmlAttributeValue().withLocalName(StandardPatterns.or(
+    public static final ElementPattern<String> XML_ATTRIBUTE_NAME_PY_PATTERN =
+            StandardPatterns.or(
                     StandardPatterns.string().startsWith("t-att-"),
-                    StandardPatterns.string().oneOf(
-                            "eval", "attrs", "context", "options", "domain", "filter_domain",
-                            "t-if", "t-elif", "t-foreach", "t-value", "t-esc", "t-raw", "t-field", "t-options"))
+                    StandardPatterns.string().oneOf("eval", "attrs", "context", "options", "domain", "filter_domain",
+                            "t-if", "t-elif", "t-foreach", "t-value", "t-esc", "t-raw", "t-field", "t-options"));
+
+    public static final XmlAttributeValuePattern XML_ATTRIBUTE_VALUE_PY_PATTERN =
+            XmlPatterns.xmlAttributeValue().withLocalName(XML_ATTRIBUTE_NAME_PY_PATTERN)
+                    .with(OdooDataUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
+
+    public static final XmlElementPattern.XmlTextPattern XML_TEXT_PY_PATTERN =
+            XmlPatterns.xmlText().withParent(
+                    XmlPatterns.xmlTag().withLocalName("attribute")
+                            .with(new PatternCondition<XmlTag>("withAttributeValues") {
+                                @Override
+                                public boolean accepts(@NotNull final XmlTag xmlTag, final ProcessingContext context) {
+                                    String name = xmlTag.getAttributeValue("name");
+                                    return XML_ATTRIBUTE_NAME_PY_PATTERN.accepts(name);
+                                }
+                            })
             ).with(OdooDataUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
 
     public static final XmlAttributeValuePattern PY_TEMPLATE_PATTERN =
@@ -32,7 +46,7 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
 
     @Override
     public void getLanguagesToInject(@NotNull PsiLanguageInjectionHost host, @NotNull InjectedLanguagePlaces injectionPlacesRegistrar) {
-        if (PY_PATTERN.accepts(host)) {
+        if (XML_ATTRIBUTE_VALUE_PY_PATTERN.accepts(host) || XML_TEXT_PY_PATTERN.accepts(host)) {
             TextRange range = ElementManipulators.getValueTextRange(host);
             String text = ElementManipulators.getValueText(host);
             Matcher matcher = RE_PATTERN_PY.matcher(text);
