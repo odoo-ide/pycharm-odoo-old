@@ -82,7 +82,7 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
             });
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> FIELD_ATTR_GROUPS_PATTERN =
-            OdooModelUtils.getFieldArgumentPattern(-1, "groups").with(new PatternCondition<PyStringLiteralExpression>("fieldGroups") {
+            OdooModelUtils.getFieldArgumentPattern(-1, OdooNames.FIELD_ATTR_GROUPS).with(new PatternCondition<PyStringLiteralExpression>("fieldGroups") {
                 @Override
                 public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression, ProcessingContext context) {
                     context.put(OdooExternalIdReferenceProvider.MODEL, OdooNames.RES_GROUPS);

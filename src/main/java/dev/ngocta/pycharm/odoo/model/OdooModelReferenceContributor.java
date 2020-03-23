@@ -16,10 +16,7 @@ import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class OdooModelReferenceContributor extends PsiReferenceContributor {
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> COMODEL_NAME_PATTERN =
-            OdooModelUtils.getFieldArgumentPattern(0, OdooNames.FIELD_ATTR_COMODEL_NAME,
-                    OdooNames.FIELD_TYPE_ONE2MANY,
-                    OdooNames.FIELD_TYPE_MANY2ONE,
-                    OdooNames.FIELD_TYPE_MANY2MANY);
+            OdooModelUtils.getFieldArgumentPattern(0, OdooNames.FIELD_ATTR_COMODEL_NAME, OdooNames.RELATIONAL_FIELD_TYPES);
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> INHERIT_PATTERN =
             psiElement(PyStringLiteralExpression.class).afterSiblingSkipping(

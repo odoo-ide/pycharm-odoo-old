@@ -48,6 +48,11 @@ public class OdooNames {
             FIELD_TYPE_DATETIME,
             FIELD_TYPE_BINARY
     };
+    public static final String[] RELATIONAL_FIELD_TYPES = new String[]{
+            FIELD_TYPE_MANY2ONE,
+            FIELD_TYPE_ONE2MANY,
+            FIELD_TYPE_MANY2MANY
+    };
     public static final String FIELD_ATTR_COMODEL_NAME = "comodel_name";
     public static final String FIELD_ATTR_INVERSE_NAME = "inverse_name";
     public static final String FIELD_ATTR_RELATED = "related";
@@ -57,6 +62,8 @@ public class OdooNames {
     public static final String FIELD_ATTR_DEFAULT = "default";
     public static final String FIELD_ATTR_DELEGATE = "delegate";
     public static final String FIELD_ATTR_CURRENCY_FIELD = "currency_field";
+    public static final String FIELD_ATTR_DOMAIN = "domain";
+    public static final String FIELD_ATTR_GROUPS = "groups";
     public static final String MAPPED = "mapped";
     public static final String FILTERED = "filtered";
     public static final String BASE_MODEL_QNAME = "odoo.models.BaseModel";

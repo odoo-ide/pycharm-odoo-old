@@ -120,7 +120,7 @@
         <dom.extender domClass="dev.ngocta.pycharm.odoo.data.OdooDomElement" extenderClass="dev.ngocta.pycharm.odoo.data.OdooDomExtender"/>
         <codeInsight.lineMarkerProvider implementationClass="dev.ngocta.pycharm.odoo.data.OdooXmlLineMarkerProvider" language="XML"/>
         <languageInjector implementation="dev.ngocta.pycharm.odoo.data.OdooXPathLanguageInjector"/>
-        <languageInjector implementation="dev.ngocta.pycharm.odoo.data.OdooPythonLanguageInjector"/>
+        <languageInjector implementation="dev.ngocta.pycharm.odoo.OdooPythonLanguageInjector"/>
     </extensions>
 
     <actions>
