@@ -39,6 +39,11 @@ public interface OdooDomViewInheritLocator extends OdooDomViewElement {
         if (element == null) {
             return null;
         }
+        try {
+            Class.forName("XPathSupport");
+        } catch (NoClassDefFoundError | ClassNotFoundException ignored) {
+            return null;
+        }
         return PyUtil.getNullableParameterizedCachedValue(element, null, param -> {
             OdooDomRecordLike domRecord = getParentOfType(OdooDomRecordLike.class, true);
             if (domRecord == null) {
