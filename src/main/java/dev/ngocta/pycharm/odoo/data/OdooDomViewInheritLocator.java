@@ -40,7 +40,7 @@ public interface OdooDomViewInheritLocator extends OdooDomViewElement {
             return null;
         }
         try {
-            Class.forName("XPathSupport");
+            Class.forName("org.intellij.plugins.xpathView.support.XPathSupport");
         } catch (NoClassDefFoundError | ClassNotFoundException ignored) {
             return null;
         }
