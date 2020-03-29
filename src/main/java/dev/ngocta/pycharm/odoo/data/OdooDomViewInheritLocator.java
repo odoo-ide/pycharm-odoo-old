@@ -18,7 +18,6 @@ import java.util.List;
 
 public interface OdooDomViewInheritLocator extends OdooDomViewElement {
     @Attribute("position")
-    @Required
     GenericAttributeValue<String> getPosition();
 
     default String getXPathExpr() {
