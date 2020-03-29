@@ -117,19 +117,22 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
     }
 
     @NotNull
-    public static Collection<String> getAllIds(@NotNull Project project) {
-        return Stream.concat(getIds(project).stream(), getImplicitIds(project).stream()).collect(Collectors.toSet());
+    public static Collection<String> getAllIds(@NotNull GlobalSearchScope scope) {
+        return Stream.concat(getIds(scope).stream(), getImplicitIds(scope).stream()).collect(Collectors.toSet());
     }
 
     @NotNull
-    private static Collection<String> getIds(@NotNull Project project) {
+    private static Collection<String> getIds(@NotNull GlobalSearchScope scope) {
+        Set<String> ids = new HashSet<>();
         FileBasedIndex index = FileBasedIndex.getInstance();
-        return index.getAllKeys(NAME, project);
+        index.processAllKeys(NAME, ids::add, scope, null);
+        return ids;
     }
 
-    private static Collection<String> getImplicitIds(@NotNull Project project) {
+    @NotNull
+    private static Collection<String> getImplicitIds(@NotNull GlobalSearchScope scope) {
         Set<String> ids = new HashSet<>();
-        processImplicitRecords(GlobalSearchScope.allScope(project), record -> {
+        processImplicitRecords(scope, record -> {
             ids.add(record.getId());
             return true;
         });
@@ -178,11 +181,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
     }
 
     private static boolean processRecords(@NotNull GlobalSearchScope scope, @NotNull Processor<OdooRecord> processor) {
-        Project project = scope.getProject();
-        if (project == null) {
-            return true;
-        }
-        Collection<String> ids = getIds(project);
+        Collection<String> ids = getIds(scope);
         return processRecordsByIds(scope, processor, ids);
     }
 
@@ -221,11 +220,6 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
             return findRecordsById(id, module.getModuleContentWithDependenciesScope());
         }
         return Collections.emptyList();
-    }
-
-    @NotNull
-    public static List<OdooRecord> findRecordsById(@NotNull String id, @NotNull Project project) {
-        return findRecordsById(id, GlobalSearchScope.allScope(project));
     }
 
     @NotNull
