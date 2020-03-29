@@ -91,14 +91,17 @@ public class OdooExternalIdReference extends PsiReferenceBase<PsiElement> implem
         records.forEach(record -> {
             if ((myModels.length == 0 || Arrays.asList(myModels).contains(record.getModel()))
                     && (mySubType == null || mySubType == record.getSubType())) {
-                String id = record.getId();
+                List<String> ids = new LinkedList<>();
+                ids.add(record.getId());
                 if (myAllowRelative && record.getModule().equals(moduleName)) {
-                    id = record.getName();
+                    ids.add(record.getName());
                 }
-                LookupElement element = LookupElementBuilder.create(id)
-                        .withTypeText(record.getModel())
-                        .withIcon(PlatformIcons.XML_TAG_ICON);
-                elements.add(element);
+                ids.forEach(id -> {
+                    LookupElement element = LookupElementBuilder.create(id)
+                            .withTypeText(record.getModel())
+                            .withIcon(PlatformIcons.XML_TAG_ICON);
+                    elements.add(element);
+                });
             }
         });
         return elements.toArray();
