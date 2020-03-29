@@ -2,6 +2,8 @@ package dev.ngocta.pycharm.odoo.model;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -123,16 +125,16 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
 
     @NotNull
     public static List<PyClass> findModelClasses(@NotNull String model, @NotNull PsiElement anchor) {
-        OdooModule module = OdooModule.findModule(anchor);
-        if (module == null) {
-            return findModelClasses(model, anchor.getProject());
+        OdooModule odooModule = OdooModule.findModule(anchor);
+        if (odooModule == null) {
+            Module module = ModuleUtil.findModuleForPsiElement(anchor);
+            if (module != null) {
+                GlobalSearchScope scope = module.getModuleContentWithDependenciesScope();
+                return findModelClasses(model, scope);
+            }
+            return Collections.emptyList();
         }
-        return findModelClasses(model, module);
-    }
-
-    @NotNull
-    public static List<PyClass> findModelClasses(@NotNull String model, @NotNull Project project) {
-        return findModelClasses(model, GlobalSearchScope.allScope(project));
+        return findModelClasses(model, odooModule);
     }
 
     @NotNull

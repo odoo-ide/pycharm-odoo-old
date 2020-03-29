@@ -15,14 +15,14 @@ public class OdooModuleReference extends PsiReferenceBase<PsiElement> {
     @Nullable
     @Override
     public PsiElement resolve() {
-        OdooModule module = OdooModuleIndex.getModule(getValue(), getElement().getProject());
+        OdooModule module = OdooModuleIndex.getModule(getValue(), getElement());
         return module != null ? module.getDirectory() : null;
     }
 
     @NotNull
     @Override
     public Object[] getVariants() {
-        Collection<OdooModule> modules = OdooModuleIndex.getAllModules(getElement().getProject());
+        Collection<OdooModule> modules = OdooModuleIndex.getAllModules(getElement());
         OdooModule module = OdooModule.findModule(getElement());
         if (module != null) {
             modules.remove(module);

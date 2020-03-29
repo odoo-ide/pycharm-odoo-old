@@ -1,7 +1,10 @@
 package dev.ngocta.pycharm.odoo.module;
 
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
@@ -60,25 +63,63 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
     }
 
     @Nullable
-    public static OdooModule getModule(@NotNull String moduleName, @NotNull Project project) {
+    public static OdooModule getModule(@NotNull String moduleName, @NotNull GlobalSearchScope scope) {
+        Project project = scope.getProject();
+        if (project == null) {
+            return null;
+        }
         FileBasedIndex fileIndex = FileBasedIndex.getInstance();
-        Collection<VirtualFile> files = fileIndex.getContainingFiles(NAME, moduleName, GlobalSearchScope.allScope(project));
+        Collection<VirtualFile> files = fileIndex.getContainingFiles(NAME, moduleName, scope);
         for (VirtualFile file : files) {
             return OdooModule.findModule(file, project);
         }
         return null;
     }
 
+    @Nullable
+    public static OdooModule getModule(@NotNull String moduleName, @NotNull Project project) {
+        return getModule(moduleName, GlobalSearchScope.allScope(project));
+    }
+
+    @Nullable
+    public static OdooModule getModule(@NotNull String moduleName, @NotNull PsiElement anchor) {
+        Module module = ModuleUtil.findModuleForPsiElement(anchor);
+        if (module == null) {
+            return null;
+        }
+        GlobalSearchScope scope = module.getModuleContentWithDependenciesScope();
+        return getModule(moduleName, scope);
+    }
+
     @NotNull
-    public static List<OdooModule> getAllModules(@NotNull Project project) {
+    public static List<OdooModule> getAllModules(@NotNull GlobalSearchScope scope) {
+        Project project = scope.getProject();
+        if (project == null) {
+            return Collections.emptyList();
+        }
         List<OdooModule> modules = new LinkedList<>();
         Collection<String> moduleNames = FileBasedIndex.getInstance().getAllKeys(NAME, project);
         for (String name : moduleNames) {
-            OdooModule module = getModule(name, project);
+            OdooModule module = getModule(name, scope);
             if (module != null) {
                 modules.add(module);
             }
         }
         return modules;
+    }
+
+    @NotNull
+    public static List<OdooModule> getAllModules(@NotNull Project project) {
+        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+        return getAllModules(scope);
+    }
+
+    public static List<OdooModule> getAllModules(@NotNull PsiElement anchor) {
+        Module module = ModuleUtil.findModuleForPsiElement(anchor);
+        if (module == null) {
+            return Collections.emptyList();
+        }
+        GlobalSearchScope scope = module.getModuleContentWithDependenciesScope();
+        return getAllModules(scope);
     }
 }

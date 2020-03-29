@@ -1,5 +1,7 @@
 package dev.ngocta.pycharm.odoo.data;
 
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -210,12 +212,15 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
 
     @NotNull
     public static List<OdooRecord> findRecordsById(@NotNull String id, @NotNull PsiElement anchor) {
-        Project project = anchor.getProject();
-        OdooModule module = OdooModule.findModule(anchor);
-        if (module != null) {
-            return findRecordsById(id, module.getSearchScope());
+        OdooModule odooModule = OdooModule.findModule(anchor);
+        if (odooModule != null) {
+            return findRecordsById(id, odooModule.getSearchScope());
         }
-        return findRecordsById(id, project);
+        Module module = ModuleUtil.findModuleForPsiElement(anchor);
+        if (module != null) {
+            return findRecordsById(id, module.getModuleContentWithDependenciesScope());
+        }
+        return Collections.emptyList();
     }
 
     @NotNull

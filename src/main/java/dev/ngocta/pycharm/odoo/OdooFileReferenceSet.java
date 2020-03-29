@@ -33,7 +33,7 @@ public class OdooFileReferenceSet extends FileReferenceSet {
 
         if (isAbsolutePathReference()) {
             return PyUtil.getParameterizedCachedValue(file, null, param -> {
-                return OdooModuleIndex.getAllModules(getElement().getProject()).stream()
+                return OdooModuleIndex.getAllModules(getElement()).stream()
                         .map(OdooModule::getDirectory)
                         .map(PsiDirectory::getParent)
                         .filter(Objects::nonNull)

@@ -100,7 +100,7 @@ public class OdooModule {
         }
         List<OdooModule> result = new LinkedList<>();
         for (String depend : info.getDepends()) {
-            OdooModule module = OdooModuleIndex.getModule(depend, getProject());
+            OdooModule module = OdooModuleIndex.getModule(depend, getDirectory());
             if (module != null) {
                 result.add(module);
             }

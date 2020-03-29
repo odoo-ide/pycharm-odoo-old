@@ -27,7 +27,11 @@ public class OdooAddonsImportResolver implements PyImportResolver {
         }
         if (components.size() > 2 && OdooNames.ADDONS.equals(components.get(1))) {
             String moduleName = components.get(2);
-            OdooModule module = OdooModuleIndex.getModule(moduleName, project);
+            PsiElement foothold = context.getFoothold();
+            if (foothold == null) {
+                return null;
+            }
+            OdooModule module = OdooModuleIndex.getModule(moduleName, foothold);
             if (module != null) {
                 QualifiedName relatedName = name.subQualifiedName(3, name.getComponentCount());
                 List<PsiElement> refs = PyResolveImportUtil.resolveModuleAt(relatedName, module.getDirectory(), context);
