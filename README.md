@@ -34,3 +34,9 @@ or download and install latest version at [here](https://github.com/trinhanhngoc
 
 ## Screencast
 https://www.youtube.com/watch?v=SMqepH2A4_4
+
+## Troubleshooting
+
+If the module is installed and configured correctly but you still don't have any autocompletion, it's probably due to Pycharm index caches.
+
+Try running the `Invalidate Caches / Restart` action, this should rebuild index caches from scratch and hopefully fix the issue.
