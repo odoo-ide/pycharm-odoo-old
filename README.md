@@ -27,6 +27,8 @@ or download and install latest version at [here](https://github.com/trinhanhngoc
 
 ![Field path completion](images/field-path-completion.png)
 
+![XML ID completion](images/xml-id-completion.png)
+
 #### XML
 ![XML completion](images/xml-completion.png)
 
