@@ -1,14 +1,12 @@
 package dev.ngocta.pycharm.odoo.data;
 
-import com.intellij.psi.PsiDirectory;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.Required;
 import dev.ngocta.pycharm.odoo.module.OdooModule;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Optional;
 
 public interface OdooDomRecordLike extends OdooDomElement {
     @Attribute("id")
@@ -21,12 +19,10 @@ public interface OdooDomRecordLike extends OdooDomElement {
         if (id == null || element == null) {
             return null;
         }
-        String module = Optional.ofNullable(OdooModule.findModule(element))
-                .map(OdooModule::getDirectory)
-                .map(PsiDirectory::getName)
-                .orElse(null);
+        OdooModule module = OdooModule.findModule(element);
         if (module != null) {
-            return new OdooRecordImpl(id, model, subType, module, null);
+            VirtualFile file = element.getContainingFile().getVirtualFile();
+            return new OdooRecordImpl(id, model, subType, module.getName(), file);
         }
         return null;
     }

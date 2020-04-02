@@ -31,4 +31,8 @@ public interface OdooRecord {
     List<PsiElement> getElements(@NotNull Project project);
 
     List<NavigationItem> getNavigationItems(@NotNull Project project);
+
+    OdooRecord withDataFile(VirtualFile file);
+
+    OdooRecord withoutDataFile();
 }

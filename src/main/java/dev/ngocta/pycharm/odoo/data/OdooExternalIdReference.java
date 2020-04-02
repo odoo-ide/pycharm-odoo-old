@@ -5,15 +5,13 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.PlatformIcons;
 import dev.ngocta.pycharm.odoo.module.OdooModule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class OdooExternalIdReference extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
@@ -82,18 +80,20 @@ public class OdooExternalIdReference extends PsiReferenceBase<PsiElement> implem
     @NotNull
     @Override
     public Object[] getVariants() {
-        List<OdooRecord> records = OdooExternalIdIndex.getAvailableRecords(getElement());
+        OdooModule module = OdooModule.findModule(getElement());
+        if (module == null) {
+            return new Object[0];
+        }
         List<LookupElement> elements = new LinkedList<>();
-        String moduleName = Optional.ofNullable(OdooModule.findModule(getElement()))
-                .map(OdooModule::getDirectory)
-                .map(PsiDirectory::getName)
-                .orElse(null);
-        records.forEach(record -> {
-            if ((myModels.length == 0 || Arrays.asList(myModels).contains(record.getModel()))
+        GlobalSearchScope scope = module.getSearchScope(true);
+        Collection<String> models = Arrays.asList(myModels);
+        Project project = getElement().getProject();
+        OdooExternalIdIndex.processAllRecords(project, scope, record -> {
+            if ((models.isEmpty() || models.contains(record.getModel()))
                     && (mySubType == null || mySubType == record.getSubType())) {
                 List<String> ids = new LinkedList<>();
                 ids.add(record.getId());
-                if (myAllowRelative && record.getModule().equals(moduleName)) {
+                if (myAllowRelative && record.getModule().equals(module.getName())) {
                     ids.add(record.getName());
                 }
                 ids.forEach(id -> {
@@ -103,6 +103,7 @@ public class OdooExternalIdReference extends PsiReferenceBase<PsiElement> implem
                     elements.add(element);
                 });
             }
+            return true;
         });
         return elements.toArray();
     }

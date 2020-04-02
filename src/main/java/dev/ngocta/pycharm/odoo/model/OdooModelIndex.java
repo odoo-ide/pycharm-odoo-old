@@ -9,7 +9,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.search.EverythingGlobalScope;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.util.Processor;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.BooleanDataDescriptor;
 import com.intellij.util.io.DataExternalizer;
@@ -20,13 +22,19 @@ import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyElementVisitor;
 import com.jetbrains.python.psi.PyFile;
 import com.jetbrains.python.psi.PyUtil;
+import dev.ngocta.pycharm.odoo.OdooNames;
+import dev.ngocta.pycharm.odoo.data.OdooRecord;
+import dev.ngocta.pycharm.odoo.data.OdooRecordCache;
+import dev.ngocta.pycharm.odoo.data.OdooRecordImpl;
 import dev.ngocta.pycharm.odoo.module.OdooModule;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
     public static final @NotNull ID<String, Boolean> NAME = ID.create("odoo.model");
+    private static final OdooRecordCache IR_MODEL_RECORD_CACHE = new OdooRecordCache();
 
     @NotNull
     @Override
@@ -40,7 +48,8 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
         return inputData -> {
             Map<String, Boolean> result = new HashMap<>();
             VirtualFile virtualFile = inputData.getFile();
-            PsiFile psiFile = PsiManager.getInstance(inputData.getProject()).findFile(virtualFile);
+            Project project = inputData.getProject();
+            PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
             if (OdooModelUtils.isOdooModelFile(psiFile)) {
                 psiFile.acceptChildren(new PyElementVisitor() {
                     @Override
@@ -49,6 +58,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
                         OdooModelInfo info = OdooModelInfo.getInfo(node);
                         if (info != null) {
                             result.putIfAbsent(info.getName(), info.isOriginal());
+                            updateIrModelRecordCache(info.getName(), virtualFile, project);
                         }
                     }
                 });
@@ -86,11 +96,9 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
     }
 
     @NotNull
-    private static List<PyClass> findModelClasses(@NotNull String model, @NotNull GlobalSearchScope scope) {
-        Project project = scope.getProject();
-        if (project == null) {
-            return Collections.emptyList();
-        }
+    private static List<PyClass> findModelClasses(@NotNull String model,
+                                                  @NotNull Project project,
+                                                  @NotNull GlobalSearchScope scope) {
         List<PyClass> result = new LinkedList<>();
         FileBasedIndex index = FileBasedIndex.getInstance();
         Set<VirtualFile> files = new HashSet<>();
@@ -114,10 +122,11 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
 
     @NotNull
     private static List<PyClass> findModelClasses(@NotNull String model, @NotNull OdooModule module) {
+        Project project = module.getProject();
         return PyUtil.getParameterizedCachedValue(module.getDirectory(), model, param -> {
             List<PyClass> result = new LinkedList<>();
             module.getFlattenedDependsGraph().forEach(mod -> {
-                result.addAll(findModelClasses(model, mod.getSearchScope(false)));
+                result.addAll(findModelClasses(model, project, mod.getSearchScope(false)));
             });
             return ImmutableList.copyOf(result);
         });
@@ -125,12 +134,13 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
 
     @NotNull
     public static List<PyClass> findModelClasses(@NotNull String model, @NotNull PsiElement anchor) {
+        Project project = anchor.getProject();
         OdooModule odooModule = OdooModule.findModule(anchor);
         if (odooModule == null) {
             Module module = ModuleUtil.findModuleForPsiElement(anchor);
             if (module != null) {
                 GlobalSearchScope scope = module.getModuleContentWithDependenciesScope();
-                return findModelClasses(model, scope);
+                return findModelClasses(model, project, scope);
             }
             return Collections.emptyList();
         }
@@ -167,5 +177,43 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
             return true;
         }, scope));
         return result;
+    }
+
+    public static boolean processIrModelRecords(@NotNull Project project,
+                                                @NotNull GlobalSearchScope scope,
+                                                @NotNull Processor<OdooRecord> processor) {
+        FileBasedIndex index = FileBasedIndex.getInstance();
+        Collection<String> models = index.getAllKeys(NAME, project);
+        GlobalSearchScope everythingScope = new EverythingGlobalScope(project);
+        for (String model : models) {
+            if (!IR_MODEL_RECORD_CACHE.processRecords(model, processor, scope)) {
+                if (!index.processValues(NAME, model, null, (file, value) -> {
+                    OdooRecord record = updateIrModelRecordCache(model, file, project);
+                    if (record != null) {
+                        if (scope.contains(file)) {
+                            return processor.process(record);
+                        }
+                    }
+                    return true;
+                }, everythingScope)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Nullable
+    private static OdooRecord updateIrModelRecordCache(@NotNull String model,
+                                                       @NotNull VirtualFile file,
+                                                       @NotNull Project project) {
+        OdooModule module = OdooModule.findModule(file, project);
+        if (module != null) {
+            String name = "model_" + model.replace(".", "_");
+            OdooRecord record = new OdooRecordImpl(name, OdooNames.IR_MODEL, module.getName(), null, file);
+            IR_MODEL_RECORD_CACHE.add(model, record);
+            return record;
+        }
+        return null;
     }
 }

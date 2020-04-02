@@ -15,14 +15,17 @@ import java.util.Collection;
 public class OdooGotoExternalIdContributor implements ChooseByNameContributorEx {
     @Override
     public void processNames(@NotNull Processor<String> processor, @NotNull GlobalSearchScope scope, @Nullable IdFilter filter) {
-        Collection<String> ids = OdooExternalIdIndex.getAllIds(scope);
-        ids.forEach(processor::process);
+        Project project = scope.getProject();
+        if (project != null) {
+            Collection<String> ids = OdooExternalIdIndex.getAllIds(project, scope);
+            ids.forEach(processor::process);
+        }
     }
 
     @Override
     public void processElementsWithName(@NotNull String name, @NotNull Processor<NavigationItem> processor, @NotNull FindSymbolParameters parameters) {
         Project project = parameters.getProject();
-        Collection<OdooRecord> records = OdooExternalIdIndex.findRecordsById(name, parameters.getSearchScope());
+        Collection<OdooRecord> records = OdooExternalIdIndex.findRecordsById(name, project, parameters.getSearchScope());
         records.forEach(record -> {
             record.getNavigationItems(project).forEach(processor::process);
         });

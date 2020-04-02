@@ -137,14 +137,23 @@ public class OdooRecordImpl implements OdooRecord {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OdooRecordImpl that = (OdooRecordImpl) o;
-        return myName.equals(that.myName) &&
+        return Objects.equals(myName, that.myName) &&
                 Objects.equals(myModel, that.myModel) &&
-                myModule.equals(that.myModule) &&
-                mySubType == that.mySubType;
+                Objects.equals(myModule, that.myModule) &&
+                Objects.equals(mySubType, that.mySubType) &&
+                Objects.equals(myDataFile, that.myDataFile);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(myName, myModel, myModule, mySubType);
+        return Objects.hash(myName, myModel, myModule, mySubType, myDataFile);
+    }
+
+    public OdooRecord withDataFile(VirtualFile file) {
+        return new OdooRecordImpl(myName, myModel, myModule, mySubType, file);
+    }
+
+    public OdooRecord withoutDataFile() {
+        return new OdooRecordImpl(myName, myModel, myModule, mySubType, null);
     }
 }
