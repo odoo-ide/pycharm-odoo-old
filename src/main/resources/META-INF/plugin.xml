@@ -43,6 +43,14 @@
     <change-notes><![CDATA[
         <ul>
             <li>
+                Version 3.3:
+                <ul>
+                    <li>Support project with multiple modules</li>
+                    <li>Faster XML ID completion</li>
+                    <li>Improve Python Injection</li>
+                </ul>
+            </li>
+            <li>
                 Version 3.2:
                 <ul>
                     <li>Bug fixes</li>
