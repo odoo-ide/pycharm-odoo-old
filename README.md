@@ -9,8 +9,9 @@
 1. Install this plugin from [Jetbrains Plugins Repository](https://plugins.jetbrains.com/plugin/13499-pycharm-odoo/)
 or download and install latest version at [here](https://github.com/trinhanhngoc/pycharm-odoo/releases).
 2. Clone [Odoo Stubs](https://github.com/trinhanhngoc/odoo-stubs) and attach to your project to improve code completion.
-![](images/odoo-stubs.png)
-3. Install [XPathView](https://plugins.jetbrains.com/plugin/12478-xpathview--xslt) to quick navigate to inherited element in XML view.
+3. Install [XPathView](https://plugins.jetbrains.com/plugin/12478-xpathview--xslt) to improve code completion in XML inheritance views.
+4. A sample project structure that supports multiple odoo versions:
+![Project Structure](images/project-structure.png)
 
 ## Screenshots
 #### Python
