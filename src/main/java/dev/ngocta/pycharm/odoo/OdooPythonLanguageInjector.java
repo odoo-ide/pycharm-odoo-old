@@ -21,6 +21,16 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
     private static final Pattern RE_PATTERN_PY = Pattern.compile("\\s*(.+)\\s*", Pattern.DOTALL);
     private static final Pattern RE_PATTERN_PY_TEMPLATE = Pattern.compile("(?:#\\{\\s*(.+?)\\s*})|(?:\\{\\{\\s*(.+?)\\s*}})", Pattern.DOTALL);
 
+    public static PatternCondition<XmlTag> getAttributeValuePatternCondition(@NotNull String attribute, ElementPattern<String> valuePattern) {
+        return new PatternCondition<XmlTag>("withAttributeValues") {
+            @Override
+            public boolean accepts(@NotNull final XmlTag xmlTag, final ProcessingContext context) {
+                String name = xmlTag.getAttributeValue(attribute);
+                return valuePattern.accepts(name);
+            }
+        };
+    }
+
     public static final ElementPattern<String> XML_ATTRIBUTE_NAME_PATTERN =
             StandardPatterns.or(
                     StandardPatterns.string().startsWith("t-att-"),
@@ -32,15 +42,12 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
                     .with(OdooDataUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
 
     public static final XmlElementPattern.XmlTextPattern XML_TEXT_PATTERN =
-            XmlPatterns.xmlText().withParent(
-                    XmlPatterns.xmlTag().withLocalName("attribute")
-                            .with(new PatternCondition<XmlTag>("withAttributeValues") {
-                                @Override
-                                public boolean accepts(@NotNull final XmlTag xmlTag, final ProcessingContext context) {
-                                    String name = xmlTag.getAttributeValue("name");
-                                    return XML_ATTRIBUTE_NAME_PATTERN.accepts(name);
-                                }
-                            })
+            XmlPatterns.xmlText().withParent(StandardPatterns.or(
+                    XmlPatterns.xmlTag().withLocalName("attribute").with(
+                            getAttributeValuePatternCondition("name", XML_ATTRIBUTE_NAME_PATTERN)),
+                    XmlPatterns.xmlTag().withLocalName("field").with(
+                            getAttributeValuePatternCondition("name", StandardPatterns.string().oneOf("domain_force")))
+                    )
             ).with(OdooDataUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> RELATION_FIELD_DOMAIN_PATTERN =
