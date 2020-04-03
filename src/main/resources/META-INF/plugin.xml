@@ -18,7 +18,7 @@
         <h2>NOTE</h2>
         <ul>
             <li>Clone and attach <a href="https://github.com/trinhanhngoc/odoo-stubs">Odoo Stubs</a> to project to improve code completion.</li>
-            <li>Install <a href="https://plugins.jetbrains.com/plugin/12478-xpathview--xslt">XPathView</a> to quick navigate to inherited element in XML view.</li>
+            <li>Install <a href="https://plugins.jetbrains.com/plugin/12478-xpathview--xslt">XPathView</a> to improve code completion in XML inheritance views.</li>
         </ul>
 
         <h2>Screenshots</h2>
@@ -34,6 +34,8 @@
         <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/model-member-completion-3.png" alt="">
         <br>
         <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/field-path-completion.png" alt="">
+        <br>
+        <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/xml-id-completion.png" alt="">
         <h4>XML</h4>
         <img src="https://raw.githubusercontent.com/trinhanhngoc/pycharm-odoo/master/images/xml-completion.png" alt="">
         <h4>JavaScript</h4>
@@ -42,6 +44,12 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>
+                Version 3.3.1:
+                <ul>
+                    <li>Fix xml id reference</li>
+                </ul>
+            </li>
             <li>
                 Version 3.3:
                 <ul>
