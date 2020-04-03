@@ -160,7 +160,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                     OdooRecord record = value.withDataFile(file);
                     RECORD_CACHE.add(record);
                     if (scope.contains(file)) {
-                        return processor.process(value);
+                        return processor.process(record);
                     }
                     return true;
                 }, everythingScope)) {
