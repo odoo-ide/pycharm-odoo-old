@@ -45,6 +45,12 @@
     <change-notes><![CDATA[
         <ul>
             <li>
+                Version 3.3.2:
+                <ul>
+                    <li>PyCharm 2020.1</li>
+                </ul>
+            </li>
+            <li>
                 Version 3.3.1:
                 <ul>
                     <li>Fix xml id reference</li>
@@ -131,7 +137,6 @@
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.data.OdooExternalIdReferenceContributor"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.data.OdooXmlElementReferenceContributor" language="XML"/>
         <dom.fileMetaData implementation="dev.ngocta.pycharm.odoo.data.OdooDomFileMetaData" rootTagName="odoo"/>
-        <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.GotoClassAttributeContributor"/>
         <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.data.OdooGotoExternalIdContributor"/>
         <lang.psiStructureViewFactory implementationClass="dev.ngocta.pycharm.odoo.model.OdooModelStructureViewFactory" language="Python" order="first"/>
         <xmlStructureViewBuilderProvider implementation="dev.ngocta.pycharm.odoo.data.OdooXmlStructureViewBuilderProvider" order="first"/>
