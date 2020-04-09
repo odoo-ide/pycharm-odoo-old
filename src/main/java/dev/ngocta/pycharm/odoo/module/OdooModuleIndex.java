@@ -63,11 +63,9 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
     }
 
     @Nullable
-    public static OdooModule getModule(@NotNull String moduleName, @NotNull GlobalSearchScope scope) {
-        Project project = scope.getProject();
-        if (project == null) {
-            return null;
-        }
+    public static OdooModule getModule(@NotNull String moduleName,
+                                       @NotNull Project project,
+                                       @NotNull GlobalSearchScope scope) {
         FileBasedIndex fileIndex = FileBasedIndex.getInstance();
         Collection<VirtualFile> files = fileIndex.getContainingFiles(NAME, moduleName, scope);
         for (VirtualFile file : files) {
@@ -77,30 +75,21 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
     }
 
     @Nullable
-    public static OdooModule getModule(@NotNull String moduleName, @NotNull Project project) {
-        return getModule(moduleName, GlobalSearchScope.allScope(project));
-    }
-
-    @Nullable
     public static OdooModule getModule(@NotNull String moduleName, @NotNull PsiElement anchor) {
         Module module = ModuleUtil.findModuleForPsiElement(anchor);
         if (module == null) {
             return null;
         }
         GlobalSearchScope scope = module.getModuleContentWithDependenciesScope();
-        return getModule(moduleName, scope);
+        return getModule(moduleName, anchor.getProject(), scope);
     }
 
     @NotNull
-    public static List<OdooModule> getAllModules(@NotNull GlobalSearchScope scope) {
-        Project project = scope.getProject();
-        if (project == null) {
-            return Collections.emptyList();
-        }
+    public static List<OdooModule> getAllModules(@NotNull Project project, @NotNull GlobalSearchScope scope) {
         List<OdooModule> modules = new LinkedList<>();
         Collection<String> moduleNames = FileBasedIndex.getInstance().getAllKeys(NAME, project);
         for (String name : moduleNames) {
-            OdooModule module = getModule(name, scope);
+            OdooModule module = getModule(name, project, scope);
             if (module != null) {
                 modules.add(module);
             }
@@ -109,17 +98,12 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
     }
 
     @NotNull
-    public static List<OdooModule> getAllModules(@NotNull Project project) {
-        GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-        return getAllModules(scope);
-    }
-
     public static List<OdooModule> getAllModules(@NotNull PsiElement anchor) {
         Module module = ModuleUtil.findModuleForPsiElement(anchor);
         if (module == null) {
             return Collections.emptyList();
         }
         GlobalSearchScope scope = module.getModuleContentWithDependenciesScope();
-        return getAllModules(scope);
+        return getAllModules(anchor.getProject(), scope);
     }
 }
