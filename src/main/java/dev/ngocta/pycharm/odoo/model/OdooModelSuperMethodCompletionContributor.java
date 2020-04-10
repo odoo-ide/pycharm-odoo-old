@@ -9,6 +9,7 @@ import com.jetbrains.python.PyTokenTypes;
 import com.jetbrains.python.psi.LanguageLevel;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyFunction;
+import com.jetbrains.python.psi.PyUtil;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import com.jetbrains.python.pyi.PyiUtil;
 import org.jetbrains.annotations.NotNull;
@@ -29,18 +30,26 @@ public class OdooModelSuperMethodCompletionContributor extends CompletionContrib
                                                   @NotNull ProcessingContext context,
                                                   @NotNull CompletionResultSet result) {
                         PsiElement position = parameters.getPosition();
-                        OdooModelClass containingClass = OdooModelUtils.getContainingOdooModelClass(position);
+                        PyClass containingClass = PyUtil.getContainingClassOrSelf(position);
                         if (containingClass == null) {
                             return;
                         }
+                        OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(containingClass);
+                        if (modelClass == null) {
+                            return;
+                        }
                         Set<String> seenNames = new HashSet<>();
-                        for (PyFunction function : containingClass.getMethods()) {
+                        for (PyFunction function : modelClass.getMethods()) {
                             seenNames.add(function.getName());
                         }
                         LanguageLevel languageLevel = LanguageLevel.forElement(parameters.getOriginalFile());
                         seenNames.addAll(PyNames.getBuiltinMethods(languageLevel).keySet());
+                        for (PyFunction method : containingClass.getMethods()) {
+                            seenNames.add(method.getName());
+                        }
                         TypeEvalContext typeEvalContext = TypeEvalContext.codeCompletion(position.getProject(), parameters.getOriginalFile());
-                        List<PyClass> ancestors = containingClass.getAncestorClasses(typeEvalContext);
+                        List<PyClass> ancestors = modelClass.getAncestorClasses(typeEvalContext);
+                        ancestors.remove(containingClass);
                         for (PyClass ancestor : ancestors) {
                             if (PyiUtil.isInsideStub(ancestor)) {
                                 ancestor = PyiUtil.getOriginalElementOrLeaveAsIs(ancestor, PyClass.class);
