@@ -7,11 +7,15 @@ import com.jetbrains.python.psi.types.TypeEvalContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class OdooModelGetItemWrapper extends PyFunctionImpl {
-    final OdooModelClassType myModelClassType;
+    private final PyFunction myOriginFunction;
+    private final OdooModelClassType myModelClassType;
 
     public OdooModelGetItemWrapper(@NotNull PyFunction origin, @NotNull OdooModelClassType modelClassType) {
         super(origin.getNode());
+        myOriginFunction = origin;
         myModelClassType = modelClassType;
     }
 
@@ -34,5 +38,18 @@ public class OdooModelGetItemWrapper extends PyFunctionImpl {
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OdooModelGetItemWrapper that = (OdooModelGetItemWrapper) o;
+        return myOriginFunction.equals(that.myOriginFunction);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(myOriginFunction);
     }
 }
