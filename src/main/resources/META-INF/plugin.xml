@@ -124,6 +124,7 @@
         <inspectionExtension implementation="dev.ngocta.pycharm.odoo.OdooPyInspectionExtension"/>
         <pyAnnotator implementation="dev.ngocta.pycharm.odoo.OdooPyAnnotator"/>
         <runnableScriptFilter implementation="dev.ngocta.pycharm.odoo.OdooPyRunnableScriptFilter"/>
+        <pySuperMethodsSearch implementation="dev.ngocta.pycharm.odoo.model.OdooModelSuperMethodsSearch" order="first"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
