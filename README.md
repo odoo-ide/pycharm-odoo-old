@@ -1,16 +1,18 @@
 ## Features
-* Improve reference resolving and code completion for Python, XML and JavaScript files in Odoo</li>
-* Improve Odoo XML formatter
-* Improve structure view for model class
-* Quick search and navigate to any XML ID in Odoo project
-* ...
+* Improve code completion and navigation for Python, XML and JavaScript in Odoo
+* Support working with multiple Odoo versions in one project window
+* Other improvements to make PyCharm is the best IDE for Odoo
+
+## Installation
+1. Install this plugin from [JetBrains Plugins Repository](https://plugins.jetbrains.com/plugin/13499-pycharm-odoo)
+or manually download and install the latest version at [here](https://github.com/trinhanhngoc/pycharm-odoo/releases).
+2. (Recommended) Clone [Odoo Stubs](https://github.com/trinhanhngoc/odoo-stubs) and attach to your project to improve code completion.
+3. (Recommended) Install [XPathView](https://plugins.jetbrains.com/plugin/12478-xpathview--xslt) to improve code completion in XML inheritance views.
+4. (Optional) Install [PyDev.Debugger plugin for Odoo](https://github.com/trinhanhngoc/pydevd-odoo) to improve Odoo debugging.
 
 ## Usage
-1. Install this plugin from [Jetbrains Plugins Repository](https://plugins.jetbrains.com/plugin/13499-pycharm-odoo/)
-or download and install latest version at [here](https://github.com/trinhanhngoc/pycharm-odoo/releases).
-2. Clone [Odoo Stubs](https://github.com/trinhanhngoc/odoo-stubs) and attach to your project to improve code completion.
-3. Install [XPathView](https://plugins.jetbrains.com/plugin/12478-xpathview--xslt) to improve code completion in XML inheritance views.
-4. A sample project structure that supports multiple odoo versions:
+A sample project structure that supports multiple odoo versions:
+
 ![Project Structure](images/project-structure.png)
 
 ## Screenshots

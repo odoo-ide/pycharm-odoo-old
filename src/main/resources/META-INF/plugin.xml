@@ -8,17 +8,19 @@
 
         <h2>Features</h2>
         <ul>
-            <li>Improve reference resolving and code completion for Python, XML and JavaScript files in Odoo</li>
-            <li>Improve Odoo XML formatter</li>
-            <li>Improve structure view for model class</li>
-            <li>Quick search and navigate to any XML ID in Odoo project</li>
-            <li>...</li>
+            <li>Improve code completion and navigation for Python, XML and JavaScript in Odoo</li>
+            <li>Support working with multiple Odoo versions in one project window</li>
+            <li>Other improvements to make PyCharm is the best IDE for Odoo</li>
         </ul>
 
-        <h2>NOTE</h2>
+        <h2>Installation</h2>
         <ul>
-            <li>Clone and attach <a href="https://github.com/trinhanhngoc/odoo-stubs">Odoo Stubs</a> to project to improve code completion.</li>
-            <li>Install <a href="https://plugins.jetbrains.com/plugin/12478-xpathview--xslt">XPathView</a> to improve code completion in XML inheritance views.</li>
+            <li>Install this plugin from <a href="https://plugins.jetbrains.com/plugin/13499-pycharm-odoo">JetBrains Plugins Repository</a>
+                or manually download and install the latest version at <a href="https://github.com/trinhanhngoc/pycharm-odoo/releases">here</a>.
+            </li>
+            <li>(Recommended) Clone <a href="https://github.com/trinhanhngoc/odoo-stubs">Odoo Stubs</a> and attach to your project to improve code completion.</li>
+            <li>(Recommended) Install <a href="https://plugins.jetbrains.com/plugin/12478-xpathview--xslt">XPathView</a> to improve code completion in XML inheritance views.</li>
+            <li>(Optional) Install <a href="https://github.com/trinhanhngoc/pydevd-odoo">PyDev.Debugger plugin for Odoo</a> to improve Odoo debugging.</li>
         </ul>
 
         <h2>Screenshots</h2>
@@ -44,6 +46,13 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>
+                Version 3.4
+                <ul>
+                    <li>Improve super method completion and navigation</li>
+                    <li>(Optional) Install <a href="https://github.com/trinhanhngoc/pydevd-odoo">PyDev.Debugger plugin for Odoo</a> to improve Odoo debugging.</li>
+                </ul>
+            </li>
             <li>
                 Version 3.3.2:
                 <ul>
