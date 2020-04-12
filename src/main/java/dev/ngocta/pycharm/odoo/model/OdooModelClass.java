@@ -19,8 +19,10 @@ import com.intellij.util.Processor;
 import com.jetbrains.python.PyStubElementTypes;
 import com.jetbrains.python.PythonFileType;
 import com.jetbrains.python.psi.*;
+import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.stubs.PyClassStub;
 import com.jetbrains.python.psi.types.PyClassLikeType;
+import com.jetbrains.python.psi.types.PyClassType;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
@@ -61,31 +63,34 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @NotNull
     @Override
     public List<PyClass> getAncestorClasses(@Nullable TypeEvalContext context) {
-        return getAncestorClasses(context, true);
-    }
-
-    @NotNull
-    private List<PyClass> getAncestorClasses(@Nullable TypeEvalContext context, boolean withBaseClass) {
-        List<PyClass> result = new LinkedList<>(getAncestorClassesWithoutBase(context));
-        if (context != null && withBaseClass) {
-            PyClass baseClass = OdooModelUtils.getBaseModelClass(context.getOrigin());
-            if (baseClass != null) {
-                result.add(baseClass);
+        if (context == null) {
+            return Collections.emptyList();
+        }
+        List<PyClass> result = new LinkedList<>(getExplicitAncestorClasses(context));
+        if (OdooNames.MODEL_BASE.equals(myName)) {
+            PyClass baseModelClass = OdooModelUtils.getBaseModelClass(context.getOrigin());
+            if (baseModelClass != null) {
+                result.add(baseModelClass);
+                PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(baseModelClass);
+                PyClassType objectType = builtinCache.getObjectType();
+                if (objectType != null) {
+                    result.add(objectType.getPyClass());
+                }
             }
+        } else {
+            List<PyClass> modelBaseAncestors = getInstance(OdooNames.MODEL_BASE, myProject).getAncestorClasses(context);
+            result.addAll(modelBaseAncestors);
         }
         return result;
     }
 
-    private List<PyClass> getAncestorClassesWithoutBase(@Nullable TypeEvalContext context) {
-        if (context == null || context.getOrigin() == null) {
-            return Collections.emptyList();
-        }
+    private List<PyClass> getExplicitAncestorClasses(@NotNull TypeEvalContext context) {
         return PyUtil.getParameterizedCachedValue(this, context.getOrigin(), param -> {
             List<PyClass> result = new LinkedList<>();
             PyClass[] classes = getSuperClasses(context);
             for (PyClass cls : classes) {
                 if (cls instanceof OdooModelClass) {
-                    result.addAll(((OdooModelClass) cls).getAncestorClasses(context, false));
+                    result.addAll(((OdooModelClass) cls).getExplicitAncestorClasses(context));
                 } else {
                     result.add(cls);
                     for (PyClass subCls : cls.getSuperClasses(context)) {
@@ -108,13 +113,12 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @NotNull
     @Override
     public PyClass[] getSuperClasses(@Nullable TypeEvalContext context) {
-        PyClass[] classes = new PyClass[0];
         if (context == null) {
-            return classes;
+            return new PyClass[0];
         }
         PsiFile file = context.getOrigin();
         if (file == null) {
-            return classes;
+            return new PyClass[0];
         }
         List<PyClass> modelClasses = Lists.newArrayList(OdooModelIndex.findModelClasses(getName(), file));
         List<String> superModels = new LinkedList<>();
@@ -128,13 +132,10 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
                 });
             }
         });
-        if (!getName().equals("base")) {
-            superModels.add("base");
-        }
         superModels.forEach(model -> {
             modelClasses.add(OdooModelClass.getInstance(model, myProject));
         });
-        return modelClasses.toArray(classes);
+        return modelClasses.toArray(new PyClass[0]);
     }
 
     @Nullable
@@ -531,7 +532,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @NotNull
     public List<OdooModelClass> getDelegationChildren(@NotNull TypeEvalContext context) {
         Set<String> children = new HashSet<>();
-        getAncestorClasses(context, false).forEach(cls -> {
+        getExplicitAncestorClasses(context).forEach(cls -> {
             OdooModelInfo info = OdooModelInfo.getInfo(cls);
             if (info != null) {
                 children.addAll(info.getInherits().keySet());

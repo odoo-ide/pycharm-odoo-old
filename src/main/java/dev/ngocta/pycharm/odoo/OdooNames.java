@@ -90,4 +90,5 @@ public class OdooNames {
     };
     public static final String IR_MODEL = "ir.model";
     public static final String RES_GROUPS = "res.groups";
+    public static final String MODEL_BASE = "base";
 }
