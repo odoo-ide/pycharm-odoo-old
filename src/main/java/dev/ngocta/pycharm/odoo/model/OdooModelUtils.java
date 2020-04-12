@@ -73,7 +73,7 @@ public class OdooModelUtils {
                 }
                 priority = COMPLETION_PRIORITY_FIELD;
             }
-        } else if (element instanceof PyFunction) {
+        } else if (element instanceof PyFunction && ((PyFunction) element).getProperty() == null) {
             List<PyCallableParameter> params = ((PyFunction) element).getParameters(context);
             String paramsText = StringUtil.join(params, PyCallableParameter::getName, ", ");
             tailText = "(" + paramsText + ")";
