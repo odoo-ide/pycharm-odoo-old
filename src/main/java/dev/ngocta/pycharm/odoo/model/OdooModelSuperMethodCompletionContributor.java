@@ -4,9 +4,7 @@ import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
-import com.jetbrains.python.PyNames;
 import com.jetbrains.python.PyTokenTypes;
-import com.jetbrains.python.psi.LanguageLevel;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyFunction;
 import com.jetbrains.python.psi.PyUtil;
@@ -29,7 +27,10 @@ public class OdooModelSuperMethodCompletionContributor extends CompletionContrib
                     protected void addCompletions(@NotNull CompletionParameters parameters,
                                                   @NotNull ProcessingContext context,
                                                   @NotNull CompletionResultSet result) {
-                        PsiElement position = parameters.getPosition();
+                        PsiElement position = parameters.getOriginalPosition();
+                        if (position == null) {
+                            position = parameters.getPosition();
+                        }
                         PyClass containingClass = PyUtil.getContainingClassOrSelf(position);
                         if (containingClass == null) {
                             return;
@@ -42,11 +43,6 @@ public class OdooModelSuperMethodCompletionContributor extends CompletionContrib
                         for (PyFunction function : modelClass.getMethods()) {
                             seenNames.add(function.getName());
                         }
-                        LanguageLevel languageLevel = LanguageLevel.forElement(parameters.getOriginalFile());
-                        seenNames.addAll(PyNames.getBuiltinMethods(languageLevel).keySet());
-                        for (PyFunction method : containingClass.getMethods()) {
-                            seenNames.add(method.getName());
-                        }
                         TypeEvalContext typeEvalContext = TypeEvalContext.codeCompletion(position.getProject(), parameters.getOriginalFile());
                         List<PyClass> ancestors = modelClass.getAncestorClasses(typeEvalContext);
                         ancestors.remove(containingClass);
@@ -55,11 +51,15 @@ public class OdooModelSuperMethodCompletionContributor extends CompletionContrib
                                 ancestor = PyiUtil.getOriginalElementOrLeaveAsIs(ancestor, PyClass.class);
                             }
                             for (PyFunction superMethod : ancestor.getMethods()) {
-                                if (!seenNames.contains(superMethod.getName())) {
-                                    String s = superMethod.getName() + superMethod.getParameterList().getText() + ":";
+                                String name = superMethod.getName();
+                                if (name == null || name.isEmpty()) {
+                                    continue;
+                                }
+                                if (!seenNames.contains(name)) {
+                                    String s = name + superMethod.getParameterList().getText() + ":";
                                     LookupElementBuilder element = LookupElementBuilder.create(s);
                                     result.addElement(element);
-                                    seenNames.add(superMethod.getName());
+                                    seenNames.add(name);
                                 }
                             }
                         }
