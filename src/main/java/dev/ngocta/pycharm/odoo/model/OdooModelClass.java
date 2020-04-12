@@ -368,6 +368,10 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @Nullable
     @Override
     public PyType getMetaClassType(@NotNull TypeEvalContext context) {
+        PyClass baseClass = OdooModelUtils.getBaseModelClass(context.getOrigin());
+        if (baseClass != null) {
+            return baseClass.getMetaClassType(true, context);
+        }
         return null;
     }
 
