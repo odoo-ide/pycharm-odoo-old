@@ -18,6 +18,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.ProcessingContext;
 import com.jetbrains.python.codeInsight.completion.PyFunctionInsertHandler;
+import com.jetbrains.python.codeInsight.mlcompletion.PyCompletionMlElementInfo;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.types.PyCallableParameter;
 import com.jetbrains.python.psi.types.PyType;
@@ -80,12 +81,15 @@ public class OdooModelUtils {
             priority = COMPLETION_PRIORITY_FUNCTION;
             insertHandler = PyFunctionInsertHandler.INSTANCE;
         }
-        LookupElement lookupElement = LookupElementBuilder.create(element)
+        LookupElement lookupElementBuilder = LookupElementBuilder.create(element)
                 .withTailText(tailText)
                 .withTypeText(typeText)
                 .withIcon(element.getIcon(Iconable.ICON_FLAG_READ_STATUS))
                 .withInsertHandler(insertHandler);
-        return PrioritizedLookupElement.withPriority(lookupElement, priority);
+        LookupElement lookupElement = PrioritizedLookupElement.withPriority(lookupElementBuilder, priority);
+        PyCompletionMlElementInfo info = PyCompletionMlElementInfo.Companion.fromElement(element);
+        lookupElement.putUserData(PyCompletionMlElementInfo.Companion.getKey(), info);
+        return lookupElement;
     }
 
     @NotNull
