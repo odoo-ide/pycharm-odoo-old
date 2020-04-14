@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'dev.ngocta'
-version '3.5'
+version '3.5.1'
 
 sourceCompatibility = 1.8
 
