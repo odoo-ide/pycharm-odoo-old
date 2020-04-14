@@ -95,6 +95,9 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
         if (!inherited) {
             return null;
         }
+        if (location == null && (name.equals(PyNames.GETATTR) || name.equals(PyNames.GETATTRIBUTE))) {
+            return null;
+        }
         TypeEvalContext context = resolveContext.getTypeEvalContext();
         return PyUtil.getParameterizedCachedValue(getPyClass(), Pair.create(name, context), param -> {
             List<RatedResolveResult> result = new LinkedList<>();
