@@ -36,7 +36,7 @@ public class OdooLambdaTypeProvider extends PyTypeProviderBase {
                             if (callExpression != null) {
                                 PyExpression callee = callExpression.getCallee();
                                 if (callee instanceof PyReferenceExpression) {
-                                    if (OdooNames.FILTERED.equals(callee.getName())) {
+                                    if (OdooNames.FILTERED.equals(callee.getName()) || OdooNames.MAPPED.equals(callee.getName())) {
                                         PyExpression qualifier = ((PyReferenceExpression) callee).getQualifier();
                                         if (qualifier != null) {
                                             PyType qualifierType = context.getType(qualifier);
