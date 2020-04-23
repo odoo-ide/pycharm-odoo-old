@@ -58,7 +58,7 @@ public class OdooDomExtender extends DomExtender<OdooDomElement> {
 
     private boolean isViewArchFieldAssignment(@Nullable DomElement domElement) {
         return domElement instanceof OdooDomFieldAssignment
-                && "arch".equals(((OdooDomFieldAssignment) domElement).getName().getValue())
+                && "arch".equals(((OdooDomFieldAssignment) domElement).getName().getStringValue())
                 && OdooNames.IR_UI_VIEW.equals(((OdooDomFieldAssignment) domElement).getModel());
     }
 

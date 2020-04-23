@@ -119,6 +119,20 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                         }
                     });
 
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> SEARCH_DOMAIN_RIGHT_NODE_PATTERN =
+            psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("searchDomain") {
+                @Override
+                public boolean accepts(@NotNull PyStringLiteralExpression pyReferenceExpression, ProcessingContext context) {
+                    OdooModelClass cls = OdooModelUtils.getOdooModelClassForDomainElement(pyReferenceExpression);
+                    if (cls != null) {
+                        context.put(OdooFieldReferenceProvider.MODEL_CLASS, cls);
+                        context.put(OdooFieldReferenceProvider.ENABLE_SUB_FIELD, true);
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
         OdooFieldReferenceProvider provider = new OdooFieldReferenceProvider();
@@ -127,5 +141,6 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
         registrar.registerReferenceProvider(ONE2MANY_INVERSE_NAME_PATTERN, provider);
         registrar.registerReferenceProvider(RELATED_PATTERN, provider);
         registrar.registerReferenceProvider(CURRENCY_FIELD_PATTERN, provider);
+        registrar.registerReferenceProvider(SEARCH_DOMAIN_RIGHT_NODE_PATTERN, provider, PsiReferenceRegistrar.HIGHER_PRIORITY);
     }
 }

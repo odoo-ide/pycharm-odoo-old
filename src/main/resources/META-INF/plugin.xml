@@ -53,7 +53,7 @@
                 </ul>
             </li>
             <li>
-               Version 3.5
+                Version 3.5
                 <ul>
                     <li>Bug fixes</li>
                 </ul>
@@ -146,6 +146,7 @@
         <pyAnnotator implementation="dev.ngocta.pycharm.odoo.OdooPyAnnotator"/>
         <runnableScriptFilter implementation="dev.ngocta.pycharm.odoo.OdooPyRunnableScriptFilter"/>
         <pySuperMethodsSearch implementation="dev.ngocta.pycharm.odoo.model.OdooModelSuperMethodsSearch" order="first"/>
+        <pyReferenceResolveProvider implementation="dev.ngocta.pycharm.odoo.model.OdooFieldReferenceResolveProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">

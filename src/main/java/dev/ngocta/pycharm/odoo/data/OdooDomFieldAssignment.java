@@ -5,7 +5,7 @@ import com.intellij.util.xml.*;
 @Referencing(OdooFieldValueReferenceConverter.class)
 public interface OdooDomFieldAssignment extends OdooDomField, GenericDomValue<String> {
     @Attribute("ref")
-    @Referencing(OdooFieldValueReferenceConverter.class)
+    @Referencing(OdooFieldRefValueReferenceConverter.class)
     GenericAttributeValue<String> getRef();
 
     default String getModel() {

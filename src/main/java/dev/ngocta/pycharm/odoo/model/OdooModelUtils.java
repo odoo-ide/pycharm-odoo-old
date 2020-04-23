@@ -6,6 +6,7 @@ import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.patterns.PatternCondition;
@@ -15,8 +16,13 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.xml.XmlAttribute;
+import com.intellij.psi.xml.XmlAttributeValue;
+import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.ProcessingContext;
+import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.DomManager;
 import com.jetbrains.python.codeInsight.completion.PyFunctionInsertHandler;
 import com.jetbrains.python.codeInsight.mlcompletion.PyCompletionMlElementInfo;
 import com.jetbrains.python.psi.*;
@@ -25,6 +31,9 @@ import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.OdooPyUtils;
+import dev.ngocta.pycharm.odoo.data.OdooDomField;
+import dev.ngocta.pycharm.odoo.data.OdooDomModelScopedViewElement;
+import dev.ngocta.pycharm.odoo.data.OdooDomViewField;
 import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -154,5 +163,105 @@ public class OdooModelUtils {
 
     public static boolean isOdooModelFile(@Nullable PsiFile file) {
         return file instanceof PyFile && OdooModuleUtils.isInOdooModule(file);
+    }
+
+    @Nullable
+    public static OdooModelClass getOdooModelClassForDomainElement(@NotNull PsiElement domainElement) {
+        PsiElement parent = domainElement.getParent();
+        if (parent instanceof PyTupleExpression
+                || parent instanceof PyListLiteralExpression
+                || parent instanceof PyParenthesizedExpression) {
+            PsiElement[] sequenceElements;
+            if (parent instanceof PySequenceExpression) {
+                sequenceElements = ((PySequenceExpression) parent).getElements();
+            } else {
+                sequenceElements = new PsiElement[]{domainElement};
+            }
+            boolean isLeft = domainElement instanceof PyStringLiteralExpression
+                    && sequenceElements.length > 0
+                    && sequenceElements[0].equals(domainElement);
+            boolean isRight = domainElement instanceof PyReferenceExpression
+                    && sequenceElements.length > 2
+                    && sequenceElements[0] instanceof PyLiteralExpression
+                    && sequenceElements[1] instanceof PyLiteralExpression
+                    && sequenceElements[2].equals(domainElement);
+            if (isLeft || isRight) {
+                parent = parent.getParent();
+                if (parent instanceof PyParenthesizedExpression) {
+                    parent = parent.getParent();
+                }
+                if (parent instanceof PyListLiteralExpression) {
+                    Project project = domainElement.getProject();
+                    parent = parent.getParent();
+                    if (parent instanceof PyArgumentList) {
+                        parent = parent.getParent();
+                        if (parent instanceof PyCallExpression) {
+                            PyExpression callee = ((PyCallExpression) parent).getCallee();
+                            if (callee instanceof PyReferenceExpression) {
+                                PyReferenceExpression ref = (PyReferenceExpression) callee;
+                                PyExpression qualifier = ref.getQualifier();
+                                if (qualifier != null && OdooNames.SEARCH.equals(ref.getReferencedName())) {
+                                    TypeEvalContext context = TypeEvalContext.codeAnalysis(project, parent.getContainingFile());
+                                    PyType type = context.getType(qualifier);
+                                    if (type instanceof OdooModelClassType) {
+                                        return ((OdooModelClassType) type).getPyClass();
+                                    }
+                                }
+                            }
+                        }
+                    } else if (parent != null) {
+                        parent = parent.getParent();
+                        if (parent instanceof PyFile) {
+                            parent = parent.getContext();
+                            if (parent instanceof PyStringLiteralExpression) {
+                                parent = parent.getParent();
+                                if (parent instanceof PyKeywordArgument) {
+                                    if (OdooNames.FIELD_ATTR_DOMAIN.equals(((PyKeywordArgument) parent).getKeyword())) {
+                                        if (isLeft) {
+                                            parent = PsiTreeUtil.getParentOfType(parent, PyAssignmentStatement.class);
+                                            if (parent != null) {
+                                                PyExpression left = ((PyAssignmentStatement) parent).getLeftHandSideExpression();
+                                                if (left instanceof PyTargetExpression) {
+                                                    OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) left);
+                                                    if (info != null && info.getComodel() != null) {
+                                                        return OdooModelClass.getInstance(info.getComodel(), project);
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            return OdooModelUtils.getContainingOdooModelClass(parent);
+                                        }
+                                    }
+                                }
+                            } else if (parent instanceof XmlAttributeValue) {
+                                parent = parent.getParent();
+                                if (parent instanceof XmlAttribute) {
+                                    XmlAttribute attribute = (XmlAttribute) parent;
+                                    XmlTag tag = attribute.getParent();
+                                    if (tag != null) {
+                                        DomManager domManager = DomManager.getDomManager(project);
+                                        DomElement domElement = domManager.getDomElement(tag);
+                                        if (domElement instanceof OdooDomModelScopedViewElement) {
+                                            String model;
+                                            if (domainElement instanceof OdooDomViewField
+                                                    && OdooNames.FIELD_ATTR_DOMAIN.equals(attribute.getName())
+                                                    && isLeft) {
+                                                model = ((OdooDomField) domElement).getComodel();
+                                            } else {
+                                                model = ((OdooDomModelScopedViewElement) domElement).getModel();
+                                            }
+                                            if (model != null) {
+                                                return OdooModelClass.getInstance(model, project);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
