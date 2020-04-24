@@ -67,6 +67,9 @@ public class OdooNames {
     public static final String MAPPED = "mapped";
     public static final String FILTERED = "filtered";
     public static final String SEARCH = "search";
+    public static final String CREATE = "create";
+    public static final String WRITE = "write";
+    public static final String UPDATE = "update";
     public static final String BASE_MODEL_QNAME = "odoo.models.BaseModel";
     public static final String FIELD_QNAME = "odoo.fields.Field";
     public static final String ENVIRONMENT_QNAME = "odoo.api.Environment";

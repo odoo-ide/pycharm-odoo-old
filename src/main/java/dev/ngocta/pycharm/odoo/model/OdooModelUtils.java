@@ -201,7 +201,7 @@ public class OdooModelUtils {
                                 PyReferenceExpression ref = (PyReferenceExpression) callee;
                                 PyExpression qualifier = ref.getQualifier();
                                 if (qualifier != null && OdooNames.SEARCH.equals(ref.getReferencedName())) {
-                                    TypeEvalContext context = TypeEvalContext.codeAnalysis(project, parent.getContainingFile());
+                                    TypeEvalContext context = TypeEvalContext.userInitiated(project, parent.getContainingFile());
                                     PyType type = context.getType(qualifier);
                                     if (type instanceof OdooModelClassType) {
                                         return ((OdooModelClassType) type).getPyClass();
