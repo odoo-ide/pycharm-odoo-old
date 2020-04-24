@@ -8,6 +8,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.GlobalSearchScopes;
+import com.jetbrains.python.PyNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,7 +37,7 @@ public class OdooModule {
         }
         if (element instanceof PsiDirectory) {
             PsiDirectory dir = (PsiDirectory) element;
-            if (findManifestFileInDirectory(dir) != null) {
+            if (findManifestFileInDirectory(dir) != null && dir.findFile(PyNames.INIT_DOT_PY) != null) {
                 return dir;
             }
         }

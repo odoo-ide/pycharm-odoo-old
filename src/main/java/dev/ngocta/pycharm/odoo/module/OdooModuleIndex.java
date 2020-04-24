@@ -9,6 +9,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
+import com.jetbrains.python.PyNames;
 import com.jetbrains.python.PythonFileType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +33,7 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
             VirtualFile file = inputData.getFile();
             if (file.getName().equals(OdooModuleUtils.getManifestFileName(inputData.getProject()))) {
                 VirtualFile dir = file.getParent();
-                if (dir != null) {
+                if (dir != null && dir.findChild(PyNames.INIT_DOT_PY) != null) {
                     result.put(dir.getName(), null);
                 }
             }
@@ -69,7 +70,10 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
         FileBasedIndex fileIndex = FileBasedIndex.getInstance();
         Collection<VirtualFile> files = fileIndex.getContainingFiles(NAME, moduleName, scope);
         for (VirtualFile file : files) {
-            return OdooModule.findModule(file, project);
+            OdooModule module = OdooModule.findModule(file, project);
+            if (module != null) {
+                return module;
+            }
         }
         return null;
     }
