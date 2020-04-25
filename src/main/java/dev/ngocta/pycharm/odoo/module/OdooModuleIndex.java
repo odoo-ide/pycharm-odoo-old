@@ -11,6 +11,7 @@ import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import com.jetbrains.python.PyNames;
 import com.jetbrains.python.PythonFileType;
+import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,7 +32,7 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
         return inputData -> {
             Map<String, Void> result = new HashMap<>();
             VirtualFile file = inputData.getFile();
-            if (file.getName().equals(OdooModuleUtils.getManifestFileName(inputData.getProject()))) {
+            if (OdooNames.MANIFEST_FILE_NAME.equals(file.getName())) {
                 VirtualFile dir = file.getParent();
                 if (dir != null && dir.findChild(PyNames.INIT_DOT_PY) != null) {
                     result.put(dir.getName(), null);

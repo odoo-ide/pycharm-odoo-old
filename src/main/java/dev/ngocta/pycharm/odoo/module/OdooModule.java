@@ -9,6 +9,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.GlobalSearchScopes;
 import com.jetbrains.python.PyNames;
+import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +28,7 @@ public class OdooModule {
 
     @Nullable
     private static PsiFile findManifestFileInDirectory(PsiDirectory dir) {
-        return dir.findFile(OdooModuleUtils.getManifestFileName(dir.getProject()));
+        return dir.findFile(OdooNames.MANIFEST_FILE_NAME);
     }
 
     @Nullable
