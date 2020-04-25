@@ -19,7 +19,7 @@ public class OdooFieldReferenceResolveProvider implements PyReferenceResolveProv
         if (name == null || pyQualifiedExpression.getQualifier() != null) {
             return Collections.emptyList();
         }
-        OdooModelClass modelClass = OdooModelUtils.getOdooModelClassForDomainElement(pyQualifiedExpression);
+        OdooModelClass modelClass = OdooModelUtils.getSearchDomainModelContext(pyQualifiedExpression);
         if (modelClass != null) {
             PyTargetExpression field = modelClass.findField(name, typeEvalContext);
             if (field != null) {

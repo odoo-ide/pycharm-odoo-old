@@ -1,10 +1,7 @@
 package dev.ngocta.pycharm.odoo.model;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.patterns.PatternCondition;
 import com.intellij.patterns.PsiElementPattern;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceContributor;
 import com.intellij.psi.PsiReferenceRegistrar;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -15,9 +12,6 @@ import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Optional;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
@@ -125,11 +119,11 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                         }
                     });
 
-    public static final PsiElementPattern.Capture<PyStringLiteralExpression> SEARCH_DOMAIN_RIGHT_NODE_PATTERN =
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> SEARCH_DOMAIN_PATTERN =
             psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("searchDomain") {
                 @Override
                 public boolean accepts(@NotNull PyStringLiteralExpression pyReferenceExpression, ProcessingContext context) {
-                    OdooModelClass cls = OdooModelUtils.getOdooModelClassForDomainElement(pyReferenceExpression);
+                    OdooModelClass cls = OdooModelUtils.getSearchDomainModelContext(pyReferenceExpression);
                     if (cls != null) {
                         context.put(OdooFieldReferenceProvider.MODEL_CLASS, cls);
                         context.put(OdooFieldReferenceProvider.ENABLE_SUB_FIELD, true);
@@ -139,11 +133,11 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                 }
             });
 
-    public static final PsiElementPattern.Capture<PyStringLiteralExpression> RECORD_VALUE_KEY_PATTERN =
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> RECORD_VALUE_PATTERN =
             psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("createValue") {
                 @Override
                 public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression, ProcessingContext context) {
-                    OdooModelClass cls = getOdooModelClassForRecordValueKey(pyStringLiteralExpression);
+                    OdooModelClass cls = OdooModelUtils.getRecordValueModelContext(pyStringLiteralExpression);
                     if (cls != null) {
                         context.put(OdooFieldReferenceProvider.MODEL_CLASS, cls);
                         return true;
@@ -151,68 +145,6 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                     return false;
                 }
             });
-
-    @Nullable
-    private static OdooModelClass getOdooModelClassForRecordValueKey(@NotNull PsiElement key) {
-        Project project = key.getProject();
-        PsiElement parent = key.getParent();
-        if (parent instanceof PyKeyValueExpression && (((PyKeyValueExpression) parent).getKey() == key)) {
-            parent = parent.getParent();
-            if (parent instanceof PyDictLiteralExpression) {
-                PsiElement dict = parent;
-                parent = parent.getParent();
-                if (parent instanceof PyTupleExpression) {
-                    PsiElement[] tupleElements = ((PyTupleExpression) parent).getElements();
-                    if (tupleElements.length == 3 && tupleElements[0] instanceof PyNumericLiteralExpression && tupleElements[2].equals(dict)) {
-                        parent = parent.getParent();
-                        if (parent instanceof PyParenthesizedExpression) {
-                            parent = parent.getParent();
-                            if (parent instanceof PyListLiteralExpression) {
-                                parent = parent.getParent();
-                                if (parent instanceof PyKeyValueExpression) {
-                                    PyExpression k = ((PyKeyValueExpression) parent).getKey();
-                                    if (k instanceof PyStringLiteralExpression) {
-                                        PsiElement ref = Optional.ofNullable(k.getReference())
-                                                .map(PsiReference::resolve)
-                                                .orElse(null);
-                                        if (ref instanceof PyTargetExpression) {
-                                            OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) ref);
-                                            if (info != null && info.getComodel() != null) {
-                                                return OdooModelClass.getInstance(info.getComodel(), project);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    return null;
-                }
-                if (parent instanceof PyListLiteralExpression || parent instanceof PyListCompExpression) {
-                    parent = parent.getParent();
-                }
-                if (parent instanceof PyArgumentList) {
-                    parent = parent.getParent();
-                    if (parent instanceof PyCallExpression) {
-                        PyExpression callee = ((PyCallExpression) parent).getCallee();
-                        if (callee instanceof PyReferenceExpression) {
-                            PyReferenceExpression ref = (PyReferenceExpression) callee;
-                            String refName = ref.getName();
-                            PyExpression qualifier = ref.getQualifier();
-                            if (qualifier != null && (OdooNames.CREATE.equals(refName) || OdooNames.WRITE.equals(refName) || OdooNames.UPDATE.equals(refName))) {
-                                TypeEvalContext typeEvalContext = TypeEvalContext.userInitiated(project, parent.getContainingFile());
-                                PyType type = typeEvalContext.getType(qualifier);
-                                if (type instanceof OdooModelClassType) {
-                                    return ((OdooModelClassType) type).getPyClass();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
 
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
@@ -222,7 +154,7 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
         registrar.registerReferenceProvider(ONE2MANY_INVERSE_NAME_PATTERN, provider);
         registrar.registerReferenceProvider(RELATED_PATTERN, provider);
         registrar.registerReferenceProvider(CURRENCY_FIELD_PATTERN, provider);
-        registrar.registerReferenceProvider(SEARCH_DOMAIN_RIGHT_NODE_PATTERN, provider);
-        registrar.registerReferenceProvider(RECORD_VALUE_KEY_PATTERN, provider);
+        registrar.registerReferenceProvider(SEARCH_DOMAIN_PATTERN, provider);
+        registrar.registerReferenceProvider(RECORD_VALUE_PATTERN, provider);
     }
 }

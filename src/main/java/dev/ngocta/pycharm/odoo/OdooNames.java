@@ -67,6 +67,8 @@ public class OdooNames {
     public static final String MAPPED = "mapped";
     public static final String FILTERED = "filtered";
     public static final String SEARCH = "search";
+    public static final String SEARCH_READ = "search_read";
+    public static final String SEARCH_COUNT = "search_count";
     public static final String CREATE = "create";
     public static final String WRITE = "write";
     public static final String UPDATE = "update";
