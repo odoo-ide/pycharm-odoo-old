@@ -32,6 +32,7 @@ import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.OdooPyUtils;
 import dev.ngocta.pycharm.odoo.data.OdooDomField;
+import dev.ngocta.pycharm.odoo.data.OdooDomFieldAssignment;
 import dev.ngocta.pycharm.odoo.data.OdooDomModelScopedViewElement;
 import dev.ngocta.pycharm.odoo.data.OdooDomViewField;
 import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
@@ -305,6 +306,30 @@ public class OdooModelUtils {
                                     OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) ref);
                                     if (info != null && info.getComodel() != null) {
                                         return OdooModelClass.getInstance(info.getComodel(), project);
+                                    }
+                                }
+                            }
+                        } else {
+                            parent = parent.getParent();
+                            if (parent instanceof PyFile) {
+                                parent = parent.getContext();
+                                if (parent instanceof XmlAttributeValue) {
+                                    parent = parent.getParent();
+                                    if (parent instanceof XmlAttribute) {
+                                        XmlAttribute attribute = (XmlAttribute) parent;
+                                        if ("eval".equals(attribute.getName())) {
+                                            XmlTag tag = attribute.getParent();
+                                            if (tag != null) {
+                                                DomManager domManager = DomManager.getDomManager(project);
+                                                DomElement domElement = domManager.getDomElement(tag);
+                                                if (domElement instanceof OdooDomFieldAssignment) {
+                                                    String comodel = ((OdooDomFieldAssignment) domElement).getComodel();
+                                                    if (comodel != null) {
+                                                        return OdooModelClass.getInstance(comodel, project);
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
