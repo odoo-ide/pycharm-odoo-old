@@ -1,10 +1,14 @@
 package dev.ngocta.pycharm.odoo.data;
 
+import com.google.common.collect.Iterables;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementResolveResult;
+import com.intellij.psi.PsiReferenceBase;
+import com.intellij.psi.ResolveResult;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.PlatformIcons;
 import dev.ngocta.pycharm.odoo.module.OdooModule;
@@ -12,9 +16,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-public class OdooExternalIdReference extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
+public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
     private final String[] myModels;
     private final OdooRecordSubType mySubType;
     private final boolean myAllowRelative;
@@ -24,7 +27,7 @@ public class OdooExternalIdReference extends PsiReferenceBase<PsiElement> implem
                                    @Nullable String[] models,
                                    @Nullable OdooRecordSubType subType,
                                    boolean allowRelative) {
-        super(element, rangeInElement);
+        super(element, rangeInElement, false);
         myModels = Optional.ofNullable(models).orElse(new String[0]);
         mySubType = subType;
         myAllowRelative = allowRelative;
@@ -55,6 +58,17 @@ public class OdooExternalIdReference extends PsiReferenceBase<PsiElement> implem
     @NotNull
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
+        return PsiElementResolveResult.createResults(resolveInner());
+    }
+
+    @Nullable
+    @Override
+    public PsiElement resolve() {
+        return Iterables.getLast(resolveInner(), null);
+    }
+
+    @NotNull
+    protected List<PsiElement> resolveInner() {
         PsiElement element = getElement();
         String id = getValue();
         if (!id.contains(".") && myAllowRelative) {
@@ -65,16 +79,9 @@ public class OdooExternalIdReference extends PsiReferenceBase<PsiElement> implem
         }
         Project project = element.getProject();
         List<OdooRecord> records = OdooExternalIdIndex.findRecordsById(id, element);
-        List<PsiElement> elements = records.stream()
-                .flatMap(item -> item.getElements(project).stream())
-                .collect(Collectors.toList());
-        return PsiElementResolveResult.createResults(elements);
-    }
-
-    @Nullable
-    @Override
-    public PsiElement resolve() {
-        return null;
+        List<PsiElement> elements = new LinkedList<>();
+        records.forEach(record -> elements.addAll(record.getElements(project)));
+        return elements;
     }
 
     @NotNull
