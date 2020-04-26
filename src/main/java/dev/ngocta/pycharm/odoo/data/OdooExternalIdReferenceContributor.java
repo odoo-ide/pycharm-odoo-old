@@ -1,60 +1,94 @@
 package dev.ngocta.pycharm.odoo.data;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.patterns.PatternCondition;
 import com.intellij.patterns.PsiElementPattern;
 import com.intellij.patterns.XmlAttributeValuePattern;
 import com.intellij.patterns.XmlPatterns;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiReferenceContributor;
-import com.intellij.psi.PsiReferenceRegistrar;
+import com.intellij.psi.*;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlAttributeValue;
+import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.ProcessingContext;
+import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.DomManager;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.types.PyFunctionType;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
+import dev.ngocta.pycharm.odoo.model.OdooFieldInfo;
 import dev.ngocta.pycharm.odoo.model.OdooModelUtils;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class OdooExternalIdReferenceContributor extends PsiReferenceContributor {
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> REF_PATTERN =
-            psiElement(PyStringLiteralExpression.class).withParent(
-                    psiElement(PyArgumentList.class).withParent(
-                            psiElement(PyCallExpression.class).with(new PatternCondition<PyCallExpression>("ref") {
-                                @Override
-                                public boolean accepts(@NotNull PyCallExpression call, ProcessingContext context) {
-                                    PyExpression callee = call.getCallee();
-                                    if (callee != null) {
-                                        TypeEvalContext typeEvalContext = TypeEvalContext.userInitiated(call.getProject(), call.getContainingFile());
-                                        PyType calleeType = typeEvalContext.getType(callee);
-                                        if (calleeType instanceof PyFunctionType) {
-                                            PyCallable callable = ((PyFunctionType) calleeType).getCallable();
-                                            return callable instanceof PyFunction && OdooNames.REF_QNAME.equals(callable.getQualifiedName());
-                                        } else if ("ref".equals(callee.getName())) {
-                                            PsiFile file = call.getContainingFile();
-                                            if (file != null) {
-                                                PsiElement fileContext = file.getContext();
-                                                if (fileContext instanceof XmlAttributeValue) {
-                                                    PsiElement parent = fileContext.getParent();
-                                                    if (parent instanceof XmlAttribute) {
-                                                        XmlAttribute attribute = (XmlAttribute) parent;
-                                                        if ("eval".equals(attribute.getName())) {
-                                                            context.put(OdooExternalIdReferenceProvider.ALLOW_RELATIVE, true);
-                                                            return true;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    return false;
-                                }
-                            })));
+            psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("ref") {
+                @Override
+                public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression, ProcessingContext context) {
+                    PyExpression callee = Optional.of(pyStringLiteralExpression)
+                            .map(PsiElement::getParent).filter(PyArgumentList.class::isInstance)
+                            .map(PsiElement::getParent).filter(PyCallExpression.class::isInstance)
+                            .map(element -> ((PyCallExpression) element).getCallee())
+                            .orElse(null);
+                    if (callee == null) {
+                        return false;
+                    }
+                    PsiFile containingFile = callee.getContainingFile();
+                    if (containingFile == null) {
+                        return false;
+                    }
+                    Project project = pyStringLiteralExpression.getProject();
+                    TypeEvalContext typeEvalContext = TypeEvalContext.userInitiated(project, containingFile);
+                    PyType calleeType = typeEvalContext.getType(callee);
+                    if (calleeType instanceof PyFunctionType) {
+                        PyCallable callable = ((PyFunctionType) calleeType).getCallable();
+                        return callable instanceof PyFunction && OdooNames.REF_QNAME.equals(callable.getQualifiedName());
+                    }
+                    if (!"ref".equals(callee.getName())) {
+                        return false;
+                    }
+                    XmlTag tag = Optional.of(containingFile)
+                            .map(PsiElement::getContext).filter(XmlAttributeValue.class::isInstance)
+                            .map(PsiElement::getParent).filter(XmlAttribute.class::isInstance)
+                            .filter(element -> "eval".equals(((XmlAttribute) element).getName()))
+                            .map(element -> ((XmlAttribute) element).getParent())
+                            .orElse(null);
+                    if (tag == null) {
+                        return false;
+                    }
+                    String model = null;
+                    PyKeyValueExpression kv = PsiTreeUtil.getParentOfType(callee, PyKeyValueExpression.class);
+                    if (kv != null) {
+                        PsiElement key = kv.getKey();
+                        if (key instanceof PyStringLiteralExpression) {
+                            model = Optional.of(key)
+                                    .map(PsiElement::getReference)
+                                    .map(PsiReference::resolve)
+                                    .filter(PyTargetExpression.class::isInstance)
+                                    .map(f -> OdooFieldInfo.getInfo((PyTargetExpression) f))
+                                    .map(OdooFieldInfo::getComodel)
+                                    .orElse(null);
+                        }
+                    } else {
+                        DomManager domManager = DomManager.getDomManager(project);
+                        DomElement domElement = domManager.getDomElement(tag);
+                        if (domElement instanceof OdooDomFieldAssignment) {
+                            model = ((OdooDomFieldAssignment) domElement).getComodel();
+                        }
+                    }
+                    if (model != null) {
+                        context.put(OdooExternalIdReferenceProvider.MODEL, model);
+                    }
+                    context.put(OdooExternalIdReferenceProvider.ALLOW_RELATIVE, true);
+                    return true;
+                }
+            });
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> REQUEST_RENDER_PATTERN =
             psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("requestRender") {
