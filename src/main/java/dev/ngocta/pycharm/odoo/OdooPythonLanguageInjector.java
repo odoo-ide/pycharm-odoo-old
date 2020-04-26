@@ -1,5 +1,7 @@
 package dev.ngocta.pycharm.odoo;
 
+import com.google.common.collect.ImmutableMap;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.patterns.*;
 import com.intellij.psi.ElementManipulators;
@@ -7,29 +9,33 @@ import com.intellij.psi.InjectedLanguagePlaces;
 import com.intellij.psi.LanguageInjector;
 import com.intellij.psi.PsiLanguageInjectionHost;
 import com.intellij.psi.xml.XmlTag;
+import com.intellij.psi.xml.XmlText;
 import com.intellij.util.ProcessingContext;
+import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.DomManager;
+import com.intellij.util.xml.GenericValue;
 import com.jetbrains.python.PythonLanguage;
 import com.jetbrains.python.psi.PyStringLiteralExpression;
 import dev.ngocta.pycharm.odoo.data.OdooDataUtils;
+import dev.ngocta.pycharm.odoo.data.OdooDomField;
+import dev.ngocta.pycharm.odoo.data.OdooDomFieldAssignment;
+import dev.ngocta.pycharm.odoo.data.OdooDomRecord;
 import dev.ngocta.pycharm.odoo.model.OdooModelUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class OdooPythonLanguageInjector implements LanguageInjector {
     private static final Pattern RE_PATTERN_PY = Pattern.compile("\\s*(.+)\\s*", Pattern.DOTALL);
     private static final Pattern RE_PATTERN_PY_TEMPLATE = Pattern.compile("(?:#\\{\\s*(.+?)\\s*})|(?:\\{\\{\\s*(.+?)\\s*}})", Pattern.DOTALL);
+    private static final ImmutableMap<String, String> KNOWN_FIELDS_WITH_PYTHON_VALUE = ImmutableMap.<String, String>builder()
+            .put(OdooNames.IR_RULE_DOMAIN_FORCE, OdooNames.IR_RULE)
+            .put("domain", OdooNames.IR_ACTIONS_ACT_WINDOW)
+            .put("context", OdooNames.IR_ACTIONS_ACT_WINDOW)
+            .build();
 
-    public static PatternCondition<XmlTag> getAttributeValuePatternCondition(@NotNull String attribute, ElementPattern<String> valuePattern) {
-        return new PatternCondition<XmlTag>("withAttributeValues") {
-            @Override
-            public boolean accepts(@NotNull final XmlTag xmlTag, final ProcessingContext context) {
-                String name = xmlTag.getAttributeValue(attribute);
-                return valuePattern.accepts(name);
-            }
-        };
-    }
 
     public static final ElementPattern<String> XML_ATTRIBUTE_NAME_PATTERN =
             StandardPatterns.or(
@@ -41,14 +47,54 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
             XmlPatterns.xmlAttributeValue().withLocalName(XML_ATTRIBUTE_NAME_PATTERN)
                     .with(OdooDataUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
 
-    public static final XmlElementPattern.XmlTextPattern XML_TEXT_PATTERN =
-            XmlPatterns.xmlText().withParent(StandardPatterns.or(
+    public static final XmlElementPattern.XmlTextPattern XML_ATTRIBUTE_VALUE_OVERRIDE_PATTERN =
+            XmlPatterns.xmlText().withParent(
                     XmlPatterns.xmlTag().withLocalName("attribute").with(
-                            getAttributeValuePatternCondition("name", XML_ATTRIBUTE_NAME_PATTERN)),
-                    XmlPatterns.xmlTag().withLocalName("field").with(
-                            getAttributeValuePatternCondition("name", StandardPatterns.string().oneOf(OdooNames.IR_RULE_FIELD_DOMAIN_FORCE)))
+                            new PatternCondition<XmlTag>("attributeValue") {
+                                @Override
+                                public boolean accepts(@NotNull final XmlTag xmlTag, final ProcessingContext context) {
+                                    String name = xmlTag.getAttributeValue("name");
+                                    return XML_ATTRIBUTE_NAME_PATTERN.accepts(name);
+                                }
+                            }
                     )
             ).with(OdooDataUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
+
+    public static final XmlElementPattern.XmlTextPattern XML_TEXT_FIELD_VALUE_PATTERN =
+            XmlPatterns.xmlText().with(new PatternCondition<XmlText>("fieldValue") {
+                @Override
+                public boolean accepts(@NotNull XmlText xmlText, ProcessingContext context) {
+                    XmlTag tag = xmlText.getParentTag();
+                    if (tag == null) {
+                        return false;
+                    }
+                    Project project = tag.getProject();
+                    DomManager domManager = DomManager.getDomManager(project);
+                    DomElement domElement = domManager.getDomElement(tag);
+                    if (domElement instanceof OdooDomFieldAssignment) {
+                        String field = Optional.of((OdooDomFieldAssignment) domElement)
+                                .map(OdooDomField::getName)
+                                .map(GenericValue::getStringValue)
+                                .orElse(null);
+                        String model = Optional.of(domElement)
+                                .map(element -> element.getParentOfType(OdooDomRecord.class, true))
+                                .map(OdooDomRecord::getModel)
+                                .map(GenericValue::getStringValue)
+                                .orElse(null);
+                        if (field != null && model != null) {
+                            if (model.equals(KNOWN_FIELDS_WITH_PYTHON_VALUE.getOrDefault(field, null))) {
+                                return true;
+                            }
+                            String value = xmlText.getValue();
+                            if (value != null) {
+                                value = value.trim();
+                                return value.startsWith("[") || value.startsWith("{");
+                            }
+                        }
+                    }
+                    return false;
+                }
+            });
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> RELATION_FIELD_DOMAIN_PATTERN =
             OdooModelUtils.getFieldArgumentPattern(-1, OdooNames.FIELD_ATTR_DOMAIN, OdooNames.RELATIONAL_FIELD_TYPES);
@@ -60,7 +106,8 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
     @Override
     public void getLanguagesToInject(@NotNull PsiLanguageInjectionHost host, @NotNull InjectedLanguagePlaces injectionPlacesRegistrar) {
         if (XML_ATTRIBUTE_VALUE_PATTERN.accepts(host)
-                || XML_TEXT_PATTERN.accepts(host)
+                || XML_ATTRIBUTE_VALUE_OVERRIDE_PATTERN.accepts(host)
+                || XML_TEXT_FIELD_VALUE_PATTERN.accepts(host)
                 || RELATION_FIELD_DOMAIN_PATTERN.accepts(host)) {
             TextRange range = ElementManipulators.getValueTextRange(host);
             String text = ElementManipulators.getValueText(host);

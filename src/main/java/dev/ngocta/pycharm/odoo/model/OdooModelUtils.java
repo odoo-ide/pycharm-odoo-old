@@ -1,5 +1,6 @@
 package dev.ngocta.pycharm.odoo.model;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.intellij.codeInsight.completion.BasicInsertHandler;
 import com.intellij.codeInsight.completion.InsertHandler;
@@ -24,6 +25,7 @@ import com.intellij.util.ObjectUtils;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
+import com.intellij.util.xml.GenericValue;
 import com.jetbrains.python.codeInsight.completion.PyFunctionInsertHandler;
 import com.jetbrains.python.codeInsight.mlcompletion.PyCompletionMlElementInfo;
 import com.jetbrains.python.psi.*;
@@ -48,6 +50,10 @@ public class OdooModelUtils {
     private static final double COMPLETION_PRIORITY_FIELD = 2;
     private static final double COMPLETION_PRIORITY_FUNCTION = 1;
     private static final Set<String> KNOWN_FIELD_TYPES = ImmutableSet.copyOf(OdooNames.FIELD_TYPES);
+    private static final ImmutableMap<String, String> KNOWN_FIELD_DOMAIN_TO_FIELD_MODEL = ImmutableMap.<String, String>builder()
+            .put(OdooNames.IR_RULE_DOMAIN_FORCE, OdooNames.IR_RULE_MODEL_ID)
+            .put(OdooNames.IR_ACTIONS_ACT_WINDOW_DOMAIN, OdooNames.IR_ACTIONS_ACT_WINDOW_RES_MODEL)
+            .build();
 
     private OdooModelUtils() {
     }
@@ -285,18 +291,34 @@ public class OdooModelUtils {
                 XmlTag tag = (XmlTag) parent;
                 DomElement domElement = domManager.getDomElement(tag);
                 if (domElement instanceof OdooDomFieldAssignment) {
-                    OdooDomFieldAssignment field = (OdooDomFieldAssignment) domElement;
-                    if (OdooNames.IR_RULE_FIELD_DOMAIN_FORCE.equals(field.getName().getStringValue())) {
-                        OdooDomRecord record = field.getParentOfType(OdooDomRecord.class, true);
-                        if (record != null) {
-                            for (OdooDomFieldAssignment f : record.getFields()) {
-                                if (OdooNames.IR_RULE_FIELD_MODEL_ID.equals(f.getName().getStringValue())) {
-                                    return Optional.ofNullable(f.getRef().getXmlAttributeValue())
+                    String field = Optional.of((OdooDomFieldAssignment) domElement)
+                            .map(OdooDomField::getName)
+                            .map(GenericValue::getStringValue)
+                            .orElse(null);
+                    if (field == null) {
+                        return null;
+                    }
+                    String modelField = KNOWN_FIELD_DOMAIN_TO_FIELD_MODEL.getOrDefault(field, null);
+                    if (modelField == null) {
+                        return null;
+                    }
+                    OdooDomRecord record = domElement.getParentOfType(OdooDomRecord.class, true);
+                    if (record != null) {
+                        for (OdooDomFieldAssignment f : record.getFields()) {
+                            if (modelField.equals(f.getName().getStringValue())) {
+                                XmlAttributeValue refValue = f.getRef().getXmlAttributeValue();
+                                if (refValue != null) {
+                                    return Optional.of(refValue)
                                             .map(PsiElement::getReference)
                                             .map(PsiReference::resolve)
                                             .map(OdooModelUtils::getContainingOdooModelClass)
                                             .orElse(null);
                                 }
+                                String model = f.getValue();
+                                if (model != null) {
+                                    return OdooModelClass.getInstance(model, project);
+                                }
+                                return null;
                             }
                         }
                     }

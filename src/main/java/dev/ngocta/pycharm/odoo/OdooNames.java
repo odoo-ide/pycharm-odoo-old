@@ -97,6 +97,9 @@ public class OdooNames {
     public static final String IR_MODEL = "ir.model";
     public static final String RES_GROUPS = "res.groups";
     public static final String MODEL_BASE = "base";
-    public static final String IR_RULE_FIELD_DOMAIN_FORCE = "domain_force";
-    public static final String IR_RULE_FIELD_MODEL_ID = "model_id";
+    public static final String IR_RULE = "ir.rule";
+    public static final String IR_RULE_DOMAIN_FORCE = "domain_force";
+    public static final String IR_RULE_MODEL_ID = "model_id";
+    public static final String IR_ACTIONS_ACT_WINDOW_DOMAIN = "domain";
+    public static final String IR_ACTIONS_ACT_WINDOW_RES_MODEL = "res_model";
 }
