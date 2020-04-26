@@ -15,9 +15,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class OdooFieldReference extends PsiReferenceBase<PsiElement> {
-    private OdooModelClass myOriginModelClass;
+    private final OdooModelClass myOriginModelClass;
     private OdooFieldPathReferences myFieldPathReferences;
-    private TypeEvalContext myContext;
+    private final TypeEvalContext myContext;
 
     public OdooFieldReference(@NotNull PsiElement element, @NotNull OdooModelClass modelClass) {
         this(element, null, modelClass);

@@ -18,14 +18,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class OdooDomExtender extends DomExtender<OdooDomElement> {
-    private static Map<String, Type> OPERATION_TYPES = ImmutableMap.<String, Type>builder()
+    private static final Map<String, Type> OPERATION_TYPES = ImmutableMap.<String, Type>builder()
             .put("record", OdooDomRecord.class)
             .put("template", OdooDomTemplate.class)
             .put("menuitem", OdooDomMenuItem.class)
             .put("report", OdooDomReport.class)
             .put("act_window", OdooDomActWindow.class)
             .build();
-    private static Map<String, Type> MODEL_SCOPED_VIEW_ELEMENT_TYPES = ImmutableMap.<String, Type>builder()
+    private static final Map<String, Type> MODEL_SCOPED_VIEW_ELEMENT_TYPES = ImmutableMap.<String, Type>builder()
             .put("field", OdooDomViewField.class)
             .put("button", OdooDomViewButton.class)
             .build();

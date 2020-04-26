@@ -25,19 +25,16 @@ public class OdooRecordCache {
         add(record.getId(), record);
     }
 
-    public boolean processRecords(String key,
-                                  Processor<OdooRecord> processor,
+    public boolean processRecords(@NotNull String key,
+                                  @NotNull Processor<OdooRecord> processor,
                                   @NotNull GlobalSearchScope scope) {
         Set<OdooRecord> records = myCache.getOrDefault(key, new HashSet<>());
-        if (!records.isEmpty()) {
-            records.forEach(r -> {
-                VirtualFile file = r.getDataFile();
-                if (file != null && scope.contains(file)) {
-                    processor.process(r);
-                }
-            });
-            return true;
-        }
-        return false;
+        records.forEach(r -> {
+            VirtualFile file = r.getDataFile();
+            if (file != null && scope.contains(file)) {
+                processor.process(r);
+            }
+        });
+        return !records.isEmpty();
     }
 }

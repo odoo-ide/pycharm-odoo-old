@@ -24,7 +24,7 @@ public class OdooRecordImpl implements OdooRecord {
     private final String myModel;
     private final String myModule;
     private final OdooRecordSubType mySubType;
-    private VirtualFile myDataFile;
+    private final VirtualFile myDataFile;
 
     public OdooRecordImpl(@NotNull String name,
                           @Nullable String model,

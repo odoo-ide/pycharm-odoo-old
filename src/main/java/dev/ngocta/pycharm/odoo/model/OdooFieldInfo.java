@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class OdooFieldInfo {
-    private PyTargetExpression myField;
+    private final PyTargetExpression myField;
     private final String myTypeName;
     private final Map<String, Object> myAttributes;
 

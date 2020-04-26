@@ -8,8 +8,8 @@ import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 
 public class OdooFieldReferenceProvider extends PsiReferenceProvider {
-    public static Key<OdooModelClass> MODEL_CLASS = new Key<>("modelClass");
-    public static Key<Boolean> ENABLE_SUB_FIELD = new Key<>("enableSubField");
+    public static final Key<OdooModelClass> MODEL_CLASS = new Key<>("modelClass");
+    public static final Key<Boolean> ENABLE_SUB_FIELD = new Key<>("enableSubField");
 
     @NotNull
     @Override

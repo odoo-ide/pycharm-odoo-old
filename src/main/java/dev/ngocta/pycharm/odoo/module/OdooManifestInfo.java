@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class OdooManifestInfo {
-    private List<String> myDepends;
+    private final List<String> myDepends;
 
     private OdooManifestInfo(List<String> depends) {
         myDepends = depends;
