@@ -82,14 +82,7 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
                                 .map(GenericValue::getStringValue)
                                 .orElse(null);
                         if (field != null && model != null) {
-                            if (model.equals(KNOWN_FIELDS_WITH_PYTHON_VALUE.getOrDefault(field, null))) {
-                                return true;
-                            }
-                            String value = xmlText.getValue();
-                            if (value != null) {
-                                value = value.trim();
-                                return value.startsWith("[") || value.startsWith("{");
-                            }
+                            return model.equals(KNOWN_FIELDS_WITH_PYTHON_VALUE.getOrDefault(field, null));
                         }
                     }
                     return false;
