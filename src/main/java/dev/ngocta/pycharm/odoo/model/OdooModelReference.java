@@ -1,5 +1,6 @@
 package dev.ngocta.pycharm.odoo.model;
 
+import com.google.common.collect.Iterables;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.*;
@@ -13,7 +14,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class OdooModelReference extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
+public class OdooModelReference extends PsiReferenceBase.Poly<PsiElement> {
     public OdooModelReference(@NotNull PsiElement element) {
         super(element);
     }
@@ -21,22 +22,22 @@ public class OdooModelReference extends PsiReferenceBase<PsiElement> implements 
     @NotNull
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
-        return PsiElementResolveResult.createResults(findModelClasses());
-    }
-
-    @NotNull
-    protected List<PyClass> findModelClasses() {
-        PsiFile file = getElement().getContainingFile();
-        if (file != null) {
-            return OdooModelIndex.findModelClasses(getValue(), getElement());
-        }
-        return Collections.emptyList();
+        return PsiElementResolveResult.createResults(resolveInner());
     }
 
     @Nullable
     @Override
     public PsiElement resolve() {
-        return null;
+        return Iterables.getLast(resolveInner(), null);
+    }
+
+    @NotNull
+    protected List<PyClass> resolveInner() {
+        PsiFile file = getElement().getContainingFile();
+        if (file != null) {
+            return OdooModelIndex.findModelClasses(getValue(), getElement());
+        }
+        return Collections.emptyList();
     }
 
     @NotNull
