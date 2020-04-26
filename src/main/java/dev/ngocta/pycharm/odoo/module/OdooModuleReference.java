@@ -2,6 +2,7 @@ package dev.ngocta.pycharm.odoo.module;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
+import com.jetbrains.python.psi.PyUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,8 +16,10 @@ public class OdooModuleReference extends PsiReferenceBase<PsiElement> {
     @Nullable
     @Override
     public PsiElement resolve() {
-        OdooModule module = OdooModuleIndex.getModule(getValue(), getElement());
-        return module != null ? module.getDirectory() : null;
+        return PyUtil.getNullableParameterizedCachedValue(getElement(), null, param -> {
+            OdooModule module = OdooModuleIndex.getModule(getValue(), getElement());
+            return module != null ? module.getDirectory() : null;
+        });
     }
 
     @NotNull

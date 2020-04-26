@@ -25,6 +25,7 @@ import com.jetbrains.python.psi.types.PyClassLikeType;
 import com.jetbrains.python.psi.types.PyClassType;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
+import com.pty4j.util.Pair;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -565,15 +566,17 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
 
     @Nullable
     public PyTargetExpression findField(@NotNull String name, @NotNull TypeEvalContext context) {
-        Ref<PyTargetExpression> ref = new Ref<>();
-        visitField(attr -> {
-            if (name.equals(attr.getName())) {
-                ref.set(attr);
-                return false;
-            }
-            return true;
-        }, context);
-        return ref.get();
+        return PyUtil.getNullableParameterizedCachedValue(this, Pair.create(context.getOrigin(), name), param -> {
+            Ref<PyTargetExpression> ref = new Ref<>();
+            visitField(attr -> {
+                if (name.equals(attr.getName())) {
+                    ref.set(attr);
+                    return false;
+                }
+                return true;
+            }, context);
+            return ref.get();
+        });
     }
 
     @Nullable
@@ -591,22 +594,25 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
         return fields.get(fields.size() - 1);
     }
 
+    @NotNull
     public List<PyTargetExpression> findFieldsInPath(@NotNull String[] fieldNames, @NotNull TypeEvalContext context) {
-        List<PyTargetExpression> result = new LinkedList<>();
-        if (fieldNames.length == 0) {
-            return result;
-        }
-        String name = fieldNames[0];
-        PyTargetExpression field = findField(name, context);
-        if (field != null) {
-            result.add(field);
-            PyType fieldType = OdooFieldInfo.getFieldType(field, context);
-            if (fieldType instanceof OdooModelClassType) {
-                fieldNames = Arrays.copyOfRange(fieldNames, 1, fieldNames.length);
-                OdooModelClass cls = ((OdooModelClassType) fieldType).getPyClass();
-                result.addAll(cls.findFieldsInPath(fieldNames, context));
+        return PyUtil.getParameterizedCachedValue(this, Pair.create(context.getOrigin(), fieldNames), param -> {
+            List<PyTargetExpression> result = new LinkedList<>();
+            if (fieldNames.length == 0) {
+                return result;
             }
-        }
-        return result;
+            String name = fieldNames[0];
+            PyTargetExpression field = findField(name, context);
+            if (field != null) {
+                result.add(field);
+                PyType fieldType = OdooFieldInfo.getFieldType(field, context);
+                if (fieldType instanceof OdooModelClassType) {
+                    String[] remainingFieldNames = Arrays.copyOfRange(fieldNames, 1, fieldNames.length);
+                    OdooModelClass cls = ((OdooModelClassType) fieldType).getPyClass();
+                    result.addAll(cls.findFieldsInPath(remainingFieldNames, context));
+                }
+            }
+            return result;
+        });
     }
 }

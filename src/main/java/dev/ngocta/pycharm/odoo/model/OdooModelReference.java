@@ -6,6 +6,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.*;
 import com.intellij.util.PlatformIcons;
 import com.jetbrains.python.psi.PyClass;
+import com.jetbrains.python.psi.PyUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,11 +34,13 @@ public class OdooModelReference extends PsiReferenceBase.Poly<PsiElement> {
 
     @NotNull
     protected List<PyClass> resolveInner() {
-        PsiFile file = getElement().getContainingFile();
-        if (file != null) {
-            return OdooModelIndex.findModelClasses(getValue(), getElement());
-        }
-        return Collections.emptyList();
+        return PyUtil.getParameterizedCachedValue(getElement(), null, param -> {
+            PsiFile file = getElement().getContainingFile();
+            if (file != null) {
+                return OdooModelIndex.findModelClasses(getValue(), getElement());
+            }
+            return Collections.emptyList();
+        });
     }
 
     @NotNull

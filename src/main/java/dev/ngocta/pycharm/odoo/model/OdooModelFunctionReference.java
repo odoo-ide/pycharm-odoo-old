@@ -3,6 +3,7 @@ package dev.ngocta.pycharm.odoo.model;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceBase;
+import com.jetbrains.python.psi.PyUtil;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,8 +23,10 @@ public class OdooModelFunctionReference extends PsiReferenceBase<PsiElement> imp
     @Nullable
     @Override
     public PsiElement resolve() {
-        TypeEvalContext context = TypeEvalContext.codeAnalysis(getElement().getProject(), getElement().getContainingFile());
-        return myModelClass.findMethodByName(getValue(), true, context);
+        return PyUtil.getNullableParameterizedCachedValue(getElement(), null, param -> {
+            TypeEvalContext context = TypeEvalContext.codeAnalysis(getElement().getProject(), getElement().getContainingFile());
+            return myModelClass.findMethodByName(getValue(), true, context);
+        });
     }
 
     @NotNull

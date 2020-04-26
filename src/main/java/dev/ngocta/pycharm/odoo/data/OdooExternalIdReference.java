@@ -11,6 +11,7 @@ import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.PlatformIcons;
+import com.jetbrains.python.psi.PyUtil;
 import dev.ngocta.pycharm.odoo.module.OdooModule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -69,19 +70,21 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
 
     @NotNull
     protected List<PsiElement> resolveInner() {
-        PsiElement element = getElement();
-        String id = getValue();
-        if (!id.contains(".") && myAllowRelative) {
-            OdooModule module = OdooModule.findModule(element);
-            if (module != null) {
-                id = module.getName() + "." + id;
+        return PyUtil.getParameterizedCachedValue(getElement(), null, param -> {
+            PsiElement element = getElement();
+            String id = getValue();
+            if (!id.contains(".") && myAllowRelative) {
+                OdooModule module = OdooModule.findModule(element);
+                if (module != null) {
+                    id = module.getName() + "." + id;
+                }
             }
-        }
-        Project project = element.getProject();
-        List<OdooRecord> records = OdooExternalIdIndex.findRecordsById(id, element);
-        List<PsiElement> elements = new LinkedList<>();
-        records.forEach(record -> elements.addAll(record.getElements(project)));
-        return elements;
+            Project project = element.getProject();
+            List<OdooRecord> records = OdooExternalIdIndex.findRecordsById(id, element);
+            List<PsiElement> elements = new LinkedList<>();
+            records.forEach(record -> elements.addAll(record.getElements(project)));
+            return elements;
+        });
     }
 
     @NotNull

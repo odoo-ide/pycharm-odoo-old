@@ -5,6 +5,7 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
 import com.jetbrains.python.psi.PyTargetExpression;
+import com.jetbrains.python.psi.PyUtil;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import org.jetbrains.annotations.NotNull;
@@ -56,11 +57,13 @@ public class OdooFieldReference extends PsiReferenceBase<PsiElement> {
     @Nullable
     @Override
     public PsiElement resolve() {
-        OdooModelClass cls = getModelClass();
-        if (cls != null) {
-            return cls.findField(getValue(), myContext);
-        }
-        return null;
+        return PyUtil.getNullableParameterizedCachedValue(getElement(), null, param -> {
+            OdooModelClass cls = getModelClass();
+            if (cls != null) {
+                return cls.findField(getValue(), myContext);
+            }
+            return null;
+        });
     }
 
     @NotNull
