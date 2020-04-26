@@ -172,9 +172,9 @@ public class OdooModelUtils {
     }
 
     @Nullable
-    public static OdooModelClass getSearchDomainModelContext(@NotNull PsiElement domainElement) {
-        Project project = domainElement.getProject();
-        PsiElement parent = domainElement.getParent();
+    public static OdooModelClass getSearchDomainModelContext(@NotNull PsiElement leftOrRightOperand) {
+        Project project = leftOrRightOperand.getProject();
+        PsiElement parent = leftOrRightOperand.getParent();
         if (!(parent instanceof PyTupleExpression
                 || parent instanceof PyListLiteralExpression
                 || parent instanceof PyParenthesizedExpression)) {
@@ -184,16 +184,16 @@ public class OdooModelUtils {
         if (parent instanceof PySequenceExpression) {
             sequenceElements = ((PySequenceExpression) parent).getElements();
         } else {
-            sequenceElements = new PsiElement[]{domainElement};
+            sequenceElements = new PsiElement[]{leftOrRightOperand};
         }
-        boolean isLeft = domainElement instanceof PyStringLiteralExpression
+        boolean isLeft = leftOrRightOperand instanceof PyStringLiteralExpression
                 && sequenceElements.length > 0
-                && sequenceElements[0].equals(domainElement);
-        boolean isRight = domainElement instanceof PyReferenceExpression
+                && sequenceElements[0].equals(leftOrRightOperand);
+        boolean isRight = leftOrRightOperand instanceof PyReferenceExpression
                 && sequenceElements.length > 2
                 && sequenceElements[0] instanceof PyLiteralExpression
                 && sequenceElements[1] instanceof PyLiteralExpression
-                && sequenceElements[2].equals(domainElement);
+                && sequenceElements[2].equals(leftOrRightOperand);
         if (!isLeft && !isRight) {
             return null;
         }
@@ -233,6 +233,12 @@ public class OdooModelUtils {
             }
             return null;
         }
+        if (parent instanceof PyKeyValueExpression) {
+            parent = parent.getParent();
+            if (parent instanceof PyDictLiteralExpression) {
+                parent = parent.getParent();
+            }
+        }
         parent = parent.getParent();
         if (!(parent instanceof PyFile)) {
             return null;
@@ -270,7 +276,7 @@ public class OdooModelUtils {
                     DomElement domElement = domManager.getDomElement(tag);
                     if (domElement instanceof OdooDomModelScopedViewElement) {
                         String model;
-                        if (domainElement instanceof OdooDomViewField
+                        if (leftOrRightOperand instanceof OdooDomViewField
                                 && OdooNames.FIELD_ATTR_DOMAIN.equals(attribute.getName())
                                 && isLeft) {
                             model = ((OdooDomField) domElement).getComodel();
@@ -321,6 +327,13 @@ public class OdooModelUtils {
                                 return null;
                             }
                         }
+                    }
+                    return null;
+                }
+                if (domElement instanceof OdooDomModelScopedViewElement) {
+                    String model = ((OdooDomModelScopedViewElement) domElement).getModel();
+                    if (model != null) {
+                        return OdooModelClass.getInstance(model, project);
                     }
                 }
             }
