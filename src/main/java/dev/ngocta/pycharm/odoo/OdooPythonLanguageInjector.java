@@ -46,7 +46,7 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
                     XmlPatterns.xmlTag().withLocalName("attribute").with(
                             getAttributeValuePatternCondition("name", XML_ATTRIBUTE_NAME_PATTERN)),
                     XmlPatterns.xmlTag().withLocalName("field").with(
-                            getAttributeValuePatternCondition("name", StandardPatterns.string().oneOf("domain_force")))
+                            getAttributeValuePatternCondition("name", StandardPatterns.string().oneOf(OdooNames.IR_RULE_FIELD_DOMAIN_FORCE)))
                     )
             ).with(OdooDataUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
 

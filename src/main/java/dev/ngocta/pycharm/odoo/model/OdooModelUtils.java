@@ -19,6 +19,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlTag;
+import com.intellij.psi.xml.XmlText;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.xml.DomElement;
@@ -31,10 +32,7 @@ import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.OdooPyUtils;
-import dev.ngocta.pycharm.odoo.data.OdooDomField;
-import dev.ngocta.pycharm.odoo.data.OdooDomFieldAssignment;
-import dev.ngocta.pycharm.odoo.data.OdooDomModelScopedViewElement;
-import dev.ngocta.pycharm.odoo.data.OdooDomViewField;
+import dev.ngocta.pycharm.odoo.data.*;
 import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -261,6 +259,30 @@ public class OdooModelUtils {
                                             }
                                             if (model != null) {
                                                 return OdooModelClass.getInstance(model, project);
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if (parent instanceof XmlText) {
+                                parent = parent.getParent();
+                                if (parent instanceof XmlTag) {
+                                    XmlTag tag = (XmlTag) parent;
+                                    DomManager domManager = DomManager.getDomManager(project);
+                                    DomElement domElement = domManager.getDomElement(tag);
+                                    if (domElement instanceof OdooDomFieldAssignment) {
+                                        OdooDomFieldAssignment field = (OdooDomFieldAssignment) domElement;
+                                        if (OdooNames.IR_RULE_FIELD_DOMAIN_FORCE.equals(field.getName().getStringValue())) {
+                                            OdooDomRecord record = field.getParentOfType(OdooDomRecord.class, true);
+                                            if (record != null) {
+                                                for (OdooDomFieldAssignment f : record.getFields()) {
+                                                    if (OdooNames.IR_RULE_FIELD_MODEL_ID.equals(f.getName().getStringValue())) {
+                                                        return Optional.ofNullable(f.getRef().getXmlAttributeValue())
+                                                                .map(PsiElement::getReference)
+                                                                .map(PsiReference::resolve)
+                                                                .map(OdooModelUtils::getContainingOdooModelClass)
+                                                                .orElse(null);
+                                                    }
+                                                }
                                             }
                                         }
                                     }
