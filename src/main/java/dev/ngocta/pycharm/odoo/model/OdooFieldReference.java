@@ -57,7 +57,7 @@ public class OdooFieldReference extends PsiReferenceBase<PsiElement> {
     @Nullable
     @Override
     public PsiElement resolve() {
-        return PyUtil.getNullableParameterizedCachedValue(getElement(), null, param -> {
+        return PyUtil.getNullableParameterizedCachedValue(getElement(), getRangeInElement(), param -> {
             OdooModelClass cls = getModelClass();
             if (cls != null) {
                 return cls.findField(getValue(), myContext);
