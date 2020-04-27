@@ -47,6 +47,12 @@
     <change-notes><![CDATA[
         <ul>
             <li>
+                Version 3.6.1
+                <ul>
+                    <li>Bug fixes</li>
+                </ul>
+            </li>
+            <li>
                 Version 3.6
                 <ul>
                     <li>Code completion and navigation for fields in search domain, create and write values,...</li>
