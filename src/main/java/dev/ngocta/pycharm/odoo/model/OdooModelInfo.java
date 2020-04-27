@@ -82,11 +82,11 @@ public class OdooModelInfo {
             if (valueExpr instanceof PyStringLiteralExpression) {
                 String inheritModel = ((PyStringLiteralExpression) valueExpr).getStringValue();
                 inherit = Collections.singletonList(inheritModel);
-                if (model == null) {
-                    model = inheritModel;
-                }
             } else {
                 inherit = PyUtil.strListValue(valueExpr);
+            }
+            if (model == null && inherit != null && inherit.size() == 1) {
+                model = inherit.get(0);
             }
         }
         if (model == null) {
