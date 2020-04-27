@@ -1,6 +1,5 @@
 package dev.ngocta.pycharm.odoo.data;
 
-import com.google.common.collect.Iterables;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
@@ -60,12 +59,6 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
         return PsiElementResolveResult.createResults(resolveInner());
-    }
-
-    @Nullable
-    @Override
-    public PsiElement resolve() {
-        return Iterables.getLast(resolveInner(), null);
     }
 
     @NotNull
