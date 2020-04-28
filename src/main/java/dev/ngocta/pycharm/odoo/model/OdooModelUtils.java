@@ -21,6 +21,7 @@ import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.psi.xml.XmlText;
+import com.intellij.util.ArrayUtil;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.xml.DomElement;
@@ -214,15 +215,20 @@ public class OdooModelUtils {
         if (parent instanceof PyArgumentList) {
             parent = parent.getParent();
             if (parent instanceof PyCallExpression) {
-                PyExpression callee = ((PyCallExpression) parent).getCallee();
+                PyCallExpression callExpression = ((PyCallExpression) parent);
+                PyExpression callee = callExpression.getCallee();
                 if (callee instanceof PyReferenceExpression) {
                     PyReferenceExpression ref = (PyReferenceExpression) callee;
                     String refName = ref.getName();
+                    if (ArrayUtil.contains(refName, OdooNames.RELATIONAL_FIELD_TYPES)) {
+                        PyStringLiteralExpression comodelExpression = callExpression.getArgument(0, OdooNames.FIELD_ATTR_COMODEL_NAME, PyStringLiteralExpression.class);
+                        if (comodelExpression != null) {
+                            return OdooModelClass.getInstance(comodelExpression.getStringValue(), project);
+                        }
+                        return null;
+                    }
                     PyExpression qualifier = ref.getQualifier();
-                    if (qualifier != null && (
-                            OdooNames.SEARCH.equals(refName)
-                                    || OdooNames.SEARCH_READ.equals(refName)
-                                    || OdooNames.SEARCH_COUNT.equals(refName))) {
+                    if (qualifier != null && ArrayUtil.contains(refName, OdooNames.SEARCH, OdooNames.SEARCH_READ, OdooNames.SEARCH_COUNT)) {
                         TypeEvalContext context = TypeEvalContext.userInitiated(project, parent.getContainingFile());
                         PyType type = context.getType(qualifier);
                         if (type instanceof OdooModelClassType) {
@@ -417,12 +423,9 @@ public class OdooModelUtils {
                     PyReferenceExpression ref = (PyReferenceExpression) callee;
                     String refName = ref.getName();
                     PyExpression qualifier = ref.getQualifier();
-                    if (qualifier != null && (
-                            OdooNames.CREATE.equals(refName)
-                                    || OdooNames.WRITE.equals(refName)
-                                    || OdooNames.UPDATE.equals(refName))) {
-                        TypeEvalContext typeEvalContext = TypeEvalContext.userInitiated(project, parent.getContainingFile());
-                        PyType type = typeEvalContext.getType(qualifier);
+                    if (qualifier != null && ArrayUtil.contains(refName, OdooNames.CREATE, OdooNames.WRITE, OdooNames.UPDATE)) {
+                        TypeEvalContext context = TypeEvalContext.userInitiated(project, parent.getContainingFile());
+                        PyType type = context.getType(qualifier);
                         if (type instanceof OdooModelClassType) {
                             return ((OdooModelClassType) type).getPyClass();
                         }
