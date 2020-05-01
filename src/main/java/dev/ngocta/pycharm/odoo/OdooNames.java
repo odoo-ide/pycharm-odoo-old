@@ -6,9 +6,6 @@ public class OdooNames {
     public static final String MANIFEST_DATA = "data";
     public static final String MANIFEST_DEMO = "demo";
     public static final String MANIFEST_QWEB = "qweb";
-    public static final String ODOO = "odoo";
-    public static final String ADDONS = "addons";
-    public static final String ODOO_ADDONS = "odoo.addons";
     public static final String MODEL_NAME = "_name";
     public static final String MODEL_INHERIT = "_inherit";
     public static final String MODEL_INHERITS = "_inherits";

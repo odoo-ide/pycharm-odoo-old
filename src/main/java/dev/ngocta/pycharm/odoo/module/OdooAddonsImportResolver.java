@@ -24,10 +24,10 @@ public class OdooAddonsImportResolver implements PyImportResolver {
             return null;
         }
         List<String> components = name.getComponents();
-        if (components.size() < 1 || !OdooNames.ODOO.equals(components.get(0))) {
+        if (components.size() < 1 || !"odoo".equals(components.get(0))) {
             return null;
         }
-        if (components.size() > 2 && OdooNames.ADDONS.equals(components.get(1))) {
+        if (components.size() > 2 && "addons".equals(components.get(1))) {
             String moduleName = components.get(2);
             PsiElement foothold = context.getFoothold();
             if (foothold == null) {
