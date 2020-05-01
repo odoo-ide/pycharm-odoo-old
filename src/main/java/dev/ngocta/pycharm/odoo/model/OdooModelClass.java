@@ -38,12 +38,14 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     private final String myName;
     private final Project myProject;
 
-    private OdooModelClass(@NotNull String name, @NotNull Project project) {
+    private OdooModelClass(@NotNull String name,
+                           @NotNull Project project) {
         myName = name;
         myProject = project;
     }
 
-    public static OdooModelClass getInstance(@NotNull String model, @NotNull Project project) {
+    public static OdooModelClass getInstance(@NotNull String model,
+                                             @NotNull Project project) {
         ConcurrentMap<String, OdooModelClass> registry = CachedValuesManager.getManager(project).getCachedValue(project, () -> {
             return CachedValueProvider.Result.create(new ConcurrentHashMap<>(), ModificationTracker.NEVER_CHANGED);
         });
@@ -175,7 +177,9 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
 
     @Nullable
     @Override
-    public PyFunction findMethodByName(@Nullable String name, boolean inherited, TypeEvalContext context) {
+    public PyFunction findMethodByName(@Nullable String name,
+                                       boolean inherited,
+                                       TypeEvalContext context) {
         if (inherited) {
             for (PyClass cls : getAncestorClasses(context)) {
                 PyFunction method = cls.findMethodByName(name, false, context);
@@ -189,7 +193,9 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
 
     @NotNull
     @Override
-    public List<PyFunction> multiFindMethodByName(@NotNull String name, boolean inherited, @Nullable TypeEvalContext context) {
+    public List<PyFunction> multiFindMethodByName(@NotNull String name,
+                                                  boolean inherited,
+                                                  @Nullable TypeEvalContext context) {
         List<PyFunction> result = new LinkedList<>();
         if (inherited) {
             for (PyClass cls : getAncestorClasses(context)) {
@@ -201,19 +207,23 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
 
     @Nullable
     @Override
-    public PyFunction findInitOrNew(boolean inherited, @Nullable TypeEvalContext context) {
+    public PyFunction findInitOrNew(boolean inherited,
+                                    @Nullable TypeEvalContext context) {
         return null;
     }
 
     @NotNull
     @Override
-    public List<PyFunction> multiFindInitOrNew(boolean inherited, @Nullable TypeEvalContext context) {
+    public List<PyFunction> multiFindInitOrNew(boolean inherited,
+                                               @Nullable TypeEvalContext context) {
         return Collections.emptyList();
     }
 
     @Nullable
     @Override
-    public Property findProperty(@NotNull String name, boolean inherited, @Nullable TypeEvalContext context) {
+    public Property findProperty(@NotNull String name,
+                                 boolean inherited,
+                                 @Nullable TypeEvalContext context) {
         if (inherited) {
             for (PyClass cls : getAncestorClasses(context)) {
                 Property prop = cls.findProperty(name, false, context);
@@ -226,7 +236,9 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     }
 
     @Override
-    public boolean visitMethods(Processor<PyFunction> processor, boolean inherited, @Nullable TypeEvalContext context) {
+    public boolean visitMethods(Processor<PyFunction> processor,
+                                boolean inherited,
+                                @Nullable TypeEvalContext context) {
         if (inherited) {
             for (PyClass cls : getAncestorClasses(context)) {
                 if (!cls.visitMethods(processor, true, context)) {
@@ -238,7 +250,9 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     }
 
     @Override
-    public boolean visitClassAttributes(Processor<PyTargetExpression> processor, boolean inherited, TypeEvalContext context) {
+    public boolean visitClassAttributes(Processor<PyTargetExpression> processor,
+                                        boolean inherited,
+                                        TypeEvalContext context) {
         if (inherited) {
             for (PyClass cls : getAncestorClasses(context)) {
                 if (!cls.visitClassAttributes(processor, true, context)) {
@@ -266,7 +280,9 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
 
     @Nullable
     @Override
-    public PyTargetExpression findClassAttribute(@NotNull String name, boolean inherited, TypeEvalContext context) {
+    public PyTargetExpression findClassAttribute(@NotNull String name,
+                                                 boolean inherited,
+                                                 TypeEvalContext context) {
         if (inherited) {
             for (PyClass cls : getAncestorClasses(context)) {
                 PyTargetExpression attr = cls.findClassAttribute(name, false, context);
@@ -285,7 +301,8 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
 
     @Nullable
     @Override
-    public PyTargetExpression findInstanceAttribute(String name, boolean inherited) {
+    public PyTargetExpression findInstanceAttribute(String name,
+                                                    boolean inherited) {
         return null;
     }
 
@@ -296,7 +313,8 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
 
     @Nullable
     @Override
-    public PyClass findNestedClass(String name, boolean inherited) {
+    public PyClass findNestedClass(String name,
+                                   boolean inherited) {
         return null;
     }
 
@@ -307,7 +325,8 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
 
     @Nullable
     @Override
-    public Property scanProperties(Processor<Property> processor, boolean inherited) {
+    public Property scanProperties(Processor<Property> processor,
+                                   boolean inherited) {
         return null;
     }
 
@@ -318,12 +337,14 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     }
 
     @Override
-    public boolean isSubclass(PyClass parent, @Nullable TypeEvalContext context) {
+    public boolean isSubclass(PyClass parent,
+                              @Nullable TypeEvalContext context) {
         return this.getAncestorClasses(context).contains(parent);
     }
 
     @Override
-    public boolean isSubclass(@NotNull String superClassQName, @Nullable TypeEvalContext context) {
+    public boolean isSubclass(@NotNull String superClassQName,
+                              @Nullable TypeEvalContext context) {
         return this.getAncestorClasses(context).stream().anyMatch(cls -> superClassQName.equals(cls.getQualifiedName()));
     }
 
@@ -363,7 +384,8 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     }
 
     @Override
-    public boolean processInstanceLevelDeclarations(@NotNull PsiScopeProcessor psiScopeProcessor, @Nullable PsiElement psiElement) {
+    public boolean processInstanceLevelDeclarations(@NotNull PsiScopeProcessor psiScopeProcessor,
+                                                    @Nullable PsiElement psiElement) {
         return true;
     }
 
@@ -431,7 +453,8 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
 
     @Nullable
     @Override
-    public OdooModelClassType getType(@NotNull TypeEvalContext context, TypeEvalContext.@NotNull Key key) {
+    public OdooModelClassType getType(@NotNull TypeEvalContext context,
+                                      TypeEvalContext.@NotNull Key key) {
         return getType(context);
     }
 
@@ -544,7 +567,8 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
         return result;
     }
 
-    public boolean visitField(Processor<PyTargetExpression> processor, @NotNull TypeEvalContext context) {
+    public boolean visitField(Processor<PyTargetExpression> processor,
+                              @NotNull TypeEvalContext context) {
         List<PyClass> ancestorClasses = getAncestorClasses(context);
         for (PyClass cls : ancestorClasses) {
             if (!cls.visitClassAttributes(attr -> {
@@ -565,7 +589,8 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     }
 
     @Nullable
-    public PyTargetExpression findField(@NotNull String name, @NotNull TypeEvalContext context) {
+    public PyTargetExpression findField(@NotNull String name,
+                                        @NotNull TypeEvalContext context) {
         return PyUtil.getNullableParameterizedCachedValue(this, Pair.create(context.getOrigin(), name), param -> {
             Ref<PyTargetExpression> ref = new Ref<>();
             visitField(attr -> {
@@ -580,13 +605,15 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     }
 
     @Nullable
-    public PyTargetExpression findFieldByPath(@NotNull String path, @NotNull TypeEvalContext context) {
+    public PyTargetExpression findFieldByPath(@NotNull String path,
+                                              @NotNull TypeEvalContext context) {
         String[] names = path.split("\\.");
         return findFieldByPath(names, context);
     }
 
     @Nullable
-    public PyTargetExpression findFieldByPath(@NotNull String[] fieldNames, @NotNull TypeEvalContext context) {
+    public PyTargetExpression findFieldByPath(@NotNull String[] fieldNames,
+                                              @NotNull TypeEvalContext context) {
         List<PyTargetExpression> fields = findFieldsInPath(fieldNames, context);
         if (fieldNames.length != fields.size()) {
             return null;
@@ -595,7 +622,8 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     }
 
     @NotNull
-    public List<PyTargetExpression> findFieldsInPath(@NotNull String[] fieldNames, @NotNull TypeEvalContext context) {
+    public List<PyTargetExpression> findFieldsInPath(@NotNull String[] fieldNames,
+                                                     @NotNull TypeEvalContext context) {
         return PyUtil.getParameterizedCachedValue(this, Pair.create(context.getOrigin(), fieldNames), param -> {
             List<PyTargetExpression> result = new LinkedList<>();
             if (fieldNames.length == 0) {

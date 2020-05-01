@@ -14,7 +14,9 @@ import java.util.Collections;
 public class OdooAddonsMembersProvider extends PyModuleMembersProvider {
     @NotNull
     @Override
-    protected Collection<PyCustomMember> getMembersByQName(@NotNull PyFile file, @NotNull String name, @NotNull TypeEvalContext context) {
+    protected Collection<PyCustomMember> getMembersByQName(@NotNull PyFile file,
+                                                           @NotNull String name,
+                                                           @NotNull TypeEvalContext context) {
         if (OdooNames.ODOO_ADDONS.equals(name)) {
             Collection<OdooModule> modules = OdooModuleIndex.getAllModules(file);
             Collection<PyCustomMember> members = new ArrayList<>();

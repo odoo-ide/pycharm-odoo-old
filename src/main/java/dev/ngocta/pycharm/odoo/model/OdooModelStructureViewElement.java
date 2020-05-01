@@ -28,7 +28,10 @@ public class OdooModelStructureViewElement extends PyStructureViewElement {
         super(element);
     }
 
-    protected OdooModelStructureViewElement(PyElement element, Visibility visibility, boolean inherited, boolean field) {
+    protected OdooModelStructureViewElement(PyElement element,
+                                            Visibility visibility,
+                                            boolean inherited,
+                                            boolean field) {
         super(element, visibility, inherited, field);
     }
 
@@ -83,7 +86,8 @@ public class OdooModelStructureViewElement extends PyStructureViewElement {
     }
 
     @Override
-    protected boolean isWorthyItem(@Nullable PsiElement element, @Nullable PsiElement parent) {
+    protected boolean isWorthyItem(@Nullable PsiElement element,
+                                   @Nullable PsiElement parent) {
         if (element instanceof PyTargetExpression && parent instanceof PyClass) {
             return true;
         }

@@ -13,7 +13,8 @@ public class OdooJSDialectSpecificHandlersFactory extends JavaScriptSpecificHand
 
     @NotNull
     @Override
-    public JSTypeEvaluator newTypeEvaluator(@NotNull JSEvaluateContext context, @NotNull JSTypeProcessor processor) {
+    public JSTypeEvaluator newTypeEvaluator(@NotNull JSEvaluateContext context,
+                                            @NotNull JSTypeProcessor processor) {
         return new OdooJSTypeEvaluator(context, processor, JSTypeEvaluationHelper.DEFAULT);
     }
 }

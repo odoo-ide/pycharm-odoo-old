@@ -30,7 +30,8 @@ public class OdooManifestReferenceContributor extends PsiReferenceContributor {
         }
 
         @Override
-        public boolean accepts(@NotNull PsiElement element, ProcessingContext context) {
+        public boolean accepts(@NotNull PsiElement element,
+                               ProcessingContext context) {
             PsiElement parent = element.getParent();
             if (parent instanceof PyListLiteralExpression) {
                 parent = parent.getParent();

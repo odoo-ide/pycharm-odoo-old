@@ -12,7 +12,9 @@ public class OdooXmlInspection extends BasicDomElementsInspection<OdooDomRoot> {
     }
 
     @Override
-    protected void checkDomElement(DomElement element, DomElementAnnotationHolder holder, DomHighlightingHelper helper) {
+    protected void checkDomElement(DomElement element,
+                                   DomElementAnnotationHolder holder,
+                                   DomHighlightingHelper helper) {
         super.checkDomElement(element, holder, helper);
         if (element instanceof OdooDomViewInheritLocator) {
             if (((OdooDomViewInheritLocator) element).getInheritedElement() == null) {

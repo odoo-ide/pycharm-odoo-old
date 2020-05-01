@@ -13,7 +13,8 @@ public class OdooModelGetItemWrapper extends PyFunctionImpl {
     private final PyFunction myOriginFunction;
     private final OdooModelClassType myModelClassType;
 
-    public OdooModelGetItemWrapper(@NotNull PyFunction origin, @NotNull OdooModelClassType modelClassType) {
+    public OdooModelGetItemWrapper(@NotNull PyFunction origin,
+                                   @NotNull OdooModelClassType modelClassType) {
         super(origin.getNode());
         myOriginFunction = origin;
         myModelClassType = modelClassType;
@@ -21,13 +22,15 @@ public class OdooModelGetItemWrapper extends PyFunctionImpl {
 
     @Nullable
     @Override
-    public PyType getReturnType(@NotNull TypeEvalContext context, @NotNull TypeEvalContext.Key key) {
+    public PyType getReturnType(@NotNull TypeEvalContext context,
+                                @NotNull TypeEvalContext.Key key) {
         return myModelClassType;
     }
 
     @Nullable
     @Override
-    public PyType getCallType(@NotNull TypeEvalContext context, @NotNull PyCallSiteExpression callSite) {
+    public PyType getCallType(@NotNull TypeEvalContext context,
+                              @NotNull PyCallSiteExpression callSite) {
         if (callSite instanceof PySubscriptionExpression) {
             PyExpression index = ((PySubscriptionExpression) callSite).getIndexExpression();
             if (index instanceof PyStringLiteralExpression) {

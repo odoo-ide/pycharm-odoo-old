@@ -11,7 +11,10 @@ import org.jetbrains.annotations.Nullable;
 
 public class OdooPyRunnableScriptFilter implements RunnableScriptFilter {
     @Override
-    public boolean isRunnableScript(PsiFile psiFile, @NotNull Module module, Location location, @Nullable TypeEvalContext typeEvalContext) {
+    public boolean isRunnableScript(PsiFile psiFile,
+                                    @NotNull Module module,
+                                    Location location,
+                                    @Nullable TypeEvalContext typeEvalContext) {
         return OdooModuleUtils.isInOdooModule(psiFile);
     }
 }

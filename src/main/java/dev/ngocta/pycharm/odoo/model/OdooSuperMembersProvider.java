@@ -25,13 +25,18 @@ import java.util.List;
 public class OdooSuperMembersProvider implements PyClassMembersProvider {
     @NotNull
     @Override
-    public Collection<PyCustomMember> getMembers(PyClassType type, PsiElement location, @NotNull TypeEvalContext context) {
+    public Collection<PyCustomMember> getMembers(PyClassType type,
+                                                 PsiElement location,
+                                                 @NotNull TypeEvalContext context) {
         return Collections.emptyList();
     }
 
     @Nullable
     @Override
-    public PsiElement resolveMember(@NotNull PyClassType type, @NotNull String name, @Nullable PsiElement location, @NotNull PyResolveContext resolveContext) {
+    public PsiElement resolveMember(@NotNull PyClassType type,
+                                    @NotNull String name,
+                                    @Nullable PsiElement location,
+                                    @NotNull PyResolveContext resolveContext) {
         Ref<PsiElement> ref = new Ref<>();
         TypeEvalContext context = resolveContext.getTypeEvalContext();
         if (location instanceof PyCallExpression) {
@@ -73,8 +78,10 @@ public class OdooSuperMembersProvider implements PyClassMembersProvider {
         return ref.get();
     }
 
-    private void visitSuperMembers(@NotNull PyClass instanceClass, @NotNull PyClass superClass,
-                                   @NotNull TypeEvalContext context, @NotNull Processor<PsiNamedElement> processor) {
+    private void visitSuperMembers(@NotNull PyClass instanceClass,
+                                   @NotNull PyClass superClass,
+                                   @NotNull TypeEvalContext context,
+                                   @NotNull Processor<PsiNamedElement> processor) {
         List<PyClass> ancestors = instanceClass.getAncestorClasses(context);
         int idx = ancestors.indexOf(superClass);
         if (idx >= 0) {

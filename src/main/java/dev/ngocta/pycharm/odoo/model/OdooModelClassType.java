@@ -23,17 +23,21 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
     private final OdooModelClass myClass;
     private final OdooRecordSetType myRecordSetType;
 
-    public OdooModelClassType(@NotNull OdooModelClass source, @NotNull OdooRecordSetType recordSetType) {
+    public OdooModelClassType(@NotNull OdooModelClass source,
+                              @NotNull OdooRecordSetType recordSetType) {
         myClass = source;
         myRecordSetType = recordSetType;
     }
 
-    public OdooModelClassType(@NotNull String model, @NotNull OdooRecordSetType recordSetType, @NotNull Project project) {
+    public OdooModelClassType(@NotNull String model,
+                              @NotNull OdooRecordSetType recordSetType,
+                              @NotNull Project project) {
         this(OdooModelClass.getInstance(model, project), recordSetType);
     }
 
     @Nullable
-    public static OdooModelClassType create(@NotNull PyClass source, @NotNull OdooRecordSetType recordSetType) {
+    public static OdooModelClassType create(@NotNull PyClass source,
+                                            @NotNull OdooRecordSetType recordSetType) {
         if (source instanceof OdooModelClass) {
             return new OdooModelClassType((OdooModelClass) source, recordSetType);
         }
@@ -115,7 +119,8 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
     }
 
     @Override
-    public void visitMembers(@NotNull Processor<PsiElement> processor, boolean inherited,
+    public void visitMembers(@NotNull Processor<PsiElement> processor,
+                             boolean inherited,
                              @NotNull TypeEvalContext context) {
         if (inherited) {
             for (PyClass cls : myClass.getAncestorClasses(context)) {
@@ -133,7 +138,8 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
 
     @NotNull
     @Override
-    public Set<String> getMemberNames(boolean inherited, @NotNull TypeEvalContext context) {
+    public Set<String> getMemberNames(boolean inherited,
+                                      @NotNull TypeEvalContext context) {
         Set<String> result = new HashSet<>();
         visitMembers(member -> {
             if (member instanceof PsiNamedElement) {
@@ -151,7 +157,8 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
 
     @Nullable
     @Override
-    public PyClassLikeType getMetaClassType(@NotNull TypeEvalContext context, boolean inherited) {
+    public PyClassLikeType getMetaClassType(@NotNull TypeEvalContext context,
+                                            boolean inherited) {
         return null;
     }
 
@@ -173,7 +180,8 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
 
     @Nullable
     @Override
-    public PyType getCallType(@NotNull TypeEvalContext context, @NotNull PyCallSiteExpression pyCallSiteExpression) {
+    public PyType getCallType(@NotNull TypeEvalContext context,
+                              @NotNull PyCallSiteExpression pyCallSiteExpression) {
         return null;
     }
 
@@ -195,7 +203,9 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
     }
 
     @Override
-    public Object[] getCompletionVariants(String completionPrefix, PsiElement location, ProcessingContext processingContext) {
+    public Object[] getCompletionVariants(String completionPrefix,
+                                          PsiElement location,
+                                          ProcessingContext processingContext) {
         TypeEvalContext context = TypeEvalContext.codeCompletion(location.getProject(), location.getContainingFile());
         Map<String, Object> map = new LinkedHashMap<>();
         visitMembers(member -> {
@@ -240,13 +250,15 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
     }
 
     @Nullable
-    public PyType getFieldTypeByPath(@NotNull String path, @NotNull TypeEvalContext context) {
+    public PyType getFieldTypeByPath(@NotNull String path,
+                                     @NotNull TypeEvalContext context) {
         String[] fieldNames = path.split("\\.");
         return getFieldTypeByPath(fieldNames, context);
     }
 
     @Nullable
-    public PyType getFieldTypeByPath(@NotNull String[] fieldNames, @NotNull TypeEvalContext context) {
+    public PyType getFieldTypeByPath(@NotNull String[] fieldNames,
+                                     @NotNull TypeEvalContext context) {
         if (fieldNames.length == 0) {
             return null;
         }

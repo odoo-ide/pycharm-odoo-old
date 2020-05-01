@@ -24,7 +24,8 @@ public class OdooExternalIdReferenceProvider extends PsiReferenceProvider {
 
     @NotNull
     @Override
-    public PsiReference[] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
+    public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
+                                                 @NotNull ProcessingContext context) {
         String model = context.get(MODEL);
         String[] models = model != null ? new String[]{model} : context.get(MODELS);
         OdooRecordSubType subType = context.get(SUB_TYPE);

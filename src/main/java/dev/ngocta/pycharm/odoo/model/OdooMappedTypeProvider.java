@@ -16,7 +16,9 @@ import java.util.Collections;
 public class OdooMappedTypeProvider extends PyTypeProviderBase {
     @Nullable
     @Override
-    public Ref<PyType> getCallType(@NotNull PyFunction function, @NotNull PyCallSiteExpression callSite, @NotNull TypeEvalContext context) {
+    public Ref<PyType> getCallType(@NotNull PyFunction function,
+                                   @NotNull PyCallSiteExpression callSite,
+                                   @NotNull TypeEvalContext context) {
         if (OdooNames.MAPPED.equals(function.getName()) && callSite instanceof PyCallExpression) {
             PyCallExpression mapped = (PyCallExpression) callSite;
             PyType qualifierType = getCalleeQualifierType(mapped, context);
@@ -45,7 +47,8 @@ public class OdooMappedTypeProvider extends PyTypeProviderBase {
     }
 
     @Nullable
-    private PyType getCalleeQualifierType(@NotNull PyCallExpression call, @NotNull TypeEvalContext context) {
+    private PyType getCalleeQualifierType(@NotNull PyCallExpression call,
+                                          @NotNull TypeEvalContext context) {
         PyExpression callee = call.getCallee();
         if (callee instanceof PyReferenceExpression) {
             PyExpression qualifier = ((PyReferenceExpression) callee).getQualifier();

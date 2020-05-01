@@ -13,7 +13,8 @@ public interface OdooDomRecordLike extends OdooDomElement {
     @Required
     GenericAttributeValue<String> getId();
 
-    default OdooRecord getRecord(@Nullable String model, @Nullable OdooRecordSubType subType) {
+    default OdooRecord getRecord(@Nullable String model,
+                                 @Nullable OdooRecordSubType subType) {
         String id = getId().getValue();
         XmlElement element = getXmlElement();
         if (id == null || element == null) {

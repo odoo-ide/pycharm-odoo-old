@@ -120,7 +120,8 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
     }
 
     @NotNull
-    private static List<PyClass> findModelClasses(@NotNull String model, @NotNull OdooModule module) {
+    private static List<PyClass> findModelClasses(@NotNull String model,
+                                                  @NotNull OdooModule module) {
         Project project = module.getProject();
         return PyUtil.getParameterizedCachedValue(module.getDirectory(), model, param -> {
             List<PyClass> result = new LinkedList<>();
@@ -132,7 +133,8 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
     }
 
     @NotNull
-    public static List<PyClass> findModelClasses(@NotNull String model, @NotNull PsiElement anchor) {
+    public static List<PyClass> findModelClasses(@NotNull String model,
+                                                 @NotNull PsiElement anchor) {
         Project project = anchor.getProject();
         OdooModule odooModule = OdooModule.findModule(anchor);
         if (odooModule != null) {
@@ -161,7 +163,8 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
     }
 
     @NotNull
-    private static Collection<String> filterModels(@NotNull Collection<String> models, @NotNull GlobalSearchScope scope) {
+    private static Collection<String> filterModels(@NotNull Collection<String> models,
+                                                   @NotNull GlobalSearchScope scope) {
         Set<String> result = new HashSet<>();
         FileBasedIndex index = FileBasedIndex.getInstance();
         models.forEach(model -> index.processValues(NAME, model, null, (file, value) -> {

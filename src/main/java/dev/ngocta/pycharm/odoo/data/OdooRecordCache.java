@@ -14,7 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class OdooRecordCache {
     private final Map<String, Set<OdooRecord>> myCache = new ConcurrentHashMap<>();
 
-    public void add(@NotNull String key, @NotNull OdooRecord record) {
+    public void add(@NotNull String key,
+                    @NotNull OdooRecord record) {
         Set<OdooRecord> cachedRecords = myCache.computeIfAbsent(key, k -> ConcurrentHashMap.newKeySet());
         cachedRecords.removeIf(r -> Objects.equals(record.getDataFile(), r.getDataFile()));
         cachedRecords.removeIf(r -> !Objects.equals(record.getModel(), record.getModel()));

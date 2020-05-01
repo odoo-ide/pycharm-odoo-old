@@ -14,7 +14,8 @@ public class OdooRecordPresentation implements ItemPresentation {
     private final OdooRecord myRecord;
     private final Project myProject;
 
-    public OdooRecordPresentation(@NotNull OdooRecord record, @NotNull Project project) {
+    public OdooRecordPresentation(@NotNull OdooRecord record,
+                                  @NotNull Project project) {
         myRecord = record;
         myProject = project;
     }

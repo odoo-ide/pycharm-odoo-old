@@ -78,7 +78,8 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
     public DataExternalizer<OdooRecord> getValueExternalizer() {
         return new DataExternalizer<OdooRecord>() {
             @Override
-            public void save(@NotNull DataOutput out, OdooRecord value) throws IOException {
+            public void save(@NotNull DataOutput out,
+                             OdooRecord value) throws IOException {
                 out.writeUTF(value.getName());
                 out.writeUTF(StringUtil.notNullize(value.getModel()));
                 out.writeUTF(value.getModule());
@@ -119,7 +120,8 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
     }
 
     @NotNull
-    public static Collection<String> getAllIds(@NotNull Project project, @NotNull GlobalSearchScope scope) {
+    public static Collection<String> getAllIds(@NotNull Project project,
+                                               @NotNull GlobalSearchScope scope) {
         return Stream.concat(getIds(scope).stream(), getImplicitIds(project, scope).stream()).collect(Collectors.toSet());
     }
 
@@ -132,7 +134,8 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
     }
 
     @NotNull
-    private static Collection<String> getImplicitIds(@NotNull Project project, @NotNull GlobalSearchScope scope) {
+    private static Collection<String> getImplicitIds(@NotNull Project project,
+                                                     @NotNull GlobalSearchScope scope) {
         Set<String> ids = new HashSet<>();
         processImplicitRecords(project, scope, record -> {
             ids.add(record.getId());
@@ -187,7 +190,8 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
     }
 
     @NotNull
-    public static List<OdooRecord> findRecordsById(@NotNull String id, @NotNull PsiElement anchor) {
+    public static List<OdooRecord> findRecordsById(@NotNull String id,
+                                                   @NotNull PsiElement anchor) {
         Project project = anchor.getProject();
         OdooModule odooModule = OdooModule.findModule(anchor);
         if (odooModule != null) {

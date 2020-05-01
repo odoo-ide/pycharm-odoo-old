@@ -31,7 +31,8 @@ public class OdooDomExtender extends DomExtender<OdooDomElement> {
             .build();
 
     @Override
-    public void registerExtensions(@NotNull OdooDomElement domElement, @NotNull DomExtensionsRegistrar registrar) {
+    public void registerExtensions(@NotNull OdooDomElement domElement,
+                                   @NotNull DomExtensionsRegistrar registrar) {
         if (domElement instanceof OdooDomOperationContainer) {
             registerOperations(domElement, registrar);
         } else if (isViewArchFieldAssignment(domElement)) {
@@ -70,7 +71,8 @@ public class OdooDomExtender extends DomExtender<OdooDomElement> {
                 .collect(Collectors.toSet());
     }
 
-    private void registerOperations(@NotNull OdooDomElement domElement, @NotNull DomExtensionsRegistrar registrar) {
+    private void registerOperations(@NotNull OdooDomElement domElement,
+                                    @NotNull DomExtensionsRegistrar registrar) {
         getChildTagNames(domElement).forEach(name -> {
             Type type = OPERATION_TYPES.get(name);
             if (type != null) {
@@ -79,20 +81,23 @@ public class OdooDomExtender extends DomExtender<OdooDomElement> {
         });
     }
 
-    private void registerInheritLocators(@NotNull OdooDomElement domElement, @NotNull DomExtensionsRegistrar registrar) {
+    private void registerInheritLocators(@NotNull OdooDomElement domElement,
+                                         @NotNull DomExtensionsRegistrar registrar) {
         getChildTagNames(domElement).forEach(name -> {
             Type type = "xpath".equals(name) ? OdooDomViewXPath.class : OdooDomViewInheritLocator.class;
             registrar.registerCollectionChildrenExtension(new XmlName(name), type);
         });
     }
 
-    private void registerViewElements(@NotNull OdooDomElement domElement, @NotNull DomExtensionsRegistrar registrar) {
+    private void registerViewElements(@NotNull OdooDomElement domElement,
+                                      @NotNull DomExtensionsRegistrar registrar) {
         getChildTagNames(domElement).forEach(name -> {
             registrar.registerCollectionChildrenExtension(new XmlName(name), OdooDomViewElement.class);
         });
     }
 
-    private void registerModelScopedViewElements(@NotNull OdooDomElement domElement, @NotNull DomExtensionsRegistrar registrar) {
+    private void registerModelScopedViewElements(@NotNull OdooDomElement domElement,
+                                                 @NotNull DomExtensionsRegistrar registrar) {
         getChildTagNames(domElement).forEach(name -> {
             Type type = MODEL_SCOPED_VIEW_ELEMENT_TYPES.getOrDefault(name, OdooDomModelScopedViewElement.class);
             registrar.registerCollectionChildrenExtension(new XmlName(name), type);

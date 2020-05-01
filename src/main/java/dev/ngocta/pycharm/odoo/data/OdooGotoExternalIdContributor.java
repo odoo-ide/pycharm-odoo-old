@@ -14,7 +14,9 @@ import java.util.Collection;
 
 public class OdooGotoExternalIdContributor implements ChooseByNameContributorEx {
     @Override
-    public void processNames(@NotNull Processor<? super String> processor, @NotNull GlobalSearchScope scope, @Nullable IdFilter filter) {
+    public void processNames(@NotNull Processor<? super String> processor,
+                             @NotNull GlobalSearchScope scope,
+                             @Nullable IdFilter filter) {
         Project project = scope.getProject();
         if (project != null) {
             Collection<String> ids = OdooExternalIdIndex.getAllIds(project, scope);
@@ -23,7 +25,9 @@ public class OdooGotoExternalIdContributor implements ChooseByNameContributorEx 
     }
 
     @Override
-    public void processElementsWithName(@NotNull String name, @NotNull Processor<? super NavigationItem> processor, @NotNull FindSymbolParameters parameters) {
+    public void processElementsWithName(@NotNull String name,
+                                        @NotNull Processor<? super NavigationItem> processor,
+                                        @NotNull FindSymbolParameters parameters) {
         Project project = parameters.getProject();
         Collection<OdooRecord> records = OdooExternalIdIndex.findRecordsById(name, project, parameters.getSearchScope());
         records.forEach(record -> {

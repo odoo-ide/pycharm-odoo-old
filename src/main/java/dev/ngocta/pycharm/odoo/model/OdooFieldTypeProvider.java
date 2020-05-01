@@ -15,7 +15,8 @@ import org.jetbrains.annotations.Nullable;
 public class OdooFieldTypeProvider extends PyTypeProviderBase {
     @Nullable
     @Override
-    public PyType getReferenceExpressionType(@NotNull PyReferenceExpression referenceExpression, @NotNull TypeEvalContext context) {
+    public PyType getReferenceExpressionType(@NotNull PyReferenceExpression referenceExpression,
+                                             @NotNull TypeEvalContext context) {
         String referenceName = referenceExpression.getName();
         PyExpression qualifier = referenceExpression.getQualifier();
         if (referenceName != null && qualifier != null && context.getOrigin() != null) {

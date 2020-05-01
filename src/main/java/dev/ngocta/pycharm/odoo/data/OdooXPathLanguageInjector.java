@@ -20,7 +20,8 @@ public class OdooXPathLanguageInjector implements LanguageInjector {
                     OdooDataUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
 
     @Override
-    public void getLanguagesToInject(@NotNull PsiLanguageInjectionHost host, @NotNull InjectedLanguagePlaces injectionPlacesRegistrar) {
+    public void getLanguagesToInject(@NotNull PsiLanguageInjectionHost host,
+                                     @NotNull InjectedLanguagePlaces injectionPlacesRegistrar) {
         if (XPATH_LANG != null && XPATH_PATTERN.accepts(host)) {
             TextRange textRange = ElementManipulators.getValueTextRange(host);
             injectionPlacesRegistrar.addPlace(XPATH_LANG, textRange, null, null);

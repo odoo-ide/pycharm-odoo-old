@@ -9,7 +9,8 @@ import org.jetbrains.annotations.NotNull;
 public class OdooComputeFunctionReferenceProvider extends PsiReferenceProvider {
     @NotNull
     @Override
-    public PsiReference[] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
+    public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
+                                                 @NotNull ProcessingContext context) {
         OdooModelClass cls = OdooModelUtils.getContainingOdooModelClass(element);
         if (cls != null) {
             return new PsiReference[]{new OdooModelFunctionReference(element, cls)};

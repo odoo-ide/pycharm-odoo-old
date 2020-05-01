@@ -7,7 +7,8 @@ import com.intellij.psi.formatter.xml.XmlPolicy;
 import com.intellij.psi.xml.XmlTag;
 
 public class OdooXmlPolicy extends XmlPolicy {
-    public OdooXmlPolicy(CodeStyleSettings settings, FormattingDocumentModel documentModel) {
+    public OdooXmlPolicy(CodeStyleSettings settings,
+                         FormattingDocumentModel documentModel) {
         super(settings, documentModel);
     }
 

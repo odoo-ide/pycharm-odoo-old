@@ -71,7 +71,8 @@ public class OdooModelUtils {
     }
 
     @Nullable
-    public static LookupElement createCompletionLine(@NotNull PsiNamedElement element, @NotNull TypeEvalContext context) {
+    public static LookupElement createCompletionLine(@NotNull PsiNamedElement element,
+                                                     @NotNull TypeEvalContext context) {
         String name = element.getName();
         if (name == null) {
             return null;
@@ -109,10 +110,13 @@ public class OdooModelUtils {
     }
 
     @NotNull
-    public static PsiElementPattern.Capture<PyStringLiteralExpression> getFieldArgumentPattern(int index, @NotNull String keyword, String... fieldType) {
+    public static PsiElementPattern.Capture<PyStringLiteralExpression> getFieldArgumentPattern(int index,
+                                                                                               @NotNull String keyword,
+                                                                                               String... fieldType) {
         return psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("fieldArgument") {
             @Override
-            public boolean accepts(@NotNull PyStringLiteralExpression stringExpression, ProcessingContext context) {
+            public boolean accepts(@NotNull PyStringLiteralExpression stringExpression,
+                                   ProcessingContext context) {
                 PsiElement parent = stringExpression.getParent();
                 if (parent instanceof PyArgumentList || parent instanceof PyKeywordArgument) {
                     PyCallExpression callExpression = PsiTreeUtil.getParentOfType(parent, PyCallExpression.class);

@@ -11,7 +11,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class OdooJSTypeEvaluator extends ES6TypeEvaluator {
-    public OdooJSTypeEvaluator(@NotNull JSEvaluateContext context, @NotNull JSTypeProcessor processor, @NotNull JSTypeEvaluationHelper helper) {
+    public OdooJSTypeEvaluator(@NotNull JSEvaluateContext context,
+                               @NotNull JSTypeProcessor processor,
+                               @NotNull JSTypeEvaluationHelper helper) {
         super(context, processor, helper);
     }
 
@@ -32,13 +34,15 @@ public class OdooJSTypeEvaluator extends ES6TypeEvaluator {
     }
 
     @Nullable
-    private JSType getModuleType(@NotNull String moduleName, @NotNull PsiElement anchor) {
+    private JSType getModuleType(@NotNull String moduleName,
+                                 @NotNull PsiElement anchor) {
         JSFunctionExpression func = OdooJSModuleIndex.findModuleDefineFunction(moduleName, anchor);
         return func != null ? func.getReturnType() : null;
     }
 
     @Override
-    protected void doAddType(@NotNull JSType type, @Nullable PsiElement source) {
+    protected void doAddType(@NotNull JSType type,
+                             @Nullable PsiElement source) {
         if (type instanceof JSRequireCallExpressionType) {
             String moduleName = ((JSRequireCallExpressionType) type).resolveReferencedModule();
             PsiElement sourceElement = type.getSourceElement();

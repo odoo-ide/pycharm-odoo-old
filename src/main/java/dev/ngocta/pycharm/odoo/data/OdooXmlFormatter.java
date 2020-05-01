@@ -20,7 +20,9 @@ public class OdooXmlFormatter extends XmlFormattingModelBuilder implements Custo
     }
 
     @Override
-    protected XmlBlock createBlock(CodeStyleSettings settings, ASTNode root, FormattingDocumentModelImpl documentModel) {
+    protected XmlBlock createBlock(CodeStyleSettings settings,
+                                   ASTNode root,
+                                   FormattingDocumentModelImpl documentModel) {
         return new XmlBlock(root, null, null, new OdooXmlPolicy(settings, documentModel), null, null, false);
     }
 }

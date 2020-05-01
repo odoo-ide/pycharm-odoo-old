@@ -12,7 +12,9 @@ import org.jetbrains.annotations.Nullable;
 public class OdooSelfTypeProvider extends PyTypeProviderBase {
     @Nullable
     @Override
-    public Ref<PyType> getParameterType(@NotNull PyNamedParameter param, @NotNull PyFunction function, @NotNull TypeEvalContext context) {
+    public Ref<PyType> getParameterType(@NotNull PyNamedParameter param,
+                                        @NotNull PyFunction function,
+                                        @NotNull TypeEvalContext context) {
         if (param.isSelf()) {
             PyClass pyClass = PyUtil.getContainingClassOrSelf(param);
             if (pyClass != null) {

@@ -11,11 +11,13 @@ import org.jetbrains.annotations.Nullable;
 public class OdooModelFunctionReference extends PsiReferenceBase<PsiElement> implements PsiReference {
     private final OdooModelClass myModelClass;
 
-    public OdooModelFunctionReference(@NotNull PsiElement element, @NotNull String model) {
+    public OdooModelFunctionReference(@NotNull PsiElement element,
+                                      @NotNull String model) {
         this(element, OdooModelClass.getInstance(model, element.getProject()));
     }
 
-    public OdooModelFunctionReference(@NotNull PsiElement element, @NotNull OdooModelClass cls) {
+    public OdooModelFunctionReference(@NotNull PsiElement element,
+                                      @NotNull OdooModelClass cls) {
         super(element);
         myModelClass = cls;
     }

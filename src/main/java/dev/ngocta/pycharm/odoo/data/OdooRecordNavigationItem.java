@@ -10,7 +10,8 @@ public class OdooRecordNavigationItem implements NavigationItem {
     private final OdooRecord myRecord;
     private final PsiElement myElement;
 
-    public OdooRecordNavigationItem(@NotNull OdooRecord record, @NotNull PsiElement element) {
+    public OdooRecordNavigationItem(@NotNull OdooRecord record,
+                                    @NotNull PsiElement element) {
         myRecord = record;
         myElement = element;
     }

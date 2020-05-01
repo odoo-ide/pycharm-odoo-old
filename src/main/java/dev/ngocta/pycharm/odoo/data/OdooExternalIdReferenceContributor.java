@@ -30,7 +30,8 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> REF_PATTERN =
             psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("ref") {
                 @Override
-                public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression, ProcessingContext context) {
+                public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression,
+                                       ProcessingContext context) {
                     PyExpression callee = Optional.of(pyStringLiteralExpression)
                             .map(PsiElement::getParent).filter(PyArgumentList.class::isInstance)
                             .map(PsiElement::getParent).filter(PyCallExpression.class::isInstance)
@@ -93,7 +94,8 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> REQUEST_RENDER_PATTERN =
             psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("requestRender") {
                 @Override
-                public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression, ProcessingContext context) {
+                public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression,
+                                       ProcessingContext context) {
                     PsiElement parent = pyStringLiteralExpression.getParent();
                     if (parent instanceof PyArgumentList) {
                         PyExpression[] args = ((PyArgumentList) parent).getArguments();
@@ -118,7 +120,8 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> FIELD_ATTR_GROUPS_PATTERN =
             OdooModelUtils.getFieldArgumentPattern(-1, OdooNames.FIELD_ATTR_GROUPS).with(new PatternCondition<PyStringLiteralExpression>("fieldGroups") {
                 @Override
-                public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression, ProcessingContext context) {
+                public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression,
+                                       ProcessingContext context) {
                     context.put(OdooExternalIdReferenceProvider.MODEL, OdooNames.RES_GROUPS);
                     context.put(OdooExternalIdReferenceProvider.COMMA_SEPARATED, true);
                     return true;
@@ -130,7 +133,8 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                     .with(OdooDataUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION)
                     .with(new PatternCondition<XmlAttributeValue>("tCall") {
                         @Override
-                        public boolean accepts(@NotNull XmlAttributeValue xmlAttributeValue, ProcessingContext context) {
+                        public boolean accepts(@NotNull XmlAttributeValue xmlAttributeValue,
+                                               ProcessingContext context) {
                             context.put(OdooExternalIdReferenceProvider.SUB_TYPE, OdooRecordSubType.VIEW_QWEB);
                             return true;
                         }

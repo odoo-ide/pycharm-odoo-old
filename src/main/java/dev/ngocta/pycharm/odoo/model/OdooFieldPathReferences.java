@@ -15,12 +15,14 @@ public class OdooFieldPathReferences {
     private PsiReference[] myReferences;
     private String[] myFieldNames;
 
-    private OdooFieldPathReferences(@NotNull PsiElement element, @NotNull OdooModelClass modelClass) {
+    private OdooFieldPathReferences(@NotNull PsiElement element,
+                                    @NotNull OdooModelClass modelClass) {
         myElement = element;
         myModelClass = modelClass;
     }
 
-    public static OdooFieldPathReferences create(@NotNull PsiElement element, @NotNull OdooModelClass modelClass) {
+    public static OdooFieldPathReferences create(@NotNull PsiElement element,
+                                                 @NotNull OdooModelClass modelClass) {
         OdooFieldPathReferences fieldPathReferences = new OdooFieldPathReferences(element, modelClass);
         List<PsiReference> references = new LinkedList<>();
         TextRange range = ElementManipulators.getValueTextRange(element);

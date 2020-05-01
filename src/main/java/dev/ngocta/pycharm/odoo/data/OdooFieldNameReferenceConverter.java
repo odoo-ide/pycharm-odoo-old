@@ -13,7 +13,9 @@ import org.jetbrains.annotations.NotNull;
 public class OdooFieldNameReferenceConverter implements CustomReferenceConverter<String> {
     @NotNull
     @Override
-    public PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
+    public PsiReference[] createReferences(GenericDomValue<String> value,
+                                           PsiElement element,
+                                           ConvertContext context) {
         DomElement parent = value.getParent();
         if (parent instanceof OdooDomField) {
             String model = ((OdooDomField) parent).getModel();

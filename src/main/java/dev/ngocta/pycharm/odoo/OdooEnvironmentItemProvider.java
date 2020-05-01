@@ -16,7 +16,9 @@ import org.jetbrains.annotations.Nullable;
 public class OdooEnvironmentItemProvider extends PyTypeProviderBase {
     @Nullable
     @Override
-    public Ref<PyType> getCallType(@NotNull PyFunction function, @NotNull PyCallSiteExpression callSite, @NotNull TypeEvalContext context) {
+    public Ref<PyType> getCallType(@NotNull PyFunction function,
+                                   @NotNull PyCallSiteExpression callSite,
+                                   @NotNull TypeEvalContext context) {
         String functionName = function.getName();
         if (PyNames.GETITEM.equals(functionName) && callSite instanceof PySubscriptionExpression) {
             PySubscriptionExpression subscription = (PySubscriptionExpression) callSite;

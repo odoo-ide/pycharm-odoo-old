@@ -31,7 +31,8 @@ public class OdooXmlLineMarkerProvider implements LineMarkerProvider {
         return null;
     }
 
-    private LineMarkerInfo<PsiElement> getInheritedElementsLineMarker(PsiElement identifier, OdooDomViewInheritLocator locator) {
+    private LineMarkerInfo<PsiElement> getInheritedElementsLineMarker(PsiElement identifier,
+                                                                      OdooDomViewInheritLocator locator) {
         if (locator.getInheritedElement() == null) {
             return null;
         }

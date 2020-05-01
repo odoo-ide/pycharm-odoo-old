@@ -16,7 +16,9 @@ import java.util.List;
 public class OdooModelCallTypeProvider extends PyTypeProviderBase {
     @Nullable
     @Override
-    public Ref<PyType> getCallType(@NotNull PyFunction function, @NotNull PyCallSiteExpression callSite, @NotNull TypeEvalContext context) {
+    public Ref<PyType> getCallType(@NotNull PyFunction function,
+                                   @NotNull PyCallSiteExpression callSite,
+                                   @NotNull TypeEvalContext context) {
         PyExpression receiver = callSite.getReceiver(function);
         if (receiver != null) {
             PyType receiverType = context.getType(receiver);

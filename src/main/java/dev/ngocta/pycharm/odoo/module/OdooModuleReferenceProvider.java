@@ -9,7 +9,8 @@ import org.jetbrains.annotations.NotNull;
 public class OdooModuleReferenceProvider extends PsiReferenceProvider {
     @NotNull
     @Override
-    public PsiReference[] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
+    public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
+                                                 @NotNull ProcessingContext context) {
         return new PsiReference[]{new OdooModuleReference(element)};
     }
 }

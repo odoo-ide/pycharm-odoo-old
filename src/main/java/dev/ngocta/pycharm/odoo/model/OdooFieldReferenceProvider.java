@@ -13,7 +13,8 @@ public class OdooFieldReferenceProvider extends PsiReferenceProvider {
 
     @NotNull
     @Override
-    public PsiReference[] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
+    public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
+                                                 @NotNull ProcessingContext context) {
         OdooModelClass cls = context.get(MODEL_CLASS);
         Boolean enableSubField = context.get(ENABLE_SUB_FIELD);
         if (cls == null) {

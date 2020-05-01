@@ -11,7 +11,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class OdooModelStructureViewModel extends PyStructureViewModel {
-    public OdooModelStructureViewModel(@NotNull PsiFile psiFile, @Nullable Editor editor) {
+    public OdooModelStructureViewModel(@NotNull PsiFile psiFile,
+                                       @Nullable Editor editor) {
         super(psiFile, editor, new OdooModelStructureViewElement((PyElement) psiFile));
         withSorters(Sorter.ALPHA_SORTER);
         withSuitableClasses(PyFunction.class, PyClass.class);

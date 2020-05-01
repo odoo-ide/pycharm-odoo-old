@@ -16,13 +16,16 @@ public class OdooPyUtils {
     }
 
     @Nullable
-    public static PyClass getClassByQName(@NotNull String name, @NotNull PsiElement anchor) {
+    public static PyClass getClassByQName(@NotNull String name,
+                                          @NotNull PsiElement anchor) {
         PyPsiFacade psiFacade = PyPsiFacade.getInstance(anchor.getProject());
         return psiFacade.createClassByQName(name, anchor);
     }
 
     @Nullable
-    public static PyClassType getClassTypeByQName(@NotNull String name, @NotNull PsiElement anchor, boolean isDefinition) {
+    public static PyClassType getClassTypeByQName(@NotNull String name,
+                                                  @NotNull PsiElement anchor,
+                                                  boolean isDefinition) {
         PyClass cls = getClassByQName(name, anchor);
         if (cls != null) {
             return new PyClassTypeImpl(cls, isDefinition);
@@ -46,7 +49,8 @@ public class OdooPyUtils {
     }
 
     @Nullable
-    public static PyType extractType(@NotNull PyType type, @NotNull Predicate<PyType> matcher) {
+    public static PyType extractType(@NotNull PyType type,
+                                     @NotNull Predicate<PyType> matcher) {
         if (type instanceof PyUnionType) {
             for (PyType member : ((PyUnionType) type).getMembers()) {
                 if (matcher.test(member)) {
@@ -59,7 +63,8 @@ public class OdooPyUtils {
         return null;
     }
 
-    public static boolean isEnvironmentType(@Nullable PyType type, @NotNull PsiElement anchor) {
+    public static boolean isEnvironmentType(@Nullable PyType type,
+                                            @NotNull PsiElement anchor) {
         if (type == null) {
             return false;
         }
@@ -67,7 +72,8 @@ public class OdooPyUtils {
         return envType != null && extractType(type, envType::equals) != null;
     }
 
-    public static boolean isEnvironmentTypeExpression(@NotNull PyExpression expression, @NotNull TypeEvalContext context) {
+    public static boolean isEnvironmentTypeExpression(@NotNull PyExpression expression,
+                                                      @NotNull TypeEvalContext context) {
         if ("env".equals(expression.getName())) {
             return true;
         }

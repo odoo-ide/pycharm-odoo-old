@@ -20,16 +20,21 @@ public class OdooFieldReference extends PsiReferenceBase<PsiElement> {
     private OdooFieldPathReferences myFieldPathReferences;
     private final TypeEvalContext myContext;
 
-    public OdooFieldReference(@NotNull PsiElement element, @NotNull OdooModelClass modelClass) {
+    public OdooFieldReference(@NotNull PsiElement element,
+                              @NotNull OdooModelClass modelClass) {
         this(element, null, modelClass);
     }
 
-    public OdooFieldReference(@NotNull PsiElement element, @NotNull TextRange rangeInElement, @NotNull OdooFieldPathReferences fieldPathReferences) {
+    public OdooFieldReference(@NotNull PsiElement element,
+                              @NotNull TextRange rangeInElement,
+                              @NotNull OdooFieldPathReferences fieldPathReferences) {
         this(element, rangeInElement, fieldPathReferences.getModelClass());
         myFieldPathReferences = fieldPathReferences;
     }
 
-    private OdooFieldReference(@NotNull PsiElement element, @Nullable TextRange rangeInElement, @NotNull OdooModelClass modelClass) {
+    private OdooFieldReference(@NotNull PsiElement element,
+                               @Nullable TextRange rangeInElement,
+                               @NotNull OdooModelClass modelClass) {
         super(element, rangeInElement);
         myOriginModelClass = modelClass;
         myContext = TypeEvalContext.codeAnalysis(element.getProject(), element.getContainingFile());

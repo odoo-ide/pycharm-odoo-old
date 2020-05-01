@@ -60,7 +60,8 @@ public class OdooModule {
     }
 
     @Nullable
-    public static OdooModule findModule(@NotNull VirtualFile file, @NotNull Project project) {
+    public static OdooModule findModule(@NotNull VirtualFile file,
+                                        @NotNull Project project) {
         PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
         return psiFile != null ? findModule(psiFile) : null;
     }

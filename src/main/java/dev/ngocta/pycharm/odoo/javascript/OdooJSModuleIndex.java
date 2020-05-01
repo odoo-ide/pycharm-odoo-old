@@ -123,7 +123,8 @@ public class OdooJSModuleIndex extends ScalarIndexExtension<String> {
     }
 
     @Nullable
-    public static JSFunctionExpression findModuleDefineFunction(@NotNull String moduleName, @NotNull PsiElement anchor) {
+    public static JSFunctionExpression findModuleDefineFunction(@NotNull String moduleName,
+                                                                @NotNull PsiElement anchor) {
         OdooModule module = OdooModule.findModule(anchor);
         if (module != null) {
             Collection<VirtualFile> files = FileBasedIndex.getInstance().getContainingFiles(NAME, moduleName, module.getSearchScope());

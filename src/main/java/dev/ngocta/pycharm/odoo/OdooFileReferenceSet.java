@@ -49,7 +49,8 @@ public class OdooFileReferenceSet extends FileReferenceSet {
     }
 
     @Override
-    protected List<FileReference> reparse(String str, int startInElement) {
+    protected List<FileReference> reparse(String str,
+                                          int startInElement) {
         if (BrowserUtil.isAbsoluteURL(str.trim())) {
             return Collections.emptyList();
         }

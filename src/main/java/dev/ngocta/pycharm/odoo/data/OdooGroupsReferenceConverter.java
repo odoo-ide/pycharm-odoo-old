@@ -11,7 +11,9 @@ import org.jetbrains.annotations.NotNull;
 public class OdooGroupsReferenceConverter implements CustomReferenceConverter<String> {
     @NotNull
     @Override
-    public PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
+    public PsiReference[] createReferences(GenericDomValue<String> value,
+                                           PsiElement element,
+                                           ConvertContext context) {
         return OdooExternalIdReferenceProvider.getCommaSeparatedReferences(element, OdooNames.RES_GROUPS, null, true);
     }
 }

@@ -19,7 +19,9 @@ public interface OdooDomTemplate extends OdooDomRecordLike {
     class TemplateIdReferenceConverter implements CustomReferenceConverter<String> {
         @NotNull
         @Override
-        public PsiReference[] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
+        public PsiReference[] createReferences(GenericDomValue value,
+                                               PsiElement element,
+                                               ConvertContext context) {
             return new PsiReference[]{new OdooExternalIdReference(element, OdooNames.IR_UI_VIEW, OdooRecordSubType.VIEW_QWEB, true)};
         }
     }

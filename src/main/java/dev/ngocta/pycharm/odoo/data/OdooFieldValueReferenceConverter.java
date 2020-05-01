@@ -18,7 +18,9 @@ public class OdooFieldValueReferenceConverter implements CustomReferenceConverte
 
     @NotNull
     @Override
-    public PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
+    public PsiReference[] createReferences(GenericDomValue<String> value,
+                                           PsiElement element,
+                                           ConvertContext context) {
         if (value instanceof OdooDomFieldAssignment) {
             String fieldName = ((OdooDomFieldAssignment) value).getName().getStringValue();
             String model = knownModelNameFields.get(fieldName);

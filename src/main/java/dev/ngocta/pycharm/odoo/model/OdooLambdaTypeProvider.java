@@ -14,7 +14,8 @@ import org.jetbrains.annotations.Nullable;
 public class OdooLambdaTypeProvider extends PyTypeProviderBase {
     @Nullable
     @Override
-    public PyType getReferenceExpressionType(@NotNull PyReferenceExpression referenceExpression, @NotNull TypeEvalContext context) {
+    public PyType getReferenceExpressionType(@NotNull PyReferenceExpression referenceExpression,
+                                             @NotNull TypeEvalContext context) {
         if (!referenceExpression.isQualified()) {
             PsiPolyVariantReference variantReference = referenceExpression.getReference();
             PsiElement target = variantReference.resolve();

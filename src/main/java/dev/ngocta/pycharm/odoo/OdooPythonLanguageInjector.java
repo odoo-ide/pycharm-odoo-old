@@ -52,7 +52,8 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
                     XmlPatterns.xmlTag().withLocalName("attribute").with(
                             new PatternCondition<XmlTag>("attributeValue") {
                                 @Override
-                                public boolean accepts(@NotNull final XmlTag xmlTag, final ProcessingContext context) {
+                                public boolean accepts(@NotNull final XmlTag xmlTag,
+                                                       final ProcessingContext context) {
                                     String name = xmlTag.getAttributeValue("name");
                                     return XML_ATTRIBUTE_NAME_PATTERN.accepts(name);
                                 }
@@ -63,7 +64,8 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
     public static final XmlElementPattern.XmlTextPattern XML_TEXT_FIELD_VALUE_PATTERN =
             XmlPatterns.xmlText().with(new PatternCondition<XmlText>("fieldValue") {
                 @Override
-                public boolean accepts(@NotNull XmlText xmlText, ProcessingContext context) {
+                public boolean accepts(@NotNull XmlText xmlText,
+                                       ProcessingContext context) {
                     XmlTag tag = xmlText.getParentTag();
                     if (tag == null) {
                         return false;
@@ -97,7 +99,8 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
                     .with(OdooDataUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
 
     @Override
-    public void getLanguagesToInject(@NotNull PsiLanguageInjectionHost host, @NotNull InjectedLanguagePlaces injectionPlacesRegistrar) {
+    public void getLanguagesToInject(@NotNull PsiLanguageInjectionHost host,
+                                     @NotNull InjectedLanguagePlaces injectionPlacesRegistrar) {
         if (XML_ATTRIBUTE_VALUE_PATTERN.accepts(host)
                 || XML_ATTRIBUTE_VALUE_OVERRIDE_PATTERN.accepts(host)
                 || XML_TEXT_FIELD_VALUE_PATTERN.accepts(host)

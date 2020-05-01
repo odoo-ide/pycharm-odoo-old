@@ -93,7 +93,8 @@ public class OdooFieldInfo {
     }
 
     @Nullable
-    private static String getCallArgumentStringValue(@NotNull PyCallExpression callExpression, @NotNull String keyword) {
+    private static String getCallArgumentStringValue(@NotNull PyCallExpression callExpression,
+                                                     @NotNull String keyword) {
         PyExpression arg = callExpression.getKeywordArgument(keyword);
         if (arg instanceof PyStringLiteralExpression) {
             return ((PyStringLiteralExpression) arg).getStringValue();
@@ -102,7 +103,9 @@ public class OdooFieldInfo {
     }
 
     @Nullable
-    private static String getCallArgumentStringValue(@NotNull PyCallExpression callExpression, int index, @NotNull String keyword) {
+    private static String getCallArgumentStringValue(@NotNull PyCallExpression callExpression,
+                                                     int index,
+                                                     @NotNull String keyword) {
         PyStringLiteralExpression arg = callExpression.getArgument(index, keyword, PyStringLiteralExpression.class);
         if (arg != null) {
             return arg.getStringValue();
@@ -111,7 +114,9 @@ public class OdooFieldInfo {
     }
 
     @Nullable
-    private static boolean getCallArgumentBooleanValue(@NotNull PyCallExpression callExpression, @NotNull String keyword, boolean defaultValue) {
+    private static boolean getCallArgumentBooleanValue(@NotNull PyCallExpression callExpression,
+                                                       @NotNull String keyword,
+                                                       boolean defaultValue) {
         PyExpression arg = callExpression.getKeywordArgument(keyword);
         if (arg instanceof PyBoolLiteralExpression) {
             return ((PyBoolLiteralExpression) arg).getValue();
@@ -166,7 +171,8 @@ public class OdooFieldInfo {
     }
 
     @Nullable
-    public static PyType getFieldType(@NotNull PyTargetExpression field, @NotNull TypeEvalContext context) {
+    public static PyType getFieldType(@NotNull PyTargetExpression field,
+                                      @NotNull TypeEvalContext context) {
         OdooFieldInfo info = getInfo(field);
         if (info != null) {
             return info.getType(context);

@@ -21,7 +21,9 @@ import java.util.Collection;
 public class OdooRefTypeProvider extends PyTypeProviderBase {
     @Nullable
     @Override
-    public Ref<PyType> getCallType(@NotNull PyFunction function, @NotNull PyCallSiteExpression callSite, @NotNull TypeEvalContext context) {
+    public Ref<PyType> getCallType(@NotNull PyFunction function,
+                                   @NotNull PyCallSiteExpression callSite,
+                                   @NotNull TypeEvalContext context) {
         Project project = function.getProject();
         if (OdooNames.REF_QNAME.equals(function.getQualifiedName()) && callSite instanceof PyCallExpression) {
             PyStringLiteralExpression idExpression = ((PyCallExpression) callSite).getArgument(0, PyStringLiteralExpression.class);

@@ -14,7 +14,9 @@ public class OdooCsvRecord extends FakePsiElement implements Navigatable {
     private final Project myProject;
     private final String myRecordId;
 
-    public OdooCsvRecord(@NotNull VirtualFile file, @NotNull Project project, @NotNull String recordId) {
+    public OdooCsvRecord(@NotNull VirtualFile file,
+                         @NotNull Project project,
+                         @NotNull String recordId) {
         myFile = file;
         myProject = project;
         myRecordId = recordId;

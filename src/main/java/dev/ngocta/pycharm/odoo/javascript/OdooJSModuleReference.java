@@ -11,7 +11,8 @@ import org.jetbrains.annotations.NotNull;
 public class OdooJSModuleReference extends PsiPolyVariantReferenceBase<PsiElement> implements JSModuleBaseReference {
     private final String myModuleName;
 
-    public OdooJSModuleReference(@NotNull PsiElement element, @NotNull String moduleName) {
+    public OdooJSModuleReference(@NotNull PsiElement element,
+                                 @NotNull String moduleName) {
         super(element);
         myModuleName = moduleName;
     }

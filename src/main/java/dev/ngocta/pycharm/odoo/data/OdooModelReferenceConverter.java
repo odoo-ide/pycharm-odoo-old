@@ -11,7 +11,9 @@ import org.jetbrains.annotations.NotNull;
 public class OdooModelReferenceConverter implements CustomReferenceConverter<String> {
     @NotNull
     @Override
-    public PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
+    public PsiReference[] createReferences(GenericDomValue<String> value,
+                                           PsiElement element,
+                                           ConvertContext context) {
         return new PsiReference[]{new OdooModelReference(element)};
     }
 }

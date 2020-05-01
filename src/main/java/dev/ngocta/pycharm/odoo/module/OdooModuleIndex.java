@@ -79,12 +79,14 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
     }
 
     @Nullable
-    public static OdooModule getModule(@NotNull String moduleName, @NotNull PsiElement anchor) {
+    public static OdooModule getModule(@NotNull String moduleName,
+                                       @NotNull PsiElement anchor) {
         return getModule(moduleName, anchor.getProject(), OdooUtils.getProjectScope(anchor));
     }
 
     @NotNull
-    public static List<OdooModule> getAllModules(@NotNull Project project, @NotNull GlobalSearchScope scope) {
+    public static List<OdooModule> getAllModules(@NotNull Project project,
+                                                 @NotNull GlobalSearchScope scope) {
         List<OdooModule> modules = new LinkedList<>();
         Collection<String> moduleNames = FileBasedIndex.getInstance().getAllKeys(NAME, project);
         for (String name : moduleNames) {

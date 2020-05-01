@@ -16,7 +16,9 @@ import java.util.List;
 public class OdooAddonsImportResolver implements PyImportResolver {
     @Nullable
     @Override
-    public PsiElement resolveImportReference(@NotNull QualifiedName name, @NotNull PyQualifiedNameResolveContext context, boolean withRoot) {
+    public PsiElement resolveImportReference(@NotNull QualifiedName name,
+                                             @NotNull PyQualifiedNameResolveContext context,
+                                             boolean withRoot) {
         Project project = context.getProject();
         if (DumbService.isDumb(project)) {
             return null;

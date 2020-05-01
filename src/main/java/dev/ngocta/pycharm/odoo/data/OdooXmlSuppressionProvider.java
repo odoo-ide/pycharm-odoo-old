@@ -12,17 +12,20 @@ public class OdooXmlSuppressionProvider extends XmlSuppressionProvider {
     }
 
     @Override
-    public boolean isSuppressedFor(@NotNull PsiElement element, @NotNull String inspectionId) {
+    public boolean isSuppressedFor(@NotNull PsiElement element,
+                                   @NotNull String inspectionId) {
         return inspectionId.equals("CheckTagEmptyBody") || inspectionId.equals("CheckValidXmlInScriptTagBody");
     }
 
     @Override
-    public void suppressForFile(@NotNull PsiElement element, @NotNull String inspectionId) {
+    public void suppressForFile(@NotNull PsiElement element,
+                                @NotNull String inspectionId) {
 
     }
 
     @Override
-    public void suppressForTag(@NotNull PsiElement element, @NotNull String inspectionId) {
+    public void suppressForTag(@NotNull PsiElement element,
+                               @NotNull String inspectionId) {
 
     }
 }

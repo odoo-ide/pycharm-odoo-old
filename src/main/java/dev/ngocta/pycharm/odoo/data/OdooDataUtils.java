@@ -25,7 +25,8 @@ public class OdooDataUtils {
     public static final PatternCondition<PsiElement> ODOO_XML_ELEMENT_PATTERN_CONDITION =
             new PatternCondition<PsiElement>("odooXmlElement") {
                 @Override
-                public boolean accepts(@NotNull PsiElement element, ProcessingContext context) {
+                public boolean accepts(@NotNull PsiElement element,
+                                       ProcessingContext context) {
                     return inOdooXmlFile(element);
                 }
             };
