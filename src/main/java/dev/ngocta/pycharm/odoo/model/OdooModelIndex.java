@@ -148,24 +148,21 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
         OdooModule module = OdooModule.findModule(anchor);
         if (module != null) {
             Collection<String> models = getAllModels(anchor.getProject());
-            Set<String> result = new HashSet<>();
-            module.getFlattenedDependsGraph().forEach(mod -> {
-                result.addAll(filterModels(models, mod.getSearchScope(false)));
-            });
-            return result;
+            models = filterModels(models, module.getSearchScope());
+            return models;
         }
         return Collections.emptyList();
     }
 
     @NotNull
     public static Collection<String> getAllModels(@NotNull Project project) {
-        return new HashSet<>(FileBasedIndex.getInstance().getAllKeys(NAME, project));
+        return FileBasedIndex.getInstance().getAllKeys(NAME, project);
     }
 
     @NotNull
     private static Collection<String> filterModels(@NotNull Collection<String> models,
                                                    @NotNull GlobalSearchScope scope) {
-        Set<String> result = new HashSet<>();
+        Collection<String> result = new LinkedList<>();
         FileBasedIndex index = FileBasedIndex.getInstance();
         models.forEach(model -> index.processValues(NAME, model, null, (file, value) -> {
             result.add(model);
