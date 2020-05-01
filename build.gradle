@@ -27,3 +27,7 @@ patchPluginXml {
 //    changeNotes """
 //        """
 }
+
+runIde {
+    jvmArgs '-Xmx2G'
+}
