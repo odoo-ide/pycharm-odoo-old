@@ -1,7 +1,5 @@
 package dev.ngocta.pycharm.odoo.module;
 
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -12,6 +10,7 @@ import com.intellij.util.io.KeyDescriptor;
 import com.jetbrains.python.PyNames;
 import com.jetbrains.python.PythonFileType;
 import dev.ngocta.pycharm.odoo.OdooNames;
+import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,12 +80,7 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
 
     @Nullable
     public static OdooModule getModule(@NotNull String moduleName, @NotNull PsiElement anchor) {
-        Module module = ModuleUtil.findModuleForPsiElement(anchor);
-        if (module == null) {
-            return null;
-        }
-        GlobalSearchScope scope = module.getModuleContentWithDependenciesScope();
-        return getModule(moduleName, anchor.getProject(), scope);
+        return getModule(moduleName, anchor.getProject(), OdooUtils.getProjectScope(anchor));
     }
 
     @NotNull
@@ -104,11 +98,6 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
 
     @NotNull
     public static List<OdooModule> getAllModules(@NotNull PsiElement anchor) {
-        Module module = ModuleUtil.findModuleForPsiElement(anchor);
-        if (module == null) {
-            return Collections.emptyList();
-        }
-        GlobalSearchScope scope = module.getModuleContentWithDependenciesScope();
-        return getAllModules(anchor.getProject(), scope);
+        return getAllModules(anchor.getProject(), OdooUtils.getProjectScope(anchor));
     }
 }
