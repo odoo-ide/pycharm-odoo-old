@@ -11,10 +11,10 @@ import com.intellij.psi.search.EverythingGlobalScope;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.Processor;
 import com.intellij.util.indexing.*;
-import com.intellij.util.io.BooleanDataDescriptor;
 import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
+import com.intellij.util.io.VoidDataExternalizer;
 import com.jetbrains.python.PythonFileType;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyElementVisitor;
@@ -31,21 +31,21 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
-    public static final @NotNull ID<String, Boolean> NAME = ID.create("odoo.model");
+public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
+    public static final @NotNull ID<String, Void> NAME = ID.create("odoo.model");
     private static final OdooRecordCache IR_MODEL_RECORD_CACHE = new OdooRecordCache();
 
     @NotNull
     @Override
-    public ID<String, Boolean> getName() {
+    public ID<String, Void> getName() {
         return NAME;
     }
 
     @NotNull
     @Override
-    public DataIndexer<String, Boolean, FileContent> getIndexer() {
+    public DataIndexer<String, Void, FileContent> getIndexer() {
         return inputData -> {
-            Map<String, Boolean> result = new HashMap<>();
+            Map<String, Void> result = new HashMap<>();
             VirtualFile virtualFile = inputData.getFile();
             Project project = inputData.getProject();
             PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
@@ -56,7 +56,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
                         super.visitPyClass(node);
                         OdooModelInfo info = OdooModelInfo.getInfo(node);
                         if (info != null) {
-                            result.putIfAbsent(info.getName(), info.isOriginal());
+                            result.putIfAbsent(info.getName(), null);
                             updateIrModelRecordCache(info.getName(), virtualFile, project);
                         }
                     }
@@ -74,13 +74,13 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
 
     @NotNull
     @Override
-    public DataExternalizer<Boolean> getValueExternalizer() {
-        return BooleanDataDescriptor.INSTANCE;
+    public DataExternalizer<Void> getValueExternalizer() {
+        return VoidDataExternalizer.INSTANCE;
     }
 
     @Override
     public int getVersion() {
-        return 4;
+        return 5;
     }
 
     @NotNull
@@ -168,9 +168,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Boolean> {
         Set<String> result = new HashSet<>();
         FileBasedIndex index = FileBasedIndex.getInstance();
         models.forEach(model -> index.processValues(NAME, model, null, (file, value) -> {
-            if (value) {
-                result.add(model);
-            }
+            result.add(model);
             return true;
         }, scope));
         return result;
