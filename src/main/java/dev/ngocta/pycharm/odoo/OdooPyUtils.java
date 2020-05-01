@@ -6,8 +6,8 @@ import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyExpression;
 import com.jetbrains.python.psi.PyPsiFacade;
 import com.jetbrains.python.psi.types.*;
-import com.sun.istack.NotNull;
-import com.sun.istack.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
 
@@ -63,11 +63,8 @@ public class OdooPyUtils {
         return null;
     }
 
-    public static boolean isEnvironmentType(@Nullable PyType type,
+    public static boolean isEnvironmentType(@NotNull PyType type,
                                             @NotNull PsiElement anchor) {
-        if (type == null) {
-            return false;
-        }
         PyType envType = getEnvironmentType(anchor);
         return envType != null && extractType(type, envType::equals) != null;
     }
@@ -78,6 +75,6 @@ public class OdooPyUtils {
             return true;
         }
         PyType type = context.getType(expression);
-        return isEnvironmentType(type, expression);
+        return type != null && isEnvironmentType(type, expression);
     }
 }
