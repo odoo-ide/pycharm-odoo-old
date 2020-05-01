@@ -49,8 +49,8 @@ public class OdooPyUtils {
     }
 
     @Nullable
-    public static PyType extractType(@NotNull PyType type,
-                                     @NotNull Predicate<PyType> matcher) {
+    public static PyType extractCompositedType(@NotNull PyType type,
+                                               @NotNull Predicate<PyType> matcher) {
         if (type instanceof PyUnionType) {
             for (PyType member : ((PyUnionType) type).getMembers()) {
                 if (matcher.test(member)) {
@@ -66,7 +66,7 @@ public class OdooPyUtils {
     public static boolean isEnvironmentType(@NotNull PyType type,
                                             @NotNull PsiElement anchor) {
         PyType envType = getEnvironmentType(anchor);
-        return envType != null && extractType(type, envType::equals) != null;
+        return envType != null && extractCompositedType(type, envType::equals) != null;
     }
 
     public static boolean isEnvironmentTypeExpression(@NotNull PyExpression expression,

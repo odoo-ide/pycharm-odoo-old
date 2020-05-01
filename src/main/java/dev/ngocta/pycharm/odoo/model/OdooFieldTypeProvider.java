@@ -21,7 +21,7 @@ public class OdooFieldTypeProvider extends PyTypeProviderBase {
         PyExpression qualifier = referenceExpression.getQualifier();
         if (referenceName != null && qualifier != null && context.getOrigin() != null) {
             PyType qualifierType = context.getType(qualifier);
-            OdooModelClassType modelType = (OdooModelClassType) OdooPyUtils.extractType(qualifierType, pyType -> pyType instanceof OdooModelClassType);
+            OdooModelClassType modelType = (OdooModelClassType) OdooPyUtils.extractCompositedType(qualifierType, pyType -> pyType instanceof OdooModelClassType);
             if (modelType != null && modelType.getRecordSetType() != OdooRecordSetType.NONE) {
                 Ref<PyType> ref = new Ref<>();
                 modelType.visitMembers(element -> {
