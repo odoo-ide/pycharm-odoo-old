@@ -13,6 +13,7 @@ import com.intellij.util.ProcessingContext;
 import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.DomManager;
 import dev.ngocta.pycharm.odoo.module.OdooModule;
+import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -37,7 +38,7 @@ public class OdooDataUtils {
     public static void processCsvRecord(@NotNull VirtualFile file,
                                         @NotNull Project project,
                                         @NotNull PairProcessor<OdooRecord, Integer> processor) {
-        OdooModule module = OdooModule.findModule(file, project);
+        OdooModule module = OdooModuleUtils.getContainingOdooModule(file, project);
         if (module == null) {
             return;
         }

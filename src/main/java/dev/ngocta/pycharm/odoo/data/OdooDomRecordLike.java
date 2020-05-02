@@ -6,6 +6,7 @@ import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.Required;
 import dev.ngocta.pycharm.odoo.module.OdooModule;
+import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
 import org.jetbrains.annotations.Nullable;
 
 public interface OdooDomRecordLike extends OdooDomElement {
@@ -20,7 +21,7 @@ public interface OdooDomRecordLike extends OdooDomElement {
         if (id == null || element == null) {
             return null;
         }
-        OdooModule module = OdooModule.findModule(element);
+        OdooModule module = OdooModuleUtils.getContainingOdooModule(element);
         if (module != null) {
             VirtualFile file = element.getContainingFile().getVirtualFile();
             return new OdooRecordImpl(id, model, subType, module.getName(), file);

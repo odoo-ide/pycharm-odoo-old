@@ -6,6 +6,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReferenceContributor;
 import com.intellij.psi.PsiReferenceRegistrar;
+import com.intellij.util.ArrayUtil;
 import com.intellij.util.ProcessingContext;
 import com.jetbrains.python.psi.PyExpression;
 import com.jetbrains.python.psi.PyKeyValueExpression;
@@ -15,18 +16,15 @@ import dev.ngocta.pycharm.odoo.OdooFilePathReferenceProvider;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.List;
-
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class OdooManifestReferenceContributor extends PsiReferenceContributor {
     static class ListItemPatternCondition extends PatternCondition<PsiElement> {
-        private final List<String> myKeys;
+        private final String[] myKeys;
 
         public ListItemPatternCondition(@NotNull String... keys) {
             super("manifest");
-            myKeys = Arrays.asList(keys);
+            myKeys = keys;
         }
 
         @Override
@@ -40,7 +38,7 @@ public class OdooManifestReferenceContributor extends PsiReferenceContributor {
                     if (file != null && OdooNames.MANIFEST_FILE_NAME.equals(file.getName())) {
                         PyExpression keyExpression = ((PyKeyValueExpression) parent).getKey();
                         return keyExpression instanceof PyStringLiteralExpression
-                                && myKeys.contains(((PyStringLiteralExpression) keyExpression).getStringValue());
+                                && ArrayUtil.contains(((PyStringLiteralExpression) keyExpression).getStringValue(), myKeys);
                     }
                 }
             }
@@ -49,14 +47,16 @@ public class OdooManifestReferenceContributor extends PsiReferenceContributor {
     }
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> DEPEND_PATTERN =
-            psiElement(PyStringLiteralExpression.class).with(new ListItemPatternCondition(OdooNames.MANIFEST_DEPENDS));
-    public static final PsiElementPattern.Capture<PyStringLiteralExpression> FILE_PATTERN =
-            psiElement(PyStringLiteralExpression.class).with(new ListItemPatternCondition(
-                    OdooNames.MANIFEST_DATA, OdooNames.MANIFEST_DEMO, OdooNames.MANIFEST_QWEB));
+            psiElement(PyStringLiteralExpression.class)
+                    .with(new ListItemPatternCondition(OdooNames.MANIFEST_DEPENDS));
+
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> FILE_PATH_PATTERN =
+            psiElement(PyStringLiteralExpression.class)
+                    .with(new ListItemPatternCondition(OdooNames.MANIFEST_DATA, OdooNames.MANIFEST_DEMO, OdooNames.MANIFEST_QWEB));
 
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
         registrar.registerReferenceProvider(DEPEND_PATTERN, new OdooModuleReferenceProvider());
-        registrar.registerReferenceProvider(FILE_PATTERN, new OdooFilePathReferenceProvider());
+        registrar.registerReferenceProvider(FILE_PATH_PATTERN, new OdooFilePathReferenceProvider());
     }
 }

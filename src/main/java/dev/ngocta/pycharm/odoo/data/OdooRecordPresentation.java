@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.PlatformIcons;
 import dev.ngocta.pycharm.odoo.module.OdooModule;
+import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -34,7 +35,7 @@ public class OdooRecordPresentation implements ItemPresentation {
         return Optional.ofNullable(myRecord.getDataFile())
                 .map(file -> {
                     String path = file.getPath();
-                    OdooModule module = OdooModule.findModule(file, myProject);
+                    OdooModule module = OdooModuleUtils.getContainingOdooModule(file, myProject);
                     if (module != null) {
                         path = "/" + module.getName() + path.substring(module.getDirectory().getVirtualFile().getPath().length());
                     }

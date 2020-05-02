@@ -7,7 +7,6 @@ import com.intellij.psi.util.QualifiedName;
 import com.jetbrains.python.psi.impl.PyImportResolver;
 import com.jetbrains.python.psi.resolve.PyQualifiedNameResolveContext;
 import com.jetbrains.python.psi.resolve.PyResolveImportUtil;
-import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +32,7 @@ public class OdooAddonsImportResolver implements PyImportResolver {
             if (foothold == null) {
                 return null;
             }
-            OdooModule module = OdooModuleIndex.getModule(moduleName, foothold);
+            OdooModule module = OdooModuleIndex.getOdooModuleByName(moduleName, foothold);
             if (module != null) {
                 QualifiedName relatedName = name.subQualifiedName(3, name.getComponentCount());
                 List<PsiElement> refs = PyResolveImportUtil.resolveModuleAt(relatedName, module.getDirectory(), context);

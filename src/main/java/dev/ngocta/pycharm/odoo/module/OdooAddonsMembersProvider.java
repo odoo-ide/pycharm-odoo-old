@@ -17,7 +17,7 @@ public class OdooAddonsMembersProvider extends PyModuleMembersProvider {
                                                            @NotNull String name,
                                                            @NotNull TypeEvalContext context) {
         if ("odoo.addons".equals(name)) {
-            Collection<OdooModule> modules = OdooModuleIndex.getAllModules(file);
+            Collection<OdooModule> modules = OdooModuleIndex.getAvailableOdooModules(file);
             Collection<PyCustomMember> members = new ArrayList<>();
             for (OdooModule module : modules) {
                 PyCustomMember member = new PyCustomMember(module.getName(), module.getDirectory());

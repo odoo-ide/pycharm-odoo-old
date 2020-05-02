@@ -12,6 +12,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.PlatformIcons;
 import com.jetbrains.python.psi.PyUtil;
 import dev.ngocta.pycharm.odoo.module.OdooModule;
+import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,7 +68,7 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
             PsiElement element = getElement();
             String id = getValue();
             if (!id.contains(".") && myAllowRelative) {
-                OdooModule module = OdooModule.findModule(element);
+                OdooModule module = OdooModuleUtils.getContainingOdooModule(element);
                 if (module != null) {
                     id = module.getName() + "." + id;
                 }
@@ -83,7 +84,7 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
     @NotNull
     @Override
     public Object[] getVariants() {
-        OdooModule module = OdooModule.findModule(getElement());
+        OdooModule module = OdooModuleUtils.getContainingOdooModule(getElement());
         if (module == null) {
             return new Object[0];
         }

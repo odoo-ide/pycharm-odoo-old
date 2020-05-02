@@ -17,6 +17,7 @@ import com.intellij.util.io.KeyDescriptor;
 import dev.ngocta.pycharm.odoo.OdooUtils;
 import dev.ngocta.pycharm.odoo.model.OdooModelIndex;
 import dev.ngocta.pycharm.odoo.module.OdooModule;
+import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInput;
@@ -193,7 +194,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
     public static List<OdooRecord> findRecordsById(@NotNull String id,
                                                    @NotNull PsiElement anchor) {
         Project project = anchor.getProject();
-        OdooModule odooModule = OdooModule.findModule(anchor);
+        OdooModule odooModule = OdooModuleUtils.getContainingOdooModule(anchor);
         if (odooModule != null) {
             return findRecordsById(id, project, odooModule.getSearchScope());
         }

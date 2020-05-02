@@ -15,6 +15,7 @@ import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import dev.ngocta.pycharm.odoo.module.OdooModule;
+import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -93,7 +94,7 @@ public class OdooJSModuleIndex extends ScalarIndexExtension<String> {
 
     @NotNull
     public static Collection<String> getAvailableModuleNames(@NotNull PsiElement anchor) {
-        OdooModule module = OdooModule.findModule(anchor);
+        OdooModule module = OdooModuleUtils.getContainingOdooModule(anchor);
         if (module != null) {
             return getAllModuleNames(module.getSearchScope());
         }
@@ -125,7 +126,7 @@ public class OdooJSModuleIndex extends ScalarIndexExtension<String> {
     @Nullable
     public static JSFunctionExpression findModuleDefineFunction(@NotNull String moduleName,
                                                                 @NotNull PsiElement anchor) {
-        OdooModule module = OdooModule.findModule(anchor);
+        OdooModule module = OdooModuleUtils.getContainingOdooModule(anchor);
         if (module != null) {
             Collection<VirtualFile> files = FileBasedIndex.getInstance().getContainingFiles(NAME, moduleName, module.getSearchScope());
             if (files.isEmpty()) {

@@ -26,6 +26,7 @@ import dev.ngocta.pycharm.odoo.data.OdooRecord;
 import dev.ngocta.pycharm.odoo.data.OdooRecordCache;
 import dev.ngocta.pycharm.odoo.data.OdooRecordImpl;
 import dev.ngocta.pycharm.odoo.module.OdooModule;
+import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -136,7 +137,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
     public static List<PyClass> findModelClasses(@NotNull String model,
                                                  @NotNull PsiElement anchor) {
         Project project = anchor.getProject();
-        OdooModule odooModule = OdooModule.findModule(anchor);
+        OdooModule odooModule = OdooModuleUtils.getContainingOdooModule(anchor);
         if (odooModule != null) {
             return findModelClasses(model, odooModule);
         }
@@ -145,7 +146,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
 
     @NotNull
     public static Collection<String> getAvailableModels(@NotNull PsiElement anchor) {
-        OdooModule module = OdooModule.findModule(anchor);
+        OdooModule module = OdooModuleUtils.getContainingOdooModule(anchor);
         if (module != null) {
             Collection<String> models = getAllModels(anchor.getProject());
             models = filterModels(models, module.getSearchScope());
@@ -199,7 +200,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
     private static OdooRecord updateIrModelRecordCache(@NotNull String model,
                                                        @NotNull VirtualFile file,
                                                        @NotNull Project project) {
-        OdooModule module = OdooModule.findModule(file, project);
+        OdooModule module = OdooModuleUtils.getContainingOdooModule(file, project);
         if (module != null) {
             String name = "model_" + model.replace(".", "_");
             OdooRecord record = new OdooRecordImpl(name, OdooNames.IR_MODEL, module.getName(), null, file);

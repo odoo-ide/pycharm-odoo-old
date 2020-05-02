@@ -13,31 +13,27 @@ import java.util.Collections;
 import java.util.List;
 
 public class OdooManifestInfo {
-    private final List<String> myDepends;
+    private final String[] myDepends;
 
-    private OdooManifestInfo(List<String> depends) {
+    private OdooManifestInfo(String[] depends) {
         myDepends = depends;
     }
 
     @NotNull
-    public List<String> getDepends() {
+    public String[] getDepends() {
         return myDepends;
     }
 
     @Nullable
-    public static OdooManifestInfo getInfo(@NotNull PsiFile manifest) {
+    public static OdooManifestInfo parseManifest(@NotNull PsiFile manifest) {
         return CachedValuesManager.getCachedValue(manifest, () -> {
-            OdooManifestInfo info = getInfoInner(manifest);
-            return CachedValueProvider.Result.createSingleDependency(info, manifest.getVirtualFile());
+            OdooManifestInfo info = doParseManifest(manifest);
+            return CachedValueProvider.Result.create(info, manifest);
         });
     }
 
     @Nullable
-    private static OdooManifestInfo getInfoInner(@NotNull PsiFile manifest) {
-        if (!(manifest instanceof PyFile) || !manifest.getName().equals(OdooNames.MANIFEST_FILE_NAME)) {
-            return null;
-        }
-
+    private static OdooManifestInfo doParseManifest(@NotNull PsiFile manifest) {
         PyDictLiteralExpression dictExpression = PsiTreeUtil.findChildOfType(manifest, PyDictLiteralExpression.class);
         if (dictExpression == null) {
             return null;
@@ -59,6 +55,6 @@ public class OdooManifestInfo {
             depends = Collections.emptyList();
         }
 
-        return new OdooManifestInfo(depends);
+        return new OdooManifestInfo(depends.toArray(new String[0]));
     }
 }

@@ -17,7 +17,7 @@ public class OdooModuleReference extends PsiReferenceBase<PsiElement> {
     @Override
     public PsiElement resolve() {
         return PyUtil.getNullableParameterizedCachedValue(getElement(), null, param -> {
-            OdooModule module = OdooModuleIndex.getModule(getValue(), getElement());
+            OdooModule module = OdooModuleIndex.getOdooModuleByName(getValue(), getElement());
             return module != null ? module.getDirectory() : null;
         });
     }
@@ -25,8 +25,8 @@ public class OdooModuleReference extends PsiReferenceBase<PsiElement> {
     @NotNull
     @Override
     public Object[] getVariants() {
-        Collection<OdooModule> modules = OdooModuleIndex.getAllModules(getElement());
-        OdooModule module = OdooModule.findModule(getElement());
+        Collection<OdooModule> modules = OdooModuleIndex.getAvailableOdooModules(getElement());
+        OdooModule module = OdooModuleUtils.getContainingOdooModule(getElement());
         if (module != null) {
             modules.remove(module);
         }
