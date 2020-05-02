@@ -1,8 +1,10 @@
 package dev.ngocta.pycharm.odoo.model;
 
+import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.jetbrains.python.psi.*;
+import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,18 +52,22 @@ public class OdooModelInfo {
     @Nullable
     public static OdooModelInfo getInfo(@NotNull PyClass pyClass) {
         return CachedValuesManager.getCachedValue(pyClass, () -> {
-            OdooModelInfo info = getInfoInner(pyClass);
-            return CachedValueProvider.Result.createSingleDependency(info, pyClass);
+            try {
+                PyClass baseModelClass = OdooModelUtils.getBaseModelClass(pyClass);
+                TypeEvalContext context = TypeEvalContext.codeAnalysis(pyClass.getProject(), pyClass.getContainingFile());
+                if (baseModelClass == null || !pyClass.isSubclass(baseModelClass, context)) {
+                    return null;
+                }
+                OdooModelInfo info = getInfoInner(pyClass);
+                return CachedValueProvider.Result.create(info, pyClass, baseModelClass);
+            } catch (IndexNotReadyException e) {
+                return null;
+            }
         });
     }
 
     @Nullable
     private static OdooModelInfo getInfoInner(@NotNull PyClass pyClass) {
-        PyClass baseModelClass = OdooModelUtils.getBaseModelClass(pyClass);
-        if (baseModelClass == null || !pyClass.isSubclass(baseModelClass, null)) {
-            return null;
-        }
-
         String model = null;
         List<String> inherit = new LinkedList<>();
         Map<String, String> inherits = new HashMap<>();
