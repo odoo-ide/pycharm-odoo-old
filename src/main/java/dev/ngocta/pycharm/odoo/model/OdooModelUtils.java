@@ -1,7 +1,6 @@
 package dev.ngocta.pycharm.odoo.model;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.intellij.codeInsight.completion.BasicInsertHandler;
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
@@ -43,14 +42,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class OdooModelUtils {
     private static final double COMPLETION_PRIORITY_FIELD = 2;
     private static final double COMPLETION_PRIORITY_FUNCTION = 1;
-    private static final Set<String> KNOWN_FIELD_TYPES = ImmutableSet.copyOf(OdooNames.FIELD_TYPES);
     private static final ImmutableMap<String, String> KNOWN_FIELD_DOMAIN_TO_FIELD_MODEL = ImmutableMap.<String, String>builder()
             .put(OdooNames.IR_RULE_DOMAIN_FORCE, OdooNames.IR_RULE_MODEL_ID)
             .put(OdooNames.IR_ACTIONS_ACT_WINDOW_DOMAIN, OdooNames.IR_ACTIONS_ACT_WINDOW_RES_MODEL)
@@ -145,7 +142,7 @@ public class OdooModelUtils {
         PyExpression callee = callExpression.getCallee();
         if (callee instanceof PyReferenceExpression) {
             String calleeName = callee.getName();
-            if (KNOWN_FIELD_TYPES.contains(calleeName)) {
+            if (ArrayUtil.contains(calleeName, OdooNames.FIELD_TYPES)) {
                 return true;
             }
             PsiReference ref = callee.getReference();
