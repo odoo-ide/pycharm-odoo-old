@@ -36,7 +36,6 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
             .put("context", OdooNames.IR_ACTIONS_ACT_WINDOW)
             .build();
 
-
     public static final ElementPattern<String> XML_ATTRIBUTE_NAME_PATTERN =
             StandardPatterns.or(
                     StandardPatterns.string().startsWith("t-att-"),
@@ -44,7 +43,8 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
                             "t-if", "t-elif", "t-foreach", "t-value", "t-esc", "t-raw", "t-field", "t-options"));
 
     public static final XmlAttributeValuePattern XML_ATTRIBUTE_VALUE_PATTERN =
-            XmlPatterns.xmlAttributeValue().withLocalName(XML_ATTRIBUTE_NAME_PATTERN)
+            XmlPatterns.xmlAttributeValue()
+                    .withLocalName(XML_ATTRIBUTE_NAME_PATTERN)
                     .with(OdooDataUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
 
     public static final XmlElementPattern.XmlTextPattern XML_ATTRIBUTE_VALUE_OVERRIDE_PATTERN =
@@ -95,7 +95,8 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
             OdooModelUtils.getFieldArgumentPattern(-1, OdooNames.FIELD_ATTR_DOMAIN, OdooNames.RELATIONAL_FIELD_TYPES);
 
     public static final XmlAttributeValuePattern PY_TEMPLATE_PATTERN =
-            XmlPatterns.xmlAttributeValue().withLocalName(StandardPatterns.string().startsWith("t-attf-"))
+            XmlPatterns.xmlAttributeValue()
+                    .withLocalName(StandardPatterns.string().startsWith("t-attf-"))
                     .with(OdooDataUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
 
     @Override
