@@ -162,11 +162,9 @@ public class OdooModelUtils {
         return false;
     }
 
+    @Nullable
     public static PyClass getBaseModelClass(@Nullable PsiElement anchor) {
-        if (anchor != null) {
-            return OdooPyUtils.getClassByQName(OdooNames.BASE_MODEL_QNAME, anchor);
-        }
-        return null;
+        return OdooPyUtils.getClassByQName(OdooNames.BASE_MODEL_QNAME, anchor);
     }
 
     public static boolean isOdooModelFile(@Nullable PsiFile file) {

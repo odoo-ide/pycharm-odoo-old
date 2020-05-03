@@ -1,10 +1,12 @@
 package dev.ngocta.pycharm.odoo;
 
 import com.intellij.psi.PsiElement;
+import com.intellij.util.ObjectUtils;
 import com.jetbrains.python.PyNames;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyExpression;
 import com.jetbrains.python.psi.PyPsiFacade;
+import com.jetbrains.python.psi.PyUtil;
 import com.jetbrains.python.psi.types.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,9 +19,15 @@ public class OdooPyUtils {
 
     @Nullable
     public static PyClass getClassByQName(@NotNull String name,
-                                          @NotNull PsiElement anchor) {
-        PyPsiFacade psiFacade = PyPsiFacade.getInstance(anchor.getProject());
-        return psiFacade.createClassByQName(name, anchor);
+                                          @Nullable PsiElement anchor) {
+        if (anchor == null) {
+            return null;
+        }
+        PsiElement fileAnchor = ObjectUtils.notNull(anchor.getContainingFile(), anchor);
+        return PyUtil.getNullableParameterizedCachedValue(fileAnchor, name, param -> {
+            PyPsiFacade psiFacade = PyPsiFacade.getInstance(anchor.getProject());
+            return psiFacade.createClassByQName(name, anchor);
+        });
     }
 
     @Nullable
