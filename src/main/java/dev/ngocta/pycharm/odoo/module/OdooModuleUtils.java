@@ -26,7 +26,15 @@ public class OdooModuleUtils {
         if (element == null) {
             return null;
         }
-        PsiFile file = element.getContainingFile().getOriginalFile();
+        PsiFile file = element.getContainingFile();
+        if (file == null) {
+            return null;
+        }
+        PsiElement context = file.getContext();
+        if (context != null && !(context instanceof PsiDirectory)) {
+            file = file.getContext().getContainingFile();
+        }
+        file = file.getOriginalFile();
         PsiDirectory directory = file.getParent();
         while (directory != null) {
             if (directory.findFile(OdooNames.MANIFEST_FILE_NAME) != null) {
