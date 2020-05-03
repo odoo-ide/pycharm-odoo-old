@@ -40,7 +40,8 @@ public interface OdooDomViewButton extends OdooDomModelScopedViewElement {
                     if (matcher.find()) {
                         TextRange range = ElementManipulators.getValueTextRange(element);
                         range = range.cutOut(new TextRange(matcher.start(), matcher.end()));
-                        return new PsiReference[]{new OdooExternalIdReference(element, range, OdooNames.ACTION_MODELS, null, true)};
+                        return new PsiReference[]{new OdooExternalIdReference(element, range,
+                                () -> OdooNames.ACTION_MODELS, null, true)};
                     }
                 }
             }

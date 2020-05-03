@@ -22,7 +22,8 @@ public interface OdooDomTemplate extends OdooDomRecordLike {
         public PsiReference[] createReferences(GenericDomValue value,
                                                PsiElement element,
                                                ConvertContext context) {
-            return new PsiReference[]{new OdooExternalIdReference(element, OdooNames.IR_UI_VIEW, OdooRecordSubType.VIEW_QWEB, true)};
+            return new PsiReference[]{new OdooExternalIdReference(element, null,
+                    () -> new String[]{OdooNames.IR_UI_VIEW}, OdooRecordSubType.VIEW_QWEB, true)};
         }
     }
 }

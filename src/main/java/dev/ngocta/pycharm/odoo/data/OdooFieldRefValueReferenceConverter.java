@@ -14,13 +14,16 @@ public class OdooFieldRefValueReferenceConverter implements CustomReferenceConve
     public PsiReference[] createReferences(GenericDomValue<String> value,
                                            PsiElement element,
                                            ConvertContext context) {
-        DomElement parent = value.getParent();
-        if (parent instanceof OdooDomField) {
-            String comodel = ((OdooDomField) parent).getComodel();
-            if (comodel != null) {
-                return new PsiReference[]{new OdooExternalIdReference(element, comodel, null, true)};
-            }
-        }
-        return new PsiReference[0];
+        return new PsiReference[]{new OdooExternalIdReference(element, null,
+                () -> {
+                    DomElement parent = value.getParent();
+                    if (parent instanceof OdooDomField) {
+                        String comodel = ((OdooDomField) parent).getComodel();
+                        if (comodel != null) {
+                            return new String[]{comodel};
+                        }
+                    }
+                    return null;
+                }, null, true)};
     }
 }

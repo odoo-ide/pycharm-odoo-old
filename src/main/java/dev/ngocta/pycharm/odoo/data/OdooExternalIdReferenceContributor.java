@@ -14,19 +14,57 @@ import com.intellij.util.ProcessingContext;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
 import com.jetbrains.python.psi.*;
-import com.jetbrains.python.psi.types.PyFunctionType;
-import com.jetbrains.python.psi.types.PyType;
-import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.model.OdooFieldInfo;
 import dev.ngocta.pycharm.odoo.model.OdooModelUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class OdooExternalIdReferenceContributor extends PsiReferenceContributor {
+    @Nullable
+    private static String resolveRefModel(PsiElement refExpression) {
+        Project project = refExpression.getProject();
+        PsiFile containingFile = refExpression.getContainingFile();
+        if (containingFile == null) {
+            return null;
+        }
+        XmlTag tag = Optional.of(containingFile)
+                .map(PsiElement::getContext).filter(XmlAttributeValue.class::isInstance)
+                .map(PsiElement::getParent).filter(XmlAttribute.class::isInstance)
+                .filter(element -> "eval".equals(((XmlAttribute) element).getName()))
+                .map(element -> ((XmlAttribute) element).getParent())
+                .orElse(null);
+        if (tag == null) {
+            return null;
+        }
+        String model = null;
+        PyKeyValueExpression kv = PsiTreeUtil.getParentOfType(refExpression, PyKeyValueExpression.class);
+        if (kv != null) {
+            PsiElement key = kv.getKey();
+            if (key instanceof PyStringLiteralExpression) {
+                model = Optional.of(key)
+                        .map(PsiElement::getReference)
+                        .map(PsiReference::resolve)
+                        .filter(PyTargetExpression.class::isInstance)
+                        .map(f -> OdooFieldInfo.getInfo((PyTargetExpression) f))
+                        .map(OdooFieldInfo::getComodel)
+                        .orElse(null);
+            }
+        } else {
+            DomManager domManager = DomManager.getDomManager(project);
+            DomElement domElement = domManager.getDomElement(tag);
+            if (domElement instanceof OdooDomFieldAssignment) {
+                model = ((OdooDomFieldAssignment) domElement).getComodel();
+            }
+        }
+        return model;
+    }
+
+
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> REF_PATTERN =
             psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("ref") {
                 @Override
@@ -37,55 +75,13 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                             .map(PsiElement::getParent).filter(PyCallExpression.class::isInstance)
                             .map(element -> ((PyCallExpression) element).getCallee())
                             .orElse(null);
-                    if (callee == null) {
+                    if (callee == null || !"ref".equals(callee.getName())) {
                         return false;
                     }
-                    PsiFile containingFile = callee.getContainingFile();
-                    if (containingFile == null) {
-                        return false;
-                    }
-                    Project project = pyStringLiteralExpression.getProject();
-                    TypeEvalContext typeEvalContext = TypeEvalContext.userInitiated(project, containingFile);
-                    PyType calleeType = typeEvalContext.getType(callee);
-                    if (calleeType instanceof PyFunctionType) {
-                        PyCallable callable = ((PyFunctionType) calleeType).getCallable();
-                        return callable instanceof PyFunction && OdooNames.REF_QNAME.equals(callable.getQualifiedName());
-                    }
-                    if (!"ref".equals(callee.getName())) {
-                        return false;
-                    }
-                    XmlTag tag = Optional.of(containingFile)
-                            .map(PsiElement::getContext).filter(XmlAttributeValue.class::isInstance)
-                            .map(PsiElement::getParent).filter(XmlAttribute.class::isInstance)
-                            .filter(element -> "eval".equals(((XmlAttribute) element).getName()))
-                            .map(element -> ((XmlAttribute) element).getParent())
-                            .orElse(null);
-                    if (tag == null) {
-                        return false;
-                    }
-                    String model = null;
-                    PyKeyValueExpression kv = PsiTreeUtil.getParentOfType(callee, PyKeyValueExpression.class);
-                    if (kv != null) {
-                        PsiElement key = kv.getKey();
-                        if (key instanceof PyStringLiteralExpression) {
-                            model = Optional.of(key)
-                                    .map(PsiElement::getReference)
-                                    .map(PsiReference::resolve)
-                                    .filter(PyTargetExpression.class::isInstance)
-                                    .map(f -> OdooFieldInfo.getInfo((PyTargetExpression) f))
-                                    .map(OdooFieldInfo::getComodel)
-                                    .orElse(null);
-                        }
-                    } else {
-                        DomManager domManager = DomManager.getDomManager(project);
-                        DomElement domElement = domManager.getDomElement(tag);
-                        if (domElement instanceof OdooDomFieldAssignment) {
-                            model = ((OdooDomFieldAssignment) domElement).getComodel();
-                        }
-                    }
-                    if (model != null) {
-                        context.put(OdooExternalIdReferenceProvider.MODEL, model);
-                    }
+                    context.put(OdooExternalIdReferenceProvider.MODELS_RESOLVER, () -> {
+                        String model = resolveRefModel(callee);
+                        return model != null ? new String[]{model} : null;
+                    });
                     context.put(OdooExternalIdReferenceProvider.ALLOW_RELATIVE, true);
                     return true;
                 }
@@ -122,7 +118,7 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                 @Override
                 public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression,
                                        ProcessingContext context) {
-                    context.put(OdooExternalIdReferenceProvider.MODEL, OdooNames.RES_GROUPS);
+                    context.put(OdooExternalIdReferenceProvider.MODELS_RESOLVER, () -> new String[]{OdooNames.RES_GROUPS});
                     context.put(OdooExternalIdReferenceProvider.COMMA_SEPARATED, true);
                     return true;
                 }
