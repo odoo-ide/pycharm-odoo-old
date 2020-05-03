@@ -6,6 +6,7 @@ import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.util.text.StringUtil;
@@ -146,6 +147,9 @@ public class OdooModelUtils {
     public static boolean isFieldDeclarationExpression(@NotNull PyCallExpression callExpression) {
         if (isKnownFieldDeclarationExpression(callExpression)) {
             return true;
+        }
+        if (DumbService.isDumb(callExpression.getProject())) {
+            return false;
         }
         PyExpression callee = callExpression.getCallee();
         if (callee instanceof PyReferenceExpression) {

@@ -1,6 +1,8 @@
 package dev.ngocta.pycharm.odoo.model;
 
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.util.ArrayUtil;
@@ -61,10 +63,11 @@ public class OdooModelInfo {
             boolean isModelClass = Arrays.stream(pyClass.getSuperClassExpressions()).anyMatch(pyExpression -> {
                 return ArrayUtil.contains(pyExpression.getText(), KNOWN_SUPER_CLASSES);
             });
-            if (!isModelClass) {
+            Project project = pyClass.getProject();
+            if (!isModelClass && !DumbService.isDumb(project)) {
                 try {
                     PyClass baseModelClass = OdooModelUtils.getBaseModelClass(pyClass);
-                    TypeEvalContext context = TypeEvalContext.codeAnalysis(pyClass.getProject(), pyClass.getContainingFile());
+                    TypeEvalContext context = TypeEvalContext.codeAnalysis(project, pyClass.getContainingFile());
                     isModelClass = baseModelClass != null && pyClass.isSubclass(baseModelClass, context);
                 } catch (IndexNotReadyException e) {
                     return null;
