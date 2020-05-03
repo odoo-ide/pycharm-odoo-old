@@ -96,73 +96,77 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
     }
 
     @NotNull
-    private static List<PyClass> findModelClasses(@NotNull String model,
-                                                  @NotNull Project project,
-                                                  @NotNull GlobalSearchScope scope) {
+    private static List<PyClass> getOdooModelClassesByNameInFile(@NotNull String model,
+                                                                 @NotNull PyFile file) {
         List<PyClass> result = new LinkedList<>();
-        FileBasedIndex index = FileBasedIndex.getInstance();
-        Set<VirtualFile> files = new HashSet<>();
-        index.getFilesWithKey(NAME, Collections.singleton(model), files::add, scope);
-        PsiManager psiManager = PsiManager.getInstance(project);
-        files.forEach(file -> {
-            PsiFile psiFile = psiManager.findFile(file);
-            if (psiFile instanceof PyFile) {
-                List<PyClass> classes = ((PyFile) psiFile).getTopLevelClasses();
-                classes = Lists.reverse(classes);
-                classes.forEach(cls -> {
-                    OdooModelInfo info = OdooModelInfo.getInfo(cls);
-                    if (info != null && info.getName().equals(model)) {
-                        result.add(cls);
-                    }
-                });
+        List<PyClass> classes = file.getTopLevelClasses();
+        Lists.reverse(classes).forEach(cls -> {
+            OdooModelInfo info = OdooModelInfo.getInfo(cls);
+            if (info != null && info.getName().equals(model)) {
+                result.add(cls);
             }
         });
         return result;
     }
 
     @NotNull
-    private static List<PyClass> findModelClasses(@NotNull String model,
-                                                  @NotNull OdooModule module) {
+    private static List<PyClass> getOdooModelClassesByName(@NotNull String model,
+                                                           @NotNull Project project,
+                                                           @NotNull GlobalSearchScope scope) {
+        List<PyClass> result = new LinkedList<>();
+        Collection<VirtualFile> files = FileBasedIndex.getInstance().getContainingFiles(NAME, model, scope);
+        PsiManager psiManager = PsiManager.getInstance(project);
+        files.forEach(file -> {
+            PsiFile psiFile = psiManager.findFile(file);
+            if (psiFile instanceof PyFile) {
+                List<PyClass> classes = getOdooModelClassesByNameInFile(model, (PyFile) psiFile);
+                result.addAll(classes);
+            }
+        });
+        return result;
+    }
+
+    @NotNull
+    private static List<PyClass> getAvailableOdooModelClassesByName(@NotNull String model,
+                                                                    @NotNull OdooModule module) {
         Project project = module.getProject();
         return PyUtil.getParameterizedCachedValue(module.getDirectory(), model, param -> {
-            List<PyClass> result = new LinkedList<>();
-            module.getFlattenedDependsGraph().forEach(mod -> {
-                result.addAll(findModelClasses(model, project, mod.getSearchScope(false)));
-            });
-            return ImmutableList.copyOf(result);
+            List<PyClass> classes = getOdooModelClassesByName(model, project, module.getSearchScope());
+            List<PyClass> sortedClasses = OdooModuleUtils.sortElementByOdooModuleOrder(classes, module.getFlattenedDependsGraph());
+            return ImmutableList.copyOf(sortedClasses);
         });
     }
 
     @NotNull
-    public static List<PyClass> findModelClasses(@NotNull String model,
-                                                 @NotNull PsiElement anchor) {
+    public static List<PyClass> getAvailableOdooModelClassesByName(@NotNull String model,
+                                                                   @NotNull PsiElement anchor) {
         Project project = anchor.getProject();
         OdooModule odooModule = OdooModuleUtils.getContainingOdooModule(anchor);
         if (odooModule != null) {
-            return findModelClasses(model, odooModule);
+            return getAvailableOdooModelClassesByName(model, odooModule);
         }
-        return findModelClasses(model, project, OdooUtils.getProjectScope(anchor));
+        return getOdooModelClassesByName(model, project, OdooUtils.getProjectScope(anchor));
     }
 
     @NotNull
-    public static Collection<String> getAvailableModels(@NotNull PsiElement anchor) {
+    public static Collection<String> getAvailableOdooModels(@NotNull PsiElement anchor) {
         OdooModule module = OdooModuleUtils.getContainingOdooModule(anchor);
         if (module != null) {
-            Collection<String> models = getAllModels(anchor.getProject());
-            models = filterModels(models, module.getSearchScope());
+            Collection<String> models = getAllOdooModels(anchor.getProject());
+            models = filterOdooModels(models, module.getSearchScope());
             return models;
         }
         return Collections.emptyList();
     }
 
     @NotNull
-    public static Collection<String> getAllModels(@NotNull Project project) {
+    public static Collection<String> getAllOdooModels(@NotNull Project project) {
         return FileBasedIndex.getInstance().getAllKeys(NAME, project);
     }
 
     @NotNull
-    private static Collection<String> filterModels(@NotNull Collection<String> models,
-                                                   @NotNull GlobalSearchScope scope) {
+    private static Collection<String> filterOdooModels(@NotNull Collection<String> models,
+                                                       @NotNull GlobalSearchScope scope) {
         Collection<String> result = new LinkedList<>();
         FileBasedIndex index = FileBasedIndex.getInstance();
         models.forEach(model -> index.processValues(NAME, model, null, (file, value) -> {

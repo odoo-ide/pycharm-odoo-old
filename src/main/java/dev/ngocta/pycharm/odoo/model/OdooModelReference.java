@@ -29,7 +29,7 @@ public class OdooModelReference extends PsiReferenceBase.Poly<PsiElement> {
         return PyUtil.getParameterizedCachedValue(getElement(), null, param -> {
             PsiFile file = getElement().getContainingFile();
             if (file != null) {
-                return OdooModelIndex.findModelClasses(getValue(), getElement());
+                return OdooModelIndex.getAvailableOdooModelClassesByName(getValue(), getElement());
             }
             return Collections.emptyList();
         });
@@ -39,7 +39,7 @@ public class OdooModelReference extends PsiReferenceBase.Poly<PsiElement> {
     @Override
     public Object[] getVariants() {
         List<LookupElement> elements = new LinkedList<>();
-        Collection<String> models = OdooModelIndex.getAvailableModels(getElement());
+        Collection<String> models = OdooModelIndex.getAvailableOdooModels(getElement());
         models.forEach(model -> {
             LookupElement element = LookupElementBuilder.create(model).withIcon(PlatformIcons.CLASS_ICON);
             elements.add(element);
