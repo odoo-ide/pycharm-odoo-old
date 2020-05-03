@@ -166,6 +166,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.module.OdooModuleIndex"/>
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.model.OdooModelIndex"/>
+        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.model.OdooFieldIndex"/>
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.data.OdooExternalIdIndex"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.module.OdooManifestReferenceContributor" language="Python"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.model.OdooComputeFunctionReferenceContributor" language="Python"/>

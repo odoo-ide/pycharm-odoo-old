@@ -6,6 +6,7 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.GlobalSearchScopes;
+import com.jetbrains.python.psi.PyUtil;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,18 +52,20 @@ public class OdooModule {
 
     @NotNull
     public List<OdooModule> getDepends() {
-        OdooManifestInfo info = getManifestInfo();
-        if (info == null) {
-            return Collections.emptyList();
-        }
-        List<OdooModule> result = new LinkedList<>();
-        for (String depend : info.getDepends()) {
-            OdooModule module = OdooModuleIndex.getOdooModuleByName(depend, getDirectory());
-            if (module != null) {
-                result.add(module);
+        return PyUtil.getParameterizedCachedValue(getDirectory(), null, param -> {
+            OdooManifestInfo info = getManifestInfo();
+            if (info == null) {
+                return Collections.emptyList();
             }
-        }
-        return result;
+            List<OdooModule> result = new LinkedList<>();
+            for (String depend : info.getDepends()) {
+                OdooModule module = OdooModuleIndex.getOdooModuleByName(depend, getDirectory());
+                if (module != null) {
+                    result.add(module);
+                }
+            }
+            return result;
+        });
     }
 
     @NotNull
@@ -97,6 +100,10 @@ public class OdooModule {
             return GlobalSearchScopes.directoriesScope(getProject(), true, dirs);
         }
         return GlobalSearchScopes.directoryScope(getDirectory(), true);
+    }
+
+    public boolean isDependOn(@Nullable OdooModule module) {
+        return getDepends().contains(module) || getFlattenedDependsGraph().contains(module);
     }
 
     @Override

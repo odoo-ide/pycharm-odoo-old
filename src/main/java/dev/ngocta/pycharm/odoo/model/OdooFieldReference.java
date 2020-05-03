@@ -1,22 +1,26 @@
 package dev.ngocta.pycharm.odoo.model;
 
 import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.PsiReferenceBase;
+import com.intellij.psi.ResolveResult;
 import com.jetbrains.python.psi.PyTargetExpression;
 import com.jetbrains.python.psi.PyUtil;
+import com.jetbrains.python.psi.stubs.PyClassAttributesIndex;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
+import dev.ngocta.pycharm.odoo.module.OdooModule;
+import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
-public class OdooFieldReference extends PsiReferenceBase<PsiElement> {
+public class OdooFieldReference extends PsiReferenceBase.Poly<PsiElement> {
     private final Computable<OdooModelClass> myModelClassResolver;
     private OdooFieldPathReferences myFieldPathReferences;
     private final TypeEvalContext myContext;
@@ -36,9 +40,13 @@ public class OdooFieldReference extends PsiReferenceBase<PsiElement> {
     private OdooFieldReference(@NotNull PsiElement element,
                                @Nullable TextRange rangeInElement,
                                @Nullable Computable<OdooModelClass> modelClassResolver) {
-        super(element, rangeInElement);
+        super(element, rangeInElement, false);
         myModelClassResolver = modelClassResolver;
-        myContext = TypeEvalContext.codeAnalysis(element.getProject(), element.getContainingFile());
+        myContext = TypeEvalContext.codeAnalysis(getProject(), element.getContainingFile());
+    }
+
+    public Project getProject() {
+        return getElement().getProject();
     }
 
     @Nullable
@@ -74,16 +82,38 @@ public class OdooFieldReference extends PsiReferenceBase<PsiElement> {
         return null;
     }
 
-    @Nullable
+    @NotNull
     @Override
-    public PsiElement resolve() {
-        return PyUtil.getNullableParameterizedCachedValue(getElement(), getRangeInElement(), param -> {
-            OdooModelClass cls = getModelClass();
-            if (cls != null) {
-                return cls.findField(getValue(), myContext);
-            }
-            return null;
+    public ResolveResult[] multiResolve(boolean incompleteCode) {
+        return PyUtil.getParameterizedCachedValue(getElement(), getRangeInElement(), param -> {
+            return multiResolveInner();
         });
+    }
+
+    protected ResolveResult[] multiResolveInner() {
+        OdooModelClass cls = getModelClass();
+        if (cls != null) {
+            PyTargetExpression field = cls.findField(getValue(), myContext);
+            return field != null ? PsiElementResolveResult.createResults(field) : ResolveResult.EMPTY_ARRAY;
+        }
+        Collection<PyTargetExpression> implicitFields = resolveImplicitFields();
+        return PsiElementResolveResult.createResults(implicitFields);
+    }
+
+    @NotNull
+    protected Collection<PyTargetExpression> resolveImplicitFields() {
+        OdooModule module = OdooModuleUtils.getContainingOdooModule(getElement());
+        if (module != null) {
+            Collection<PyTargetExpression> fields = PyClassAttributesIndex.findClassAndInstanceAttributes(
+                    getValue(), getProject(), module.getSearchScope());
+            return OdooModuleUtils.sortElementByOdooModuleOrder(fields);
+        }
+        return Collections.emptyList();
+    }
+
+    @NotNull
+    protected Collection<String> getImplicitVariants() {
+        return OdooFieldIndex.getAvailableFieldNames(getElement());
     }
 
     @NotNull
@@ -91,7 +121,7 @@ public class OdooFieldReference extends PsiReferenceBase<PsiElement> {
     public Object[] getVariants() {
         OdooModelClass cls = getModelClass();
         if (cls == null) {
-            return new Object[0];
+            return getImplicitVariants().toArray();
         }
         Map<String, LookupElement> elements = new LinkedHashMap<>();
         cls.visitField(field -> {

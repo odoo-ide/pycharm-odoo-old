@@ -10,6 +10,8 @@ import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -59,13 +61,18 @@ public class OdooModuleUtils {
     }
 
     @NotNull
-    public static <T extends PsiElement> List<T> sortElementByOdooModuleOrder(@NotNull List<T> elements,
-                                                                              @NotNull List<OdooModule> modules) {
+    public static <T extends PsiElement> List<T> sortElementByOdooModuleOrder(@NotNull Collection<T> elements) {
+        if (elements.isEmpty()) {
+            return Collections.emptyList();
+        }
         List<T> sortedElements = new LinkedList<T>(elements);
         sortedElements.sort((e1, e2) -> {
             OdooModule m1 = getContainingOdooModule(e1);
             OdooModule m2 = getContainingOdooModule(e2);
-            return modules.indexOf(m1) - modules.indexOf(m2);
+            if (m1 == null || m2 == null || m1 == m2) {
+                return 0;
+            }
+            return m1.isDependOn(m2) ? -1 : 1;
         });
         return sortedElements;
     }

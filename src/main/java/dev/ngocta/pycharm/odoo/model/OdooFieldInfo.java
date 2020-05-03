@@ -1,6 +1,7 @@
 package dev.ngocta.pycharm.odoo.model;
 
 import com.intellij.navigation.NavigationItem;
+import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
@@ -57,8 +58,12 @@ public class OdooFieldInfo {
     @Nullable
     public static OdooFieldInfo getInfo(@NotNull PyTargetExpression field) {
         return CachedValuesManager.getCachedValue(field, () -> {
-            OdooFieldInfo info = getInfoInner(field);
-            return CachedValueProvider.Result.create(info, field);
+            try {
+                OdooFieldInfo info = getInfoInner(field);
+                return CachedValueProvider.Result.create(info, field);
+            } catch (IndexNotReadyException e) {
+                return null;
+            }
         });
     }
 
