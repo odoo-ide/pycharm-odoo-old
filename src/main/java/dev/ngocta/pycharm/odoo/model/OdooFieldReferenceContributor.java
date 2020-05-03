@@ -2,6 +2,7 @@ package dev.ngocta.pycharm.odoo.model;
 
 import com.intellij.patterns.PatternCondition;
 import com.intellij.patterns.PsiElementPattern;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceContributor;
 import com.intellij.psi.PsiReferenceRegistrar;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -17,97 +18,103 @@ import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class OdooFieldReferenceContributor extends PsiReferenceContributor {
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> MAPPED_PATTERN =
-            psiElement(PyStringLiteralExpression.class).withParent(
-                    psiElement(PyArgumentList.class).withParent(
-                            psiElement(PyCallExpression.class).with(new PatternCondition<PyCallExpression>("mapped") {
-                                @Override
-                                public boolean accepts(@NotNull PyCallExpression callExpression,
-                                                       ProcessingContext context) {
-                                    PyExpression callee = callExpression.getCallee();
-                                    if (callee instanceof PyReferenceExpression) {
-                                        PyReferenceExpression referenceExpression = (PyReferenceExpression) callee;
-                                        if (OdooNames.MAPPED.equals(referenceExpression.getName())) {
-                                            PyExpression qualifier = referenceExpression.getQualifier();
-                                            if (qualifier != null) {
-                                                TypeEvalContext typeEvalContext = TypeEvalContext.userInitiated(callExpression.getProject(), callExpression.getContainingFile());
-                                                PyType qualifierType = typeEvalContext.getType(qualifier);
-                                                if (qualifierType instanceof OdooModelClassType) {
-                                                    context.put(OdooFieldReferenceProvider.MODEL_CLASS, ((OdooModelClassType) qualifierType).getPyClass());
-                                                    context.put(OdooFieldReferenceProvider.ENABLE_SUB_FIELD, true);
-                                                    return true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                    return false;
-                                }
-                            })));
-
-    public static final PsiElementPattern.Capture<PyStringLiteralExpression> DECORATORS_PATTERN =
-            psiElement(PyStringLiteralExpression.class).withParent(
-                    psiElement(PyArgumentList.class).withParent(
-                            psiElement(PyDecorator.class).with(new PatternCondition<PyDecorator>("decorators") {
-                                @Override
-                                public boolean accepts(@NotNull PyDecorator pyDecorator,
-                                                       ProcessingContext context) {
-                                    QualifiedName qualifiedName = pyDecorator.getQualifiedName();
-                                    if (qualifiedName != null) {
-                                        String s = qualifiedName.toString();
-                                        if (OdooNames.DECORATOR_DEPENDS.equals(s)
-                                                || OdooNames.DECORATOR_CONSTRAINS.equals(s)
-                                                || OdooNames.DECORATOR_ONCHANGE.equals(s)) {
-                                            OdooModelClass cls = OdooModelUtils.getContainingOdooModelClass(pyDecorator);
-                                            if (cls != null) {
-                                                boolean enableSubField = OdooNames.DECORATOR_DEPENDS.equals(s);
-                                                context.put(OdooFieldReferenceProvider.MODEL_CLASS, cls);
-                                                context.put(OdooFieldReferenceProvider.ENABLE_SUB_FIELD, enableSubField);
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                    return false;
-                                }
-                            })));
-
-    public static final PsiElementPattern.Capture<PyStringLiteralExpression> ONE2MANY_INVERSE_NAME_PATTERN =
-            OdooModelUtils.getFieldArgumentPattern(1, OdooNames.FIELD_ATTR_INVERSE_NAME, OdooNames.FIELD_TYPE_ONE2MANY)
-                    .with(new PatternCondition<PyStringLiteralExpression>("inverseName") {
-                        @Override
-                        public boolean accepts(@NotNull PyStringLiteralExpression inverseNameExpression,
-                                               ProcessingContext context) {
-                            PyCallExpression callExpression = PsiTreeUtil.getParentOfType(inverseNameExpression, PyCallExpression.class);
-                            if (callExpression != null) {
-                                PyStringLiteralExpression comodelNameExpression = callExpression.getArgument(0, OdooNames.FIELD_ATTR_COMODEL_NAME, PyStringLiteralExpression.class);
-                                if (comodelNameExpression != null) {
-                                    OdooModelClass cls = OdooModelClass.getInstance(comodelNameExpression.getStringValue(), inverseNameExpression.getProject());
-                                    context.put(OdooFieldReferenceProvider.MODEL_CLASS, cls);
-                                    return true;
-                                }
-                            }
-                            return false;
-                        }
-                    });
-
-    public static final PsiElementPattern.Capture<PyStringLiteralExpression> RELATED_PATTERN =
-            psiElement(PyStringLiteralExpression.class).withParent(
-                    psiElement(PyKeywordArgument.class).with(new PatternCondition<PyKeywordArgument>("related") {
-                        @Override
-                        public boolean accepts(@NotNull PyKeywordArgument pyKeywordArgument,
-                                               ProcessingContext context) {
-                            if (OdooNames.FIELD_ATTR_RELATED.equals(pyKeywordArgument.getKeyword())) {
-                                PyCallExpression callExpression = PsiTreeUtil.getParentOfType(pyKeywordArgument, PyCallExpression.class);
-                                if (callExpression != null && OdooModelUtils.isFieldDeclarationExpression(callExpression)) {
-                                    OdooModelClass cls = OdooModelUtils.getContainingOdooModelClass(pyKeywordArgument);
-                                    if (cls != null) {
-                                        context.put(OdooFieldReferenceProvider.MODEL_CLASS, cls);
+            psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("mapped") {
+                @Override
+                public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression, ProcessingContext context) {
+                    PsiElement parent = pyStringLiteralExpression.getParent();
+                    if (parent instanceof PyArgumentList) {
+                        parent = parent.getParent();
+                        if (parent instanceof PyCallExpression) {
+                            PyCallExpression callExpression = (PyCallExpression) parent;
+                            PyExpression callee = callExpression.getCallee();
+                            if (callee instanceof PyReferenceExpression) {
+                                PyReferenceExpression referenceExpression = (PyReferenceExpression) callee;
+                                if (OdooNames.MAPPED.equals(referenceExpression.getName())) {
+                                    PyExpression qualifier = referenceExpression.getQualifier();
+                                    if (qualifier != null) {
                                         context.put(OdooFieldReferenceProvider.ENABLE_SUB_FIELD, true);
+                                        context.put(OdooFieldReferenceProvider.MODEL_CLASS_REVOLVER, () -> {
+                                            TypeEvalContext typeEvalContext = TypeEvalContext.codeAnalysis(
+                                                    callExpression.getProject(), callExpression.getContainingFile());
+                                            PyType qualifierType = typeEvalContext.getType(qualifier);
+                                            if (qualifierType instanceof OdooModelClassType) {
+                                                return ((OdooModelClassType) qualifierType).getPyClass();
+                                            }
+                                            return null;
+                                        });
                                         return true;
                                     }
                                 }
                             }
                             return false;
                         }
-                    }));
+                    }
+                    return false;
+                }
+            });
+
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> DECORATOR_PATTERN =
+            psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("decorator") {
+                @Override
+                public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression, ProcessingContext context) {
+                    PsiElement parent = pyStringLiteralExpression.getParent();
+                    if (parent instanceof PyArgumentList) {
+                        parent = parent.getParent();
+                        if (parent instanceof PyDecorator) {
+                            PyDecorator decorator = (PyDecorator) parent;
+                            QualifiedName qualifiedName = decorator.getQualifiedName();
+                            if (qualifiedName != null) {
+                                String decoratorName = qualifiedName.toString();
+                                if (OdooNames.DECORATOR_DEPENDS.equals(decoratorName)
+                                        || OdooNames.DECORATOR_CONSTRAINS.equals(decoratorName)
+                                        || OdooNames.DECORATOR_ONCHANGE.equals(decoratorName)) {
+                                    context.put(OdooFieldReferenceProvider.ENABLE_SUB_FIELD,
+                                            OdooNames.DECORATOR_DEPENDS.equals(decoratorName));
+                                    context.put(OdooFieldReferenceProvider.MODEL_CLASS_REVOLVER, () -> {
+                                        return OdooModelUtils.getContainingOdooModelClass(decorator);
+                                    });
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                }
+            });
+
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> ONE2MANY_INVERSE_NAME_PATTERN =
+            OdooModelUtils.getFieldArgumentPattern(1, OdooNames.FIELD_ATTR_INVERSE_NAME, OdooNames.FIELD_TYPE_ONE2MANY)
+                    .with(new PatternCondition<PyStringLiteralExpression>("inverseName") {
+                        @Override
+                        public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression,
+                                               ProcessingContext context) {
+                            context.put(OdooFieldReferenceProvider.MODEL_CLASS_REVOLVER, () -> {
+                                PyCallExpression callExpression = PsiTreeUtil.getParentOfType(pyStringLiteralExpression, PyCallExpression.class);
+                                if (callExpression != null) {
+                                    PyStringLiteralExpression comodelExpression = callExpression.getArgument(
+                                            0, OdooNames.FIELD_ATTR_COMODEL_NAME, PyStringLiteralExpression.class);
+                                    if (comodelExpression != null) {
+                                        return OdooModelClass.getInstance(comodelExpression.getStringValue(), callExpression.getProject());
+                                    }
+                                }
+                                return null;
+                            });
+                            return true;
+                        }
+                    });
+
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> RELATED_PATTERN =
+            OdooModelUtils.getFieldArgumentPattern(-1, OdooNames.FIELD_ATTR_RELATED)
+                    .with(new PatternCondition<PyStringLiteralExpression>("related") {
+                        @Override
+                        public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression, ProcessingContext context) {
+                            context.put(OdooFieldReferenceProvider.ENABLE_SUB_FIELD, true);
+                            context.put(OdooFieldReferenceProvider.MODEL_CLASS_REVOLVER, () -> {
+                                return OdooModelUtils.getContainingOdooModelClass(pyStringLiteralExpression);
+                            });
+                            return true;
+                        }
+                    });
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> CURRENCY_FIELD_PATTERN =
             OdooModelUtils.getFieldArgumentPattern(-1, OdooNames.FIELD_ATTR_CURRENCY_FIELD, OdooNames.FIELD_TYPE_MONETARY)
@@ -115,12 +122,10 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                         @Override
                         public boolean accepts(@NotNull PyStringLiteralExpression expression,
                                                ProcessingContext context) {
-                            OdooModelClass cls = OdooModelUtils.getContainingOdooModelClass(expression);
-                            if (cls != null) {
-                                context.put(OdooFieldReferenceProvider.MODEL_CLASS, cls);
-                                return true;
-                            }
-                            return false;
+                            context.put(OdooFieldReferenceProvider.MODEL_CLASS_REVOLVER, () -> {
+                                return OdooModelUtils.getContainingOdooModelClass(expression);
+                            });
+                            return true;
                         }
                     });
 
@@ -129,13 +134,15 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                 @Override
                 public boolean accepts(@NotNull PyStringLiteralExpression pyReferenceExpression,
                                        ProcessingContext context) {
-                    OdooModelClass cls = OdooModelUtils.getSearchDomainModelContext(pyReferenceExpression);
-                    if (cls != null) {
-                        context.put(OdooFieldReferenceProvider.MODEL_CLASS, cls);
-                        context.put(OdooFieldReferenceProvider.ENABLE_SUB_FIELD, true);
-                        return true;
+                    PyListLiteralExpression domainExpression = OdooModelUtils.getSearchDomainExpression(pyReferenceExpression);
+                    if (domainExpression == null) {
+                        return false;
                     }
-                    return false;
+                    context.put(OdooFieldReferenceProvider.ENABLE_SUB_FIELD, true);
+                    context.put(OdooFieldReferenceProvider.MODEL_CLASS_REVOLVER, () -> {
+                        return OdooModelUtils.resolveSearchDomainContext(domainExpression, true);
+                    });
+                    return true;
                 }
             });
 
@@ -144,12 +151,14 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                 @Override
                 public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression,
                                        ProcessingContext context) {
-                    OdooModelClass cls = OdooModelUtils.getRecordValueModelContext(pyStringLiteralExpression);
-                    if (cls != null) {
-                        context.put(OdooFieldReferenceProvider.MODEL_CLASS, cls);
-                        return true;
+                    PsiElement valueExpression = OdooModelUtils.getRecordValueExpression(pyStringLiteralExpression);
+                    if (valueExpression == null) {
+                        return false;
                     }
-                    return false;
+                    context.put(OdooFieldReferenceProvider.MODEL_CLASS_REVOLVER, () -> {
+                        return OdooModelUtils.resolveRecordValueContext(valueExpression);
+                    });
+                    return true;
                 }
             });
 
@@ -157,7 +166,7 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
         OdooFieldReferenceProvider provider = new OdooFieldReferenceProvider();
         registrar.registerReferenceProvider(MAPPED_PATTERN, provider);
-        registrar.registerReferenceProvider(DECORATORS_PATTERN, provider);
+        registrar.registerReferenceProvider(DECORATOR_PATTERN, provider);
         registrar.registerReferenceProvider(ONE2MANY_INVERSE_NAME_PATTERN, provider);
         registrar.registerReferenceProvider(RELATED_PATTERN, provider);
         registrar.registerReferenceProvider(CURRENCY_FIELD_PATTERN, provider);

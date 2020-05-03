@@ -1,5 +1,6 @@
 package dev.ngocta.pycharm.odoo.model;
 
+import com.jetbrains.python.psi.PyListLiteralExpression;
 import com.jetbrains.python.psi.PyQualifiedExpression;
 import com.jetbrains.python.psi.PyTargetExpression;
 import com.jetbrains.python.psi.resolve.PyReferenceResolveProvider;
@@ -19,11 +20,14 @@ public class OdooFieldReferenceResolveProvider implements PyReferenceResolveProv
         if (name == null || pyQualifiedExpression.getQualifier() != null) {
             return Collections.emptyList();
         }
-        OdooModelClass modelClass = OdooModelUtils.getSearchDomainModelContext(pyQualifiedExpression);
-        if (modelClass != null) {
-            PyTargetExpression field = modelClass.findField(name, typeEvalContext);
-            if (field != null) {
-                return Collections.singletonList(new RatedResolveResult(RatedResolveResult.RATE_NORMAL, field));
+        PyListLiteralExpression domainExpression = OdooModelUtils.getSearchDomainExpression(pyQualifiedExpression);
+        if (domainExpression != null) {
+            OdooModelClass modelClass = OdooModelUtils.resolveSearchDomainContext(domainExpression, false);
+            if (modelClass != null) {
+                PyTargetExpression field = modelClass.findField(name, typeEvalContext);
+                if (field != null) {
+                    return Collections.singletonList(new RatedResolveResult(RatedResolveResult.RATE_NORMAL, field));
+                }
             }
         }
         return Collections.emptyList();

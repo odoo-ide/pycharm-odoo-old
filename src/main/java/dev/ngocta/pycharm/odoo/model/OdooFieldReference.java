@@ -1,6 +1,7 @@
 package dev.ngocta.pycharm.odoo.model;
 
 import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
@@ -16,40 +17,54 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class OdooFieldReference extends PsiReferenceBase<PsiElement> {
-    private final OdooModelClass myOriginModelClass;
+    private final Computable<OdooModelClass> myModelClassResolver;
     private OdooFieldPathReferences myFieldPathReferences;
     private final TypeEvalContext myContext;
 
     public OdooFieldReference(@NotNull PsiElement element,
-                              @NotNull OdooModelClass modelClass) {
-        this(element, null, modelClass);
+                              @Nullable Computable<OdooModelClass> modelClassResolver) {
+        this(element, null, modelClassResolver);
     }
 
     public OdooFieldReference(@NotNull PsiElement element,
                               @NotNull TextRange rangeInElement,
                               @NotNull OdooFieldPathReferences fieldPathReferences) {
-        this(element, rangeInElement, fieldPathReferences.getModelClass());
+        this(element, rangeInElement, fieldPathReferences.getModelClassResolver());
         myFieldPathReferences = fieldPathReferences;
     }
 
     private OdooFieldReference(@NotNull PsiElement element,
                                @Nullable TextRange rangeInElement,
-                               @NotNull OdooModelClass modelClass) {
+                               @Nullable Computable<OdooModelClass> modelClassResolver) {
         super(element, rangeInElement);
-        myOriginModelClass = modelClass;
+        myModelClassResolver = modelClassResolver;
         myContext = TypeEvalContext.codeAnalysis(element.getProject(), element.getContainingFile());
     }
 
+    @Nullable
+    private OdooModelClass getRootModelClass() {
+        if (myModelClassResolver == null) {
+            return null;
+        }
+        return PyUtil.getNullableParameterizedCachedValue(getElement(), null, param -> {
+            return myModelClassResolver.compute();
+        });
+    }
+
     private OdooModelClass getModelClass() {
+        OdooModelClass rootModelClass = getRootModelClass();
+        if (rootModelClass == null) {
+            return null;
+        }
         if (myFieldPathReferences == null) {
-            return myOriginModelClass;
+            return rootModelClass;
         }
         int idx = Arrays.asList(myFieldPathReferences.getReferences()).indexOf(this);
         if (idx == 0) {
-            return myOriginModelClass;
+            return rootModelClass;
         }
         String[] fieldNames = Arrays.copyOfRange(myFieldPathReferences.getFieldNames(), 0, idx);
-        PyTargetExpression field = myOriginModelClass.findFieldByPath(fieldNames, myContext);
+        PyTargetExpression field = rootModelClass.findFieldByPath(fieldNames, myContext);
         if (field != null) {
             PyType type = OdooFieldInfo.getFieldType(field, myContext);
             if (type instanceof OdooModelClassType) {
@@ -87,5 +102,10 @@ public class OdooFieldReference extends PsiReferenceBase<PsiElement> {
             return true;
         }, myContext);
         return elements.values().toArray();
+    }
+
+    @Override
+    public boolean isSoft() {
+        return getModelClass() == null;
     }
 }
