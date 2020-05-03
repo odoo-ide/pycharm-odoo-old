@@ -27,7 +27,6 @@ import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
 import com.intellij.util.xml.GenericValue;
 import com.jetbrains.python.codeInsight.completion.PyFunctionInsertHandler;
-import com.jetbrains.python.codeInsight.mlcompletion.PyCompletionMlElementInfo;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.types.PyCallableParameter;
 import com.jetbrains.python.psi.types.PyType;
@@ -100,10 +99,7 @@ public class OdooModelUtils {
                 .withTypeText(typeText)
                 .withIcon(element.getIcon(Iconable.ICON_FLAG_READ_STATUS))
                 .withInsertHandler(insertHandler);
-        LookupElement lookupElement = PrioritizedLookupElement.withPriority(lookupElementBuilder, priority);
-        PyCompletionMlElementInfo info = PyCompletionMlElementInfo.Companion.fromElement(element);
-        lookupElement.putUserData(PyCompletionMlElementInfo.Companion.getKey(), info);
-        return lookupElement;
+        return PrioritizedLookupElement.withPriority(lookupElementBuilder, priority);
     }
 
     @NotNull
