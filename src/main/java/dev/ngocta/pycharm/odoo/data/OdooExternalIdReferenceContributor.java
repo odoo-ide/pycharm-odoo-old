@@ -102,7 +102,7 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                                 if (callee instanceof PyReferenceExpression && "render".equals(callee.getName())) {
                                     PsiElement target = ((PyReferenceExpression) callee).getReference().resolve();
                                     if (target instanceof PyFunction && OdooNames.REQUEST_RENDER_QNAME.equals(((PyFunction) target).getQualifiedName())) {
-                                        context.put(OdooExternalIdReferenceProvider.SUB_TYPE, OdooRecordSubType.VIEW_QWEB);
+                                        context.put(OdooExternalIdReferenceProvider.SUB_TYPE, OdooRecordSubType.QWEB);
                                         return true;
                                     }
                                 }
@@ -131,7 +131,7 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                         @Override
                         public boolean accepts(@NotNull XmlAttributeValue xmlAttributeValue,
                                                ProcessingContext context) {
-                            context.put(OdooExternalIdReferenceProvider.SUB_TYPE, OdooRecordSubType.VIEW_QWEB);
+                            context.put(OdooExternalIdReferenceProvider.SUB_TYPE, OdooRecordSubType.QWEB);
                             return true;
                         }
                     });

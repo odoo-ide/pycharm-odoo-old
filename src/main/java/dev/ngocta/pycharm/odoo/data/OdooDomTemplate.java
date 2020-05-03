@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 public interface OdooDomTemplate extends OdooDomRecordLike {
     @Override
     default OdooRecord getRecord() {
-        return getRecord(OdooNames.IR_UI_VIEW, OdooRecordSubType.VIEW_QWEB);
+        return getRecord(OdooNames.IR_UI_VIEW, OdooRecordSubType.QWEB);
     }
 
     @Attribute("inherit_id")
@@ -23,7 +23,7 @@ public interface OdooDomTemplate extends OdooDomRecordLike {
                                                PsiElement element,
                                                ConvertContext context) {
             return new PsiReference[]{new OdooExternalIdReference(element, null,
-                    () -> new String[]{OdooNames.IR_UI_VIEW}, OdooRecordSubType.VIEW_QWEB, true)};
+                    () -> new String[]{OdooNames.IR_UI_VIEW}, OdooRecordSubType.QWEB, true)};
         }
     }
 }

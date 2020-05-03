@@ -24,8 +24,6 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRecord> {
     private static final ID<String, OdooRecord> NAME = ID.create("odoo.external.id");
@@ -42,8 +40,8 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
     public DataIndexer<String, OdooRecord, FileContent> getIndexer() {
         return inputData -> {
             Map<String, OdooRecord> result = new HashMap<>();
-            VirtualFile file = inputData.getFile();
             Project project = inputData.getProject();
+            VirtualFile file = inputData.getFile();
             PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
             if (psiFile instanceof XmlFile) {
                 OdooDomRoot root = OdooDataUtils.getDomRoot((XmlFile) psiFile);
@@ -52,8 +50,11 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                     items.forEach(item -> {
                         OdooRecord record = item.getRecord();
                         if (record != null) {
-                            result.put(record.getId(), record.withoutDataFile());
-                            RECORD_CACHE.add(record);
+                            String id = record.getId().trim();
+                            if (!id.isEmpty()) {
+                                result.put(record.getId(), record.withoutDataFile());
+                                RECORD_CACHE.add(record);
+                            }
                         }
                     });
                 }
@@ -84,7 +85,11 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                 out.writeUTF(value.getName());
                 out.writeUTF(StringUtil.notNullize(value.getModel()));
                 out.writeUTF(value.getModule());
-                out.writeUTF(Optional.ofNullable(value.getSubType()).map(Enum::name).orElse(""));
+                if (value.getSubType() == null) {
+                    out.writeByte(0);
+                } else {
+                    out.writeByte(value.getSubType().getId());
+                }
             }
 
             @Override
@@ -92,11 +97,8 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                 String name = in.readUTF();
                 String model = in.readUTF();
                 String module = in.readUTF();
-                OdooRecordSubType type = null;
-                try {
-                    type = OdooRecordSubType.valueOf(in.readUTF());
-                } catch (IllegalArgumentException ignored) {
-                }
+                int subTypeId = in.readUnsignedByte();
+                OdooRecordSubType type = OdooRecordSubType.getById(subTypeId);
                 return new OdooRecordImpl(name, model, module, type, null);
             }
         };
@@ -104,7 +106,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
 
     @Override
     public int getVersion() {
-        return 8;
+        return 9;
     }
 
     @NotNull
@@ -123,21 +125,22 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
     @NotNull
     public static Collection<String> getAllIds(@NotNull Project project,
                                                @NotNull GlobalSearchScope scope) {
-        return Stream.concat(getIds(scope).stream(), getImplicitIds(project, scope).stream()).collect(Collectors.toSet());
+        List<String> ids = new LinkedList<>(getIds(scope));
+        ids.addAll(getImplicitIds(project, scope));
+        return ids;
     }
 
     @NotNull
     private static Collection<String> getIds(@NotNull GlobalSearchScope scope) {
-        Set<String> ids = new HashSet<>();
-        FileBasedIndex index = FileBasedIndex.getInstance();
-        index.processAllKeys(NAME, ids::add, scope, null);
+        List<String> ids = new LinkedList<>();
+        FileBasedIndex.getInstance().processAllKeys(NAME, ids::add, scope, null);
         return ids;
     }
 
     @NotNull
     private static Collection<String> getImplicitIds(@NotNull Project project,
                                                      @NotNull GlobalSearchScope scope) {
-        Set<String> ids = new HashSet<>();
+        List<String> ids = new LinkedList<>();
         processImplicitRecords(project, scope, record -> {
             ids.add(record.getId());
             return true;
