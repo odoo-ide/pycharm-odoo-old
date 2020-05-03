@@ -3,6 +3,7 @@ package dev.ngocta.pycharm.odoo.model;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
+import com.intellij.util.ArrayUtil;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
@@ -15,6 +16,11 @@ public class OdooModelInfo {
     private final String myName;
     private final List<String> myInherit;
     private final Map<String, String> myInherits;
+    private final static String[] KNOWN_SUPER_CLASSES = new String[]{
+            "models.Model",
+            "models.TransientModel",
+            "models.AbstractModel"
+    };
 
     private OdooModelInfo(@NotNull String name,
                           @Nullable List<String> inherit,
@@ -52,17 +58,23 @@ public class OdooModelInfo {
     @Nullable
     public static OdooModelInfo getInfo(@NotNull PyClass pyClass) {
         return CachedValuesManager.getCachedValue(pyClass, () -> {
-            try {
-                PyClass baseModelClass = OdooModelUtils.getBaseModelClass(pyClass);
-                TypeEvalContext context = TypeEvalContext.codeAnalysis(pyClass.getProject(), pyClass.getContainingFile());
-                if (baseModelClass == null || !pyClass.isSubclass(baseModelClass, context)) {
+            boolean isModelClass = Arrays.stream(pyClass.getSuperClassExpressions()).anyMatch(pyExpression -> {
+                return ArrayUtil.contains(pyExpression.getText(), KNOWN_SUPER_CLASSES);
+            });
+            if (!isModelClass) {
+                try {
+                    PyClass baseModelClass = OdooModelUtils.getBaseModelClass(pyClass);
+                    TypeEvalContext context = TypeEvalContext.codeAnalysis(pyClass.getProject(), pyClass.getContainingFile());
+                    isModelClass = baseModelClass != null && pyClass.isSubclass(baseModelClass, context);
+                } catch (IndexNotReadyException e) {
                     return null;
                 }
-                OdooModelInfo info = getInfoInner(pyClass);
-                return CachedValueProvider.Result.create(info, pyClass, baseModelClass);
-            } catch (IndexNotReadyException e) {
-                return null;
             }
+            if (isModelClass) {
+                OdooModelInfo info = getInfoInner(pyClass);
+                return CachedValueProvider.Result.create(info, pyClass);
+            }
+            return null;
         });
     }
 
