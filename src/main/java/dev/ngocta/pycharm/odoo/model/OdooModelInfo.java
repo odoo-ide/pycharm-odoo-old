@@ -5,6 +5,7 @@ import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
+import com.intellij.psi.util.PsiModificationTracker;
 import com.intellij.util.ArrayUtil;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.types.TypeEvalContext;
@@ -69,15 +70,15 @@ public class OdooModelInfo {
                     PyClass baseModelClass = OdooModelUtils.getBaseModelClass(pyClass);
                     TypeEvalContext context = TypeEvalContext.codeAnalysis(project, pyClass.getContainingFile());
                     isModelClass = baseModelClass != null && pyClass.isSubclass(baseModelClass, context);
-                } catch (IndexNotReadyException e) {
-                    return null;
+                } catch (IndexNotReadyException ignored) {
+                    return CachedValueProvider.Result.create(null, PsiModificationTracker.MODIFICATION_COUNT);
                 }
             }
             if (isModelClass) {
                 OdooModelInfo info = getInfoInner(pyClass);
                 return CachedValueProvider.Result.create(info, pyClass);
             }
-            return null;
+            return CachedValueProvider.Result.create(null, pyClass);
         });
     }
 
