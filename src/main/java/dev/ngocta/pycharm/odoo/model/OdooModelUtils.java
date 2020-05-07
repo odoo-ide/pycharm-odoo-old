@@ -13,7 +13,6 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.patterns.PatternCondition;
 import com.intellij.patterns.PsiElementPattern;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -35,7 +34,6 @@ import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.OdooPyUtils;
 import dev.ngocta.pycharm.odoo.data.*;
-import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -173,10 +171,6 @@ public class OdooModelUtils {
     @Nullable
     public static PyClass getBaseModelClass(@Nullable PsiElement anchor) {
         return OdooPyUtils.getClassByQName(OdooNames.BASE_MODEL_QNAME, anchor);
-    }
-
-    public static boolean isOdooModelFile(@Nullable PsiFile file) {
-        return file instanceof PyFile && OdooModuleUtils.isInOdooModule(file);
     }
 
     @Nullable

@@ -37,10 +37,8 @@ public class OdooFieldIndex extends FileBasedIndexExtension<String, Void> {
         return inputData -> {
             Map<String, Void> result = new HashMap<>();
             VirtualFile virtualFile = inputData.getFile();
-            Project project = inputData.getProject();
-            PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
-            if (OdooModelUtils.isOdooModelFile(psiFile)) {
-                psiFile.acceptChildren(new PyElementVisitor() {
+            if (OdooModuleUtils.isInOdooModule(virtualFile)) {
+                inputData.getPsiFile().acceptChildren(new PyElementVisitor() {
                     @Override
                     public void visitPyClass(PyClass cls) {
                         super.visitPyClass(cls);
@@ -75,7 +73,7 @@ public class OdooFieldIndex extends FileBasedIndexExtension<String, Void> {
 
     @Override
     public int getVersion() {
-        return 0;
+        return 1;
     }
 
     @NotNull

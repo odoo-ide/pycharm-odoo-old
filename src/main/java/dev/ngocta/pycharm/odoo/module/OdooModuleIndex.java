@@ -7,7 +7,6 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
-import com.jetbrains.python.PyNames;
 import com.jetbrains.python.PythonFileType;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.OdooUtils;
@@ -33,7 +32,7 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
             VirtualFile file = inputData.getFile();
             if (OdooNames.MANIFEST_FILE_NAME.equals(file.getName())) {
                 VirtualFile dir = file.getParent();
-                if (dir != null && dir.findChild(PyNames.INIT_DOT_PY) != null) {
+                if (OdooModuleUtils.isOdooModuleDirectory(dir)) {
                     result.put(dir.getName(), null);
                 }
             }
