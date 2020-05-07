@@ -109,9 +109,9 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
     }
 
     @NotNull
-    private static List<PyClass> getOdooModelClassesByName(@NotNull String model,
-                                                           @NotNull Project project,
-                                                           @NotNull GlobalSearchScope scope) {
+    public static List<PyClass> getOdooModelClassesByName(@NotNull String model,
+                                                          @NotNull Project project,
+                                                          @NotNull GlobalSearchScope scope) {
         List<PyClass> result = new LinkedList<>();
         Collection<VirtualFile> files = FileBasedIndex.getInstance().getContainingFiles(NAME, model, scope);
         PsiManager psiManager = PsiManager.getInstance(project);

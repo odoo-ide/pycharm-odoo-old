@@ -160,12 +160,14 @@
         <pyAnnotator implementation="dev.ngocta.pycharm.odoo.OdooPyAnnotator"/>
         <runnableScriptFilter implementation="dev.ngocta.pycharm.odoo.OdooPyRunnableScriptFilter"/>
         <pySuperMethodsSearch implementation="dev.ngocta.pycharm.odoo.model.OdooModelSuperMethodsSearch" order="first"/>
+        <pyClassInheritorsSearch implementation="dev.ngocta.pycharm.odoo.model.OdooModelClassInheritorsSearch" order="first"/>
         <pyReferenceResolveProvider implementation="dev.ngocta.pycharm.odoo.model.OdooFieldReferenceResolveProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.module.OdooModuleIndex"/>
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.model.OdooModelIndex"/>
+        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.model.OdooModelInheritIndex"/>
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.model.OdooFieldIndex"/>
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.data.OdooExternalIdIndex"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.module.OdooManifestReferenceContributor" language="Python"/>
