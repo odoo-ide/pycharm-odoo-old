@@ -106,7 +106,7 @@ public class OdooFieldReference extends PsiReferenceBase.Poly<PsiElement> {
         if (module != null) {
             Collection<PyTargetExpression> fields = PyClassAttributesIndex.findClassAndInstanceAttributes(
                     getValue(), getProject(), module.getSearchScope());
-            return OdooModuleUtils.sortElementByOdooModuleOrder(fields);
+            return OdooModuleUtils.sortElementByOdooModuleDependOrder(fields);
         }
         return Collections.emptyList();
     }

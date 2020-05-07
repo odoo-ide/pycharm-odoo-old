@@ -131,7 +131,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
         Project project = module.getProject();
         return PyUtil.getParameterizedCachedValue(module.getDirectory(), model, param -> {
             List<PyClass> classes = getOdooModelClassesByName(model, project, module.getSearchScope());
-            List<PyClass> sortedClasses = OdooModuleUtils.sortElementByOdooModuleOrder(classes);
+            List<PyClass> sortedClasses = OdooModuleUtils.sortElementByOdooModuleDependOrder(classes);
             return ImmutableList.copyOf(sortedClasses);
         });
     }

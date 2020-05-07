@@ -85,16 +85,19 @@ public class OdooModuleUtils {
     }
 
     @NotNull
-    public static <T extends PsiElement> List<T> sortElementByOdooModuleOrder(@NotNull Collection<T> elements) {
+    public static <T extends PsiElement> List<T> sortElementByOdooModuleDependOrder(@NotNull Collection<T> elements) {
+        return sortElementByOdooModuleDependOrder(elements, false);
+    }
+
+    @NotNull
+    public static <T extends PsiElement> List<T> sortElementByOdooModuleDependOrder(@NotNull Collection<T> elements,
+                                                                                    boolean reverse) {
         Map<T, Integer> element2DependsCount = new HashMap<>();
-        List<T> notInModuleElements = new LinkedList<>();
         for (T element : elements) {
             if (element != null) {
                 OdooModule module = getContainingOdooModule(element);
                 if (module != null) {
                     element2DependsCount.put(element, module.getFlattenedDependsGraph().size());
-                } else {
-                    notInModuleElements.add(element);
                 }
             }
         }
@@ -102,9 +105,8 @@ public class OdooModuleUtils {
         sortedElements.sort((e1, e2) -> {
             int count1 = element2DependsCount.get(e1);
             int count2 = element2DependsCount.get(e2);
-            return count2 - count1;
+            return reverse ? count1 - count2 : count2 - count1;
         });
-        sortedElements.addAll(notInModuleElements);
         return sortedElements;
     }
 }
