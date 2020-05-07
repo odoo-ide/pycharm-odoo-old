@@ -41,7 +41,11 @@ public class OdooModelClassInheritorsSearch implements QueryExecutor<PyClass, Py
                         }
                     }
                     rightClasses = OdooModuleUtils.sortElementByOdooModuleDependOrder(rightClasses, true);
-                    rightClasses.forEach(consumer::process);
+                    for (PyClass rightClass : rightClasses) {
+                        if (!consumer.process(rightClass)) {
+                            return false;
+                        }
+                    }
                     visitedModels.add(name);
                     List<PyClass> inheritModelClasses = OdooModelInheritIndex.getOdooModelClassesByInheritModel(name, project, scope);
                     for (PyClass cls : inheritModelClasses) {
