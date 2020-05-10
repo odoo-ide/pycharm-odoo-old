@@ -8,7 +8,10 @@ import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
-import com.intellij.util.xml.*;
+import com.intellij.util.xml.Attribute;
+import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.DomManager;
+import com.intellij.util.xml.GenericAttributeValue;
 import com.jetbrains.python.psi.PyUtil;
 import org.intellij.plugins.xpathView.support.XPathSupport;
 import org.jaxen.JaxenException;
@@ -44,6 +47,10 @@ public interface OdooDomViewInheritLocator extends OdooDomViewElement {
             return null;
         }
         return PyUtil.getNullableParameterizedCachedValue(element, null, param -> {
+            String xPathExpr = getXPathExpr();
+            if (xPathExpr == null) {
+                return null;
+            }
             OdooDomRecordLike domRecord = getParentOfType(OdooDomRecordLike.class, true);
             if (domRecord == null) {
                 return null;
@@ -68,17 +75,16 @@ public interface OdooDomViewInheritLocator extends OdooDomViewElement {
                 if (file instanceof XmlFile) {
                     try {
                         XPathSupport support = XPathSupport.getInstance();
-                        String xpathExpr = support.getUniquePath(xmlTag, xmlTag);
+                        String fullXPathExpr = support.getUniquePath(xmlTag, xmlTag);
                         DomElement domElement = DomManager.getDomManager(project).getDomElement(xmlTag);
                         if (domElement instanceof OdooDomFieldAssignment) {
-                            xpathExpr += "/field[@name='arch']";
+                            fullXPathExpr += "/field[@name='arch']";
                         }
-                        String innerXPathExpr = getXPathExpr();
-                        if (!innerXPathExpr.startsWith("/")) {
-                            xpathExpr += "/";
+                        if (!xPathExpr.startsWith("/")) {
+                            fullXPathExpr += "/";
                         }
-                        xpathExpr += innerXPathExpr;
-                        XPath xpath = support.createXPath((XmlFile) file, xpathExpr);
+                        fullXPathExpr += xPathExpr;
+                        XPath xpath = support.createXPath((XmlFile) file, fullXPathExpr);
                         Object result = xpath.selectSingleNode(xmlTag);
                         if (result instanceof XmlTag) {
                             return (XmlTag) result;
