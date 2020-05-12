@@ -145,9 +145,11 @@ public class OdooFieldInfo {
                     OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(myField);
                     if (modelClass != null) {
                         PyTargetExpression relatedField = modelClass.findFieldByPath(getRelated(), context);
-                        OdooFieldInfo relatedFieldInfo = getInfo(relatedField);
-                        if (relatedFieldInfo != null) {
-                            return relatedFieldInfo.getType(context);
+                        if (relatedField != null) {
+                            OdooFieldInfo relatedFieldInfo = getInfo(relatedField);
+                            if (relatedFieldInfo != null) {
+                                return relatedFieldInfo.getType(context);
+                            }
                         }
                     }
                 }
