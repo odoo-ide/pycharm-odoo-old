@@ -138,13 +138,17 @@ public class OdooFieldInfo {
             case OdooNames.FIELD_TYPE_MANY2ONE:
             case OdooNames.FIELD_TYPE_ONE2MANY:
             case OdooNames.FIELD_TYPE_MANY2MANY:
-                if (getComodel() != null) {
-                    OdooRecordSetType recordSetType = OdooNames.FIELD_TYPE_MANY2ONE.equals(myTypeName) ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
-                    return new OdooModelClassType(getComodel(), recordSetType, project);
-                } else if (getRelated() != null) {
+                String comodel = getComodel();
+                if (comodel != null) {
+                    OdooRecordSetType recordSetType = OdooNames.FIELD_TYPE_MANY2ONE.equals(myTypeName)
+                            ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
+                    return new OdooModelClassType(comodel, recordSetType, project);
+                }
+                String related = getRelated();
+                if (related != null) {
                     OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(myField);
                     if (modelClass != null) {
-                        PyTargetExpression relatedField = modelClass.findFieldByPath(getRelated(), context);
+                        PyTargetExpression relatedField = modelClass.findFieldByPath(related, context);
                         if (relatedField != null) {
                             OdooFieldInfo relatedFieldInfo = getInfo(relatedField);
                             if (relatedFieldInfo != null) {
