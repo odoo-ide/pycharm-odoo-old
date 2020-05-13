@@ -11,11 +11,9 @@ import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import com.intellij.util.io.VoidDataExternalizer;
-import com.jetbrains.python.PythonFileType;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyElementVisitor;
 import com.jetbrains.python.psi.PyFile;
-import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -34,23 +32,20 @@ public class OdooModelInheritIndex extends FileBasedIndexExtension<String, Void>
     public DataIndexer<String, Void, FileContent> getIndexer() {
         return inputData -> {
             Map<String, Void> result = new HashMap<>();
-            VirtualFile virtualFile = inputData.getFile();
-            if (OdooModuleUtils.isInOdooModule(virtualFile)) {
-                inputData.getPsiFile().acceptChildren(new PyElementVisitor() {
-                    @Override
-                    public void visitPyClass(PyClass node) {
-                        super.visitPyClass(node);
-                        OdooModelInfo info = OdooModelInfo.getInfo(node);
-                        if (info != null) {
-                            for (String s : info.getInherit()) {
-                                if (!s.equals(info.getName())) {
-                                    result.putIfAbsent(s, null);
-                                }
+            inputData.getPsiFile().acceptChildren(new PyElementVisitor() {
+                @Override
+                public void visitPyClass(PyClass node) {
+                    super.visitPyClass(node);
+                    OdooModelInfo info = OdooModelInfo.getInfo(node);
+                    if (info != null) {
+                        for (String s : info.getInherit()) {
+                            if (!s.equals(info.getName())) {
+                                result.putIfAbsent(s, null);
                             }
                         }
                     }
-                });
-            }
+                }
+            });
             return result;
         };
     }
@@ -69,13 +64,13 @@ public class OdooModelInheritIndex extends FileBasedIndexExtension<String, Void>
 
     @Override
     public int getVersion() {
-        return 2;
+        return 4;
     }
 
     @NotNull
     @Override
     public FileBasedIndex.InputFilter getInputFilter() {
-        return new DefaultFileTypeSpecificInputFilter(PythonFileType.INSTANCE);
+        return new OdooModelInputFilter();
     }
 
     @Override

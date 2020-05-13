@@ -15,7 +15,6 @@ import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import com.intellij.util.io.VoidDataExternalizer;
-import com.jetbrains.python.PythonFileType;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyElementVisitor;
 import com.jetbrains.python.psi.PyFile;
@@ -49,19 +48,17 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
             Map<String, Void> result = new HashMap<>();
             VirtualFile virtualFile = inputData.getFile();
             Project project = inputData.getProject();
-            if (OdooModuleUtils.isInOdooModule(virtualFile)) {
-                inputData.getPsiFile().acceptChildren(new PyElementVisitor() {
-                    @Override
-                    public void visitPyClass(PyClass node) {
-                        super.visitPyClass(node);
-                        OdooModelInfo info = OdooModelInfo.getInfo(node);
-                        if (info != null) {
-                            result.putIfAbsent(info.getName(), null);
-                            updateIrModelRecordCache(info.getName(), virtualFile, project);
-                        }
+            inputData.getPsiFile().acceptChildren(new PyElementVisitor() {
+                @Override
+                public void visitPyClass(PyClass cls) {
+                    super.visitPyClass(cls);
+                    OdooModelInfo info = OdooModelInfo.getInfo(cls);
+                    if (info != null) {
+                        result.putIfAbsent(info.getName(), null);
+                        updateIrModelRecordCache(info.getName(), virtualFile, project);
                     }
-                });
-            }
+                }
+            });
             return result;
         };
     }
@@ -80,13 +77,13 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
 
     @Override
     public int getVersion() {
-        return 6;
+        return 8;
     }
 
     @NotNull
     @Override
     public FileBasedIndex.InputFilter getInputFilter() {
-        return new DefaultFileTypeSpecificInputFilter(PythonFileType.INSTANCE);
+        return new OdooModelInputFilter();
     }
 
     @Override

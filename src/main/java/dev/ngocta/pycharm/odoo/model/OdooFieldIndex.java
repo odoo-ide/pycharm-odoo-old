@@ -1,17 +1,13 @@
 package dev.ngocta.pycharm.odoo.model;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import com.intellij.util.io.VoidDataExternalizer;
-import com.jetbrains.python.PythonFileType;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyElementVisitor;
 import com.jetbrains.python.psi.PyTargetExpression;
@@ -36,25 +32,22 @@ public class OdooFieldIndex extends FileBasedIndexExtension<String, Void> {
     public DataIndexer<String, Void, FileContent> getIndexer() {
         return inputData -> {
             Map<String, Void> result = new HashMap<>();
-            VirtualFile virtualFile = inputData.getFile();
-            if (OdooModuleUtils.isInOdooModule(virtualFile)) {
-                inputData.getPsiFile().acceptChildren(new PyElementVisitor() {
-                    @Override
-                    public void visitPyClass(PyClass cls) {
-                        super.visitPyClass(cls);
-                        OdooModelInfo clsInfo = OdooModelInfo.getInfo(cls);
-                        if (clsInfo != null) {
-                            List<PyTargetExpression> attributes = cls.getClassAttributes();
-                            for (PyTargetExpression attribute : attributes) {
-                                OdooFieldInfo info = OdooFieldInfo.getInfo(attribute);
-                                if (info != null && attribute.getName() != null) {
-                                    result.put(attribute.getName(), null);
-                                }
+            inputData.getPsiFile().acceptChildren(new PyElementVisitor() {
+                @Override
+                public void visitPyClass(PyClass cls) {
+                    super.visitPyClass(cls);
+                    OdooModelInfo clsInfo = OdooModelInfo.getInfo(cls);
+                    if (clsInfo != null) {
+                        List<PyTargetExpression> attributes = cls.getClassAttributes();
+                        for (PyTargetExpression attribute : attributes) {
+                            OdooFieldInfo info = OdooFieldInfo.getInfo(attribute);
+                            if (info != null && attribute.getName() != null) {
+                                result.put(attribute.getName(), null);
                             }
                         }
                     }
-                });
-            }
+                }
+            });
             return result;
         };
     }
@@ -73,13 +66,13 @@ public class OdooFieldIndex extends FileBasedIndexExtension<String, Void> {
 
     @Override
     public int getVersion() {
-        return 1;
+        return 2;
     }
 
     @NotNull
     @Override
     public FileBasedIndex.InputFilter getInputFilter() {
-        return new DefaultFileTypeSpecificInputFilter(PythonFileType.INSTANCE);
+        return new OdooModelInputFilter();
     }
 
     @Override

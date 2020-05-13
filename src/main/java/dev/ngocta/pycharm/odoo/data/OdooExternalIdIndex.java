@@ -113,7 +113,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
     @Override
     public FileBasedIndex.InputFilter getInputFilter() {
         return file -> {
-            return OdooDataUtils.isCsvFile(file) || OdooDataUtils.isXmlFile(file);
+            return (OdooDataUtils.isCsvFile(file) || OdooDataUtils.isXmlFile(file)) && OdooModuleUtils.isInOdooModule(file);
         };
     }
 

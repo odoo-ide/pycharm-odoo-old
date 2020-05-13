@@ -1,13 +1,8 @@
 package dev.ngocta.pycharm.odoo.model;
 
-import com.intellij.openapi.project.IndexNotReadyException;
-import com.intellij.openapi.project.Project;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
-import com.intellij.psi.util.PsiModificationTracker;
-import com.intellij.util.ArrayUtil;
 import com.jetbrains.python.psi.*;
-import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,34 +55,13 @@ public class OdooModelInfo {
     @Nullable
     public static OdooModelInfo getInfo(@NotNull PyClass pyClass) {
         return CachedValuesManager.getCachedValue(pyClass, () -> {
-            try {
-                OdooModelInfo info = getInfoInner(pyClass);
-                return CachedValueProvider.Result.create(info, pyClass);
-            } catch (IndexNotReadyException ignored) {
-                return CachedValueProvider.Result.create(null, PsiModificationTracker.MODIFICATION_COUNT);
-            }
+            OdooModelInfo info = getInfoInner(pyClass);
+            return CachedValueProvider.Result.create(info, pyClass);
         });
-    }
-
-    private static boolean isOdooModelClass(@NotNull PyClass pyClass) {
-        boolean isModelClass = Arrays.stream(pyClass.getSuperClassExpressions()).anyMatch(pyExpression -> {
-            return ArrayUtil.contains(pyExpression.getText(), KNOWN_SUPER_CLASSES);
-        });
-        if (!isModelClass) {
-            Project project = pyClass.getProject();
-            PyClass baseModelClass = OdooModelUtils.getBaseModelClass(pyClass);
-            TypeEvalContext context = TypeEvalContext.codeAnalysis(project, pyClass.getContainingFile());
-            isModelClass = baseModelClass != null && pyClass.isSubclass(baseModelClass, context);
-        }
-        return isModelClass;
     }
 
     @Nullable
     private static OdooModelInfo getInfoInner(@NotNull PyClass pyClass) {
-        if (!isOdooModelClass(pyClass)) {
-            return null;
-        }
-
         String model = null;
         List<String> inherit = new LinkedList<>();
         Map<String, String> inherits = new HashMap<>();
