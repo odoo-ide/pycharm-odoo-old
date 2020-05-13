@@ -47,6 +47,12 @@
     <change-notes><![CDATA[
         <ul>
             <li>
+                Version 3.7.1
+                <ul>
+                    <li>Bug fixes</li>
+                </ul>
+            </li>
+            <li>
                 Version 3.7
                 <ul>
                     <li>New feature: Go to class/method inheritors</li>
