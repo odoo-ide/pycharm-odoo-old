@@ -83,7 +83,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
             public void save(@NotNull DataOutput out,
                              OdooRecord value) throws IOException {
                 out.writeUTF(value.getName());
-                out.writeUTF(StringUtil.notNullize(value.getModel()));
+                out.writeUTF(value.getModel());
                 out.writeUTF(value.getModule());
                 if (value.getSubType() == null) {
                     out.writeByte(0);

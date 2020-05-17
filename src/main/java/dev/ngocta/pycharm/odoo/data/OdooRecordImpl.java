@@ -137,10 +137,10 @@ public class OdooRecordImpl implements OdooRecord {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OdooRecordImpl that = (OdooRecordImpl) o;
-        return Objects.equals(myName, that.myName) &&
-                Objects.equals(myModel, that.myModel) &&
-                Objects.equals(myModule, that.myModule) &&
-                Objects.equals(mySubType, that.mySubType) &&
+        return myName.equals(that.myName) &&
+                myModel.equals(that.myModel) &&
+                myModule.equals(that.myModule) &&
+                mySubType == that.mySubType &&
                 Objects.equals(myDataFile, that.myDataFile);
     }
 

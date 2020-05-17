@@ -1,5 +1,6 @@
 package dev.ngocta.pycharm.odoo.data;
 
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.util.xml.Attribute;
@@ -24,7 +25,7 @@ public interface OdooDomRecordLike extends OdooDomElement {
         OdooModule module = OdooModuleUtils.getContainingOdooModule(element);
         if (module != null) {
             VirtualFile file = element.getContainingFile().getVirtualFile();
-            return new OdooRecordImpl(id, model, subType, module.getName(), file);
+            return new OdooRecordImpl(id, StringUtil.notNullize(model), subType, module.getName(), file);
         }
         return null;
     }

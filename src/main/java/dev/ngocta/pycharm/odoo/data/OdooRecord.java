@@ -13,7 +13,7 @@ public interface OdooRecord {
     @NotNull
     String getName();
 
-    @Nullable
+    @NotNull
     String getModel();
 
     @NotNull
