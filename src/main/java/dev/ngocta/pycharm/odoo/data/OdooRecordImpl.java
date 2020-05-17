@@ -6,15 +6,19 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlFile;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyElement;
 import com.jetbrains.python.psi.PyFile;
+import com.jetbrains.python.psi.PyUtil;
 import dev.ngocta.pycharm.odoo.model.OdooModelInfo;
+import dev.ngocta.pycharm.odoo.model.OdooModelUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -27,7 +31,7 @@ public class OdooRecordImpl implements OdooRecord {
     private final VirtualFile myDataFile;
 
     public OdooRecordImpl(@NotNull String name,
-                          @Nullable String model,
+                          @NotNull String model,
                           @NotNull String module,
                           @Nullable OdooRecordSubType subType,
                           @Nullable VirtualFile dataFile) {
@@ -39,7 +43,7 @@ public class OdooRecordImpl implements OdooRecord {
     }
 
     public OdooRecordImpl(@NotNull String id,
-                          @Nullable String model,
+                          @NotNull String model,
                           @Nullable OdooRecordSubType subType,
                           @NotNull String containingModule,
                           @Nullable VirtualFile dataFile) {
@@ -64,6 +68,7 @@ public class OdooRecordImpl implements OdooRecord {
         return myName;
     }
 
+    @NotNull
     @Override
     public String getModel() {
         return myModel;
@@ -92,32 +97,43 @@ public class OdooRecordImpl implements OdooRecord {
 
     @Override
     public List<PsiElement> getElements(@NotNull Project project) {
-        if (myDataFile != null) {
-            if (OdooDataUtils.isCsvFile(myDataFile)) {
-                return Collections.singletonList(new OdooCsvRecord(myDataFile, project, getId()));
-            } else {
-                PsiFile file = PsiManager.getInstance(project).findFile(myDataFile);
-                if (file instanceof XmlFile) {
-                    OdooDomRoot root = OdooDataUtils.getDomRoot((XmlFile) file);
-                    if (root != null) {
-                        return root.getAllRecordLikeItems().stream()
-                                .filter(record -> this.equals(record.getRecord()))
-                                .map(OdooDomRecordLike::getXmlElement)
-                                .filter(Objects::nonNull)
-                                .collect(Collectors.toList());
+        if (myDataFile == null || !myDataFile.isValid()) {
+            return Collections.emptyList();
+        }
+        if (OdooDataUtils.isCsvFile(myDataFile)) {
+            return Collections.singletonList(new OdooCsvRecord(myDataFile, project, getId()));
+        }
+        PsiFile file = PsiManager.getInstance(project).findFile(myDataFile);
+        if (file == null) {
+            return Collections.emptyList();
+        }
+        List<PsiElement> result = PyUtil.getParameterizedCachedValue(file, this, param -> {
+            List<PsiElement> elements = new LinkedList<>();
+            if (file instanceof XmlFile) {
+                OdooDomRoot root = OdooDataUtils.getDomRoot((XmlFile) file);
+                if (root != null) {
+                    List<OdooDomRecordLike> records = root.getAllRecordLikeItems();
+                    for (OdooDomRecordLike record : records) {
+                        if (this.equals(record.getRecord())) {
+                            XmlElement xmlElement = record.getXmlElement();
+                            if (xmlElement != null) {
+                                elements.add(xmlElement);
+                            }
+                        }
                     }
-                } else if (file instanceof PyFile) {
-                    List<PyClass> classes = ((PyFile) file).getTopLevelClasses();
-                    return classes.stream()
-                            .filter(cls -> {
-                                OdooModelInfo info = OdooModelInfo.getInfo(cls);
-                                return info != null && info.getName().replace(".", "_").equals(myName.substring(6));
-                            })
-                            .collect(Collectors.toList());
+                }
+            } else if (file instanceof PyFile) {
+                List<PyClass> classes = ((PyFile) file).getTopLevelClasses();
+                for (PyClass cls : classes) {
+                    OdooModelInfo info = OdooModelInfo.getInfo(cls);
+                    if (info != null && OdooModelUtils.getIrModelRecordName(info.getName()).equals(myName)) {
+                        elements.add(cls);
+                    }
                 }
             }
-        }
-        return Collections.emptyList();
+            return elements;
+        });
+        return Collections.unmodifiableList(result);
     }
 
     public List<NavigationItem> getNavigationItems(@NotNull Project project) {

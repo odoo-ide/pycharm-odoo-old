@@ -442,4 +442,8 @@ public class OdooModelUtils {
         }
         return null;
     }
+
+    public static String getIrModelRecordName(@NotNull String model) {
+        return "model_" + model.replace(".", "_");
+    }
 }

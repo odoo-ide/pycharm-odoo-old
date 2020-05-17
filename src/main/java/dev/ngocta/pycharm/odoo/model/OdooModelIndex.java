@@ -202,7 +202,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
                                                        @NotNull Project project) {
         OdooModule module = OdooModuleUtils.getContainingOdooModule(file, project);
         if (module != null) {
-            String name = "model_" + model.replace(".", "_");
+            String name = OdooModelUtils.getIrModelRecordName(model);
             OdooRecord record = new OdooRecordImpl(name, OdooNames.IR_MODEL, module.getName(), null, file);
             IR_MODEL_RECORD_CACHE.add(model, record);
             return record;

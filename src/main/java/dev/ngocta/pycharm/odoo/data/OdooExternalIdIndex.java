@@ -1,6 +1,7 @@
 package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -24,10 +25,12 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRecord> {
     private static final ID<String, OdooRecord> NAME = ID.create("odoo.external.id");
     private static final OdooRecordCache RECORD_CACHE = new OdooRecordCache();
+    private static final Key<Set<String>> IDS = new Key<>("ODOO_EXTERNAL_IDS");
 
     @NotNull
     @Override
@@ -65,6 +68,15 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                     return true;
                 });
             }
+            Set<String> ids = file.putUserDataIfAbsent(IDS, ConcurrentHashMap.newKeySet());
+            Set<String> currentIds = result.keySet();
+            for (String id : ids) {
+                if (!currentIds.contains(id)) {
+                    RECORD_CACHE.clearCache(id, file);
+                }
+            }
+            ids.clear();
+            ids.addAll(currentIds);
             return result;
         };
     }
@@ -163,6 +175,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
         for (String id : ids) {
             if (!RECORD_CACHE.processRecords(id, processor, scope)) {
                 if (!index.processValues(NAME, id, null, (file, value) -> {
+                    file.putUserDataIfAbsent(IDS, ConcurrentHashMap.newKeySet()).add(id);
                     OdooRecord record = value.withDataFile(file);
                     RECORD_CACHE.add(record);
                     if (scope.contains(file)) {

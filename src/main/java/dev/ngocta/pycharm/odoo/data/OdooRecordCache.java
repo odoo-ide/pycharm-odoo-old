@@ -4,6 +4,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.Processor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -26,13 +27,23 @@ public class OdooRecordCache {
         add(record.getId(), record);
     }
 
+    public void clearCache(@NotNull String recordId, @Nullable VirtualFile file) {
+        if (myCache.containsKey(recordId)) {
+            if (file == null) {
+                myCache.get(recordId).clear();
+            } else {
+                myCache.get(recordId).removeIf(record -> file.equals(record.getDataFile()));
+            }
+        }
+    }
+
     public boolean processRecords(@NotNull String key,
                                   @NotNull Processor<OdooRecord> processor,
                                   @NotNull GlobalSearchScope scope) {
         Set<OdooRecord> records = myCache.getOrDefault(key, new HashSet<>());
         records.forEach(r -> {
             VirtualFile file = r.getDataFile();
-            if (file != null && scope.contains(file)) {
+            if (file != null && file.isValid() && scope.contains(file)) {
                 processor.process(r);
             }
         });
