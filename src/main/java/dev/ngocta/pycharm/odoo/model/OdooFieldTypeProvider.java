@@ -8,7 +8,6 @@ import com.jetbrains.python.psi.PyTargetExpression;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.PyTypeProviderBase;
 import com.jetbrains.python.psi.types.TypeEvalContext;
-import dev.ngocta.pycharm.odoo.OdooPyUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,11 +20,7 @@ public class OdooFieldTypeProvider extends PyTypeProviderBase {
         PyExpression qualifier = referenceExpression.getQualifier();
         if (referenceName != null && qualifier != null && context.getOrigin() != null) {
             PyType qualifierType = context.getType(qualifier);
-            if (qualifierType == null) {
-                return null;
-            }
-            OdooModelClassType modelType = (OdooModelClassType) OdooPyUtils.extractCompositedType(
-                    qualifierType, OdooModelClassType.class::isInstance);
+            OdooModelClassType modelType = OdooModelUtils.extractOdooModelClassType(qualifierType);
             if (modelType != null && modelType.getRecordSetType() != OdooRecordSetType.NONE) {
                 Ref<PyType> ref = new Ref<>();
                 modelType.visitMembers(element -> {

@@ -446,4 +446,16 @@ public class OdooModelUtils {
     public static String getIrModelRecordName(@NotNull String model) {
         return "model_" + model.replace(".", "_");
     }
+
+    @Nullable
+    public static OdooModelClassType extractOdooModelClassType(@Nullable PyType type) {
+        if (type == null) {
+            return null;
+        }
+        PyType extractedType = OdooPyUtils.extractCompositedType(type, OdooModelClassType.class::isInstance);
+        if (extractedType != null) {
+            return (OdooModelClassType) extractedType;
+        }
+        return null;
+    }
 }
