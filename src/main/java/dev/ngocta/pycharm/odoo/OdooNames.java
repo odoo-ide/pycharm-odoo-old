@@ -63,6 +63,7 @@ public class OdooNames {
     public static final String FIELD_ATTR_GROUPS = "groups";
     public static final String MAPPED = "mapped";
     public static final String FILTERED = "filtered";
+    public static final String SORTED = "sorted";
     public static final String SEARCH = "search";
     public static final String SEARCH_READ = "search_read";
     public static final String SEARCH_COUNT = "search_count";

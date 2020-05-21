@@ -3,6 +3,7 @@ package dev.ngocta.pycharm.odoo.model;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiPolyVariantReference;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.util.ArrayUtil;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.PyTypeProviderBase;
@@ -37,7 +38,7 @@ public class OdooLambdaTypeProvider extends PyTypeProviderBase {
                             if (callExpression != null) {
                                 PyExpression callee = callExpression.getCallee();
                                 if (callee instanceof PyReferenceExpression) {
-                                    if (OdooNames.FILTERED.equals(callee.getName()) || OdooNames.MAPPED.equals(callee.getName())) {
+                                    if (ArrayUtil.contains(callee.getName(), OdooNames.FILTERED, OdooNames.MAPPED, OdooNames.SORTED)) {
                                         PyExpression qualifier = ((PyReferenceExpression) callee).getQualifier();
                                         if (qualifier != null) {
                                             PyType qualifierType = context.getType(qualifier);
