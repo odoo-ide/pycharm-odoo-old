@@ -94,15 +94,18 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
     @NotNull
     private static List<PyClass> getOdooModelClassesByNameInFile(@NotNull String model,
                                                                  @NotNull PyFile file) {
-        List<PyClass> result = new LinkedList<>();
-        List<PyClass> classes = file.getTopLevelClasses();
-        Lists.reverse(classes).forEach(cls -> {
-            OdooModelInfo info = OdooModelInfo.getInfo(cls);
-            if (info != null && info.getName().equals(model)) {
-                result.add(cls);
+        List<PyClass> classes = new LinkedList<>();
+        file.acceptChildren(new PyElementVisitor() {
+            @Override
+            public void visitPyClass(PyClass cls) {
+                super.visitPyClass(cls);
+                OdooModelInfo info = OdooModelInfo.getInfo(cls);
+                if (info != null && info.getName().equals(model)) {
+                    classes.add(cls);
+                }
             }
         });
-        return result;
+        return Lists.reverse(classes);
     }
 
     @NotNull
