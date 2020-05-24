@@ -144,7 +144,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
         if (odooModule != null) {
             return getAvailableOdooModelClassesByName(model, odooModule);
         }
-        return getOdooModelClassesByName(model, project, OdooUtils.getProjectScope(anchor));
+        return getOdooModelClassesByName(model, project, OdooUtils.getProjectModuleAndDependenciesScope(anchor));
     }
 
     @NotNull

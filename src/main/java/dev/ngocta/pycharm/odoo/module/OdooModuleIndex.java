@@ -80,7 +80,7 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
     @Nullable
     public static OdooModule getOdooModuleByName(@NotNull String moduleName,
                                                  @NotNull PsiElement anchor) {
-        return getOdooModuleByName(moduleName, anchor.getProject(), OdooUtils.getProjectScope(anchor));
+        return getOdooModuleByName(moduleName, anchor.getProject(), OdooUtils.getProjectModuleAndDependenciesScope(anchor));
     }
 
     @NotNull
@@ -99,6 +99,6 @@ public class OdooModuleIndex extends ScalarIndexExtension<String> {
 
     @NotNull
     public static List<OdooModule> getAvailableOdooModules(@NotNull PsiElement anchor) {
-        return getAllOdooModules(anchor.getProject(), OdooUtils.getProjectScope(anchor));
+        return getAllOdooModules(anchor.getProject(), OdooUtils.getProjectModuleAndDependenciesScope(anchor));
     }
 }

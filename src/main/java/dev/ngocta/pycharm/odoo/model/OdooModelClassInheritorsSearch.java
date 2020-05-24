@@ -25,7 +25,7 @@ public class OdooModelClassInheritorsSearch implements QueryExecutor<PyClass, Py
             OdooModelInfo modelInfo = OdooModelInfo.getInfo(superClass);
             if (module != null && modelInfo != null) {
                 Project project = superClass.getProject();
-                GlobalSearchScope scope = OdooUtils.getProjectScope(superClass);
+                GlobalSearchScope scope = OdooUtils.getProjectModuleAndDependenciesScope(superClass);
                 List<String> visitedModels = new LinkedList<>();
                 List<String> toVisitModels = new LinkedList<>();
                 toVisitModels.add(modelInfo.getName());
