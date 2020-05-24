@@ -1,5 +1,6 @@
 package dev.ngocta.pycharm.odoo.model;
 
+import com.google.common.collect.ImmutableList;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.UserDataHolderBase;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class OdooModelClassType extends UserDataHolderBase implements PyClassType {
@@ -103,19 +105,38 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
             return null;
         }
         TypeEvalContext context = resolveContext.getTypeEvalContext();
+        List<PsiElement> elements = multiResolvePsiMember(name, context);
+        return elements.stream()
+                .map(element -> new RatedResolveResult(RatedResolveResult.RATE_NORMAL, element))
+                .collect(Collectors.toList());
+    }
+
+    @NotNull
+    public List<PsiElement> multiResolvePsiMember(@NotNull String name,
+                                                  @NotNull TypeEvalContext context) {
         return PyUtil.getParameterizedCachedValue(getPyClass(), Pair.create(name, context), param -> {
-            List<RatedResolveResult> result = new LinkedList<>();
+            List<PsiElement> result = new LinkedList<>();
             visitMembers(element -> {
                 if (element instanceof PsiNamedElement && name.equals(((PsiNamedElement) element).getName())) {
                     if (PyNames.GETITEM.equals(name)) {
                         element = new OdooModelGetItemWrapper((PyFunction) element, this);
                     }
-                    result.add(new RatedResolveResult(RatedResolveResult.RATE_NORMAL, element));
+                    result.add(element);
                 }
                 return true;
             }, true, context);
-            return result;
+            return ImmutableList.copyOf(result);
         });
+    }
+
+    @Nullable
+    public PsiElement resolvePsiMember(@NotNull String name,
+                                       @NotNull TypeEvalContext context) {
+        List<PsiElement> elements = multiResolvePsiMember(name, context);
+        if (elements.isEmpty()) {
+            return null;
+        }
+        return elements.get(0);
     }
 
     @Override

@@ -15,6 +15,7 @@ import com.intellij.patterns.PsiElementPattern;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlAttributeValue;
@@ -34,12 +35,12 @@ import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.OdooPyUtils;
 import dev.ngocta.pycharm.odoo.data.*;
+import dev.ngocta.pycharm.odoo.module.OdooModule;
+import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
@@ -455,6 +456,51 @@ public class OdooModelUtils {
         PyType extractedType = OdooPyUtils.extractCompositedType(type, OdooModelClassType.class::isInstance);
         if (extractedType != null) {
             return (OdooModelClassType) extractedType;
+        }
+        return null;
+    }
+
+    @NotNull
+    public static Collection<PyTargetExpression> findFields(@NotNull String name,
+                                                            @NotNull Project project,
+                                                            @NotNull GlobalSearchScope scope) {
+        Collection<PyTargetExpression> attributes = OdooPyUtils.findClassAttributes(name, project, scope);
+        List<PyTargetExpression> fields = new LinkedList<>();
+        for (PyTargetExpression attribute : attributes) {
+            if (OdooFieldInfo.getInfo(attribute) != null) {
+                fields.add(attribute);
+            }
+        }
+        return fields;
+    }
+
+    @NotNull
+    public static Collection<PyTargetExpression> findFields(@NotNull String name,
+                                                            @NotNull PsiElement anchor) {
+        OdooModule module = OdooModuleUtils.getContainingOdooModule(anchor);
+        if (module == null) {
+            return Collections.emptyList();
+        }
+        return findFields(name, anchor.getProject(), module.getSearchScope());
+    }
+
+    @Nullable
+    public static PyType guessFieldTypeByName(@NotNull String name,
+                                              @NotNull PsiElement anchor,
+                                              @NotNull TypeEvalContext context) {
+        Collection<PyTargetExpression> fields = findFields(name, anchor);
+        Set<PyType> types = new HashSet<>();
+        for (PyTargetExpression field : fields) {
+            OdooFieldInfo info = OdooFieldInfo.getInfo(field);
+            if (info != null) {
+                PyType type = info.getType(context);
+                if (type != null) {
+                    types.add(type);
+                }
+            }
+        }
+        if (types.size() == 1) {
+            return types.iterator().next();
         }
         return null;
     }

@@ -1,7 +1,7 @@
 package dev.ngocta.pycharm.odoo.model;
 
 import com.intellij.openapi.util.Ref;
-import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.PsiElement;
 import com.jetbrains.python.psi.PyExpression;
 import com.jetbrains.python.psi.PyReferenceExpression;
 import com.jetbrains.python.psi.PyTargetExpression;
@@ -17,27 +17,27 @@ public class OdooFieldTypeProvider extends PyTypeProviderBase {
     public PyType getReferenceExpressionType(@NotNull PyReferenceExpression referenceExpression,
                                              @NotNull TypeEvalContext context) {
         String referenceName = referenceExpression.getName();
+        if (referenceName == null) {
+            return null;
+        }
         PyExpression qualifier = referenceExpression.getQualifier();
-        if (referenceName != null && qualifier != null && context.getOrigin() != null) {
-            PyType qualifierType = context.getType(qualifier);
+        if (qualifier == null) {
+            return null;
+        }
+        PyType qualifierType = context.getType(qualifier);
+        if (qualifierType != null) {
             OdooModelClassType modelType = OdooModelUtils.extractOdooModelClassType(qualifierType);
             if (modelType != null && modelType.getRecordSetType() != OdooRecordSetType.NONE) {
                 Ref<PyType> ref = new Ref<>();
-                modelType.visitMembers(element -> {
-                    if (element instanceof PsiNamedElement && referenceName.equals(((PsiNamedElement) element).getName())) {
-                        if (element instanceof PyTargetExpression) {
-                            PyType type = OdooFieldInfo.getFieldType((PyTargetExpression) element, context);
-                            if (type != null) {
-                                ref.set(type);
-                            }
-                        }
-                        return false;
-                    }
-                    return true;
-                }, true, context);
+                PsiElement element = modelType.resolvePsiMember(referenceName, context);
+                if (element instanceof PyTargetExpression) {
+                    PyType type = OdooFieldInfo.getFieldType((PyTargetExpression) element, context);
+                    ref.set(type);
+                }
                 return ref.get();
             }
+            return null;
         }
-        return null;
+        return OdooModelUtils.guessFieldTypeByName(referenceName, referenceExpression, context);
     }
 }

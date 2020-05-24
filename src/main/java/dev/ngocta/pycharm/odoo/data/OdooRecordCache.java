@@ -27,7 +27,8 @@ public class OdooRecordCache {
         add(record.getId(), record);
     }
 
-    public void clearCache(@NotNull String recordId, @Nullable VirtualFile file) {
+    public void clearCache(@NotNull String recordId,
+                           @Nullable VirtualFile file) {
         if (myCache.containsKey(recordId)) {
             if (file == null) {
                 myCache.get(recordId).clear();
