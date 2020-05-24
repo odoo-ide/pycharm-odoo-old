@@ -1,16 +1,21 @@
 package dev.ngocta.pycharm.odoo;
 
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.stubs.StubIndex;
 import com.intellij.util.ObjectUtils;
 import com.jetbrains.python.PyNames;
-import com.jetbrains.python.psi.PyClass;
-import com.jetbrains.python.psi.PyExpression;
-import com.jetbrains.python.psi.PyPsiFacade;
-import com.jetbrains.python.psi.PyUtil;
+import com.jetbrains.python.psi.*;
+import com.jetbrains.python.psi.stubs.PyClassAttributesIndex;
 import com.jetbrains.python.psi.types.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Predicate;
 
 public class OdooPyUtils {
@@ -84,5 +89,20 @@ public class OdooPyUtils {
         }
         PyType type = context.getType(expression);
         return type != null && isEnvironmentType(type, expression);
+    }
+
+    public static Collection<PyTargetExpression> findClassAttributes(@NotNull String name,
+                                                                     @NotNull Project project,
+                                                                     @NotNull GlobalSearchScope scope) {
+        List<PyTargetExpression> result = new ArrayList<>();
+        StubIndex.getInstance().processElements(PyClassAttributesIndex.KEY, name, project, scope, PyClass.class, clazz -> {
+            ProgressManager.checkCanceled();
+            PyTargetExpression classAttr = clazz.findClassAttribute(name, false, null);
+            if (classAttr != null) {
+                result.add(classAttr);
+            }
+            return true;
+        });
+        return result;
     }
 }

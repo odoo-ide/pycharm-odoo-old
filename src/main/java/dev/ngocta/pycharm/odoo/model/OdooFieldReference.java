@@ -10,9 +10,9 @@ import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.ResolveResult;
 import com.jetbrains.python.psi.PyTargetExpression;
 import com.jetbrains.python.psi.PyUtil;
-import com.jetbrains.python.psi.stubs.PyClassAttributesIndex;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
+import dev.ngocta.pycharm.odoo.OdooPyUtils;
 import dev.ngocta.pycharm.odoo.module.OdooModule;
 import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -104,7 +104,7 @@ public class OdooFieldReference extends PsiReferenceBase.Poly<PsiElement> {
     protected Collection<PyTargetExpression> resolveImplicitFields() {
         OdooModule module = OdooModuleUtils.getContainingOdooModule(getElement());
         if (module != null) {
-            Collection<PyTargetExpression> fields = PyClassAttributesIndex.findClassAndInstanceAttributes(
+            Collection<PyTargetExpression> fields = OdooPyUtils.findClassAttributes(
                     getValue(), getProject(), module.getSearchScope());
             return OdooModuleUtils.sortElementByOdooModuleDependOrder(fields);
         }

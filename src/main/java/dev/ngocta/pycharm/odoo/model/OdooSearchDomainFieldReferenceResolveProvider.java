@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.List;
 
-public class OdooFieldReferenceResolveProvider implements PyReferenceResolveProvider {
+public class OdooSearchDomainFieldReferenceResolveProvider implements PyReferenceResolveProvider {
     @Override
     @NotNull
     public List<RatedResolveResult> resolveName(@NotNull PyQualifiedExpression pyQualifiedExpression,

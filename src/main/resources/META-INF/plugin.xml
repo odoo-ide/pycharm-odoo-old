@@ -174,7 +174,7 @@
         <runnableScriptFilter implementation="dev.ngocta.pycharm.odoo.OdooPyRunnableScriptFilter"/>
         <pySuperMethodsSearch implementation="dev.ngocta.pycharm.odoo.model.OdooModelSuperMethodsSearch" order="first"/>
         <pyClassInheritorsSearch implementation="dev.ngocta.pycharm.odoo.model.OdooModelClassInheritorsSearch" order="first"/>
-        <pyReferenceResolveProvider implementation="dev.ngocta.pycharm.odoo.model.OdooFieldReferenceResolveProvider"/>
+        <pyReferenceResolveProvider implementation="dev.ngocta.pycharm.odoo.model.OdooSearchDomainFieldReferenceResolveProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
