@@ -169,7 +169,7 @@
         <pyModuleMembersProvider implementation="dev.ngocta.pycharm.odoo.module.OdooAddonsMembersProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooFieldTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooEnvironmentItemProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooSelfTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelClassSelfTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooMappedTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooLambdaTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelCallTypeProvider"/>
