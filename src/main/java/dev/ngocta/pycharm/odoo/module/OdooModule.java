@@ -103,6 +103,9 @@ public class OdooModule {
     }
 
     public boolean isDependOn(@Nullable OdooModule module) {
+        if (module == null) {
+            return false;
+        }
         return !this.equals(module) && (getDepends().contains(module) || getFlattenedDependsGraph().contains(module));
     }
 
