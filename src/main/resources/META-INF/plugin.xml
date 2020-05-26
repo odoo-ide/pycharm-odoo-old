@@ -172,6 +172,7 @@
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelFunctionParamTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooMappedTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooLambdaTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelCallTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.data.OdooRefTypeProvider"/>
         <pyClassMembersProvider implementation="dev.ngocta.pycharm.odoo.model.OdooSuperMembersProvider"/>
         <inspectionExtension implementation="dev.ngocta.pycharm.odoo.OdooPyInspectionExtension"/>
