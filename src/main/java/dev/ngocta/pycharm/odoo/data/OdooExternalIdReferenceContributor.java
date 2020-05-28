@@ -13,6 +13,7 @@ import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
+import com.jetbrains.python.PyTokenTypes;
 import com.jetbrains.python.psi.*;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.model.OdooFieldInfo;
@@ -124,6 +125,23 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                 }
             });
 
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> USER_HAS_GROUP_PATTERN =
+            psiElement(PyStringLiteralExpression.class).afterLeafSkipping(psiElement(PyTokenTypes.LPAR),
+                    psiElement(PsiElement.class).with(new PatternCondition<PsiElement>("hasGroup") {
+                        @Override
+                        public boolean accepts(@NotNull PsiElement psiElement,
+                                               ProcessingContext context) {
+                            String text = psiElement.getText();
+                            if (text.equals("has_group") || text.equals("user_has_groups")) {
+                                context.put(OdooExternalIdReferenceProvider.MODELS_RESOLVER, () -> {
+                                    return new String[]{OdooNames.RES_GROUPS};
+                                });
+                                return true;
+                            }
+                            return false;
+                        }
+                    }));
+
     public static final XmlAttributeValuePattern T_CALL_PATTERN =
             XmlPatterns.xmlAttributeValue("t-call", "t-call-assets")
                     .with(OdooDataUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION)
@@ -142,6 +160,7 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
         registrar.registerReferenceProvider(REF_PATTERN, provider);
         registrar.registerReferenceProvider(REQUEST_RENDER_PATTERN, provider);
         registrar.registerReferenceProvider(FIELD_ATTR_GROUPS_PATTERN, provider);
+        registrar.registerReferenceProvider(USER_HAS_GROUP_PATTERN, provider);
         registrar.registerReferenceProvider(T_CALL_PATTERN, provider);
     }
 }
