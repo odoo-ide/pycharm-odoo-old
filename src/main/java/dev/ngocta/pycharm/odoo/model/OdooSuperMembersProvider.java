@@ -11,8 +11,8 @@ import com.jetbrains.python.psi.PyCallExpression;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyExpression;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
-import com.jetbrains.python.psi.types.PyClassMembersProvider;
 import com.jetbrains.python.psi.types.PyClassType;
+import com.jetbrains.python.psi.types.PyOverridingClassMembersProvider;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class OdooSuperMembersProvider implements PyClassMembersProvider {
+public class OdooSuperMembersProvider implements PyOverridingClassMembersProvider {
     @NotNull
     @Override
     public Collection<PyCustomMember> getMembers(PyClassType type,
