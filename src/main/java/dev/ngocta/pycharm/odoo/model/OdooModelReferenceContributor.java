@@ -2,6 +2,7 @@ package dev.ngocta.pycharm.odoo.model;
 
 import com.intellij.patterns.PatternCondition;
 import com.intellij.patterns.PsiElementPattern;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceContributor;
 import com.intellij.psi.PsiReferenceRegistrar;
 import com.intellij.util.ProcessingContext;
@@ -29,6 +30,23 @@ public class OdooModelReferenceContributor extends PsiReferenceContributor {
                             psiElement().withElementType(PyTokenTypes.EQ),
                             psiElement(PyTargetExpression.class).withName(OdooNames.MODEL_INHERIT)));
 
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> INHERITS_PATTERN =
+            psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("inherits") {
+                @Override
+                public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression,
+                                       ProcessingContext context) {
+                    PsiElement parent = pyStringLiteralExpression.getParent();
+                    if (parent instanceof PyKeyValueExpression) {
+                        if (pyStringLiteralExpression.equals(((PyKeyValueExpression) parent).getKey())) {
+                            parent = parent.getParent();
+                        } else {
+                            return false;
+                        }
+                    }
+                    return OdooModelUtils.isInheritsAssignedValue(parent);
+                }
+            });
+
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> ENV_PATTERN =
             psiElement(PyStringLiteralExpression.class).withParent(PySubscriptionExpression.class).afterSiblingSkipping(
                     psiElement().withElementType(PyTokenTypes.LBRACE),
@@ -43,9 +61,11 @@ public class OdooModelReferenceContributor extends PsiReferenceContributor {
 
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
-        registrar.registerReferenceProvider(INHERIT_PATTERN, new OdooModelReferenceProvider());
-        registrar.registerReferenceProvider(INHERIT_LIST_PATTERN, new OdooModelReferenceProvider());
-        registrar.registerReferenceProvider(COMODEL_NAME_PATTERN, new OdooModelReferenceProvider());
-        registrar.registerReferenceProvider(ENV_PATTERN, new OdooModelReferenceProvider());
+        OdooModelReferenceProvider provider = new OdooModelReferenceProvider();
+        registrar.registerReferenceProvider(INHERIT_PATTERN, provider);
+        registrar.registerReferenceProvider(INHERIT_LIST_PATTERN, provider);
+        registrar.registerReferenceProvider(INHERITS_PATTERN, provider);
+        registrar.registerReferenceProvider(COMODEL_NAME_PATTERN, provider);
+        registrar.registerReferenceProvider(ENV_PATTERN, provider);
     }
 }

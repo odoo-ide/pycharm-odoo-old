@@ -504,4 +504,16 @@ public class OdooModelUtils {
         }
         return null;
     }
+
+    public static boolean isInheritsAssignedValue(PsiElement element) {
+        if (element instanceof PyDictLiteralExpression || element instanceof PySetLiteralExpression) {
+            element = element.getParent();
+            if (element instanceof PyAssignmentStatement) {
+                PsiElement left = ((PyAssignmentStatement) element).getLeftHandSideExpression();
+                return left instanceof PyTargetExpression
+                        && OdooNames.MODEL_INHERITS.equals(((PyTargetExpression) left).getName());
+            }
+        }
+        return false;
+    }
 }
