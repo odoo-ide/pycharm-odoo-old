@@ -53,32 +53,32 @@ public class OdooFieldReference extends PsiReferenceBase.Poly<PsiElement> {
         if (myModelClassResolver == null) {
             return null;
         }
-        return PyUtil.getNullableParameterizedCachedValue(getElement(), null, param -> {
-            return myModelClassResolver.compute();
-        });
+        return myModelClassResolver.compute();
     }
 
     private OdooModelClass getModelClass() {
-        OdooModelClass rootModelClass = getRootModelClass();
-        if (rootModelClass == null) {
-            return null;
-        }
-        if (myFieldPathReferences == null) {
-            return rootModelClass;
-        }
-        int idx = Arrays.asList(myFieldPathReferences.getReferences()).indexOf(this);
-        if (idx == 0) {
-            return rootModelClass;
-        }
-        String[] fieldNames = Arrays.copyOfRange(myFieldPathReferences.getFieldNames(), 0, idx);
-        PyTargetExpression field = rootModelClass.findFieldByPath(fieldNames, myContext);
-        if (field != null) {
-            PyType type = OdooFieldInfo.getFieldType(field, myContext);
-            if (type instanceof OdooModelClassType) {
-                return ((OdooModelClassType) type).getPyClass();
+        return PyUtil.getNullableParameterizedCachedValue(getElement(), getRangeInElement(), param -> {
+            OdooModelClass rootModelClass = getRootModelClass();
+            if (rootModelClass == null) {
+                return null;
             }
-        }
-        return null;
+            if (myFieldPathReferences == null) {
+                return rootModelClass;
+            }
+            int idx = Arrays.asList(myFieldPathReferences.getReferences()).indexOf(this);
+            if (idx == 0) {
+                return rootModelClass;
+            }
+            String[] fieldNames = Arrays.copyOfRange(myFieldPathReferences.getFieldNames(), 0, idx);
+            PyTargetExpression field = rootModelClass.findFieldByPath(fieldNames, myContext);
+            if (field != null) {
+                PyType type = OdooFieldInfo.getFieldType(field, myContext);
+                if (type instanceof OdooModelClassType) {
+                    return ((OdooModelClassType) type).getPyClass();
+                }
+            }
+            return null;
+        });
     }
 
     @NotNull
