@@ -47,6 +47,14 @@
     <change-notes><![CDATA[
         <ul>
             <li>
+                Version 3.8
+                <ul>
+                    <li>Recognize more model, field, xml id references</li>
+                    <li>Improve field type inference</li>
+                    <li>Bug fixes</li>
+                </ul>
+            </li>
+            <li>
                 Version 3.7.2
                 <ul>
                     <li>Bug fixes</li>
