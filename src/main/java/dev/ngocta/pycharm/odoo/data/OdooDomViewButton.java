@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.xml.*;
 import dev.ngocta.pycharm.odoo.OdooNames;
-import dev.ngocta.pycharm.odoo.model.OdooModelFunctionReference;
+import dev.ngocta.pycharm.odoo.model.OdooModelFunctionPublicReference;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Matcher;
@@ -33,7 +33,7 @@ public interface OdooDomViewButton extends OdooDomModelScopedViewElement {
                 if ("object".equals(type) || (type == null && !name.contains("%"))) {
                     String model = button.getModel();
                     if (model != null) {
-                        return new PsiReference[]{new OdooModelFunctionReference(element, model)};
+                        return new PsiReference[]{new OdooModelFunctionPublicReference(element, model)};
                     }
                 } else if ("action".equals(type) || (type == null && name.contains("%"))) {
                     Matcher matcher = Pattern.compile("(?<=%\\()(\\w+\\.)?\\w+").matcher(name);

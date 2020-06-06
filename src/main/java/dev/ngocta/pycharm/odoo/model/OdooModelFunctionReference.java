@@ -3,10 +3,13 @@ package dev.ngocta.pycharm.odoo.model;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceBase;
+import com.jetbrains.python.psi.PyFunction;
 import com.jetbrains.python.psi.PyUtil;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
 
 public class OdooModelFunctionReference extends PsiReferenceBase<PsiElement> implements PsiReference {
     private final OdooModelClass myModelClass;
@@ -34,7 +37,21 @@ public class OdooModelFunctionReference extends PsiReferenceBase<PsiElement> imp
     @NotNull
     @Override
     public Object[] getVariants() {
+        return getFunctions().toArray();
+    }
+
+    protected Collection<PyFunction> getFunctions() {
         TypeEvalContext context = TypeEvalContext.codeCompletion(getElement().getProject(), getElement().getContainingFile());
-        return myModelClass.getMethods(context).toArray();
+        List<PyFunction> functions = new LinkedList<>();
+        Set<String> visitedNames = new HashSet<>();
+        myModelClass.visitMethods(function -> {
+            String name = function.getName();
+            if (name != null && !visitedNames.contains(name)) {
+                functions.add(function);
+                visitedNames.add(name);
+            }
+            return true;
+        }, true, context);
+        return functions;
     }
 }
