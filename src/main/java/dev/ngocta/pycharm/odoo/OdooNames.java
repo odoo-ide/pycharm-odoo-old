@@ -100,4 +100,5 @@ public class OdooNames {
     public static final String IR_RULE_MODEL_ID = "model_id";
     public static final String IR_ACTIONS_ACT_WINDOW_DOMAIN = "domain";
     public static final String IR_ACTIONS_ACT_WINDOW_RES_MODEL = "res_model";
+    public static final String IR_CRON = "ir.cron";
 }

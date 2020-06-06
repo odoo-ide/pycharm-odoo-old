@@ -1,6 +1,7 @@
 package dev.ngocta.pycharm.odoo;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.patterns.*;
@@ -23,17 +24,21 @@ import dev.ngocta.pycharm.odoo.data.OdooDomRecord;
 import dev.ngocta.pycharm.odoo.model.OdooModelUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class OdooPythonLanguageInjector implements LanguageInjector {
     private static final Pattern RE_PATTERN_PY = Pattern.compile("\\s*(.+)\\s*", Pattern.DOTALL);
     private static final Pattern RE_PATTERN_PY_TEMPLATE = Pattern.compile("(?:#\\{\\s*(.+?)\\s*})|(?:\\{\\{\\s*(.+?)\\s*}})", Pattern.DOTALL);
-    private static final ImmutableMap<String, String> KNOWN_FIELDS_WITH_PYTHON_VALUE = ImmutableMap.<String, String>builder()
-            .put(OdooNames.IR_RULE_DOMAIN_FORCE, OdooNames.IR_RULE)
-            .put("domain", OdooNames.IR_ACTIONS_ACT_WINDOW)
-            .put("context", OdooNames.IR_ACTIONS_ACT_WINDOW)
+    private static final Map<String, Set<String>> KNOWN_FIELDS_TO_INJECT = ImmutableMap.<String, Set<String>>builder()
+            .put(OdooNames.IR_RULE_DOMAIN_FORCE, ImmutableSet.of(OdooNames.IR_RULE))
+            .put("domain", ImmutableSet.of(OdooNames.IR_ACTIONS_ACT_WINDOW))
+            .put("context", ImmutableSet.of(OdooNames.IR_ACTIONS_ACT_WINDOW))
+            .put("code", ImmutableSet.of(OdooNames.IR_ACTIONS_SERVER, OdooNames.IR_CRON))
             .build();
 
     public static final ElementPattern<String> XML_ATTRIBUTE_NAME_PATTERN =
@@ -84,7 +89,7 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
                                 .map(GenericValue::getStringValue)
                                 .orElse(null);
                         if (field != null && model != null) {
-                            return model.equals(KNOWN_FIELDS_WITH_PYTHON_VALUE.getOrDefault(field, null));
+                            return KNOWN_FIELDS_TO_INJECT.getOrDefault(field, Collections.emptySet()).contains(model);
                         }
                     }
                     return false;
