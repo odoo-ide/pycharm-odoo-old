@@ -103,4 +103,5 @@ public class OdooNames {
     public static final String IR_CRON = "ir.cron";
     public static final String MAIL_TEMPLATE = "mail.template";
     public static final String DB_CURSOR_QNAME = "odoo.sql_db.Cursor";
+    public static final String REGISTRY_QNAME = "odoo.modules.registry.Registry";
 }
