@@ -101,4 +101,5 @@ public class OdooNames {
     public static final String IR_ACTIONS_ACT_WINDOW_DOMAIN = "domain";
     public static final String IR_ACTIONS_ACT_WINDOW_RES_MODEL = "res_model";
     public static final String IR_CRON = "ir.cron";
+    public static final String MAIL_TEMPLATE = "mail.template";
 }

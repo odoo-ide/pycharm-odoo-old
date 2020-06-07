@@ -2,6 +2,7 @@ package dev.ngocta.pycharm.odoo;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.intellij.lang.html.HTMLLanguage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.patterns.*;
@@ -27,7 +28,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class OdooPythonLanguageInjector implements LanguageInjector {
+public class OdooLanguageInjector implements LanguageInjector {
     private static final Pattern RE_PATTERN_PY = Pattern.compile("\\s*(.+)\\s*", Pattern.DOTALL);
     private static final Pattern RE_PATTERN_PY_TEMPLATE = Pattern.compile("(?:#\\{\\s*(.+?)\\s*})|(?:\\{\\{\\s*(.+?)\\s*}})", Pattern.DOTALL);
     private static final Map<String, Set<String>> KNOWN_FIELDS_TO_INJECT = ImmutableMap.<String, Set<String>>builder()
@@ -94,6 +95,28 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
                     .withLocalName(StandardPatterns.string().startsWith("t-attf-"))
                     .with(OdooDataUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
 
+    public static final XmlElementPattern.XmlTextPattern MAIL_TEMPLATE_BODY_PATTERN =
+            XmlPatterns.xmlText().with(new PatternCondition<XmlText>("mailTemplateBody") {
+                @Override
+                public boolean accepts(@NotNull XmlText xmlText,
+                                       ProcessingContext context) {
+                    XmlTag tag = xmlText.getParentTag();
+                    if (tag == null) {
+                        return false;
+                    }
+                    Project project = xmlText.getProject();
+                    DomManager domManager = DomManager.getDomManager(project);
+                    DomElement domElement = domManager.getDomElement(tag);
+                    if (domElement instanceof OdooDomFieldAssignment) {
+                        OdooDomFieldAssignment fieldAssignment = (OdooDomFieldAssignment) domElement;
+                        String field = fieldAssignment.getName().getStringValue();
+                        String model = fieldAssignment.getModel();
+                        return "body_html".equals(field) && OdooNames.MAIL_TEMPLATE.equals(model);
+                    }
+                    return false;
+                }
+            });
+
     @Override
     public void getLanguagesToInject(@NotNull PsiLanguageInjectionHost host,
                                      @NotNull InjectedLanguagePlaces injectionPlacesRegistrar) {
@@ -121,6 +144,9 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
                     }
                 }
             }
+        } else if (MAIL_TEMPLATE_BODY_PATTERN.accepts(host)) {
+            TextRange range = ElementManipulators.getValueTextRange(host);
+            injectionPlacesRegistrar.addPlace(HTMLLanguage.INSTANCE, range, null, null);
         }
     }
 }
