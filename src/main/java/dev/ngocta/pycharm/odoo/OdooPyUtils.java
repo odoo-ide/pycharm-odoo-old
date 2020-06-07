@@ -62,6 +62,11 @@ public class OdooPyUtils {
     }
 
     @Nullable
+    public static PyClassType getDbCursorType(@NotNull PsiElement anchor) {
+        return getClassTypeByQName(OdooNames.DB_CURSOR_QNAME, anchor, false);
+    }
+
+    @Nullable
     public static PyType extractCompositedType(@NotNull PyType type,
                                                @NotNull Predicate<PyType> matcher) {
         if (type instanceof PyUnionType) {
