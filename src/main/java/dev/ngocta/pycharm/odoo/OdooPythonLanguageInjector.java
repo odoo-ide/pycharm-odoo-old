@@ -14,19 +14,15 @@ import com.intellij.psi.xml.XmlText;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
-import com.intellij.util.xml.GenericValue;
 import com.jetbrains.python.PythonLanguage;
 import com.jetbrains.python.psi.PyStringLiteralExpression;
 import dev.ngocta.pycharm.odoo.data.OdooDataUtils;
-import dev.ngocta.pycharm.odoo.data.OdooDomField;
 import dev.ngocta.pycharm.odoo.data.OdooDomFieldAssignment;
-import dev.ngocta.pycharm.odoo.data.OdooDomRecord;
 import dev.ngocta.pycharm.odoo.model.OdooModelUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -79,15 +75,9 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
                     DomManager domManager = DomManager.getDomManager(project);
                     DomElement domElement = domManager.getDomElement(tag);
                     if (domElement instanceof OdooDomFieldAssignment) {
-                        String field = Optional.of((OdooDomFieldAssignment) domElement)
-                                .map(OdooDomField::getName)
-                                .map(GenericValue::getStringValue)
-                                .orElse(null);
-                        String model = Optional.of(domElement)
-                                .map(element -> element.getParentOfType(OdooDomRecord.class, true))
-                                .map(OdooDomRecord::getModel)
-                                .map(GenericValue::getStringValue)
-                                .orElse(null);
+                        OdooDomFieldAssignment fieldAssignment = (OdooDomFieldAssignment) domElement;
+                        String field = fieldAssignment.getName().getStringValue();
+                        String model = fieldAssignment.getModel();
                         if (field != null && model != null) {
                             return KNOWN_FIELDS_TO_INJECT.getOrDefault(field, Collections.emptySet()).contains(model);
                         }

@@ -15,7 +15,10 @@ public class OdooPyInspectionExtension extends PyInspectionExtension {
                                              @NotNull PsiReference reference,
                                              @NotNull TypeEvalContext context) {
         if (node instanceof PyReferenceExpression) {
-            return context.getOrigin() instanceof XmlFile;
+            PyReferenceExpression referenceExpression = (PyReferenceExpression) node;
+            if (!referenceExpression.isQualified()) {
+                return context.getOrigin() instanceof XmlFile;
+            }
         }
         return false;
     }

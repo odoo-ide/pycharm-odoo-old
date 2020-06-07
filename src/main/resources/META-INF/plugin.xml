@@ -182,6 +182,7 @@
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooLambdaTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelCallTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.data.OdooRefTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.data.OdooIrActionsServerCodeTypeProvider"/>
         <pyClassMembersProvider implementation="dev.ngocta.pycharm.odoo.model.OdooSuperMembersProvider"/>
         <inspectionExtension implementation="dev.ngocta.pycharm.odoo.OdooPyInspectionExtension"/>
         <pyAnnotator implementation="dev.ngocta.pycharm.odoo.OdooPyAnnotator"/>

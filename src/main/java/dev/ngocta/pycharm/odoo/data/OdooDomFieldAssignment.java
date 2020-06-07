@@ -1,6 +1,13 @@
 package dev.ngocta.pycharm.odoo.data;
 
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiReference;
 import com.intellij.util.xml.*;
+import com.jetbrains.python.psi.PyClass;
+import dev.ngocta.pycharm.odoo.model.OdooModelClass;
+import dev.ngocta.pycharm.odoo.model.OdooModelUtils;
+
+import java.util.Optional;
 
 @Referencing(OdooFieldValueReferenceConverter.class)
 public interface OdooDomFieldAssignment extends OdooDomField, GenericDomValue<String> {
@@ -9,10 +16,29 @@ public interface OdooDomFieldAssignment extends OdooDomField, GenericDomValue<St
     GenericAttributeValue<String> getRef();
 
     default String getModel() {
-        DomElement parent = getParent();
-        if (parent instanceof OdooDomRecord) {
-            return ((OdooDomRecord) parent).getModel().getStringValue();
+        OdooDomRecord record = getRecord();
+        if (record != null) {
+            return record.getModel().getStringValue();
         }
         return null;
+    }
+
+    default OdooDomRecord getRecord() {
+        DomElement parent = getParent();
+        if (parent instanceof OdooDomRecord) {
+            return (OdooDomRecord) parent;
+        }
+        return null;
+    }
+
+    default String getRefModel() {
+        return Optional.of(getRef())
+                .map(GenericAttributeValue::getXmlAttributeValue)
+                .map(PsiElement::getReference)
+                .map(PsiReference::resolve)
+                .filter(PyClass.class::isInstance)
+                .map(OdooModelUtils::getContainingOdooModelClass)
+                .map(OdooModelClass::getName)
+                .orElse(null);
     }
 }
