@@ -47,6 +47,13 @@
     <change-notes><![CDATA[
         <ul>
             <li>
+                Version 3.9
+                <ul>
+                    <li>Improve language injector and type inference</li>
+                    <li>Bug fixes</li>
+                </ul>
+            </li>
+            <li>
                 Version 3.8
                 <ul>
                     <li>Recognize more model, field, xml id references</li>
