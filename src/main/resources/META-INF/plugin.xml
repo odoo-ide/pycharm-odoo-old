@@ -49,7 +49,7 @@
             <li>
                 Version 3.9
                 <ul>
-                    <li>Improve language injector and type inference</li>
+                    <li>Improve language injection and type inference</li>
                     <li>Bug fixes</li>
                 </ul>
             </li>
