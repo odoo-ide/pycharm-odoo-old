@@ -15,7 +15,7 @@ public class OdooUtils {
     public static GlobalSearchScope getProjectModuleAndDependenciesScope(@NotNull PsiElement anchor) {
         Module module = ModuleUtil.findModuleForPsiElement(anchor);
         if (module != null) {
-            return module.getModuleContentWithDependenciesScope();
+            return module.getModuleContentWithDependenciesScope().union(module.getModuleWithLibrariesScope());
         }
         return GlobalSearchScope.projectScope(anchor.getProject());
     }
