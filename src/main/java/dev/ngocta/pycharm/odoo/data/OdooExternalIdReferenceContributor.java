@@ -6,9 +6,11 @@ import com.intellij.patterns.PsiElementPattern;
 import com.intellij.patterns.XmlAttributeValuePattern;
 import com.intellij.patterns.XmlPatterns;
 import com.intellij.psi.*;
+import com.intellij.psi.impl.source.resolve.FileContextUtil;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlAttributeValue;
+import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.xml.DomElement;
@@ -83,7 +85,10 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                         String model = resolveRefModel(callee);
                         return model != null ? new String[]{model} : null;
                     });
-                    context.put(OdooExternalIdReferenceProvider.ALLOW_RELATIVE, true);
+                    PsiFile contextFile = FileContextUtil.getContextFile(callee);
+                    if (contextFile instanceof XmlFile) {
+                        context.put(OdooExternalIdReferenceProvider.ALLOW_RELATIVE, true);
+                    }
                     return true;
                 }
             });
