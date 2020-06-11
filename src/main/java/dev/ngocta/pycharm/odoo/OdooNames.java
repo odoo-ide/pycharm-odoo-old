@@ -104,4 +104,5 @@ public class OdooNames {
     public static final String MAIL_TEMPLATE = "mail.template";
     public static final String DB_CURSOR_QNAME = "odoo.sql_db.Cursor";
     public static final String REGISTRY_QNAME = "odoo.modules.registry.Registry";
+    public static final String HTTP_ROUTE_QNAME = "odoo.http.route";
 }
