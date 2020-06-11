@@ -193,6 +193,7 @@
         <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooMigrateFunctionParamTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooInitHookFunctionParamTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooHttpRouteFunctionParamTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooFunctionParamBooleanTypeProvider"/>
         <pyClassMembersProvider implementation="dev.ngocta.pycharm.odoo.model.OdooSuperMembersProvider"/>
         <inspectionExtension implementation="dev.ngocta.pycharm.odoo.OdooPyInspectionExtension"/>
         <pyAnnotator implementation="dev.ngocta.pycharm.odoo.OdooPyAnnotator"/>
