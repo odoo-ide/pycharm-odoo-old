@@ -201,6 +201,7 @@
         <pySuperMethodsSearch implementation="dev.ngocta.pycharm.odoo.model.OdooModelSuperMethodsSearch" order="first"/>
         <pyClassInheritorsSearch implementation="dev.ngocta.pycharm.odoo.model.OdooModelClassInheritorsSearch" order="first"/>
         <pyReferenceResolveProvider implementation="dev.ngocta.pycharm.odoo.model.OdooSearchDomainFieldReferenceResolveProvider"/>
+        <canonicalPathProvider implementation="dev.ngocta.pycharm.odoo.OdooCanonicalPathProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
