@@ -19,6 +19,9 @@ public class OdooCanonicalPathProvider implements PyCanonicalPathProvider {
         if (psiElement == null) {
             return null;
         }
+        if (qualifiedName.toString().contains(OdooNames.ODOO_ADDONS)) {
+            return null;
+        }
         List<PsiElement> elements = PyResolveImportUtil.resolveQualifiedName(qualifiedName, PyResolveImportUtil.fromFoothold(psiElement));
         if (elements.size() != 1) {
             return null;
@@ -35,6 +38,6 @@ public class OdooCanonicalPathProvider implements PyCanonicalPathProvider {
             return null;
         }
         QualifiedName relativeNameFromModule = qualifiedName.subQualifiedName(moduleNamePos, components.size());
-        return QualifiedName.fromDottedString("odoo.addons").append(relativeNameFromModule);
+        return QualifiedName.fromDottedString(OdooNames.ODOO_ADDONS).append(relativeNameFromModule);
     }
 }
