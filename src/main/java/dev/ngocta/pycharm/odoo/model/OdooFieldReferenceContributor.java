@@ -178,6 +178,9 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                     if (valueExpression == null) {
                         return false;
                     }
+                    if (valueExpression.getParent() instanceof PyExpressionStatement) {
+                        return false;
+                    }
                     context.put(OdooFieldReferenceProvider.MODEL_CLASS_RESOLVER, () -> {
                         return OdooModelUtils.resolveRecordValueContext(valueExpression);
                     });
