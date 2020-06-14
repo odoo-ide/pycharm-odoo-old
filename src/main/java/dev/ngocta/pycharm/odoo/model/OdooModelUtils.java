@@ -516,4 +516,21 @@ public class OdooModelUtils {
         }
         return false;
     }
+
+    @NotNull
+    public static List<PyClass> getUnknownAncestorModelClasses(@NotNull PyClass cls,
+                                                               @NotNull TypeEvalContext context) {
+        OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(cls);
+        if (modelClass == null) {
+            return Collections.emptyList();
+        }
+        List<PyClass> knownAncestors = cls.getAncestorClasses(context);
+        List<PyClass> ancestors = new LinkedList<>(modelClass.getAncestorClasses(context));
+        ancestors.removeAll(knownAncestors);
+        int clsIndex = ancestors.indexOf(cls);
+        if (clsIndex >= 0) {
+            ancestors = ancestors.subList(clsIndex + 1, ancestors.size());
+        }
+        return ancestors;
+    }
 }
