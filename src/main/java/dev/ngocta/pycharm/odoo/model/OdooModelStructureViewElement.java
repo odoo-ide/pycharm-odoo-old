@@ -98,47 +98,47 @@ public class OdooModelStructureViewElement extends PyStructureViewElement {
     @Override
     public ItemPresentation getPresentation() {
         PyElement element = getValue();
-        if (element instanceof PyTargetExpression) {
-            OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) element);
-            if (info != null) {
-                return new ColoredItemPresentation() {
-                    @Nullable
-                    @Override
-                    public TextAttributesKey getTextAttributesKey() {
-                        if (isInherited()) {
-                            return CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES;
-                        }
-                        return null;
-                    }
-
-                    @Nullable
-                    @Override
-                    public String getPresentableText() {
-                        String text = element.getName();
-                        if (text != null) {
-                            text += " | " + info.getTypeName();
-                            if (info.getComodel() != null) {
-                                text += " (" + info.getComodel() + ")";
-                            }
-                            return text;
-                        }
-                        return null;
-                    }
-
-                    @Nullable
-                    @Override
-                    public String getLocationString() {
-                        return null;
-                    }
-
-                    @Nullable
-                    @Override
-                    public Icon getIcon(boolean unused) {
-                        return PlatformIcons.FIELD_ICON;
-                    }
-                };
-            }
+        if (!(element instanceof PyTargetExpression)) {
+            return super.getPresentation();
         }
-        return super.getPresentation();
+        OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) element);
+        if (info == null) {
+            return super.getPresentation();
+        }
+        return new ColoredItemPresentation() {
+            @Nullable
+            @Override
+            public TextAttributesKey getTextAttributesKey() {
+                if (isInherited()) {
+                    return CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES;
+                }
+                return null;
+            }
+
+            @Nullable
+            @Override
+            public String getPresentableText() {
+                String text = element.getName();
+                if (text != null) {
+                    text += "  →  " + info.getTypeName();
+                    if (info.getComodel() != null) {
+                        text += " (" + info.getComodel() + ")";
+                    }
+                }
+                return text;
+            }
+
+            @Nullable
+            @Override
+            public String getLocationString() {
+                return null;
+            }
+
+            @Nullable
+            @Override
+            public Icon getIcon(boolean unused) {
+                return PlatformIcons.FIELD_ICON;
+            }
+        };
     }
 }
