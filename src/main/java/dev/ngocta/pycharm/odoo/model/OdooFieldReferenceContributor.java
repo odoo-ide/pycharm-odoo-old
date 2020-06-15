@@ -8,6 +8,8 @@ import com.intellij.psi.PsiReferenceRegistrar;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.QualifiedName;
 import com.intellij.util.ProcessingContext;
+import com.jetbrains.python.codeInsight.controlflow.ScopeOwner;
+import com.jetbrains.python.codeInsight.dataflow.scope.ScopeUtil;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
@@ -161,6 +163,12 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                     if (domainExpression == null) {
                         return false;
                     }
+                    if (domainExpression.getParent() instanceof PyAssignmentStatement) {
+                        ScopeOwner scopeOwner = ScopeUtil.getScopeOwner(domainExpression);
+                        if (!(scopeOwner instanceof PyFunction)) {
+                            return false;
+                        }
+                    }
                     context.put(OdooFieldReferenceProvider.ENABLE_SUB_FIELD, true);
                     context.put(OdooFieldReferenceProvider.MODEL_CLASS_RESOLVER, () -> {
                         return OdooModelUtils.resolveSearchDomainContext(domainExpression, true);
@@ -180,6 +188,12 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                     }
                     if (valueExpression.getParent() instanceof PyExpressionStatement) {
                         return false;
+                    }
+                    if (valueExpression.getParent() instanceof PyAssignmentStatement) {
+                        ScopeOwner scopeOwner = ScopeUtil.getScopeOwner(valueExpression);
+                        if (!(scopeOwner instanceof PyFunction)) {
+                            return false;
+                        }
                     }
                     context.put(OdooFieldReferenceProvider.MODEL_CLASS_RESOLVER, () -> {
                         return OdooModelUtils.resolveRecordValueContext(valueExpression);
