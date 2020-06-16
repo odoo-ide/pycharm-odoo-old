@@ -20,9 +20,8 @@ public class OdooFieldNameReferenceConverter implements CustomReferenceConverter
         if (parent instanceof OdooDomField) {
             String model = ((OdooDomField) parent).getModel();
             if (model != null && !model.isEmpty()) {
-                return new PsiReference[]{new OdooFieldReference(element, () -> {
-                    return OdooModelClass.getInstance(model, element.getProject());
-                })};
+                OdooModelClass modelClass = OdooModelClass.getInstance(model, element.getProject());
+                return new PsiReference[]{new OdooFieldReference(element, modelClass)};
             }
         }
         return new PsiReference[0];

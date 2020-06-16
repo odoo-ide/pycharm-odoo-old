@@ -1,6 +1,5 @@
 package dev.ngocta.pycharm.odoo.model;
 
-import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.ElementManipulators;
 import com.intellij.psi.PsiElement;
@@ -13,19 +12,19 @@ import java.util.List;
 
 public class OdooFieldPathReferences {
     private final PsiElement myElement;
-    private final Computable<OdooModelClass> myModelClassResolver;
+    private final OdooModelClass myModelClass;
     private PsiReference[] myReferences;
     private String[] myFieldNames;
 
     private OdooFieldPathReferences(@NotNull PsiElement element,
-                                    @Nullable Computable<OdooModelClass> modelClassResolver) {
+                                    @Nullable OdooModelClass modelClass) {
         myElement = element;
-        myModelClassResolver = modelClassResolver;
+        myModelClass = modelClass;
     }
 
     public static OdooFieldPathReferences create(@NotNull PsiElement element,
-                                                 @Nullable Computable<OdooModelClass> modelClassResolver) {
-        OdooFieldPathReferences fieldPathReferences = new OdooFieldPathReferences(element, modelClassResolver);
+                                                 @Nullable OdooModelClass modelClass) {
+        OdooFieldPathReferences fieldPathReferences = new OdooFieldPathReferences(element, modelClass);
         List<PsiReference> references = new LinkedList<>();
         TextRange range = ElementManipulators.getValueTextRange(element);
         String rangeValue = range.substring(element.getText());
@@ -49,8 +48,8 @@ public class OdooFieldPathReferences {
         return myReferences;
     }
 
-    public Computable<OdooModelClass> getModelClassResolver() {
-        return myModelClassResolver;
+    public OdooModelClass getModelClass() {
+        return myModelClass;
     }
 
     public PsiElement getElement() {
