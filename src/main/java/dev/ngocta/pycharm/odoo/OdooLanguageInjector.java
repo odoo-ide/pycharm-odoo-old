@@ -29,7 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class OdooLanguageInjector implements LanguageInjector {
-    private static final Pattern RE_PATTERN_PY = Pattern.compile("\\s*(.+)\\s*", Pattern.DOTALL);
+    private static final Pattern RE_PATTERN_PY = Pattern.compile("\\s*(.*\\S)\\s*", Pattern.DOTALL);
     private static final Pattern RE_PATTERN_PY_TEMPLATE = Pattern.compile("(?:#\\{\\s*(.+?)\\s*})|(?:\\{\\{\\s*(.+?)\\s*}})", Pattern.DOTALL);
     private static final Map<String, Set<String>> KNOWN_FIELDS_TO_INJECT = ImmutableMap.<String, Set<String>>builder()
             .put(OdooNames.IR_RULE_DOMAIN_FORCE, ImmutableSet.of(OdooNames.IR_RULE))
