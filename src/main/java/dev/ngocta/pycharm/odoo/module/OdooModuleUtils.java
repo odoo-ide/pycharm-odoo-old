@@ -6,6 +6,7 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.impl.source.resolve.FileContextUtil;
 import com.jetbrains.python.PyNames;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
@@ -30,24 +31,18 @@ public class OdooModuleUtils {
         if (element == null) {
             return null;
         }
-        VirtualFile dir;
+        VirtualFile virtualFile;
         if (element instanceof PsiDirectory) {
-            dir = getContainingOdooModuleDirectory(((PsiDirectory) element).getVirtualFile());
+            virtualFile = ((PsiDirectory) element).getVirtualFile();
         } else {
-            PsiFile file = element.getContainingFile();
-            if (file == null) {
+            PsiFile psiFile = FileContextUtil.getContextFile(element);
+            if (psiFile == null) {
                 return null;
             }
-            PsiElement context = file.getContext();
-            if (context != null && !(context instanceof PsiDirectory)) {
-                file = context.getContainingFile();
-                if (file == null) {
-                    return null;
-                }
-            }
-            file = file.getOriginalFile();
-            dir = getContainingOdooModuleDirectory(file.getVirtualFile());
+            psiFile = psiFile.getOriginalFile();
+            virtualFile = psiFile.getVirtualFile();
         }
+        VirtualFile dir = getContainingOdooModuleDirectory(virtualFile);
         if (dir != null) {
             return PsiManager.getInstance(element.getProject()).findDirectory(dir);
         }
