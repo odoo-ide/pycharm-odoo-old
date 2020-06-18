@@ -68,6 +68,7 @@ public class OdooDomExtender extends DomExtender<OdooDomElement> {
         return PsiTreeUtil.getChildrenOfTypeAsList(element, XmlTag.class)
                 .stream()
                 .map(XmlTag::getName)
+                .filter(s -> !s.isEmpty())
                 .collect(Collectors.toSet());
     }
 
