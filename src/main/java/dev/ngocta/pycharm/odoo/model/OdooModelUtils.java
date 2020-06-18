@@ -209,92 +209,142 @@ public class OdooModelUtils {
     @Nullable
     public static OdooModelClass resolveSearchDomainContext(@NotNull PyListLiteralExpression domainExpression,
                                                             boolean forLeftOperand) {
-        PsiElement parent = domainExpression.getParent();
-        if (parent instanceof PyKeywordArgument) {
-            parent = parent.getParent();
-        }
-        if (parent == null) {
-            return null;
-        }
-        Project project = domainExpression.getProject();
-        if (parent instanceof PyArgumentList) {
-            parent = parent.getParent();
-            if (parent instanceof PyCallExpression) {
-                PyCallExpression callExpression = ((PyCallExpression) parent);
-                PyExpression callee = callExpression.getCallee();
-                if (callee instanceof PyReferenceExpression) {
-                    PyReferenceExpression ref = (PyReferenceExpression) callee;
-                    String refName = ref.getName();
-                    if (ArrayUtil.contains(refName, OdooNames.RELATIONAL_FIELD_TYPES)) {
-                        PyStringLiteralExpression comodelExpression = callExpression.getArgument(
-                                0, OdooNames.FIELD_ATTR_COMODEL_NAME, PyStringLiteralExpression.class);
-                        if (comodelExpression != null) {
-                            return OdooModelClass.getInstance(comodelExpression.getStringValue(), project);
+        return PyUtil.getNullableParameterizedCachedValue(domainExpression, forLeftOperand, param -> {
+            PsiElement parent = domainExpression.getParent();
+            if (parent instanceof PyKeywordArgument) {
+                parent = parent.getParent();
+            }
+            if (parent == null) {
+                return null;
+            }
+            Project project = domainExpression.getProject();
+            if (parent instanceof PyArgumentList) {
+                parent = parent.getParent();
+                if (parent instanceof PyCallExpression) {
+                    PyCallExpression callExpression = ((PyCallExpression) parent);
+                    PyExpression callee = callExpression.getCallee();
+                    if (callee instanceof PyReferenceExpression) {
+                        PyReferenceExpression ref = (PyReferenceExpression) callee;
+                        String refName = ref.getName();
+                        if (ArrayUtil.contains(refName, OdooNames.RELATIONAL_FIELD_TYPES)) {
+                            PyStringLiteralExpression comodelExpression = callExpression.getArgument(
+                                    0, OdooNames.FIELD_ATTR_COMODEL_NAME, PyStringLiteralExpression.class);
+                            if (comodelExpression != null) {
+                                return OdooModelClass.getInstance(comodelExpression.getStringValue(), project);
+                            }
+                            return null;
                         }
-                        return null;
-                    }
-                    PyExpression qualifier = ref.getQualifier();
-                    if (qualifier != null && ArrayUtil.contains(refName, OdooNames.SEARCH, OdooNames.SEARCH_READ, OdooNames.SEARCH_COUNT)) {
-                        TypeEvalContext typeEvalContext = TypeEvalContext.codeAnalysis(project, parent.getContainingFile());
-                        PyType type = typeEvalContext.getType(qualifier);
-                        if (type instanceof OdooModelClassType) {
-                            return ((OdooModelClassType) type).getPyClass();
+                        PyExpression qualifier = ref.getQualifier();
+                        if (qualifier != null && ArrayUtil.contains(refName, OdooNames.SEARCH, OdooNames.SEARCH_READ, OdooNames.SEARCH_COUNT)) {
+                            TypeEvalContext typeEvalContext = TypeEvalContext.codeAnalysis(project, parent.getContainingFile());
+                            PyType type = typeEvalContext.getType(qualifier);
+                            if (type instanceof OdooModelClassType) {
+                                return ((OdooModelClassType) type).getPyClass();
+                            }
                         }
                     }
                 }
+                return null;
             }
-            return null;
-        }
-        if (parent instanceof PyKeyValueExpression) {
-            parent = parent.getParent();
-            if (parent instanceof PyDictLiteralExpression) {
+            if (parent instanceof PyKeyValueExpression) {
                 parent = parent.getParent();
+                if (parent instanceof PyDictLiteralExpression) {
+                    parent = parent.getParent();
+                }
             }
-        }
-        parent = parent.getParent();
-        if (!(parent instanceof PyFile)) {
-            return null;
-        }
-        parent = parent.getContext();
-        if (parent instanceof PyStringLiteralExpression) {
             parent = parent.getParent();
-            if (parent instanceof PyKeywordArgument) {
-                if (OdooNames.FIELD_ATTR_DOMAIN.equals(((PyKeywordArgument) parent).getKeyword())) {
-                    if (forLeftOperand) {
-                        parent = PsiTreeUtil.getParentOfType(parent, PyAssignmentStatement.class);
-                        if (parent != null) {
-                            PyExpression left = ((PyAssignmentStatement) parent).getLeftHandSideExpression();
-                            if (left instanceof PyTargetExpression) {
-                                OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) left);
-                                if (info != null && info.getComodel() != null) {
-                                    return OdooModelClass.getInstance(info.getComodel(), project);
+            if (!(parent instanceof PyFile)) {
+                return null;
+            }
+            parent = parent.getContext();
+            if (parent instanceof PyStringLiteralExpression) {
+                parent = parent.getParent();
+                if (parent instanceof PyKeywordArgument) {
+                    if (OdooNames.FIELD_ATTR_DOMAIN.equals(((PyKeywordArgument) parent).getKeyword())) {
+                        if (forLeftOperand) {
+                            parent = PsiTreeUtil.getParentOfType(parent, PyAssignmentStatement.class);
+                            if (parent != null) {
+                                PyExpression left = ((PyAssignmentStatement) parent).getLeftHandSideExpression();
+                                if (left instanceof PyTargetExpression) {
+                                    OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) left);
+                                    if (info != null && info.getComodel() != null) {
+                                        return OdooModelClass.getInstance(info.getComodel(), project);
+                                    }
+                                }
+                            }
+                        } else {
+                            return OdooModelUtils.getContainingOdooModelClass(parent);
+                        }
+                    }
+                }
+                return null;
+            }
+            DomManager domManager = DomManager.getDomManager(project);
+            if (parent instanceof XmlAttributeValue) {
+                parent = parent.getParent();
+                if (parent instanceof XmlAttribute) {
+                    XmlAttribute attribute = (XmlAttribute) parent;
+                    XmlTag tag = attribute.getParent();
+                    if (tag != null) {
+                        DomElement domElement = domManager.getDomElement(tag);
+                        if (domElement instanceof OdooDomModelScopedViewElement) {
+                            String model;
+                            if (domElement instanceof OdooDomViewField
+                                    && OdooNames.FIELD_ATTR_DOMAIN.equals(attribute.getName())
+                                    && forLeftOperand) {
+                                model = ((OdooDomField) domElement).getComodel();
+                            } else {
+                                model = ((OdooDomModelScopedViewElement) domElement).getModel();
+                            }
+                            if (model != null) {
+                                return OdooModelClass.getInstance(model, project);
+                            }
+                        }
+                    }
+                }
+                return null;
+            }
+            if (parent instanceof XmlText) {
+                parent = parent.getParent();
+                if (parent instanceof XmlTag) {
+                    XmlTag tag = (XmlTag) parent;
+                    DomElement domElement = domManager.getDomElement(tag);
+                    if (domElement instanceof OdooDomFieldAssignment) {
+                        String field = Optional.of((OdooDomFieldAssignment) domElement)
+                                .map(OdooDomField::getName)
+                                .map(GenericValue::getStringValue)
+                                .orElse(null);
+                        if (field == null) {
+                            return null;
+                        }
+                        String modelField = KNOWN_DOMAIN_FIELDS.getOrDefault(field, null);
+                        if (modelField == null) {
+                            return null;
+                        }
+                        OdooDomRecord record = domElement.getParentOfType(OdooDomRecord.class, true);
+                        if (record != null) {
+                            for (OdooDomFieldAssignment f : record.getFields()) {
+                                if (modelField.equals(f.getName().getStringValue())) {
+                                    XmlAttributeValue refValue = f.getRef().getXmlAttributeValue();
+                                    if (refValue != null) {
+                                        return Optional.of(refValue)
+                                                .map(PsiElement::getReference)
+                                                .map(PsiReference::resolve)
+                                                .map(OdooModelUtils::getContainingOdooModelClass)
+                                                .orElse(null);
+                                    }
+                                    String model = f.getValue();
+                                    if (model != null) {
+                                        return OdooModelClass.getInstance(model, project);
+                                    }
+                                    return null;
                                 }
                             }
                         }
-                    } else {
-                        return OdooModelUtils.getContainingOdooModelClass(parent);
+                        return null;
                     }
-                }
-            }
-            return null;
-        }
-        DomManager domManager = DomManager.getDomManager(project);
-        if (parent instanceof XmlAttributeValue) {
-            parent = parent.getParent();
-            if (parent instanceof XmlAttribute) {
-                XmlAttribute attribute = (XmlAttribute) parent;
-                XmlTag tag = attribute.getParent();
-                if (tag != null) {
-                    DomElement domElement = domManager.getDomElement(tag);
                     if (domElement instanceof OdooDomModelScopedViewElement) {
-                        String model;
-                        if (domElement instanceof OdooDomViewField
-                                && OdooNames.FIELD_ATTR_DOMAIN.equals(attribute.getName())
-                                && forLeftOperand) {
-                            model = ((OdooDomField) domElement).getComodel();
-                        } else {
-                            model = ((OdooDomModelScopedViewElement) domElement).getModel();
-                        }
+                        String model = ((OdooDomModelScopedViewElement) domElement).getModel();
                         if (model != null) {
                             return OdooModelClass.getInstance(model, project);
                         }
@@ -302,55 +352,7 @@ public class OdooModelUtils {
                 }
             }
             return null;
-        }
-        if (parent instanceof XmlText) {
-            parent = parent.getParent();
-            if (parent instanceof XmlTag) {
-                XmlTag tag = (XmlTag) parent;
-                DomElement domElement = domManager.getDomElement(tag);
-                if (domElement instanceof OdooDomFieldAssignment) {
-                    String field = Optional.of((OdooDomFieldAssignment) domElement)
-                            .map(OdooDomField::getName)
-                            .map(GenericValue::getStringValue)
-                            .orElse(null);
-                    if (field == null) {
-                        return null;
-                    }
-                    String modelField = KNOWN_DOMAIN_FIELDS.getOrDefault(field, null);
-                    if (modelField == null) {
-                        return null;
-                    }
-                    OdooDomRecord record = domElement.getParentOfType(OdooDomRecord.class, true);
-                    if (record != null) {
-                        for (OdooDomFieldAssignment f : record.getFields()) {
-                            if (modelField.equals(f.getName().getStringValue())) {
-                                XmlAttributeValue refValue = f.getRef().getXmlAttributeValue();
-                                if (refValue != null) {
-                                    return Optional.of(refValue)
-                                            .map(PsiElement::getReference)
-                                            .map(PsiReference::resolve)
-                                            .map(OdooModelUtils::getContainingOdooModelClass)
-                                            .orElse(null);
-                                }
-                                String model = f.getValue();
-                                if (model != null) {
-                                    return OdooModelClass.getInstance(model, project);
-                                }
-                                return null;
-                            }
-                        }
-                    }
-                    return null;
-                }
-                if (domElement instanceof OdooDomModelScopedViewElement) {
-                    String model = ((OdooDomModelScopedViewElement) domElement).getModel();
-                    if (model != null) {
-                        return OdooModelClass.getInstance(model, project);
-                    }
-                }
-            }
-        }
-        return null;
+        });
     }
 
     @Nullable
@@ -367,46 +369,48 @@ public class OdooModelUtils {
 
     @Nullable
     public static OdooModelClass resolveRecordValueContext(@NotNull PsiElement dict) {
-        Project project = dict.getProject();
-        PsiElement parent = dict.getParent();
-        if (parent instanceof PyTupleExpression) {
-            PsiElement[] tupleElements = ((PyTupleExpression) parent).getElements();
-            if (tupleElements.length == 3 && tupleElements[0] instanceof PyNumericLiteralExpression && tupleElements[2].equals(dict)) {
-                parent = parent.getParent();
-                if (parent instanceof PyParenthesizedExpression) {
+        return PyUtil.getNullableParameterizedCachedValue(dict, null, param -> {
+            Project project = dict.getProject();
+            PsiElement parent = dict.getParent();
+            if (parent instanceof PyTupleExpression) {
+                PsiElement[] tupleElements = ((PyTupleExpression) parent).getElements();
+                if (tupleElements.length == 3 && tupleElements[0] instanceof PyNumericLiteralExpression && tupleElements[2].equals(dict)) {
                     parent = parent.getParent();
-                    if (parent instanceof PyListLiteralExpression) {
+                    if (parent instanceof PyParenthesizedExpression) {
                         parent = parent.getParent();
-                        if (parent instanceof PyKeyValueExpression) {
-                            PyExpression k = ((PyKeyValueExpression) parent).getKey();
-                            if (k instanceof PyStringLiteralExpression) {
-                                PsiElement ref = Optional.ofNullable(k.getReference())
-                                        .map(PsiReference::resolve)
-                                        .orElse(null);
-                                if (ref instanceof PyTargetExpression) {
-                                    OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) ref);
-                                    if (info != null && info.getComodel() != null) {
-                                        return OdooModelClass.getInstance(info.getComodel(), project);
+                        if (parent instanceof PyListLiteralExpression) {
+                            parent = parent.getParent();
+                            if (parent instanceof PyKeyValueExpression) {
+                                PyExpression k = ((PyKeyValueExpression) parent).getKey();
+                                if (k instanceof PyStringLiteralExpression) {
+                                    PsiElement ref = Optional.ofNullable(k.getReference())
+                                            .map(PsiReference::resolve)
+                                            .orElse(null);
+                                    if (ref instanceof PyTargetExpression) {
+                                        OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) ref);
+                                        if (info != null && info.getComodel() != null) {
+                                            return OdooModelClass.getInstance(info.getComodel(), project);
+                                        }
                                     }
                                 }
-                            }
-                        } else {
-                            parent = parent.getParent();
-                            if (parent instanceof PyFile) {
-                                parent = parent.getContext();
-                                if (parent instanceof XmlAttributeValue) {
-                                    parent = parent.getParent();
-                                    if (parent instanceof XmlAttribute) {
-                                        XmlAttribute attribute = (XmlAttribute) parent;
-                                        if ("eval".equals(attribute.getName())) {
-                                            XmlTag tag = attribute.getParent();
-                                            if (tag != null) {
-                                                DomManager domManager = DomManager.getDomManager(project);
-                                                DomElement domElement = domManager.getDomElement(tag);
-                                                if (domElement instanceof OdooDomFieldAssignment) {
-                                                    String comodel = ((OdooDomFieldAssignment) domElement).getComodel();
-                                                    if (comodel != null) {
-                                                        return OdooModelClass.getInstance(comodel, project);
+                            } else {
+                                parent = parent.getParent();
+                                if (parent instanceof PyFile) {
+                                    parent = parent.getContext();
+                                    if (parent instanceof XmlAttributeValue) {
+                                        parent = parent.getParent();
+                                        if (parent instanceof XmlAttribute) {
+                                            XmlAttribute attribute = (XmlAttribute) parent;
+                                            if ("eval".equals(attribute.getName())) {
+                                                XmlTag tag = attribute.getParent();
+                                                if (tag != null) {
+                                                    DomManager domManager = DomManager.getDomManager(project);
+                                                    DomElement domElement = domManager.getDomElement(tag);
+                                                    if (domElement instanceof OdooDomFieldAssignment) {
+                                                        String comodel = ((OdooDomFieldAssignment) domElement).getComodel();
+                                                        if (comodel != null) {
+                                                            return OdooModelClass.getInstance(comodel, project);
+                                                        }
                                                     }
                                                 }
                                             }
@@ -417,31 +421,31 @@ public class OdooModelUtils {
                         }
                     }
                 }
+                return null;
             }
-            return null;
-        }
-        if (parent instanceof PyListLiteralExpression || parent instanceof PyListCompExpression) {
-            parent = parent.getParent();
-        }
-        if (parent instanceof PyArgumentList) {
-            parent = parent.getParent();
-            if (parent instanceof PyCallExpression) {
-                PyExpression callee = ((PyCallExpression) parent).getCallee();
-                if (callee instanceof PyReferenceExpression) {
-                    PyReferenceExpression ref = (PyReferenceExpression) callee;
-                    String refName = ref.getName();
-                    PyExpression qualifier = ref.getQualifier();
-                    if (qualifier != null && ArrayUtil.contains(refName, OdooNames.CREATE, OdooNames.WRITE, OdooNames.UPDATE)) {
-                        TypeEvalContext context = TypeEvalContext.userInitiated(project, parent.getContainingFile());
-                        PyType type = context.getType(qualifier);
-                        if (type instanceof OdooModelClassType) {
-                            return ((OdooModelClassType) type).getPyClass();
+            if (parent instanceof PyListLiteralExpression || parent instanceof PyListCompExpression) {
+                parent = parent.getParent();
+            }
+            if (parent instanceof PyArgumentList) {
+                parent = parent.getParent();
+                if (parent instanceof PyCallExpression) {
+                    PyExpression callee = ((PyCallExpression) parent).getCallee();
+                    if (callee instanceof PyReferenceExpression) {
+                        PyReferenceExpression ref = (PyReferenceExpression) callee;
+                        String refName = ref.getName();
+                        PyExpression qualifier = ref.getQualifier();
+                        if (qualifier != null && ArrayUtil.contains(refName, OdooNames.CREATE, OdooNames.WRITE, OdooNames.UPDATE)) {
+                            TypeEvalContext context = TypeEvalContext.userInitiated(project, parent.getContainingFile());
+                            PyType type = context.getType(qualifier);
+                            if (type instanceof OdooModelClassType) {
+                                return ((OdooModelClassType) type).getPyClass();
+                            }
                         }
                     }
                 }
             }
-        }
-        return null;
+            return null;
+        });
     }
 
     public static String getIrModelRecordName(@NotNull String model) {
