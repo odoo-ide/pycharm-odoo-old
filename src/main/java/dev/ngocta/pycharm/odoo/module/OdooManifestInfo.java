@@ -9,17 +9,32 @@ import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.List;
 
 public class OdooManifestInfo {
+    private final String myName;
+    private final String mySummary;
     private final String[] myDepends;
 
-    private OdooManifestInfo(String[] depends) {
+    private OdooManifestInfo(@Nullable String name,
+                             @Nullable String summary,
+                             @Nullable String[] depends) {
+        myName = name;
+        mySummary = summary;
         myDepends = depends;
     }
 
-    @NotNull
+    @Nullable
+    public String getName() {
+        return myName;
+    }
+
+    @Nullable
+    public String getSummary() {
+        return mySummary;
+    }
+
+    @Nullable
     public String[] getDepends() {
         return myDepends;
     }
@@ -39,22 +54,27 @@ public class OdooManifestInfo {
             return null;
         }
 
+        String name = null;
+        String summary = null;
         List<String> depends = null;
         for (PyKeyValueExpression kvExpression : dictExpression.getElements()) {
             PyExpression key = kvExpression.getKey();
             if (key instanceof PyStringLiteralExpression) {
                 String keyName = ((PyStringLiteralExpression) key).getStringValue();
                 PyExpression value = kvExpression.getValue();
-                if (keyName.equals(OdooNames.MANIFEST_DEPENDS) && value instanceof PySequenceExpression) {
+                if ("name".equals(keyName) && value instanceof PyStringLiteralExpression) {
+                    name = ((PyStringLiteralExpression) value).getStringValue();
+                } else if ("summary".equals(keyName) && (value instanceof PyStringLiteralExpression)) {
+                    summary = ((PyStringLiteralExpression) value).getStringValue().trim();
+                } else if (OdooNames.MANIFEST_DEPENDS.equals(keyName) && value instanceof PySequenceExpression) {
                     depends = PyUtil.strListValue(value);
-                    break;
                 }
             }
         }
-        if (depends == null) {
-            depends = Collections.emptyList();
-        }
 
-        return new OdooManifestInfo(depends.toArray(new String[0]));
+        return new OdooManifestInfo(
+                name,
+                summary,
+                depends != null ? depends.toArray(new String[0]) : null);
     }
 }

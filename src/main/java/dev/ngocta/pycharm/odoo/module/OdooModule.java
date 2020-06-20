@@ -58,7 +58,11 @@ public class OdooModule {
                 return Collections.emptyList();
             }
             List<OdooModule> result = new LinkedList<>();
-            for (String depend : info.getDepends()) {
+            String[] depends = info.getDepends();
+            if (depends == null) {
+                return Collections.emptyList();
+            }
+            for (String depend : depends) {
                 OdooModule module = OdooModuleIndex.getOdooModuleByName(depend, getDirectory());
                 if (module != null) {
                     result.add(module);

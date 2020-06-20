@@ -231,6 +231,7 @@
         <languageInjector implementation="dev.ngocta.pycharm.odoo.OdooLanguageInjector"/>
         <completion.contributor implementationClass="dev.ngocta.pycharm.odoo.model.OdooModelSuperMethodCompletionContributor" language="Python" order="first"/>
         <completion.contributor implementationClass="dev.ngocta.pycharm.odoo.model.OdooModelSuperAttributeCompletionContributor" language="Python"/>
+        <documentationProvider implementation="dev.ngocta.pycharm.odoo.module.OdooModuleDocumentationProvider" />
     </extensions>
 
     <actions>
