@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.FakePsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class OdooCsvRecord extends FakePsiElement implements Navigatable {
     private final VirtualFile myFile;
@@ -27,9 +28,19 @@ public class OdooCsvRecord extends FakePsiElement implements Navigatable {
         return null;
     }
 
+    @NotNull
+    public VirtualFile getContainingVirtualFile() {
+        return myFile;
+    }
+
     @Override
     public PsiFile getContainingFile() {
         return null;
+    }
+
+    @Nullable
+    public String getModel() {
+        return myFile.getNameWithoutExtension();
     }
 
     @Override
