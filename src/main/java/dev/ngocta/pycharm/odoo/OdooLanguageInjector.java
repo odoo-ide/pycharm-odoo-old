@@ -41,6 +41,7 @@ public class OdooLanguageInjector implements LanguageInjector {
     public static final ElementPattern<String> XML_ATTRIBUTE_NAME_PATTERN =
             StandardPatterns.or(
                     StandardPatterns.string().startsWith("t-att-"),
+                    StandardPatterns.string().startsWith("decoration-"),
                     StandardPatterns.string().oneOf("eval", "attrs", "context", "options", "domain", "filter_domain",
                             "t-if", "t-elif", "t-foreach", "t-value", "t-esc", "t-raw", "t-field", "t-options"));
 
