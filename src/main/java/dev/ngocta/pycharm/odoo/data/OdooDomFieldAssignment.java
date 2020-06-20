@@ -15,6 +15,10 @@ public interface OdooDomFieldAssignment extends OdooDomField, GenericDomValue<St
     @Referencing(OdooFieldRefValueReferenceConverter.class)
     GenericAttributeValue<String> getRef();
 
+    @Attribute("file")
+    @Referencing(OdooFieldFileValueReferenceConverter.class)
+    GenericAttributeValue<String> getFile();
+
     default String getModel() {
         OdooDomRecord record = getRecord();
         if (record != null) {

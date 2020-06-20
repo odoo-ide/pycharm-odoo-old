@@ -19,8 +19,16 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OdooFileReferenceSet extends FileReferenceSet {
+    private final boolean myStartWithOdooModule;
+
     public OdooFileReferenceSet(@NotNull PsiElement element) {
+        this(element, false);
+    }
+
+    public OdooFileReferenceSet(@NotNull PsiElement element,
+                                boolean startWithOdooModule) {
         super(element);
+        myStartWithOdooModule = startWithOdooModule;
     }
 
     @NotNull
@@ -31,7 +39,7 @@ public class OdooFileReferenceSet extends FileReferenceSet {
             return Collections.emptyList();
         }
 
-        if (isAbsolutePathReference()) {
+        if (isAbsolutePathReference() || myStartWithOdooModule) {
             return PyUtil.getParameterizedCachedValue(file, null, param -> {
                 return OdooModuleIndex.getAvailableOdooModules(getElement()).stream()
                         .map(OdooModule::getDirectory)
