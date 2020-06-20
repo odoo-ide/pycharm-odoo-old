@@ -11,6 +11,7 @@ import com.jetbrains.python.psi.PyTargetExpression;
 import com.jetbrains.python.psi.PyUtil;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
+import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.module.OdooModule;
 import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -125,6 +126,13 @@ public class OdooFieldReference extends PsiReferenceBase.Poly<PsiElement> {
 
     @Override
     public boolean isSoft() {
-        return getModelClass() == null;
+        OdooModelClass cls = getModelClass();
+        if (cls == null) {
+            return true;
+        }
+        if (OdooNames.IR_RULE.equals(cls.getName()) && OdooNames.IR_RULE_GLOBAL.equals(getValue())) {
+            return true;
+        }
+        return false;
     }
 }
