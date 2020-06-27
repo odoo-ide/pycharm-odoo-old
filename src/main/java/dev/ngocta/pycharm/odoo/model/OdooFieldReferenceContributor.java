@@ -8,6 +8,8 @@ import com.intellij.psi.PsiReferenceRegistrar;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.QualifiedName;
 import com.intellij.util.ProcessingContext;
+import com.jetbrains.python.codeInsight.controlflow.ScopeOwner;
+import com.jetbrains.python.codeInsight.dataflow.scope.ScopeUtil;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
@@ -155,9 +157,9 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                         return false;
                     }
                     OdooModelClass modelClass = OdooModelUtils.resolveSearchDomainContext(domainExpression, true);
-                    if (modelClass != null) {
-                        context.put(OdooFieldReferenceProvider.ENABLE_SUB_FIELD, true);
+                    if (modelClass != null || maybeContainFieldReferences(domainExpression)) {
                         context.put(OdooFieldReferenceProvider.MODEL_CLASS, modelClass);
+                        context.put(OdooFieldReferenceProvider.ENABLE_SUB_FIELD, true);
                         return true;
                     }
                     return false;
@@ -174,13 +176,21 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                         return false;
                     }
                     OdooModelClass modelClass = OdooModelUtils.resolveRecordValueContext(valueExpression);
-                    if (modelClass != null) {
+                    if (modelClass != null || maybeContainFieldReferences(valueExpression)) {
                         context.put(OdooFieldReferenceProvider.MODEL_CLASS, modelClass);
                         return true;
                     }
                     return false;
                 }
             });
+
+    private static boolean maybeContainFieldReferences(PsiElement element) {
+        ScopeOwner scopeOwner = ScopeUtil.getScopeOwner(element);
+        if (scopeOwner instanceof PyFunction) {
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
