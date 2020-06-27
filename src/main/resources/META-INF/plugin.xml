@@ -194,6 +194,7 @@
         <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooInitHookFunctionParamTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooHttpRouteFunctionParamTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooFunctionParamBooleanTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooPyDocStringTypeProvider" order="before pythonDocstringTypeProvider"/>
         <pyClassMembersProvider implementation="dev.ngocta.pycharm.odoo.model.OdooSuperMembersProvider"/>
         <inspectionExtension implementation="dev.ngocta.pycharm.odoo.OdooPyInspectionExtension"/>
         <pyAnnotator implementation="dev.ngocta.pycharm.odoo.OdooPyAnnotator"/>
@@ -231,8 +232,8 @@
         <languageInjector implementation="dev.ngocta.pycharm.odoo.OdooLanguageInjector"/>
         <completion.contributor implementationClass="dev.ngocta.pycharm.odoo.model.OdooModelSuperMethodCompletionContributor" language="Python" order="first"/>
         <completion.contributor implementationClass="dev.ngocta.pycharm.odoo.model.OdooModelSuperAttributeCompletionContributor" language="Python"/>
-        <documentationProvider implementation="dev.ngocta.pycharm.odoo.module.OdooModuleDocumentationProvider" />
-        <documentationProvider implementation="dev.ngocta.pycharm.odoo.data.OdooRecordDocumentProvider" />
+        <documentationProvider implementation="dev.ngocta.pycharm.odoo.module.OdooModuleDocumentationProvider"/>
+        <documentationProvider implementation="dev.ngocta.pycharm.odoo.data.OdooRecordDocumentProvider"/>
     </extensions>
 
     <actions>
