@@ -47,6 +47,17 @@
     <change-notes><![CDATA[
         <ul>
             <li>
+                Version 4.0
+                <ul>
+                    <li>Improve code completion and navigation</li>
+                    <li>Improve auto import for elements inside odoo addons</li>
+                    <li>Add basic document provider for module, xml id references</li>
+                    <li>Improve structure view presentation</li>
+                    <li>Improve language injection</li>
+                    <li>Bug fixes</li>
+                </ul>
+            </li>
+            <li>
                 Version 3.9
                 <ul>
                     <li>Improve language injection and type inference</li>
