@@ -234,6 +234,7 @@
         <completion.contributor implementationClass="dev.ngocta.pycharm.odoo.model.OdooModelSuperAttributeCompletionContributor" language="Python"/>
         <documentationProvider implementation="dev.ngocta.pycharm.odoo.module.OdooModuleDocumentationProvider"/>
         <documentationProvider implementation="dev.ngocta.pycharm.odoo.data.OdooRecordDocumentProvider"/>
+        <lang.parserDefinition implementationClass="dev.ngocta.pycharm.odoo.OdooPythonParserDefinition" language="Python" order="first"/>
     </extensions>
 
     <actions>
