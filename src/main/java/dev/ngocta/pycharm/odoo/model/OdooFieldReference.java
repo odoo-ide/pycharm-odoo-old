@@ -3,10 +3,7 @@ package dev.ngocta.pycharm.odoo.model;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementResolveResult;
-import com.intellij.psi.PsiReferenceBase;
-import com.intellij.psi.ResolveResult;
+import com.intellij.psi.*;
 import com.jetbrains.python.psi.PyTargetExpression;
 import com.jetbrains.python.psi.PyUtil;
 import com.jetbrains.python.psi.types.PyType;
@@ -49,25 +46,26 @@ public class OdooFieldReference extends PsiReferenceBase.Poly<PsiElement> {
     }
 
     private OdooModelClass getModelClass() {
-        OdooModelClass modelClass = myModelClass;
-        if (modelClass == null) {
-            return null;
-        }
         if (myFieldPathReferences == null) {
-            return modelClass;
+            return myModelClass;
+        }
+        int idx = Arrays.asList(myFieldPathReferences.getReferences()).indexOf(this);
+        if (idx == 0) {
+            return myModelClass;
         }
         return PyUtil.getNullableParameterizedCachedValue(getElement(), getRangeInElement(), param -> {
-            int idx = Arrays.asList(myFieldPathReferences.getReferences()).indexOf(this);
-            if (idx == 0) {
-                return modelClass;
-            }
-            String[] fieldNames = Arrays.copyOfRange(myFieldPathReferences.getFieldNames(), 0, idx);
-            PyTargetExpression field = modelClass.findFieldByPath(fieldNames, myContext);
-            if (field != null) {
-                PyType type = OdooFieldInfo.getFieldType(field, myContext);
+            PsiReference prevReference = myFieldPathReferences.getReferences()[idx - 1];
+            PsiElement field = prevReference.resolve();
+            if (field instanceof PyTargetExpression) {
+                PyType type = OdooFieldInfo.getFieldType((PyTargetExpression) field, myContext);
                 if (type instanceof OdooModelClassType) {
                     return ((OdooModelClassType) type).getPyClass();
                 }
+            }
+            String prevName = myFieldPathReferences.getFieldNames()[idx - 1];
+            PyType type = OdooModelUtils.guessFieldTypeByName(prevName, getElement(), myContext);
+            if (type instanceof OdooModelClassType) {
+                return ((OdooModelClassType) type).getPyClass();
             }
             return null;
         });
