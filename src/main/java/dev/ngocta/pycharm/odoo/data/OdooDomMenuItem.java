@@ -33,8 +33,9 @@ public interface OdooDomMenuItem extends OdooDomRecordLike {
         public PsiReference[] createReferences(GenericDomValue<String> value,
                                                PsiElement element,
                                                ConvertContext context) {
-            return new PsiReference[]{new OdooExternalIdReference(element, null,
-                    () -> new String[]{OdooNames.IR_UI_MENU}, null, true)};
+            return new PsiReference[]{
+                    new OdooExternalIdReference(element, null, OdooNames.IR_UI_MENU, null, true)
+            };
         }
     }
 
@@ -44,8 +45,9 @@ public interface OdooDomMenuItem extends OdooDomRecordLike {
         public PsiReference[] createReferences(GenericDomValue<String> value,
                                                PsiElement element,
                                                ConvertContext context) {
-            return new PsiReference[]{new OdooExternalIdReference(element, null,
-                    () -> OdooNames.ACTION_MODELS, null, true)};
+            return new PsiReference[]{
+                    new OdooExternalIdReference(element, null, OdooNames.ACTION_MODELS, null, true)
+            };
         }
     }
 }

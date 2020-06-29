@@ -3,7 +3,6 @@ package dev.ngocta.pycharm.odoo.data;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
@@ -22,17 +21,28 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
-    private final Computable<String[]> myModelsResolver;
+    private final String[] myModels;
     private final OdooRecordSubType mySubType;
     private final boolean myAllowRelative;
 
     public OdooExternalIdReference(@NotNull PsiElement element,
                                    @Nullable TextRange rangeInElement,
-                                   @Nullable Computable<String[]> modelsResolver,
+                                   @Nullable String model,
                                    @Nullable OdooRecordSubType subType,
                                    boolean allowRelative) {
         super(element, rangeInElement, false);
-        myModelsResolver = modelsResolver;
+        myModels = model != null ? new String[]{model} : null;
+        mySubType = subType;
+        myAllowRelative = allowRelative;
+    }
+
+    public OdooExternalIdReference(@NotNull PsiElement element,
+                                   @Nullable TextRange rangeInElement,
+                                   @NotNull String[] models,
+                                   @Nullable OdooRecordSubType subType,
+                                   boolean allowRelative) {
+        super(element, rangeInElement, false);
+        myModels = models;
         mySubType = subType;
         myAllowRelative = allowRelative;
     }
@@ -63,15 +73,6 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
     }
 
     @NotNull
-    private String[] getModels() {
-        if (myModelsResolver == null) {
-            return new String[0];
-        }
-        String[] models = myModelsResolver.compute();
-        return models != null ? models : new String[0];
-    }
-
-    @NotNull
     @Override
     public Object[] getVariants() {
         OdooModule module = OdooModuleUtils.getContainingOdooModule(getElement());
@@ -79,11 +80,10 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
             return new Object[0];
         }
         List<LookupElement> elements = new LinkedList<>();
-        GlobalSearchScope scope = module.getSearchScope(true);
-        String[] models = getModels();
+        GlobalSearchScope scope = module.getSearchScope();
         Project project = getElement().getProject();
         OdooExternalIdIndex.processAllRecords(project, scope, record -> {
-            if ((models.length == 0 || ArrayUtil.contains(record.getModel(), models))
+            if ((myModels.length == 0 || ArrayUtil.contains(record.getModel(), myModels))
                     && (mySubType == null || mySubType == record.getSubType())) {
                 List<String> ids = new LinkedList<>();
                 ids.add(record.getId());

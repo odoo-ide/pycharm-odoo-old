@@ -81,10 +81,8 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                     if (callee == null || !"ref".equals(callee.getName())) {
                         return false;
                     }
-                    context.put(OdooExternalIdReferenceProvider.MODELS_RESOLVER, () -> {
-                        String model = resolveRefModel(callee);
-                        return model != null ? new String[]{model} : null;
-                    });
+                    String model = resolveRefModel(callee);
+                    context.put(OdooExternalIdReferenceProvider.MODEL, model);
                     PsiFile contextFile = FileContextUtil.getContextFile(callee);
                     if (contextFile instanceof XmlFile) {
                         context.put(OdooExternalIdReferenceProvider.ALLOW_RELATIVE, true);
@@ -124,7 +122,7 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                 @Override
                 public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression,
                                        ProcessingContext context) {
-                    context.put(OdooExternalIdReferenceProvider.MODELS_RESOLVER, () -> new String[]{OdooNames.RES_GROUPS});
+                    context.put(OdooExternalIdReferenceProvider.MODEL, OdooNames.RES_GROUPS);
                     context.put(OdooExternalIdReferenceProvider.COMMA_SEPARATED, true);
                     return true;
                 }
@@ -138,9 +136,7 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                                                ProcessingContext context) {
                             String text = psiElement.getText();
                             if (text.equals("has_group") || text.equals("user_has_groups")) {
-                                context.put(OdooExternalIdReferenceProvider.MODELS_RESOLVER, () -> {
-                                    return new String[]{OdooNames.RES_GROUPS};
-                                });
+                                context.put(OdooExternalIdReferenceProvider.MODEL, OdooNames.RES_GROUPS);
                                 return true;
                             }
                             return false;

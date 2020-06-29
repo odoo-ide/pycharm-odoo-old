@@ -14,7 +14,6 @@ public class OdooGroupsReferenceConverter implements CustomReferenceConverter<St
     public PsiReference[] createReferences(GenericDomValue<String> value,
                                            PsiElement element,
                                            ConvertContext context) {
-        return OdooExternalIdReferenceProvider.getCommaSeparatedReferences(element,
-                () -> new String[]{OdooNames.RES_GROUPS}, null, true);
+        return OdooExternalIdReferenceProvider.getCommaSeparatedReferences(element, OdooNames.RES_GROUPS, null, true);
     }
 }
