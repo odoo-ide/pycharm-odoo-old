@@ -191,61 +191,62 @@
 
     <extensions defaultExtensionNs="Pythonid">
         <!-- Add your extensions here -->
-        <importResolver implementation="dev.ngocta.pycharm.odoo.module.OdooAddonsImportResolver"/>
-        <pyModuleMembersProvider implementation="dev.ngocta.pycharm.odoo.module.OdooAddonsMembersProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooFieldTypeProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooEnvironmentItemProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelFunctionParamTypeProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooMappedTypeProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooLambdaTypeProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.model.OdooModelCallTypeProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.data.OdooRefTypeProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.data.OdooIrActionsServerCodeTypeProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooMigrateFunctionParamTypeProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooInitHookFunctionParamTypeProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooHttpRouteFunctionParamTypeProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooFunctionParamBooleanTypeProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.OdooPyDocStringTypeProvider" order="before pythonDocstringTypeProvider"/>
-        <pyClassMembersProvider implementation="dev.ngocta.pycharm.odoo.model.OdooSuperMembersProvider"/>
-        <inspectionExtension implementation="dev.ngocta.pycharm.odoo.OdooPyInspectionExtension"/>
-        <pyAnnotator implementation="dev.ngocta.pycharm.odoo.OdooPyAnnotator"/>
-        <runnableScriptFilter implementation="dev.ngocta.pycharm.odoo.OdooPyRunnableScriptFilter"/>
-        <pySuperMethodsSearch implementation="dev.ngocta.pycharm.odoo.model.OdooModelSuperMethodsSearch" order="first"/>
-        <pyClassInheritorsSearch implementation="dev.ngocta.pycharm.odoo.model.OdooModelClassInheritorsSearch" order="first"/>
-        <pyReferenceResolveProvider implementation="dev.ngocta.pycharm.odoo.model.OdooSearchDomainFieldReferenceResolveProvider"/>
-        <canonicalPathProvider implementation="dev.ngocta.pycharm.odoo.OdooCanonicalPathProvider"/>
-        <importCandidateProvider implementation="dev.ngocta.pycharm.odoo.OdooImportCandidateProvider"/>
+        <importResolver implementation="dev.ngocta.pycharm.odoo.python.module.OdooAddonsImportResolver"/>
+        <pyModuleMembersProvider implementation="dev.ngocta.pycharm.odoo.python.module.OdooAddonsMembersProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooFieldTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooEnvironmentItemProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelFunctionParamTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooMappedTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooLambdaTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelCallTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooRefCallTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.xml.dom.OdooIrActionsServerCodeTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooMigrateFunctionParamTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooInitHookFunctionParamTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooHttpRouteFunctionParamTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooFunctionParamBooleanTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooPyDocStringTypeProvider" order="before pythonDocstringTypeProvider"/>
+        <pyClassMembersProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooSuperMembersProvider"/>
+        <inspectionExtension implementation="dev.ngocta.pycharm.odoo.python.OdooPyInspectionExtension"/>
+        <pyAnnotator implementation="dev.ngocta.pycharm.odoo.python.OdooPyAnnotator"/>
+        <runnableScriptFilter implementation="dev.ngocta.pycharm.odoo.python.OdooPyRunnableScriptFilter"/>
+        <pySuperMethodsSearch implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelSuperMethodsSearch" order="first"/>
+        <pyClassInheritorsSearch implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelClassInheritorsSearch" order="first"/>
+        <pyReferenceResolveProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooSearchDomainFieldReferenceResolveProvider"/>
+        <canonicalPathProvider implementation="dev.ngocta.pycharm.odoo.python.OdooCanonicalPathProvider"/>
+        <importCandidateProvider implementation="dev.ngocta.pycharm.odoo.python.OdooImportCandidateProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.module.OdooModuleIndex"/>
-        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.model.OdooModelIndex"/>
-        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.model.OdooModelInheritIndex"/>
-        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.model.OdooFieldIndex"/>
+        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.python.module.OdooModuleIndex"/>
+        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelIndex"/>
+        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelInheritIndex"/>
+        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.python.model.OdooFieldIndex"/>
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.data.OdooExternalIdIndex"/>
-        <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.module.OdooManifestReferenceContributor" language="Python"/>
-        <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.model.OdooComputeFunctionReferenceContributor" language="Python"/>
-        <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.model.OdooModelReferenceContributor" language="Python"/>
-        <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.model.OdooFieldReferenceContributor" language="Python"/>
+        <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.python.module.OdooManifestReferenceContributor" language="Python"/>
+        <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.python.model.OdooComputeFunctionReferenceContributor" language="Python"/>
+        <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelReferenceContributor" language="Python"/>
+        <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.python.model.OdooFieldReferenceContributor" language="Python"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.data.OdooExternalIdReferenceContributor"/>
-        <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.data.OdooXmlElementReferenceContributor" language="XML"/>
-        <dom.fileMetaData implementation="dev.ngocta.pycharm.odoo.data.OdooDomFileMetaData" rootTagName="odoo"/>
+        <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.xml.OdooXmlElementReferenceContributor" language="XML"/>
+        <dom.fileMetaData implementation="dev.ngocta.pycharm.odoo.xml.dom.OdooDomFileMetaData" rootTagName="odoo"/>
         <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.data.OdooGotoExternalIdContributor"/>
-        <lang.psiStructureViewFactory implementationClass="dev.ngocta.pycharm.odoo.model.OdooModelStructureViewFactory" language="Python" order="first"/>
-        <xmlStructureViewBuilderProvider implementation="dev.ngocta.pycharm.odoo.data.OdooXmlStructureViewBuilderProvider" order="first"/>
-        <lang.formatter implementationClass="dev.ngocta.pycharm.odoo.data.OdooXmlFormatter" language="XML"/>
-        <localInspection implementationClass="dev.ngocta.pycharm.odoo.data.OdooXmlInspection"
+        <lang.psiStructureViewFactory implementationClass="dev.ngocta.pycharm.odoo.python.model.OdooModelStructureViewFactory" language="Python" order="first"/>
+        <xmlStructureViewBuilderProvider implementation="dev.ngocta.pycharm.odoo.xml.OdooXmlStructureViewBuilderProvider" order="first"/>
+        <lang.formatter implementationClass="dev.ngocta.pycharm.odoo.xml.OdooXmlFormatter" language="XML"/>
+        <localInspection implementationClass="dev.ngocta.pycharm.odoo.xml.OdooXmlInspection"
                          language="XML" displayName="XML inspection" groupName="Odoo" enabledByDefault="true"/>
-        <xml.xmlSuppressionProvider implementation="dev.ngocta.pycharm.odoo.data.OdooXmlSuppressionProvider"/>
-        <dom.extender domClass="dev.ngocta.pycharm.odoo.data.OdooDomElement" extenderClass="dev.ngocta.pycharm.odoo.data.OdooDomExtender"/>
-        <codeInsight.lineMarkerProvider implementationClass="dev.ngocta.pycharm.odoo.data.OdooXmlLineMarkerProvider" language="XML"/>
-        <codeInsight.lineMarkerProvider implementationClass="dev.ngocta.pycharm.odoo.model.OdooModelSuperAttributeLineMarkerProvider" language="Python"/>
-        <languageInjector implementation="dev.ngocta.pycharm.odoo.OdooLanguageInjector"/>
-        <completion.contributor implementationClass="dev.ngocta.pycharm.odoo.model.OdooModelSuperMethodCompletionContributor" language="Python" order="first"/>
-        <completion.contributor implementationClass="dev.ngocta.pycharm.odoo.model.OdooModelSuperAttributeCompletionContributor" language="Python"/>
-        <documentationProvider implementation="dev.ngocta.pycharm.odoo.module.OdooModuleDocumentationProvider"/>
+        <xml.xmlSuppressionProvider implementation="dev.ngocta.pycharm.odoo.xml.OdooXmlSuppressionProvider"/>
+        <dom.extender domClass="dev.ngocta.pycharm.odoo.xml.dom.OdooDomElement" extenderClass="dev.ngocta.pycharm.odoo.xml.dom.OdooDomExtender"/>
+        <codeInsight.lineMarkerProvider implementationClass="dev.ngocta.pycharm.odoo.xml.OdooXmlLineMarkerProvider" language="XML"/>
+        <codeInsight.lineMarkerProvider implementationClass="dev.ngocta.pycharm.odoo.python.model.OdooModelSuperAttributeLineMarkerProvider" language="Python"/>
+        <languageInjector implementation="dev.ngocta.pycharm.odoo.python.OdooPythonLanguageInjector"/>
+        <languageInjector implementation="dev.ngocta.pycharm.odoo.OdooHtmlLanguageInjector"/>
+        <completion.contributor implementationClass="dev.ngocta.pycharm.odoo.python.model.OdooModelSuperMethodCompletionContributor" language="Python" order="first"/>
+        <completion.contributor implementationClass="dev.ngocta.pycharm.odoo.python.model.OdooModelSuperAttributeCompletionContributor" language="Python"/>
+        <documentationProvider implementation="dev.ngocta.pycharm.odoo.python.module.OdooModuleDocumentationProvider"/>
         <documentationProvider implementation="dev.ngocta.pycharm.odoo.data.OdooRecordDocumentProvider"/>
-        <lang.parserDefinition implementationClass="dev.ngocta.pycharm.odoo.OdooPythonParserDefinition" language="Python" order="first"/>
+        <lang.parserDefinition implementationClass="dev.ngocta.pycharm.odoo.python.OdooPythonParserDefinition" language="Python" order="first"/>
     </extensions>
 
     <actions>

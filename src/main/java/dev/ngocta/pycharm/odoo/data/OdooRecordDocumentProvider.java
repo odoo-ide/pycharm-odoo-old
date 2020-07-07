@@ -6,6 +6,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
+import dev.ngocta.pycharm.odoo.csv.OdooCsvRecord;
+import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRecordLike;
 import org.jetbrains.annotations.Nullable;
 
 public class OdooRecordDocumentProvider implements DocumentationProvider {

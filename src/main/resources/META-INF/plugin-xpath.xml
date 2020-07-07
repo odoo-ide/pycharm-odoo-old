@@ -1,8 +1,8 @@
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
-        <languageInjector implementation="dev.ngocta.pycharm.odoo.data.OdooXPathLanguageInjector"/>
+        <languageInjector implementation="dev.ngocta.pycharm.odoo.xml.xpath.OdooXPathLanguageInjector"/>
     </extensions>
     <extensions defaultExtensionNs="XPathView">
-        <xpath.functionProvider implementation="dev.ngocta.pycharm.odoo.data.OdooXPathFunctionProvider"/>
+        <xpath.functionProvider implementation="dev.ngocta.pycharm.odoo.xml.xpath.OdooXPathFunctionProvider"/>
     </extensions>
 </idea-plugin>

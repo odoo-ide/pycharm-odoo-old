@@ -4,8 +4,8 @@ import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.PlatformIcons;
-import dev.ngocta.pycharm.odoo.module.OdooModule;
-import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
+import dev.ngocta.pycharm.odoo.python.module.OdooModule;
+import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

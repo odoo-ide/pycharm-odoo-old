@@ -15,9 +15,13 @@ import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import dev.ngocta.pycharm.odoo.OdooUtils;
-import dev.ngocta.pycharm.odoo.model.OdooModelIndex;
-import dev.ngocta.pycharm.odoo.module.OdooModule;
-import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
+import dev.ngocta.pycharm.odoo.csv.OdooCsvUtils;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelIndex;
+import dev.ngocta.pycharm.odoo.python.module.OdooModule;
+import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
+import dev.ngocta.pycharm.odoo.xml.OdooXmlUtils;
+import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRecordLike;
+import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRoot;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInput;
@@ -46,7 +50,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
             VirtualFile file = inputData.getFile();
             PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
             if (psiFile instanceof XmlFile) {
-                OdooDomRoot root = OdooDataUtils.getDomRoot((XmlFile) psiFile);
+                OdooDomRoot root = OdooXmlUtils.getOdooDomRoot((XmlFile) psiFile);
                 if (root != null) {
                     List<OdooDomRecordLike> items = root.getAllRecordLikeItems();
                     items.forEach(item -> {
@@ -60,8 +64,8 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                         }
                     });
                 }
-            } else if (OdooDataUtils.isCsvFile(file)) {
-                OdooDataUtils.processCsvRecord(file, project, (record, lineNumber) -> {
+            } else if (OdooCsvUtils.isCsvFile(file)) {
+                OdooCsvUtils.processRecordInCsvFile(file, project, (record, lineNumber) -> {
                     result.put(record.getId(), record.withoutDataFile());
                     RECORD_CACHE.add(record);
                     return true;
@@ -124,7 +128,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
     @Override
     public FileBasedIndex.InputFilter getInputFilter() {
         return file -> {
-            return (OdooDataUtils.isCsvFile(file) || OdooDataUtils.isXmlFile(file)) && OdooModuleUtils.isInOdooModule(file);
+            return (OdooCsvUtils.isCsvFile(file) || OdooXmlUtils.isXmlFile(file)) && OdooModuleUtils.isInOdooModule(file);
         };
     }
 

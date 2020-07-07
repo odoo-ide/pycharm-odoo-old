@@ -12,8 +12,13 @@ import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyElement;
 import com.jetbrains.python.psi.PyFile;
 import com.jetbrains.python.psi.PyUtil;
-import dev.ngocta.pycharm.odoo.model.OdooModelInfo;
-import dev.ngocta.pycharm.odoo.model.OdooModelUtils;
+import dev.ngocta.pycharm.odoo.csv.OdooCsvRecord;
+import dev.ngocta.pycharm.odoo.csv.OdooCsvUtils;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelInfo;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
+import dev.ngocta.pycharm.odoo.xml.OdooXmlUtils;
+import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRecordLike;
+import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRoot;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -100,7 +105,7 @@ public class OdooRecordImpl implements OdooRecord {
         if (myDataFile == null || !myDataFile.isValid()) {
             return Collections.emptyList();
         }
-        if (OdooDataUtils.isCsvFile(myDataFile)) {
+        if (OdooCsvUtils.isCsvFile(myDataFile)) {
             return Collections.singletonList(new OdooCsvRecord(myDataFile, project, getId()));
         }
         PsiFile file = PsiManager.getInstance(project).findFile(myDataFile);
@@ -110,7 +115,7 @@ public class OdooRecordImpl implements OdooRecord {
         List<PsiElement> result = PyUtil.getParameterizedCachedValue(file, this, param -> {
             List<PsiElement> elements = new LinkedList<>();
             if (file instanceof XmlFile) {
-                OdooDomRoot root = OdooDataUtils.getDomRoot((XmlFile) file);
+                OdooDomRoot root = OdooXmlUtils.getOdooDomRoot((XmlFile) file);
                 if (root != null) {
                     List<OdooDomRecordLike> records = root.getAllRecordLikeItems();
                     for (OdooDomRecordLike record : records) {

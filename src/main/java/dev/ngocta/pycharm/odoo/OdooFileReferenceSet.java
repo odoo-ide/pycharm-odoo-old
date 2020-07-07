@@ -8,8 +8,8 @@ import com.intellij.psi.PsiFileSystemItem;
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.FileReference;
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.FileReferenceSet;
 import com.jetbrains.python.psi.PyUtil;
-import dev.ngocta.pycharm.odoo.module.OdooModule;
-import dev.ngocta.pycharm.odoo.module.OdooModuleIndex;
+import dev.ngocta.pycharm.odoo.python.module.OdooModule;
+import dev.ngocta.pycharm.odoo.python.module.OdooModuleIndex;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;

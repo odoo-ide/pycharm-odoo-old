@@ -12,8 +12,8 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.PlatformIcons;
 import com.jetbrains.python.psi.PyUtil;
-import dev.ngocta.pycharm.odoo.module.OdooModule;
-import dev.ngocta.pycharm.odoo.module.OdooModuleUtils;
+import dev.ngocta.pycharm.odoo.python.module.OdooModule;
+import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

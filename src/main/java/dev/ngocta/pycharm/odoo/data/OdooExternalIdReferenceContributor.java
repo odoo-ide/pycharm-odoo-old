@@ -18,8 +18,10 @@ import com.intellij.util.xml.DomManager;
 import com.jetbrains.python.PyTokenTypes;
 import com.jetbrains.python.psi.*;
 import dev.ngocta.pycharm.odoo.OdooNames;
-import dev.ngocta.pycharm.odoo.model.OdooFieldInfo;
-import dev.ngocta.pycharm.odoo.model.OdooModelUtils;
+import dev.ngocta.pycharm.odoo.python.model.OdooFieldInfo;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
+import dev.ngocta.pycharm.odoo.xml.OdooXmlUtils;
+import dev.ngocta.pycharm.odoo.xml.dom.OdooDomFieldAssignment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -145,7 +147,7 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
 
     public static final XmlAttributeValuePattern T_CALL_PATTERN =
             XmlPatterns.xmlAttributeValue("t-call", "t-call-assets")
-                    .with(OdooDataUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION)
+                    .with(OdooXmlUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION)
                     .with(new PatternCondition<XmlAttributeValue>("tCall") {
                         @Override
                         public boolean accepts(@NotNull XmlAttributeValue xmlAttributeValue,
