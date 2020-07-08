@@ -118,9 +118,6 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
             List<PsiElement> result = new LinkedList<>();
             visitMembers(element -> {
                 if (element instanceof PsiNamedElement && name.equals(((PsiNamedElement) element).getName())) {
-                    if (PyNames.GETITEM.equals(name)) {
-                        element = new OdooModelGetItemWrapper((PyFunction) element, this);
-                    }
                     result.add(element);
                 }
                 return true;
