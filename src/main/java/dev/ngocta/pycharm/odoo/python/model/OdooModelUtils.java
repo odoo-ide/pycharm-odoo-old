@@ -457,6 +457,9 @@ public class OdooModelUtils {
         if (type == null) {
             return null;
         }
+        if (type instanceof OdooModelClassType) {
+            return (OdooModelClassType) type;
+        }
         PyType extractedType = OdooPyUtils.extractCompositedType(type, OdooModelClassType.class::isInstance);
         if (extractedType != null) {
             return (OdooModelClassType) extractedType;
