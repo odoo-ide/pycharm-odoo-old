@@ -198,7 +198,6 @@
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelFunctionParamTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooMappedTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooLambdaTypeProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelCallTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooRefCallTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.xml.dom.OdooIrActionsServerCodeTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooMigrateFunctionParamTypeProvider"/>
@@ -206,7 +205,6 @@
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooHttpRouteFunctionParamTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooFunctionParamBooleanTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooPyDocStringTypeProvider" order="before pythonDocstringTypeProvider"/>
-        <pyClassMembersProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooSuperMembersProvider"/>
         <inspectionExtension implementation="dev.ngocta.pycharm.odoo.python.OdooPyInspectionExtension"/>
         <pyAnnotator implementation="dev.ngocta.pycharm.odoo.python.OdooPyAnnotator"/>
         <runnableScriptFilter implementation="dev.ngocta.pycharm.odoo.python.OdooPyRunnableScriptFilter"/>
