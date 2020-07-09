@@ -10,6 +10,7 @@ import com.jetbrains.python.psi.types.PyClassType;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelClassType;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
 import dev.ngocta.pycharm.odoo.python.model.OdooSuperModelClassType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +33,12 @@ public class OdooPyCallExpression extends PyCallExpressionImpl {
                 }
             }
         }
-        return super.getType(context, key);
+        PyType type = super.getType(context, key);
+        OdooModelClassType modelClassType = OdooModelUtils.extractOdooModelClassType(type);
+        if (modelClassType != null) {
+            return modelClassType;
+        }
+        return type;
     }
 
     private PyType getOdooSuperModelClassType(TypeEvalContext context) {
