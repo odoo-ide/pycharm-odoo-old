@@ -9,8 +9,6 @@ import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.Attribute;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.DomManager;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.jetbrains.python.psi.PyUtil;
 import dev.ngocta.pycharm.odoo.data.OdooExternalIdIndex;
@@ -79,8 +77,7 @@ public interface OdooDomViewInheritLocator extends OdooDomViewElement {
                     try {
                         XPathSupport support = XPathSupport.getInstance();
                         String fullXPathExpr = support.getUniquePath(xmlTag, xmlTag);
-                        DomElement domElement = DomManager.getDomManager(project).getDomElement(xmlTag);
-                        if (domElement instanceof OdooDomFieldAssignment) {
+                        if ("record".equals(xmlTag.getLocalName())) {
                             fullXPathExpr += "/field[@name='arch']";
                         }
                         if (!xPathExpr.startsWith("/")) {
