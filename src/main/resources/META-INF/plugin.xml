@@ -206,7 +206,6 @@
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooFunctionParamBooleanTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooPyDocStringTypeProvider" order="before pythonDocstringTypeProvider"/>
         <inspectionExtension implementation="dev.ngocta.pycharm.odoo.python.OdooPyInspectionExtension"/>
-        <pyAnnotator implementation="dev.ngocta.pycharm.odoo.python.OdooPyAnnotator"/>
         <runnableScriptFilter implementation="dev.ngocta.pycharm.odoo.python.OdooPyRunnableScriptFilter"/>
         <pySuperMethodsSearch implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelSuperMethodsSearch" order="first"/>
         <pyClassInheritorsSearch implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelClassInheritorsSearch" order="first"/>

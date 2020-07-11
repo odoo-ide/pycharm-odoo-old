@@ -154,7 +154,7 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
             Matcher matcher = RE_PATTERN_PY.matcher(text);
             if (matcher.find()) {
                 TextRange subRange = range.cutOut(new TextRange(matcher.start(1), matcher.end(1)));
-                injectionPlacesRegistrar.addPlace(PythonLanguage.getInstance(), subRange, null, null);
+                injectionPlacesRegistrar.addPlace(PythonLanguage.getInstance(), subRange, "'''Python'''\n", null);
             }
         } else if (PY_TEMPLATE_PATTERN.accepts(host)) {
             TextRange range = ElementManipulators.getValueTextRange(host);
@@ -164,7 +164,7 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
                 for (int i = 1; i <= matcher.groupCount(); i++) {
                     if (matcher.group(i) != null) {
                         TextRange subRange = range.cutOut(new TextRange(matcher.start(i), matcher.end(i)));
-                        injectionPlacesRegistrar.addPlace(PythonLanguage.getInstance(), subRange, null, null);
+                        injectionPlacesRegistrar.addPlace(PythonLanguage.getInstance(), subRange, "'''Python'''\n", null);
                         break;
                     }
                 }
