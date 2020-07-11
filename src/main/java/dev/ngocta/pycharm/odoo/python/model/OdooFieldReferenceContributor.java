@@ -87,11 +87,11 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                             QualifiedName qualifiedName = decorator.getQualifiedName();
                             if (qualifiedName != null) {
                                 String decoratorName = qualifiedName.toString();
-                                if (OdooNames.DECORATOR_DEPENDS.equals(decoratorName)
-                                        || OdooNames.DECORATOR_CONSTRAINS.equals(decoratorName)
-                                        || OdooNames.DECORATOR_ONCHANGE.equals(decoratorName)) {
+                                if (OdooNames.API_DEPENDS.equals(decoratorName)
+                                        || OdooNames.API_CONSTRAINS.equals(decoratorName)
+                                        || OdooNames.API_ONCHANGE.equals(decoratorName)) {
                                     context.put(OdooFieldReferenceProvider.ENABLE_SUB_FIELD,
-                                            OdooNames.DECORATOR_DEPENDS.equals(decoratorName));
+                                            OdooNames.API_DEPENDS.equals(decoratorName));
                                     OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(decorator);
                                     context.put(OdooFieldReferenceProvider.MODEL_CLASS, modelClass);
                                     return true;

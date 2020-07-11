@@ -74,7 +74,7 @@ public class OdooHttpRouteFunctionParamTypeProvider extends PyTypeProviderBase {
                 .orElse(null);
         if (element instanceof PyFunction) {
             PyFunction func = (PyFunction) element;
-            return OdooNames.HTTP_ROUTE_QNAME.equals(func.getQualifiedName());
+            return OdooNames.HTTP_ROUTE_FUNC_QNAME.equals(func.getQualifiedName());
         }
         return false;
     }

@@ -35,7 +35,7 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
     private static final Pattern RE_PATTERN_PY = Pattern.compile("\\s*(.*\\S)\\s*", Pattern.DOTALL);
     private static final Pattern RE_PATTERN_PY_TEMPLATE = Pattern.compile("(?:#\\{\\s*(.+?)\\s*})|(?:\\{\\{\\s*(.+?)\\s*}})", Pattern.DOTALL);
     private static final Map<String, Set<String>> KNOWN_FIELDS_TO_INJECT = ImmutableMap.<String, Set<String>>builder()
-            .put(OdooNames.IR_RULE_DOMAIN_FORCE, ImmutableSet.of(OdooNames.IR_RULE))
+            .put(OdooNames.IR_RULE_FIELD_DOMAIN_FORCE, ImmutableSet.of(OdooNames.IR_RULE))
             .put("domain", ImmutableSet.of(OdooNames.IR_ACTIONS_ACT_WINDOW))
             .put("context", ImmutableSet.of(OdooNames.IR_ACTIONS_ACT_WINDOW))
             .put("code", ImmutableSet.of(OdooNames.IR_ACTIONS_SERVER, OdooNames.IR_CRON))

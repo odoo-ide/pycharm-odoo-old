@@ -48,8 +48,8 @@ public class OdooModelUtils {
     private static final double COMPLETION_PRIORITY_FIELD = 2;
     private static final double COMPLETION_PRIORITY_FUNCTION = 1;
     private static final ImmutableMap<String, String> KNOWN_DOMAIN_FIELDS = ImmutableMap.<String, String>builder()
-            .put(OdooNames.IR_RULE_DOMAIN_FORCE, OdooNames.IR_RULE_MODEL_ID)
-            .put(OdooNames.IR_ACTIONS_ACT_WINDOW_DOMAIN, OdooNames.IR_ACTIONS_ACT_WINDOW_RES_MODEL)
+            .put(OdooNames.IR_RULE_FIELD_DOMAIN_FORCE, OdooNames.IR_RULE_FIELD_MODEL_ID)
+            .put(OdooNames.IR_ACTIONS_ACT_WINDOW_FIELD_DOMAIN, OdooNames.IR_ACTIONS_ACT_WINDOW_FIELD_RES_MODEL)
             .build();
 
     private OdooModelUtils() {
@@ -162,7 +162,7 @@ public class OdooModelUtils {
                     targetClass = ((PyFunction) target).getContainingClass();
                 }
                 if (targetClass != null) {
-                    return targetClass.isSubclass(OdooNames.FIELD_QNAME, null);
+                    return targetClass.isSubclass(OdooNames.FIELD_CLASS_QNAME, null);
                 }
             }
         }
@@ -171,7 +171,7 @@ public class OdooModelUtils {
 
     @Nullable
     public static PyClass getBaseModelClass(@Nullable PsiElement anchor) {
-        return OdooPyUtils.getClassByQName(OdooNames.BASE_MODEL_QNAME, anchor);
+        return OdooPyUtils.getClassByQName(OdooNames.BASE_MODEL_CLASS_QNAME, anchor);
     }
 
     @Nullable

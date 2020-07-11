@@ -70,7 +70,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
             return Collections.emptyList();
         }
         List<PyClass> result = new LinkedList<>(getExplicitAncestorClasses(context));
-        if (OdooNames.MODEL_BASE.equals(myName)) {
+        if (OdooNames.BASE_MODEL.equals(myName)) {
             PyClass baseModelClass = OdooModelUtils.getBaseModelClass(context.getOrigin());
             if (baseModelClass != null) {
                 result.add(baseModelClass);
@@ -81,7 +81,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
                 }
             }
         } else {
-            List<PyClass> modelBaseAncestors = getInstance(OdooNames.MODEL_BASE, myProject).getAncestorClasses(context);
+            List<PyClass> modelBaseAncestors = getInstance(OdooNames.BASE_MODEL, myProject).getAncestorClasses(context);
             result.addAll(modelBaseAncestors);
         }
         return result;
@@ -97,7 +97,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
                 } else {
                     result.add(cls);
                     for (PyClass subCls : cls.getSuperClasses(context)) {
-                        if (!subCls.isSubclass(OdooNames.BASE_MODEL_QNAME, context)) {
+                        if (!subCls.isSubclass(OdooNames.BASE_MODEL_CLASS_QNAME, context)) {
                             result.add(subCls);
                         }
                     }
