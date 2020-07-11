@@ -2,15 +2,17 @@ package dev.ngocta.pycharm.odoo.python;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.patterns.*;
 import com.intellij.psi.ElementManipulators;
 import com.intellij.psi.InjectedLanguagePlaces;
 import com.intellij.psi.LanguageInjector;
 import com.intellij.psi.PsiLanguageInjectionHost;
+import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.psi.xml.XmlText;
+import com.intellij.util.ArrayUtil;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
@@ -18,8 +20,9 @@ import com.jetbrains.python.PythonLanguage;
 import com.jetbrains.python.psi.PyStringLiteralExpression;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
-import dev.ngocta.pycharm.odoo.xml.OdooXmlUtils;
 import dev.ngocta.pycharm.odoo.xml.dom.OdooDomFieldAssignment;
+import dev.ngocta.pycharm.odoo.xml.dom.OdooDomViewElement;
+import dev.ngocta.pycharm.odoo.xml.dom.OdooDomViewType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -38,34 +41,63 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
             .put("code", ImmutableSet.of(OdooNames.IR_ACTIONS_SERVER, OdooNames.IR_CRON))
             .build();
 
-    public static final ElementPattern<String> XML_ATTRIBUTE_NAME_PATTERN =
-            StandardPatterns.or(
-                    StandardPatterns.string().startsWith("t-att-"),
-                    StandardPatterns.string().startsWith("decoration-"),
-                    StandardPatterns.string().oneOf("eval", "attrs", "context", "options", "domain", "filter_domain",
-                            "t-if", "t-elif", "t-foreach", "t-value", "t-esc", "t-raw", "t-field", "t-options"));
-
     public static final XmlAttributeValuePattern XML_ATTRIBUTE_VALUE_PATTERN =
-            XmlPatterns.xmlAttributeValue()
-                    .withLocalName(XML_ATTRIBUTE_NAME_PATTERN)
-                    .with(OdooXmlUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
-
-    public static final XmlElementPattern.XmlTextPattern XML_ATTRIBUTE_VALUE_OVERRIDE_PATTERN =
-            XmlPatterns.xmlText().withParent(
-                    XmlPatterns.xmlTag().withLocalName("attribute").with(
-                            new PatternCondition<XmlTag>("attributeValue") {
-                                @Override
-                                public boolean accepts(@NotNull final XmlTag xmlTag,
-                                                       final ProcessingContext context) {
-                                    String name = xmlTag.getAttributeValue("name");
-                                    return XML_ATTRIBUTE_NAME_PATTERN.accepts(name);
-                                }
+            XmlPatterns.xmlAttributeValue().with(new PatternCondition<XmlAttributeValue>("xmlAttributeValue") {
+                @Override
+                public boolean accepts(@NotNull XmlAttributeValue xmlAttributeValue,
+                                       ProcessingContext context) {
+                    String attributeName = XmlAttributeValuePattern.getLocalName(xmlAttributeValue);
+                    if (attributeName == null) {
+                        return false;
+                    }
+                    XmlTag tag = PsiTreeUtil.getParentOfType(xmlAttributeValue, XmlTag.class);
+                    if (tag == null) {
+                        return false;
+                    }
+                    DomElement domElement = DomManager.getDomManager(xmlAttributeValue.getProject()).getDomElement(tag);
+                    if (domElement instanceof OdooDomFieldAssignment) {
+                        return ArrayUtil.contains(attributeName, "eval");
+                    }
+                    if (domElement instanceof OdooDomViewElement) {
+                        OdooDomViewElement domViewElement = (OdooDomViewElement) domElement;
+                        OdooDomViewType type = domViewElement.getViewType();
+                        if (OdooDomViewType.QWeb.equals(type)) {
+                            if (attributeName.startsWith("t-att-")) {
+                                return true;
                             }
-                    )
-            ).with(OdooXmlUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
+                            return ArrayUtil.contains(attributeName,
+                                    "t-if", "t-elif", "t-foreach", "t-set", "t-value",
+                                    "t-as", "t-esc", "t-raw", "t-field", "t-options");
+                        }
+                        if ("tree".equals(tag.getLocalName())) {
+                            return attributeName.startsWith("decoration-");
+                        }
+                        return ArrayUtil.contains(attributeName, "attrs", "context", "options", "domain", "filter_domain");
+                    }
+                    return false;
+                }
+            });
+
+    public static final XmlElementPattern.XmlTextPattern XML_ATTRIBUTE_VALUE_INHERITANCE_PATTERN =
+            XmlPatterns.xmlText().withParent(XmlPatterns.xmlTag().withLocalName("attribute").with(new PatternCondition<XmlTag>("xmlAttributeValueOverride") {
+                @Override
+                public boolean accepts(@NotNull final XmlTag xmlTag,
+                                       final ProcessingContext context) {
+                    String name = xmlTag.getAttributeValue("name");
+                    if (name == null) {
+                        return false;
+                    }
+                    DomElement domElement = DomManager.getDomManager(xmlTag.getProject()).getDomElement(xmlTag);
+                    if (domElement instanceof OdooDomViewElement) {
+                        return ArrayUtil.contains(name, "attrs", "context", "options", "domain", "filter_domain");
+                    }
+                    return false;
+                }
+            }));
+
 
     public static final XmlElementPattern.XmlTextPattern XML_TEXT_FIELD_VALUE_PATTERN =
-            XmlPatterns.xmlText().with(new PatternCondition<XmlText>("fieldValue") {
+            XmlPatterns.xmlText().with(new PatternCondition<XmlText>("xmlTextFieldValue") {
                 @Override
                 public boolean accepts(@NotNull XmlText xmlText,
                                        ProcessingContext context) {
@@ -73,9 +105,7 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
                     if (tag == null) {
                         return false;
                     }
-                    Project project = tag.getProject();
-                    DomManager domManager = DomManager.getDomManager(project);
-                    DomElement domElement = domManager.getDomElement(tag);
+                    DomElement domElement = DomManager.getDomManager(tag.getProject()).getDomElement(tag);
                     if (domElement instanceof OdooDomFieldAssignment) {
                         OdooDomFieldAssignment fieldAssignment = (OdooDomFieldAssignment) domElement;
                         String field = fieldAssignment.getName().getStringValue();
@@ -92,15 +122,31 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
             OdooModelUtils.getFieldArgumentPattern(-1, OdooNames.FIELD_ATTR_DOMAIN, OdooNames.RELATIONAL_FIELD_TYPES);
 
     public static final XmlAttributeValuePattern PY_TEMPLATE_PATTERN =
-            XmlPatterns.xmlAttributeValue()
-                    .withLocalName(StandardPatterns.string().startsWith("t-attf-"))
-                    .with(OdooXmlUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
+            XmlPatterns.xmlAttributeValue().with(new PatternCondition<XmlAttributeValue>("pyTemplate") {
+                @Override
+                public boolean accepts(@NotNull XmlAttributeValue xmlAttributeValue,
+                                       ProcessingContext context) {
+                    String attributeName = XmlAttributeValuePattern.getLocalName(xmlAttributeValue);
+                    if (attributeName != null && attributeName.startsWith("t-attf-")) {
+                        XmlTag tag = PsiTreeUtil.getParentOfType(xmlAttributeValue, XmlTag.class);
+                        if (tag == null) {
+                            return false;
+                        }
+                        DomElement domElement = DomManager.getDomManager(xmlAttributeValue.getProject()).getDomElement(tag);
+                        if (domElement instanceof OdooDomViewElement) {
+                            OdooDomViewElement domViewElement = (OdooDomViewElement) domElement;
+                            return OdooDomViewType.QWeb.equals(domViewElement.getViewType());
+                        }
+                    }
+                    return false;
+                }
+            });
 
     @Override
     public void getLanguagesToInject(@NotNull PsiLanguageInjectionHost host,
                                      @NotNull InjectedLanguagePlaces injectionPlacesRegistrar) {
         if (XML_ATTRIBUTE_VALUE_PATTERN.accepts(host)
-                || XML_ATTRIBUTE_VALUE_OVERRIDE_PATTERN.accepts(host)
+                || XML_ATTRIBUTE_VALUE_INHERITANCE_PATTERN.accepts(host)
                 || XML_TEXT_FIELD_VALUE_PATTERN.accepts(host)
                 || RELATION_FIELD_DOMAIN_PATTERN.accepts(host)) {
             TextRange range = ElementManipulators.getValueTextRange(host);
