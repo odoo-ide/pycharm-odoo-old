@@ -6,9 +6,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.Processor;
-import com.intellij.util.indexing.FileBasedIndex;
 import com.jetbrains.python.psi.PyExpression;
 import com.jetbrains.python.psi.PyQualifiedExpression;
 import com.jetbrains.python.psi.impl.references.PyQualifiedReference;
@@ -16,24 +13,19 @@ import com.jetbrains.python.psi.resolve.ImplicitResolveResult;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
 import com.jetbrains.python.psi.resolve.RatedResolveResult;
 import com.jetbrains.python.psi.stubs.PyClassAttributesIndex;
-import com.jetbrains.python.psi.stubs.PyFunctionNameIndex;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooUtils;
 import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
-import dev.ngocta.pycharm.odoo.python.model.OdooFieldIndex;
 import dev.ngocta.pycharm.odoo.python.module.OdooModule;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 public class OdooPyQualifiedReference extends PyQualifiedReference {
-    private static final int MIN_LEN_VARIANT = 3;
-
     public OdooPyQualifiedReference(PyQualifiedExpression element,
                                     PyResolveContext context) {
         super(element, context);
@@ -85,40 +77,24 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
         }
         final PyQualifiedExpression element = CompletionUtilCoreImpl.getOriginalOrSelf(myElement);
         PyType qualifierType = TypeEvalContext.codeCompletion(element.getProject(), element.getContainingFile()).getType(qualifier);
-        if (!OdooPyUtils.isWeakType(qualifierType) || (element.getName() != null && element.getName().length() <= MIN_LEN_VARIANT)) {
+        if (!OdooPyUtils.isWeakType(qualifierType)) {
             return variants;
         }
 
-        OdooModule odooModule = OdooModuleUtils.getContainingOdooModule(element);
-        if (odooModule == null) {
-            return variants;
-        }
-
-        Set<String> knownNames = new THashSet<>();
+        Set<String> extendedVariants = new THashSet<>();
         for (Object variant : variants) {
             if (variant instanceof LookupElement) {
-                knownNames.add(((LookupElement) variant).getLookupString());
+                String name = ((LookupElement) variant).getLookupString();
+                extendedVariants.add(name);
             }
         }
 
-        List<Object> extraVariants = new LinkedList<>();
-        Processor<String> processor = s -> {
-            if (!s.startsWith("__") && s.length() > MIN_LEN_VARIANT && !knownNames.contains(s)) {
-                extraVariants.add(s);
-                knownNames.add(s);
-            }
+        GlobalSearchScope scope = OdooUtils.getProjectModuleAndDependenciesScope(element);
+        StubIndex.getInstance().processAllKeys(PyClassAttributesIndex.KEY, s -> {
+            extendedVariants.add(s);
             return true;
-        };
+        }, scope, null);
 
-        GlobalSearchScope scope = odooModule.getSearchScope();
-
-        FileBasedIndex fileBasedIndex = FileBasedIndex.getInstance();
-        fileBasedIndex.processAllKeys(OdooFieldIndex.NAME, processor, scope, null);
-
-        StubIndex stubIndex = StubIndex.getInstance();
-        stubIndex.processAllKeys(PyClassAttributesIndex.KEY, processor, scope, null);
-        stubIndex.processAllKeys(PyFunctionNameIndex.KEY, processor, scope, null);
-
-        return ArrayUtil.mergeArrays(variants, extraVariants.toArray());
+        return extendedVariants.toArray();
     }
 }
