@@ -1,5 +1,6 @@
 package dev.ngocta.pycharm.odoo.python.model;
 
+import com.intellij.openapi.util.Computable;
 import com.intellij.patterns.PatternCondition;
 import com.intellij.patterns.PsiElementPattern;
 import com.intellij.psi.PsiElement;
@@ -8,9 +9,8 @@ import com.intellij.psi.PsiReferenceRegistrar;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.QualifiedName;
 import com.intellij.util.ProcessingContext;
-import com.jetbrains.python.codeInsight.controlflow.ScopeOwner;
-import com.jetbrains.python.codeInsight.dataflow.scope.ScopeUtil;
 import com.jetbrains.python.psi.*;
+import com.jetbrains.python.psi.impl.PyPsiUtils;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
@@ -156,9 +156,9 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                     if (domainExpression == null) {
                         return false;
                     }
-                    OdooModelClass modelClass = OdooModelUtils.resolveSearchDomainContext(domainExpression, true);
-                    if (modelClass != null || maybeContainFieldReferences(domainExpression)) {
-                        context.put(OdooFieldReferenceProvider.MODEL_CLASS, modelClass);
+                    Computable<OdooModelClass> modelClassResolver = OdooModelUtils.getSearchDomainContextResolver(domainExpression, true);
+                    if (modelClassResolver != null || maybeContainFieldReferences(domainExpression)) {
+                        context.put(OdooFieldReferenceProvider.MODEL_CLASS_RESOLVER, modelClassResolver);
                         context.put(OdooFieldReferenceProvider.ENABLE_SUB_FIELD, true);
                         return true;
                     }
@@ -175,9 +175,9 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                     if (valueExpression == null) {
                         return false;
                     }
-                    OdooModelClass modelClass = OdooModelUtils.resolveRecordValueContext(valueExpression);
-                    if (modelClass != null || maybeContainFieldReferences(valueExpression)) {
-                        context.put(OdooFieldReferenceProvider.MODEL_CLASS, modelClass);
+                    Computable<OdooModelClass> modelClassResolver = OdooModelUtils.getRecordValueContextResolver(valueExpression);
+                    if (modelClassResolver != null || maybeContainFieldReferences(valueExpression)) {
+                        context.put(OdooFieldReferenceProvider.MODEL_CLASS_RESOLVER, modelClassResolver);
                         return true;
                     }
                     return false;
@@ -185,11 +185,7 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
             });
 
     private static boolean maybeContainFieldReferences(PsiElement element) {
-        ScopeOwner scopeOwner = ScopeUtil.getScopeOwner(element);
-        if (scopeOwner instanceof PyFunction) {
-            return true;
-        }
-        return false;
+        return PyPsiUtils.isMethodContext(element);
     }
 
     @Override

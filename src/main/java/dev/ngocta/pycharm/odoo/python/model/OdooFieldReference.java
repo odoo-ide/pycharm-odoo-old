@@ -2,6 +2,7 @@ package dev.ngocta.pycharm.odoo.python.model;
 
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
 import com.jetbrains.python.psi.PyTargetExpression;
@@ -18,26 +19,30 @@ import java.util.*;
 
 public class OdooFieldReference extends PsiReferenceBase.Poly<PsiElement> {
     private final OdooModelClass myModelClass;
-    private OdooFieldPathReferences myFieldPathReferences;
+    private final Computable<OdooModelClass> myModelClassResolver;
+    private final OdooFieldPathReferences myFieldPathReferences;
     private final TypeEvalContext myContext;
 
     public OdooFieldReference(@NotNull PsiElement element,
                               @Nullable OdooModelClass modelClass) {
-        this(element, null, modelClass);
+        this(element, null, modelClass, null, null);
     }
 
     public OdooFieldReference(@NotNull PsiElement element,
                               @NotNull TextRange rangeInElement,
                               @NotNull OdooFieldPathReferences fieldPathReferences) {
-        this(element, rangeInElement, fieldPathReferences.getModelClass());
-        myFieldPathReferences = fieldPathReferences;
+        this(element, rangeInElement, fieldPathReferences.getModelClass(), fieldPathReferences.getModelClassResolver(), fieldPathReferences);
     }
 
-    private OdooFieldReference(@NotNull PsiElement element,
-                               @Nullable TextRange rangeInElement,
-                               @Nullable OdooModelClass modelClass) {
+    public OdooFieldReference(@NotNull PsiElement element,
+                              @Nullable TextRange rangeInElement,
+                              @Nullable OdooModelClass modelClass,
+                              @Nullable Computable<OdooModelClass> modelClassResolver,
+                              @Nullable OdooFieldPathReferences fieldPathReferences) {
         super(element, rangeInElement, false);
         myModelClass = modelClass;
+        myModelClassResolver = modelClassResolver;
+        myFieldPathReferences = fieldPathReferences;
         myContext = TypeEvalContext.codeAnalysis(getProject(), element.getContainingFile());
     }
 
@@ -46,14 +51,18 @@ public class OdooFieldReference extends PsiReferenceBase.Poly<PsiElement> {
     }
 
     private OdooModelClass getModelClass() {
-        if (myFieldPathReferences == null) {
-            return myModelClass;
-        }
-        int idx = Arrays.asList(myFieldPathReferences.getReferences()).indexOf(this);
-        if (idx == 0) {
-            return myModelClass;
-        }
         return PyUtil.getNullableParameterizedCachedValue(getElement(), getRangeInElement(), param -> {
+            OdooModelClass cls = myModelClass;
+            if (cls == null && myModelClassResolver != null) {
+                cls = myModelClassResolver.compute();
+            }
+            if (myFieldPathReferences == null) {
+                return cls;
+            }
+            int idx = Arrays.asList(myFieldPathReferences.getReferences()).indexOf(this);
+            if (idx == 0) {
+                return cls;
+            }
             PsiReference prevReference = myFieldPathReferences.getReferences()[idx - 1];
             PsiElement field = prevReference.resolve();
             if (field instanceof PyTargetExpression) {

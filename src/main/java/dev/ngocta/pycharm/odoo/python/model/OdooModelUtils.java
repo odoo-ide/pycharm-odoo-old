@@ -8,6 +8,7 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.patterns.PatternCondition;
@@ -207,8 +208,8 @@ public class OdooModelUtils {
     }
 
     @Nullable
-    public static OdooModelClass resolveSearchDomainContext(@NotNull PyListLiteralExpression domainExpression,
-                                                            boolean forLeftOperand) {
+    public static Computable<OdooModelClass> getSearchDomainContextResolver(@NotNull PyListLiteralExpression domainExpression,
+                                                                            boolean forLeftOperand) {
         return PyUtil.getNullableParameterizedCachedValue(domainExpression, forLeftOperand, param -> {
             PsiElement parent = domainExpression.getParent();
             if (parent instanceof PyKeywordArgument) {
@@ -230,17 +231,20 @@ public class OdooModelUtils {
                             PyStringLiteralExpression comodelExpression = callExpression.getArgument(
                                     0, OdooNames.FIELD_ATTR_COMODEL_NAME, PyStringLiteralExpression.class);
                             if (comodelExpression != null) {
-                                return OdooModelClass.getInstance(comodelExpression.getStringValue(), project);
+                                return () -> OdooModelClass.getInstance(comodelExpression.getStringValue(), project);
                             }
                             return null;
                         }
                         PyExpression qualifier = ref.getQualifier();
                         if (qualifier != null && ArrayUtil.contains(refName, OdooNames.SEARCH, OdooNames.SEARCH_READ, OdooNames.SEARCH_COUNT)) {
-                            TypeEvalContext typeEvalContext = TypeEvalContext.codeAnalysis(project, parent.getContainingFile());
-                            PyType type = typeEvalContext.getType(qualifier);
-                            if (type instanceof OdooModelClassType) {
-                                return ((OdooModelClassType) type).getPyClass();
-                            }
+                            TypeEvalContext typeEvalContext = TypeEvalContext.userInitiated(project, parent.getContainingFile());
+                            return () -> {
+                                PyType type = typeEvalContext.getType(qualifier);
+                                if (type instanceof OdooModelClassType) {
+                                    return ((OdooModelClassType) type).getPyClass();
+                                }
+                                return null;
+                            };
                         }
                     }
                 }
@@ -268,12 +272,13 @@ public class OdooModelUtils {
                                 if (left instanceof PyTargetExpression) {
                                     OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) left);
                                     if (info != null && info.getComodel() != null) {
-                                        return OdooModelClass.getInstance(info.getComodel(), project);
+                                        return () -> OdooModelClass.getInstance(info.getComodel(), project);
                                     }
                                 }
                             }
                         } else {
-                            return OdooModelUtils.getContainingOdooModelClass(parent);
+                            PsiElement finalParent = parent;
+                            return () -> OdooModelUtils.getContainingOdooModelClass(finalParent);
                         }
                     }
                 }
@@ -288,17 +293,20 @@ public class OdooModelUtils {
                     if (tag != null) {
                         DomElement domElement = domManager.getDomElement(tag);
                         if (domElement instanceof OdooDomModelScopedViewElement) {
-                            String model;
-                            if (domElement instanceof OdooDomViewField
-                                    && OdooNames.FIELD_ATTR_DOMAIN.equals(attribute.getName())
-                                    && forLeftOperand) {
-                                model = ((OdooDomField) domElement).getComodel();
-                            } else {
-                                model = ((OdooDomModelScopedViewElement) domElement).getModel();
-                            }
-                            if (model != null) {
-                                return OdooModelClass.getInstance(model, project);
-                            }
+                            return () -> {
+                                String model;
+                                if (domElement instanceof OdooDomViewField
+                                        && OdooNames.FIELD_ATTR_DOMAIN.equals(attribute.getName())
+                                        && forLeftOperand) {
+                                    model = ((OdooDomField) domElement).getComodel();
+                                } else {
+                                    model = ((OdooDomModelScopedViewElement) domElement).getModel();
+                                }
+                                if (model != null) {
+                                    return OdooModelClass.getInstance(model, project);
+                                }
+                                return null;
+                            };
                         }
                     }
                 }
@@ -327,7 +335,7 @@ public class OdooModelUtils {
                                 if (modelField.equals(f.getName().getStringValue())) {
                                     XmlAttributeValue refValue = f.getRef().getXmlAttributeValue();
                                     if (refValue != null) {
-                                        return Optional.of(refValue)
+                                        return () -> Optional.of(refValue)
                                                 .map(PsiElement::getReference)
                                                 .map(PsiReference::resolve)
                                                 .map(OdooModelUtils::getContainingOdooModelClass)
@@ -335,7 +343,7 @@ public class OdooModelUtils {
                                     }
                                     String model = f.getValue();
                                     if (model != null) {
-                                        return OdooModelClass.getInstance(model, project);
+                                        return () -> OdooModelClass.getInstance(model, project);
                                     }
                                     return null;
                                 }
@@ -344,10 +352,13 @@ public class OdooModelUtils {
                         return null;
                     }
                     if (domElement instanceof OdooDomModelScopedViewElement) {
-                        String model = ((OdooDomModelScopedViewElement) domElement).getModel();
-                        if (model != null) {
-                            return OdooModelClass.getInstance(model, project);
-                        }
+                        return () -> {
+                            String model = ((OdooDomModelScopedViewElement) domElement).getModel();
+                            if (model != null) {
+                                return OdooModelClass.getInstance(model, project);
+                            }
+                            return null;
+                        };
                     }
                 }
             }
@@ -368,7 +379,7 @@ public class OdooModelUtils {
     }
 
     @Nullable
-    public static OdooModelClass resolveRecordValueContext(@NotNull PsiElement dict) {
+    public static Computable<OdooModelClass> getRecordValueContextResolver(@NotNull PsiElement dict) {
         return PyUtil.getNullableParameterizedCachedValue(dict, null, param -> {
             Project project = dict.getProject();
             PsiElement parent = dict.getParent();
@@ -383,15 +394,18 @@ public class OdooModelUtils {
                             if (parent instanceof PyKeyValueExpression) {
                                 PyExpression k = ((PyKeyValueExpression) parent).getKey();
                                 if (k instanceof PyStringLiteralExpression) {
-                                    PsiElement ref = Optional.ofNullable(k.getReference())
-                                            .map(PsiReference::resolve)
-                                            .orElse(null);
-                                    if (ref instanceof PyTargetExpression) {
-                                        OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) ref);
-                                        if (info != null && info.getComodel() != null) {
-                                            return OdooModelClass.getInstance(info.getComodel(), project);
+                                    return () -> {
+                                        PsiElement ref = Optional.ofNullable(k.getReference())
+                                                .map(PsiReference::resolve)
+                                                .orElse(null);
+                                        if (ref instanceof PyTargetExpression) {
+                                            OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) ref);
+                                            if (info != null && info.getComodel() != null) {
+                                                return OdooModelClass.getInstance(info.getComodel(), project);
+                                            }
                                         }
-                                    }
+                                        return null;
+                                    };
                                 }
                             } else {
                                 parent = parent.getParent();
@@ -407,10 +421,13 @@ public class OdooModelUtils {
                                                     DomManager domManager = DomManager.getDomManager(project);
                                                     DomElement domElement = domManager.getDomElement(tag);
                                                     if (domElement instanceof OdooDomFieldAssignment) {
-                                                        String comodel = ((OdooDomFieldAssignment) domElement).getComodel();
-                                                        if (comodel != null) {
-                                                            return OdooModelClass.getInstance(comodel, project);
-                                                        }
+                                                        return () -> {
+                                                            String comodel = ((OdooDomFieldAssignment) domElement).getComodel();
+                                                            if (comodel != null) {
+                                                                return OdooModelClass.getInstance(comodel, project);
+                                                            }
+                                                            return null;
+                                                        };
                                                     }
                                                 }
                                             }
@@ -436,10 +453,13 @@ public class OdooModelUtils {
                         PyExpression qualifier = ref.getQualifier();
                         if (qualifier != null && ArrayUtil.contains(refName, OdooNames.CREATE, OdooNames.WRITE, OdooNames.UPDATE)) {
                             TypeEvalContext context = TypeEvalContext.userInitiated(project, parent.getContainingFile());
-                            PyType type = context.getType(qualifier);
-                            if (type instanceof OdooModelClassType) {
-                                return ((OdooModelClassType) type).getPyClass();
-                            }
+                            return () -> {
+                                PyType type = context.getType(qualifier);
+                                if (type instanceof OdooModelClassType) {
+                                    return ((OdooModelClassType) type).getPyClass();
+                                }
+                                return null;
+                            };
                         }
                     }
                 }
