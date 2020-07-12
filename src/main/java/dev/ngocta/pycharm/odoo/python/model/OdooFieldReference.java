@@ -1,10 +1,12 @@
 package dev.ngocta.pycharm.odoo.python.model;
 
 import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
+import com.intellij.util.PlatformIcons;
 import com.jetbrains.python.psi.PyTargetExpression;
 import com.jetbrains.python.psi.PyUtil;
 import com.jetbrains.python.psi.types.PyType;
@@ -118,13 +120,18 @@ public class OdooFieldReference extends PsiReferenceBase.Poly<PsiElement> {
     public Object[] getVariants() {
         OdooModelClass cls = getModelClass();
         if (cls == null) {
-            return getImplicitVariants().toArray();
+            List<Object> variants = new LinkedList<>();
+            for (String variant : getImplicitVariants()) {
+                LookupElement lookupElement = LookupElementBuilder.create(variant).withIcon(PlatformIcons.FIELD_ICON);
+                variants.add(lookupElement);
+            }
+            return variants.toArray();
         }
         Map<String, LookupElement> elements = new LinkedHashMap<>();
         cls.visitField(field -> {
             if (field.getName() != null) {
-                LookupElement element = OdooModelUtils.createCompletionLine(field, myContext);
-                elements.putIfAbsent(field.getName(), element);
+                LookupElement lookupElement = OdooModelUtils.createCompletionLine(field, myContext);
+                elements.putIfAbsent(field.getName(), lookupElement);
             }
             return true;
         }, myContext);
