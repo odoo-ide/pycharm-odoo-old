@@ -91,7 +91,9 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
 
         GlobalSearchScope scope = OdooUtils.getProjectModuleAndDependenciesScope(element);
         StubIndex.getInstance().processAllKeys(PyClassAttributesIndex.KEY, s -> {
-            extendedVariants.add(s);
+            if (s.length() > 3) {
+                extendedVariants.add(s);
+            }
             return true;
         }, scope, null);
 
