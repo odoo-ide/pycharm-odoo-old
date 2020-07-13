@@ -10,13 +10,21 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Set;
 
-public class OdooSuperModelClassType extends OdooModelClassType {
+public class OdooModelClassSuperType extends OdooModelClassType {
+    private final OdooModelClassType myOrigin;
     private final PyClass myAnchor;
 
-    public OdooSuperModelClassType(@NotNull OdooModelClassType modelClassType,
+    public OdooModelClassSuperType(@NotNull OdooModelClassType modelClassType,
                                    @NotNull PyClass anchor) {
         super(modelClassType.getPyClass(), modelClassType.getRecordSetType());
+        myOrigin = modelClassType;
         myAnchor = anchor;
+    }
+
+    @NotNull
+    @Override
+    public String getName() {
+        return "super(" + super.getName() + ")";
     }
 
     @Override
@@ -45,5 +53,7 @@ public class OdooSuperModelClassType extends OdooModelClassType {
         }
     }
 
-
+    public OdooModelClassType getOrigin() {
+        return myOrigin;
+    }
 }
