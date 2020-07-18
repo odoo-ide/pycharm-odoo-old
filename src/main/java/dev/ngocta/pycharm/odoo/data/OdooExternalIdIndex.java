@@ -22,6 +22,7 @@ import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import dev.ngocta.pycharm.odoo.xml.OdooXmlUtils;
 import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRecordLike;
 import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRoot;
+import gnu.trove.THashSet;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInput;
@@ -140,8 +141,12 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
     @NotNull
     public static Collection<String> getAllIds(@NotNull Project project,
                                                @NotNull GlobalSearchScope scope) {
-        List<String> ids = new LinkedList<>(getIds(scope));
-        ids.addAll(getImplicitIds(project, scope));
+        THashSet<String> ids = new THashSet<>();
+        FileBasedIndex.getInstance().processAllKeys(NAME, ids::add, scope, null);
+        processImplicitRecords(project, scope, record -> {
+            ids.add(record.getId());
+            return true;
+        });
         return ids;
     }
 
@@ -149,17 +154,6 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
     private static Collection<String> getIds(@NotNull GlobalSearchScope scope) {
         List<String> ids = new LinkedList<>();
         FileBasedIndex.getInstance().processAllKeys(NAME, ids::add, scope, null);
-        return ids;
-    }
-
-    @NotNull
-    private static Collection<String> getImplicitIds(@NotNull Project project,
-                                                     @NotNull GlobalSearchScope scope) {
-        List<String> ids = new LinkedList<>();
-        processImplicitRecords(project, scope, record -> {
-            ids.add(record.getId());
-            return true;
-        });
         return ids;
     }
 
