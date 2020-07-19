@@ -6,5 +6,6 @@
         <moduleReferenceContributor implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSModuleReferenceContributor"/>
         <dialectSpecificHandlersFactory implementationClass="dev.ngocta.pycharm.odoo.javascript.OdooJSDialectSpecificHandlersFactory"
                                         language="ECMAScript 6" order="first"/>
+        <elementScopeProvider implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSElementScopeProvider" />
     </extensions>
 </idea-plugin>
