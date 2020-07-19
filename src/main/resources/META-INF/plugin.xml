@@ -242,7 +242,7 @@
         <xml.xmlSuppressionProvider implementation="dev.ngocta.pycharm.odoo.xml.OdooXmlSuppressionProvider"/>
         <dom.extender domClass="dev.ngocta.pycharm.odoo.xml.dom.OdooDomElement" extenderClass="dev.ngocta.pycharm.odoo.xml.dom.OdooDomExtender"/>
         <codeInsight.lineMarkerProvider implementationClass="dev.ngocta.pycharm.odoo.xml.OdooXmlLineMarkerProvider" language="XML"/>
-        <codeInsight.lineMarkerProvider implementationClass="dev.ngocta.pycharm.odoo.python.model.OdooModelSuperAttributeLineMarkerProvider" language="Python"/>
+        <codeInsight.lineMarkerProvider implementationClass="dev.ngocta.pycharm.odoo.python.model.OdooModelLineMarkerProvider" language="Python"/>
         <languageInjector implementation="dev.ngocta.pycharm.odoo.python.OdooPythonLanguageInjector"/>
         <languageInjector implementation="dev.ngocta.pycharm.odoo.OdooHtmlLanguageInjector"/>
         <completion.contributor implementationClass="dev.ngocta.pycharm.odoo.python.model.OdooModelSuperMethodCompletionContributor" language="Python" order="first"/>
