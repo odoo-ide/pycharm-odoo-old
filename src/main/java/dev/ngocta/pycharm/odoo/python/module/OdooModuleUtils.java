@@ -2,11 +2,11 @@ package dev.ngocta.pycharm.odoo.python.module;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
+import com.intellij.psi.*;
 import com.intellij.psi.impl.source.resolve.FileContextUtil;
+import com.intellij.psi.util.CachedValueProvider;
+import com.intellij.psi.util.CachedValuesManager;
+import com.intellij.psi.util.PsiModificationTracker;
 import com.jetbrains.python.PyNames;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
@@ -19,34 +19,11 @@ public class OdooModuleUtils {
     }
 
     public static boolean isInOdooModule(@Nullable PsiElement element) {
-        return getContainingOdooModulePsiDirectory(element) != null;
+        return getContainingOdooModule(element) != null;
     }
 
     public static boolean isInOdooModule(@Nullable VirtualFile file) {
         return getContainingOdooModuleDirectory(file) != null;
-    }
-
-    @Nullable
-    public static PsiDirectory getContainingOdooModulePsiDirectory(@Nullable PsiElement element) {
-        if (element == null) {
-            return null;
-        }
-        VirtualFile virtualFile;
-        if (element instanceof PsiDirectory) {
-            virtualFile = ((PsiDirectory) element).getVirtualFile();
-        } else {
-            PsiFile psiFile = FileContextUtil.getContextFile(element);
-            if (psiFile == null) {
-                return null;
-            }
-            psiFile = psiFile.getOriginalFile();
-            virtualFile = psiFile.getVirtualFile();
-        }
-        VirtualFile dir = getContainingOdooModuleDirectory(virtualFile);
-        if (dir != null) {
-            return PsiManager.getInstance(element.getProject()).findDirectory(dir);
-        }
-        return null;
     }
 
     @Nullable
@@ -68,8 +45,36 @@ public class OdooModuleUtils {
 
     @Nullable
     public static OdooModule getContainingOdooModule(@Nullable PsiElement element) {
-        PsiDirectory directory = getContainingOdooModulePsiDirectory(element);
-        return directory != null ? new OdooModule(directory) : null;
+        if (element == null) {
+            return null;
+        }
+        if (element instanceof PsiFile) {
+            element = FileContextUtil.getContextFile(element);
+            if (element == null) {
+                return null;
+            }
+            element = ((PsiFile) element).getOriginalFile();
+            element = element.getParent();
+            if (element == null) {
+                return null;
+            }
+        }
+        if (element instanceof PsiFileSystemItem) {
+            PsiFileSystemItem fileSystemItem = (PsiFileSystemItem) element;
+            return CachedValuesManager.getCachedValue(fileSystemItem, () -> {
+                OdooModule odooModule = null;
+                VirtualFile file = fileSystemItem.getVirtualFile();
+                VirtualFile directory = getContainingOdooModuleDirectory(file);
+                if (directory != null) {
+                    PsiDirectory psiDirectory = PsiManager.getInstance(fileSystemItem.getProject()).findDirectory(directory);
+                    if (psiDirectory != null) {
+                        odooModule = new OdooModule(psiDirectory);
+                    }
+                }
+                return CachedValueProvider.Result.create(odooModule, PsiModificationTracker.MODIFICATION_COUNT);
+            });
+        }
+        return getContainingOdooModule(element.getContainingFile());
     }
 
     @Nullable
