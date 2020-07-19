@@ -56,7 +56,7 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                                 if (OdooNames.MAPPED.equals(referenceExpression.getName())) {
                                     PyExpression qualifier = referenceExpression.getQualifier();
                                     if (qualifier != null) {
-                                        TypeEvalContext typeEvalContext = TypeEvalContext.userInitiated(
+                                        TypeEvalContext typeEvalContext = TypeEvalContext.codeAnalysis(
                                                 callExpression.getProject(), callExpression.getContainingFile());
                                         PyType qualifierType = typeEvalContext.getType(qualifier);
                                         OdooModelClassType modelClassType = OdooModelUtils.extractOdooModelClassType(qualifierType);
