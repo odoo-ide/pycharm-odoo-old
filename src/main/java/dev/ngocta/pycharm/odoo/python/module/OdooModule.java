@@ -94,16 +94,18 @@ public class OdooModule {
 
     @NotNull
     public GlobalSearchScope getSearchScope(boolean includeDepends) {
-        if (includeDepends) {
-            List<OdooModule> modules = getFlattenedDependsGraph();
-            VirtualFile[] dirs = modules.stream()
-                    .map(OdooModule::getDirectory)
-                    .map(PsiDirectory::getVirtualFile)
-                    .collect(Collectors.toList())
-                    .toArray(VirtualFile.EMPTY_ARRAY);
-            return GlobalSearchScopes.directoriesScope(getProject(), true, dirs);
-        }
-        return GlobalSearchScopes.directoryScope(getDirectory(), true);
+        return PyUtil.getParameterizedCachedValue(getDirectory(), includeDepends, param -> {
+            if (includeDepends) {
+                List<OdooModule> modules = getFlattenedDependsGraph();
+                VirtualFile[] dirs = modules.stream()
+                        .map(OdooModule::getDirectory)
+                        .map(PsiDirectory::getVirtualFile)
+                        .collect(Collectors.toList())
+                        .toArray(VirtualFile.EMPTY_ARRAY);
+                return GlobalSearchScopes.directoriesScope(getProject(), true, dirs);
+            }
+            return GlobalSearchScopes.directoryScope(getDirectory(), true);
+        });
     }
 
     public boolean isDependOn(@Nullable OdooModule module) {
