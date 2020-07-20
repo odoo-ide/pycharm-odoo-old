@@ -88,14 +88,14 @@ public class OdooModule {
     }
 
     @NotNull
-    public GlobalSearchScope getSearchScope() {
-        return getSearchScope(true);
+    public GlobalSearchScope getOdooModuleWithDependenciesScope() {
+        return getOdooModuleScope(true);
     }
 
     @NotNull
-    public GlobalSearchScope getSearchScope(boolean includeDepends) {
-        return PyUtil.getParameterizedCachedValue(getDirectory(), includeDepends, param -> {
-            if (includeDepends) {
+    public GlobalSearchScope getOdooModuleScope(boolean includeDependencies) {
+        return PyUtil.getParameterizedCachedValue(getDirectory(), includeDependencies, param -> {
+            if (includeDependencies) {
                 List<OdooModule> modules = getFlattenedDependsGraph();
                 VirtualFile[] dirs = modules.stream()
                         .map(OdooModule::getDirectory)

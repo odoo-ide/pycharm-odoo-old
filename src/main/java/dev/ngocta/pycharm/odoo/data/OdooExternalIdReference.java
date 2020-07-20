@@ -80,7 +80,7 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
             return new Object[0];
         }
         List<LookupElement> elements = new LinkedList<>();
-        GlobalSearchScope scope = module.getSearchScope();
+        GlobalSearchScope scope = module.getOdooModuleWithDependenciesScope();
         Project project = getElement().getProject();
         OdooExternalIdIndex.processAllRecords(project, scope, record -> {
             if ((myModels.length == 0 || ArrayUtil.contains(record.getModel(), myModels))

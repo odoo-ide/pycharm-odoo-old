@@ -98,7 +98,7 @@ public class OdooFieldIndex extends FileBasedIndexExtension<String, Void> {
     public static Collection<String> getAvailableFieldNames(@NotNull PsiElement anchor) {
         OdooModule module = OdooModuleUtils.getContainingOdooModule(anchor);
         if (module != null) {
-            return getAllFieldNames(anchor.getProject(), module.getSearchScope());
+            return getAllFieldNames(anchor.getProject(), module.getOdooModuleWithDependenciesScope());
         }
         return Collections.emptyList();
     }

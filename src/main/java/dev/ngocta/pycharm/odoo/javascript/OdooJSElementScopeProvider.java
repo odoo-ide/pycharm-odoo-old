@@ -14,7 +14,7 @@ public class OdooJSElementScopeProvider implements JSElementResolveScopeProvider
     public GlobalSearchScope getElementResolveScope(@NotNull PsiElement psiElement) {
         OdooModule odooModule = OdooModuleUtils.getContainingOdooModule(psiElement);
         if (odooModule != null) {
-            return odooModule.getSearchScope();
+            return odooModule.getOdooModuleWithDependenciesScope();
         }
         return null;
     }

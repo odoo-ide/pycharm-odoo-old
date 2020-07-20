@@ -209,9 +209,9 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
         Project project = anchor.getProject();
         OdooModule odooModule = OdooModuleUtils.getContainingOdooModule(anchor);
         if (odooModule != null) {
-            return findRecordsById(id, project, odooModule.getSearchScope());
+            return findRecordsById(id, project, odooModule.getOdooModuleWithDependenciesScope());
         }
-        return findRecordsById(id, project, OdooUtils.getProjectModuleAndDependenciesScope(anchor));
+        return findRecordsById(id, project, OdooUtils.getProjectModuleWithDependenciesScope(anchor));
     }
 
     @NotNull

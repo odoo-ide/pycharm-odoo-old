@@ -510,7 +510,7 @@ public class OdooModelUtils {
         if (module == null) {
             return Collections.emptyList();
         }
-        return findFields(name, anchor.getProject(), module.getSearchScope());
+        return findFields(name, anchor.getProject(), module.getOdooModuleWithDependenciesScope());
     }
 
     @Nullable

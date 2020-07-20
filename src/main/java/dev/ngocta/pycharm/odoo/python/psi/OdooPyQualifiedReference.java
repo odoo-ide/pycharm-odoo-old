@@ -37,7 +37,7 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
         List<RatedResolveResult> results = super.resolveInner();
         if (results.size() > 1) {
             OdooModule odooModule = OdooModuleUtils.getContainingOdooModule(getElement());
-            GlobalSearchScope scope = OdooUtils.getProjectModuleAndDependenciesScope(getElement());
+            GlobalSearchScope scope = OdooUtils.getProjectModuleWithDependenciesScope(getElement());
             results.removeIf(result -> {
                 if (!(result instanceof ImplicitResolveResult)) {
                     return false;
@@ -89,7 +89,7 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
             }
         }
 
-        GlobalSearchScope scope = OdooUtils.getProjectModuleAndDependenciesScope(element);
+        GlobalSearchScope scope = OdooUtils.getProjectModuleWithDependenciesScope(element);
         StubIndex.getInstance().processAllKeys(PyClassAttributesIndex.KEY, s -> {
             if (s.length() > 3) {
                 extendedVariants.add(s);

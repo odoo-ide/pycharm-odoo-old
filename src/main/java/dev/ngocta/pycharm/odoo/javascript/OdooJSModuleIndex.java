@@ -96,7 +96,7 @@ public class OdooJSModuleIndex extends ScalarIndexExtension<String> {
     public static Collection<String> getAvailableModuleNames(@NotNull PsiElement anchor) {
         OdooModule module = OdooModuleUtils.getContainingOdooModule(anchor);
         if (module != null) {
-            return getAllModuleNames(module.getSearchScope());
+            return getAllModuleNames(module.getOdooModuleWithDependenciesScope());
         }
         return getAllModuleNames(anchor.getProject());
     }
@@ -128,7 +128,7 @@ public class OdooJSModuleIndex extends ScalarIndexExtension<String> {
                                                                 @NotNull PsiElement anchor) {
         OdooModule module = OdooModuleUtils.getContainingOdooModule(anchor);
         if (module != null) {
-            Collection<VirtualFile> files = FileBasedIndex.getInstance().getContainingFiles(NAME, moduleName, module.getSearchScope());
+            Collection<VirtualFile> files = FileBasedIndex.getInstance().getContainingFiles(NAME, moduleName, module.getOdooModuleWithDependenciesScope());
             if (files.isEmpty()) {
                 return null;
             }

@@ -12,7 +12,7 @@ public class OdooUtils {
     }
 
     @NotNull
-    public static GlobalSearchScope getProjectModuleAndDependenciesScope(@NotNull PsiElement anchor) {
+    public static GlobalSearchScope getProjectModuleWithDependenciesScope(@NotNull PsiElement anchor) {
         Module module = ModuleUtil.findModuleForPsiElement(anchor);
         if (module != null) {
             return module.getModuleContentWithDependenciesScope().union(module.getModuleWithLibrariesScope());

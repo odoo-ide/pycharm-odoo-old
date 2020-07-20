@@ -45,7 +45,7 @@ public class OdooPyDocStringTypeProvider extends PyTypeProviderBase {
         FileBasedIndex.getInstance().processValues(OdooModelIndex.NAME, name, null, (file, value) -> {
             is.set(true);
             return false;
-        }, module.getSearchScope());
+        }, module.getOdooModuleWithDependenciesScope());
         return is.get();
     }
 }

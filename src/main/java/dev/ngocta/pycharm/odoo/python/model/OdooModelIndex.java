@@ -130,7 +130,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
                                                                     @NotNull OdooModule module) {
         Project project = module.getProject();
         return PyUtil.getParameterizedCachedValue(module.getDirectory(), model, param -> {
-            List<PyClass> classes = getOdooModelClassesByName(model, project, module.getSearchScope());
+            List<PyClass> classes = getOdooModelClassesByName(model, project, module.getOdooModuleWithDependenciesScope());
             List<PyClass> sortedClasses = OdooModuleUtils.sortElementByOdooModuleDependOrder(classes);
             return ImmutableList.copyOf(sortedClasses);
         });
@@ -144,7 +144,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
         if (odooModule != null) {
             return getAvailableOdooModelClassesByName(model, odooModule);
         }
-        return getOdooModelClassesByName(model, project, OdooUtils.getProjectModuleAndDependenciesScope(anchor));
+        return getOdooModelClassesByName(model, project, OdooUtils.getProjectModuleWithDependenciesScope(anchor));
     }
 
     @NotNull
@@ -152,7 +152,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
         OdooModule module = OdooModuleUtils.getContainingOdooModule(anchor);
         if (module != null) {
             Collection<String> models = getAllOdooModels(anchor.getProject());
-            models = filterOdooModels(models, module.getSearchScope());
+            models = filterOdooModels(models, module.getOdooModuleWithDependenciesScope());
             return models;
         }
         return Collections.emptyList();
