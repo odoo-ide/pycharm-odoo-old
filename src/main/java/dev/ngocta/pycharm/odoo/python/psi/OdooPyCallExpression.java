@@ -25,7 +25,11 @@ public class OdooPyCallExpression extends PyCallExpressionImpl {
             OdooNames.COPY,
             OdooNames.SEARCH,
             OdooNames.FILTERED,
-            OdooNames.BROWSE
+            OdooNames.SORTED,
+            OdooNames.BROWSE,
+            OdooNames.WITH_CONTEXT,
+            OdooNames.WITH_ENV,
+            OdooNames.SUDO
     );
 
     public OdooPyCallExpression(ASTNode astNode) {

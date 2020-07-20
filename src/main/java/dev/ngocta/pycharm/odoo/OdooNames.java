@@ -73,6 +73,10 @@ public class OdooNames {
     public static final String UPDATE = "update";
     public static final String COPY = "copy";
     public static final String BROWSE = "browse";
+    public static final String WITH_CONTEXT = "with_context";
+    public static final String WITH_ENV = "with_env";
+    public static final String SUDO = "sudo";
+    public static final String EXISTS = "exists";
     public static final String BASE_MODEL_CLASS_QNAME = "odoo.models.BaseModel";
     public static final String FIELD_CLASS_QNAME = "odoo.fields.Field";
     public static final String ENVIRONMENT_CLASS_QNAME = "odoo.api.Environment";
