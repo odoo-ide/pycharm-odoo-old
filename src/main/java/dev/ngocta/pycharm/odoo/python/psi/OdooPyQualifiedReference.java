@@ -8,6 +8,8 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
 import com.jetbrains.python.psi.PyExpression;
 import com.jetbrains.python.psi.PyQualifiedExpression;
+import com.jetbrains.python.psi.PyTargetExpression;
+import com.jetbrains.python.psi.PyUtil;
 import com.jetbrains.python.psi.impl.references.PyQualifiedReference;
 import com.jetbrains.python.psi.resolve.ImplicitResolveResult;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
@@ -17,6 +19,7 @@ import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooUtils;
 import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
 import dev.ngocta.pycharm.odoo.python.module.OdooModule;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import gnu.trove.THashSet;
@@ -35,32 +38,35 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
     @Override
     protected List<RatedResolveResult> resolveInner() {
         List<RatedResolveResult> results = super.resolveInner();
-        if (results.size() > 1) {
-            OdooModule odooModule = OdooModuleUtils.getContainingOdooModule(getElement());
-            GlobalSearchScope scope = OdooUtils.getProjectModuleWithDependenciesScope(getElement());
-            results.removeIf(result -> {
-                if (!(result instanceof ImplicitResolveResult)) {
-                    return false;
-                }
-                PsiElement element = result.getElement();
-                if (element == null) {
-                    return false;
-                }
-                OdooModule targetOdooModule = OdooModuleUtils.getContainingOdooModule(element);
-                if (odooModule != null && targetOdooModule != null &&
-                        !odooModule.equals(targetOdooModule) && !odooModule.isDependOn(targetOdooModule)) {
-                    return true;
-                }
-                if (odooModule == null && targetOdooModule != null) {
-                    return true;
-                }
-                PsiFile file = element.getContainingFile();
-                if (file != null && !scope.contains(file.getVirtualFile())) {
-                    return true;
-                }
-                return false;
-            });
+        if (results.size() <= 1) {
+            return results;
         }
+        OdooModule odooModule = OdooModuleUtils.getContainingOdooModule(getElement());
+        GlobalSearchScope scope = OdooUtils.getProjectModuleWithDependenciesScope(getElement());
+        results.removeIf(result -> {
+            if (!(result instanceof ImplicitResolveResult)) {
+                return false;
+            }
+            PsiElement element = result.getElement();
+            if (element == null) {
+                return false;
+            }
+            if (element instanceof PyTargetExpression
+                    && !PyUtil.isClassAttribute(element)
+                    && OdooModelUtils.getContainingOdooModelClass(element) != null) {
+                return true;
+            }
+            OdooModule targetOdooModule = OdooModuleUtils.getContainingOdooModule(element);
+            if (odooModule != null && targetOdooModule != null &&
+                    !odooModule.equals(targetOdooModule) && !odooModule.isDependOn(targetOdooModule)) {
+                return true;
+            }
+            if (odooModule == null && targetOdooModule != null) {
+                return true;
+            }
+            PsiFile file = element.getContainingFile();
+            return file != null && !scope.contains(file.getVirtualFile());
+        });
         return results;
     }
 
