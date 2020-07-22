@@ -42,9 +42,11 @@ public class OdooPyCallExpression extends PyCallExpressionImpl {
                           @NotNull TypeEvalContext.Key key) {
         PyType type = null;
         PyExpression callee = getCallee();
+        boolean isSuperCall = false;
         if (callee instanceof PyReferenceExpression) {
             String calleeName = callee.getName();
             if (PyNames.SUPER.equals(callee.getText())) {
+                isSuperCall = true;
                 type = getOdooModelClassSuperType(context);
             } else {
                 PyExpression receiver = getReceiver(null);
@@ -61,7 +63,7 @@ public class OdooPyCallExpression extends PyCallExpressionImpl {
         }
         OdooModelClassType modelClassType = OdooModelUtils.extractOdooModelClassType(type);
         if (modelClassType != null) {
-            if (modelClassType instanceof OdooModelClassSuperType) {
+            if (modelClassType instanceof OdooModelClassSuperType && !isSuperCall) {
                 return ((OdooModelClassSuperType) modelClassType).getOrigin();
             }
             return modelClassType;
