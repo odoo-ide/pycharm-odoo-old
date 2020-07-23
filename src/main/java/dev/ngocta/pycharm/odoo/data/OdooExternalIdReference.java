@@ -31,7 +31,7 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
                                    @Nullable OdooRecordSubType subType,
                                    boolean allowRelative) {
         super(element, rangeInElement, false);
-        myModels = model != null ? new String[]{model} : null;
+        myModels = model != null ? new String[]{model} : new String[0];
         mySubType = subType;
         myAllowRelative = allowRelative;
     }
