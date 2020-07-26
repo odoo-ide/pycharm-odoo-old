@@ -5,8 +5,8 @@ import com.intellij.psi.PsiReference;
 import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.CustomReferenceConverter;
 import com.intellij.util.xml.GenericDomValue;
-import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.data.OdooExternalIdReferenceProvider;
+import dev.ngocta.pycharm.odoo.data.filter.OdooRecordFilters;
 import org.jetbrains.annotations.NotNull;
 
 public class OdooGroupsReferenceConverter implements CustomReferenceConverter<String> {
@@ -15,6 +15,6 @@ public class OdooGroupsReferenceConverter implements CustomReferenceConverter<St
     public PsiReference[] createReferences(GenericDomValue<String> value,
                                            PsiElement element,
                                            ConvertContext context) {
-        return OdooExternalIdReferenceProvider.getCommaSeparatedReferences(element, OdooNames.RES_GROUPS, null, true);
+        return OdooExternalIdReferenceProvider.getCommaSeparatedReferences(element, OdooRecordFilters.RES_GROUPS, true);
     }
 }

@@ -18,7 +18,7 @@ public class OdooRecordNavigationItem implements NavigationItem {
 
     @Override
     public String getName() {
-        return myRecord.getId();
+        return myRecord.getQualifiedId();
     }
 
     @Override

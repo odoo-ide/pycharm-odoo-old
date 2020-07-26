@@ -18,6 +18,8 @@ import com.intellij.util.xml.DomManager;
 import com.jetbrains.python.PyTokenTypes;
 import com.jetbrains.python.psi.*;
 import dev.ngocta.pycharm.odoo.OdooNames;
+import dev.ngocta.pycharm.odoo.data.filter.OdooRecordFilters;
+import dev.ngocta.pycharm.odoo.data.filter.OdooRecordModelFilter;
 import dev.ngocta.pycharm.odoo.python.model.OdooFieldInfo;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
 import dev.ngocta.pycharm.odoo.xml.OdooXmlUtils;
@@ -84,7 +86,7 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                         return false;
                     }
                     String model = resolveRefModel(callee);
-                    context.put(OdooExternalIdReferenceProvider.MODEL, model);
+                    context.put(OdooExternalIdReferenceProvider.FILTER, new OdooRecordModelFilter(model));
                     PsiFile contextFile = FileContextUtil.getContextFile(callee);
                     if (contextFile instanceof XmlFile) {
                         context.put(OdooExternalIdReferenceProvider.ALLOW_RELATIVE, true);
@@ -108,7 +110,7 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                                 if (callee instanceof PyReferenceExpression && "render".equals(callee.getName())) {
                                     PsiElement target = ((PyReferenceExpression) callee).getReference().resolve();
                                     if (target instanceof PyFunction && OdooNames.REQUEST_RENDER_FUNC_QNAME.equals(((PyFunction) target).getQualifiedName())) {
-                                        context.put(OdooExternalIdReferenceProvider.SUB_TYPE, OdooRecordSubType.QWEB);
+                                        context.put(OdooExternalIdReferenceProvider.FILTER, OdooRecordFilters.QWEB);
                                         return true;
                                     }
                                 }
@@ -124,7 +126,7 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                 @Override
                 public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression,
                                        ProcessingContext context) {
-                    context.put(OdooExternalIdReferenceProvider.MODEL, OdooNames.RES_GROUPS);
+                    context.put(OdooExternalIdReferenceProvider.FILTER, OdooRecordFilters.RES_GROUPS);
                     context.put(OdooExternalIdReferenceProvider.COMMA_SEPARATED, true);
                     return true;
                 }
@@ -138,7 +140,7 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                                                ProcessingContext context) {
                             String text = psiElement.getText();
                             if (text.equals("has_group") || text.equals("user_has_groups")) {
-                                context.put(OdooExternalIdReferenceProvider.MODEL, OdooNames.RES_GROUPS);
+                                context.put(OdooExternalIdReferenceProvider.FILTER, OdooRecordFilters.RES_GROUPS);
                                 return true;
                             }
                             return false;
@@ -147,12 +149,12 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
 
     public static final XmlAttributeValuePattern T_CALL_PATTERN =
             XmlPatterns.xmlAttributeValue("t-call", "t-call-assets")
-                    .with(OdooXmlUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION)
+                    .with(OdooXmlUtils.ODOO_XML_DATA_ELEMENT_PATTERN_CONDITION)
                     .with(new PatternCondition<XmlAttributeValue>("tCall") {
                         @Override
                         public boolean accepts(@NotNull XmlAttributeValue xmlAttributeValue,
                                                ProcessingContext context) {
-                            context.put(OdooExternalIdReferenceProvider.SUB_TYPE, OdooRecordSubType.QWEB);
+                            context.put(OdooExternalIdReferenceProvider.FILTER, OdooRecordFilters.QWEB);
                             return true;
                         }
                     });

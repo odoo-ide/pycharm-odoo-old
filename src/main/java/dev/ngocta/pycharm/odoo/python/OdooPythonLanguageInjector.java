@@ -22,7 +22,6 @@ import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
 import dev.ngocta.pycharm.odoo.xml.dom.OdooDomFieldAssignment;
 import dev.ngocta.pycharm.odoo.xml.dom.OdooDomViewElement;
-import dev.ngocta.pycharm.odoo.xml.dom.OdooDomViewType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -60,8 +59,8 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
                     }
                     if (domElement instanceof OdooDomViewElement) {
                         OdooDomViewElement domViewElement = (OdooDomViewElement) domElement;
-                        OdooDomViewType type = domViewElement.getViewType();
-                        if (OdooDomViewType.QWeb.equals(type)) {
+                        String type = domViewElement.getViewType();
+                        if (OdooNames.VIEW_TYPE_QWEB.equals(type)) {
                             if (attributeName.startsWith("t-att-")) {
                                 return true;
                             }
@@ -108,7 +107,7 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
                     DomElement domElement = DomManager.getDomManager(tag.getProject()).getDomElement(tag);
                     if (domElement instanceof OdooDomFieldAssignment) {
                         OdooDomFieldAssignment fieldAssignment = (OdooDomFieldAssignment) domElement;
-                        String field = fieldAssignment.getName().getStringValue();
+                        String field = fieldAssignment.getNameAttr().getStringValue();
                         String model = fieldAssignment.getModel();
                         if (field != null && model != null) {
                             return KNOWN_FIELDS_TO_INJECT.getOrDefault(field, Collections.emptySet()).contains(model);
@@ -135,7 +134,7 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
                         DomElement domElement = DomManager.getDomManager(xmlAttributeValue.getProject()).getDomElement(tag);
                         if (domElement instanceof OdooDomViewElement) {
                             OdooDomViewElement domViewElement = (OdooDomViewElement) domElement;
-                            return OdooDomViewType.QWeb.equals(domViewElement.getViewType());
+                            return OdooNames.VIEW_TYPE_QWEB.equals(domViewElement.getViewType());
                         }
                     }
                     return false;

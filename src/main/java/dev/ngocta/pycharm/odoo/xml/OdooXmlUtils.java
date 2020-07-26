@@ -1,8 +1,5 @@
 package dev.ngocta.pycharm.odoo.xml;
 
-import com.intellij.ide.highlighter.XmlFileType;
-import com.intellij.openapi.fileTypes.FileTypeRegistry;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.patterns.PatternCondition;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -15,12 +12,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class OdooXmlUtils {
-    public static final PatternCondition<PsiElement> ODOO_XML_ELEMENT_PATTERN_CONDITION =
-            new PatternCondition<PsiElement>("odooXmlElement") {
+    public static final PatternCondition<PsiElement> ODOO_XML_DATA_ELEMENT_PATTERN_CONDITION =
+            new PatternCondition<PsiElement>("odooDataXmlElement") {
                 @Override
                 public boolean accepts(@NotNull PsiElement element,
                                        ProcessingContext context) {
-                    return inOdooXmlFile(element);
+                    return inOdooXmlDataFile(element);
                 }
             };
 
@@ -28,7 +25,7 @@ public class OdooXmlUtils {
     }
 
     @Nullable
-    public static OdooDomRoot getOdooDomRoot(@NotNull XmlFile xmlFile) {
+    public static OdooDomRoot getOdooDataDomRoot(@NotNull XmlFile xmlFile) {
         DomManager domManager = DomManager.getDomManager(xmlFile.getProject());
         DomFileElement<OdooDomRoot> fileElement = domManager.getFileElement(xmlFile, OdooDomRoot.class);
         if (fileElement != null) {
@@ -37,29 +34,24 @@ public class OdooXmlUtils {
         return null;
     }
 
-    public static boolean isXmlFile(@NotNull VirtualFile file) {
-        return FileTypeRegistry.getInstance().isFileOfType(file, XmlFileType.INSTANCE);
+    public static boolean isOdooXmlDataFile(@NotNull PsiFile file) {
+        return file instanceof XmlFile && OdooXmlUtils.getOdooDataDomRoot((XmlFile) file) != null;
     }
 
-    public static boolean isOdooXmlFile(@NotNull PsiFile file) {
-        return file instanceof XmlFile && OdooXmlUtils.getOdooDomRoot((XmlFile) file) != null;
-    }
-
-    public static boolean inOdooXmlFile(@NotNull PsiElement element) {
+    public static boolean inOdooXmlDataFile(@NotNull PsiElement element) {
         PsiFile file = element.getContainingFile();
-        return file != null && isOdooXmlFile(file);
+        return file != null && isOdooXmlDataFile(file);
     }
 
     @Nullable
     public static String getViewInheritId(@NotNull OdooDomRecordLike record) {
         if (record instanceof OdooDomRecord) {
-            for (OdooDomFieldAssignment field : ((OdooDomRecord) record).getFields()) {
-                if ("inherit_id".equals(field.getName().getStringValue())) {
-                    return field.getRef().getStringValue();
-                }
+            OdooDomFieldAssignment field = ((OdooDomRecord) record).findField("inherit_id");
+            if (field != null) {
+                return field.getRefAttr().getStringValue();
             }
         } else if (record instanceof OdooDomTemplate) {
-            return ((OdooDomTemplate) record).getInheritId().getStringValue();
+            return ((OdooDomTemplate) record).getInheritId();
         }
         return null;
     }

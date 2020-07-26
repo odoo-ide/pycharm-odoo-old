@@ -320,34 +320,33 @@ public class OdooModelUtils {
                     DomElement domElement = domManager.getDomElement(tag);
                     if (domElement instanceof OdooDomFieldAssignment) {
                         String field = Optional.of((OdooDomFieldAssignment) domElement)
-                                .map(OdooDomField::getName)
+                                .map(OdooDomField::getNameAttr)
                                 .map(GenericValue::getStringValue)
                                 .orElse(null);
                         if (field == null) {
                             return null;
                         }
-                        String modelField = KNOWN_DOMAIN_FIELDS.getOrDefault(field, null);
-                        if (modelField == null) {
+                        String modelFieldName = KNOWN_DOMAIN_FIELDS.getOrDefault(field, null);
+                        if (modelFieldName == null) {
                             return null;
                         }
                         OdooDomRecord record = domElement.getParentOfType(OdooDomRecord.class, true);
                         if (record != null) {
-                            for (OdooDomFieldAssignment f : record.getFields()) {
-                                if (modelField.equals(f.getName().getStringValue())) {
-                                    XmlAttributeValue refValue = f.getRef().getXmlAttributeValue();
-                                    if (refValue != null) {
-                                        return () -> Optional.of(refValue)
-                                                .map(PsiElement::getReference)
-                                                .map(PsiReference::resolve)
-                                                .map(OdooModelUtils::getContainingOdooModelClass)
-                                                .orElse(null);
-                                    }
-                                    String model = f.getValue();
-                                    if (model != null) {
-                                        return () -> OdooModelClass.getInstance(model, project);
-                                    }
-                                    return null;
+                            OdooDomFieldAssignment modelField = record.findField(modelFieldName);
+                            if (modelField != null) {
+                                XmlAttributeValue refValue = modelField.getRefAttr().getXmlAttributeValue();
+                                if (refValue != null) {
+                                    return () -> Optional.of(refValue)
+                                            .map(PsiElement::getReference)
+                                            .map(PsiReference::resolve)
+                                            .map(OdooModelUtils::getContainingOdooModelClass)
+                                            .orElse(null);
                                 }
+                                String model = modelField.getValue();
+                                if (model != null) {
+                                    return () -> OdooModelClass.getInstance(model, project);
+                                }
+                                return null;
                             }
                         }
                         return null;
@@ -470,7 +469,7 @@ public class OdooModelUtils {
         });
     }
 
-    public static String getIrModelRecordName(@NotNull String model) {
+    public static String getIrModelRecordId(@NotNull String model) {
         return "model_" + model.replace(".", "_");
     }
 

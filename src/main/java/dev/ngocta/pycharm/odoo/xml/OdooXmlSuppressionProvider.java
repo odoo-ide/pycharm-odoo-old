@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 public class OdooXmlSuppressionProvider extends XmlSuppressionProvider {
     @Override
     public boolean isProviderAvailable(@NotNull PsiFile file) {
-        return OdooXmlUtils.isOdooXmlFile(file);
+        return OdooXmlUtils.isOdooXmlDataFile(file);
     }
 
     @Override

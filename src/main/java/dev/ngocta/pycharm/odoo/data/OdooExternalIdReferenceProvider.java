@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceProvider;
 import com.intellij.util.ProcessingContext;
+import dev.ngocta.pycharm.odoo.data.filter.OdooRecordFilter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,9 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class OdooExternalIdReferenceProvider extends PsiReferenceProvider {
-    public static final Key<String> MODEL = new Key<>("model");
-    public static final Key<String[]> MODELS = new Key<>("models");
-    public static final Key<OdooRecordSubType> SUB_TYPE = new Key<>("subType");
+    public static final Key<OdooRecordFilter> FILTER = new Key<>("filter");
     public static final Key<Boolean> ALLOW_RELATIVE = new Key<>("allowRelative");
     public static final Key<Boolean> COMMA_SEPARATED = new Key<>("commaSeparated");
 
@@ -26,24 +25,18 @@ public class OdooExternalIdReferenceProvider extends PsiReferenceProvider {
     @Override
     public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
                                                  @NotNull ProcessingContext context) {
-        String model = context.get(MODEL);
-        String[] models = model != null ? new String[]{model} : context.get(MODELS);
-        if (models == null) {
-            models = new String[0];
-        }
-        OdooRecordSubType subType = context.get(SUB_TYPE);
+        OdooRecordFilter filter = context.get(FILTER);
         Boolean allowRelative = context.get(ALLOW_RELATIVE);
         Boolean commaSeparated = context.get(COMMA_SEPARATED);
         if (Boolean.TRUE.equals(commaSeparated)) {
-            return getCommaSeparatedReferences(element, models, subType, Boolean.TRUE.equals(allowRelative));
+            return getCommaSeparatedReferences(element, filter, Boolean.TRUE.equals(allowRelative));
         }
-        return new PsiReference[]{new OdooExternalIdReference(element, null, models, subType, Boolean.TRUE.equals(allowRelative))};
+        return new PsiReference[]{new OdooExternalIdReference(element, null, filter, Boolean.TRUE.equals(allowRelative))};
     }
 
     @NotNull
     public static PsiReference[] getCommaSeparatedReferences(@NotNull PsiElement element,
-                                                             @NotNull String[] models,
-                                                             @Nullable OdooRecordSubType subType,
+                                                             @Nullable OdooRecordFilter filter,
                                                              boolean allowRelative) {
         List<PsiReference> result = new LinkedList<>();
         TextRange textRange = ElementManipulators.getValueTextRange(element);
@@ -51,17 +44,8 @@ public class OdooExternalIdReferenceProvider extends PsiReferenceProvider {
         Matcher matcher = Pattern.compile("(\\w+\\.)?\\w+").matcher(text);
         while (matcher.find()) {
             TextRange subRange = textRange.cutOut(new TextRange(matcher.start(), matcher.end()));
-            result.add(new OdooExternalIdReference(element, subRange, models, subType, allowRelative));
+            result.add(new OdooExternalIdReference(element, subRange, filter, allowRelative));
         }
         return result.toArray(PsiReference.EMPTY_ARRAY);
-    }
-
-    @NotNull
-    public static PsiReference[] getCommaSeparatedReferences(@NotNull PsiElement element,
-                                                             @Nullable String model,
-                                                             @Nullable OdooRecordSubType subType,
-                                                             boolean allowRelative) {
-        String[] models = model != null ? new String[]{model} : new String[0];
-        return getCommaSeparatedReferences(element, models, subType, allowRelative);
     }
 }

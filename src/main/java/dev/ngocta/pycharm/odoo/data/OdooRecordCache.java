@@ -24,7 +24,7 @@ public class OdooRecordCache {
     }
 
     public void add(@NotNull OdooRecord record) {
-        add(record.getId(), record);
+        add(record.getQualifiedId(), record);
     }
 
     public void clearCache(@NotNull String recordId,

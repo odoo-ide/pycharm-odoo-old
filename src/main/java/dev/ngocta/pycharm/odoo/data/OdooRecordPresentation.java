@@ -23,7 +23,7 @@ public class OdooRecordPresentation implements ItemPresentation {
 
     @Override
     public String getPresentableText() {
-        String text = myRecord.getId();
+        String text = myRecord.getQualifiedId();
         if (StringUtil.isNotEmpty(myRecord.getModel())) {
             text += " (" + myRecord.getModel() + ")";
         }

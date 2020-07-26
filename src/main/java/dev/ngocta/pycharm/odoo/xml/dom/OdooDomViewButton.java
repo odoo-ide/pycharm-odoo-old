@@ -5,8 +5,8 @@ import com.intellij.psi.ElementManipulators;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.xml.*;
-import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.data.OdooExternalIdReference;
+import dev.ngocta.pycharm.odoo.data.filter.OdooRecordFilters;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelFunctionPublicReference;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,10 +16,10 @@ import java.util.regex.Pattern;
 public interface OdooDomViewButton extends OdooDomModelScopedViewElement {
     @Attribute("name")
     @Referencing(ButtonNameReferencing.class)
-    GenericAttributeValue<String> getName();
+    GenericAttributeValue<String> getNameAttribute();
 
     @Attribute("type")
-    GenericAttributeValue<String> getType();
+    GenericAttributeValue<String> getTypeAttribute();
 
     class ButtonNameReferencing implements CustomReferenceConverter<String> {
         @NotNull
@@ -30,7 +30,7 @@ public interface OdooDomViewButton extends OdooDomModelScopedViewElement {
             String name = value.getStringValue();
             OdooDomViewButton button = value.getParentOfType(OdooDomViewButton.class, true);
             if (name != null && button != null) {
-                String type = button.getType().getStringValue();
+                String type = button.getTypeAttribute().getStringValue();
                 if ("object".equals(type) || (type == null && !name.contains("%"))) {
                     String model = button.getModel();
                     if (model != null) {
@@ -42,7 +42,7 @@ public interface OdooDomViewButton extends OdooDomModelScopedViewElement {
                         TextRange range = ElementManipulators.getValueTextRange(element);
                         range = range.cutOut(new TextRange(matcher.start(), matcher.end()));
                         return new PsiReference[]{
-                                new OdooExternalIdReference(element, range, OdooNames.ACTION_MODELS, null, true)
+                                new OdooExternalIdReference(element, range, OdooRecordFilters.ACTION_MODELS, true)
                         };
                     }
                 }

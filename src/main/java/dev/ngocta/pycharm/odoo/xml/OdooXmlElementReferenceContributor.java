@@ -12,13 +12,13 @@ public class OdooXmlElementReferenceContributor extends PsiReferenceContributor 
             XmlPatterns.xmlAttributeValue().withParent(
                     XmlPatterns.xmlAttribute("src").withParent(
                             XmlPatterns.xmlTag().withLocalName("script"))).with(
-                    OdooXmlUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
+                    OdooXmlUtils.ODOO_XML_DATA_ELEMENT_PATTERN_CONDITION);
 
     public static final XmlAttributeValuePattern LINK_HREF_PATTERN =
             XmlPatterns.xmlAttributeValue().withParent(
                     XmlPatterns.xmlAttribute("href").withParent(
                             XmlPatterns.xmlTag().withLocalName("link"))).with(
-                    OdooXmlUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
+                    OdooXmlUtils.ODOO_XML_DATA_ELEMENT_PATTERN_CONDITION);
 
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {

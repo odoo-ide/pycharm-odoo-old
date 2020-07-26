@@ -5,29 +5,29 @@ import com.intellij.psi.PsiReference;
 import com.intellij.util.xml.*;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.data.OdooExternalIdReference;
-import dev.ngocta.pycharm.odoo.data.OdooRecord;
+import dev.ngocta.pycharm.odoo.data.filter.OdooRecordFilters;
 import org.jetbrains.annotations.NotNull;
 
 public interface OdooDomMenuItem extends OdooDomRecordLike {
-    @Override
-    default OdooRecord getRecord() {
-        return getRecord(OdooNames.IR_UI_MENU, null);
-    }
-
     @Attribute("name")
-    GenericAttributeValue<String> getName();
+    GenericAttributeValue<String> getNameAttribute();
 
     @Attribute("groups")
     @Referencing(OdooGroupsReferenceConverter.class)
-    GenericAttributeValue<String> getGroups();
+    GenericAttributeValue<String> getGroupsAttribute();
 
     @Attribute("parent")
     @Referencing(ParentReferenceConverter.class)
-    GenericAttributeValue<String> getParentId();
+    GenericAttributeValue<String> getParentIdAttribute();
 
     @Attribute("action")
     @Referencing(ActionReferenceConverter.class)
-    GenericAttributeValue<String> getAction();
+    GenericAttributeValue<String> getActionAttribute();
+
+    @Override
+    default String getModel() {
+        return OdooNames.IR_UI_MENU;
+    }
 
     class ParentReferenceConverter implements CustomReferenceConverter<String> {
         @NotNull
@@ -36,7 +36,7 @@ public interface OdooDomMenuItem extends OdooDomRecordLike {
                                                PsiElement element,
                                                ConvertContext context) {
             return new PsiReference[]{
-                    new OdooExternalIdReference(element, null, OdooNames.IR_UI_MENU, null, true)
+                    new OdooExternalIdReference(element, null, OdooRecordFilters.IR_UI_MENU, true)
             };
         }
     }
@@ -48,7 +48,7 @@ public interface OdooDomMenuItem extends OdooDomRecordLike {
                                                PsiElement element,
                                                ConvertContext context) {
             return new PsiReference[]{
-                    new OdooExternalIdReference(element, null, OdooNames.ACTION_MODELS, null, true)
+                    new OdooExternalIdReference(element, null, OdooRecordFilters.ACTION_MODELS, true)
             };
         }
     }

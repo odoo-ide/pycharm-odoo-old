@@ -5,6 +5,11 @@ import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
 public class OdooUtils {
     private OdooUtils() {
@@ -18,5 +23,18 @@ public class OdooUtils {
             return module.getModuleContentWithDependenciesScope().union(module.getModuleWithLibrariesScope());
         }
         return GlobalSearchScope.projectScope(anchor.getProject());
+    }
+
+    public static void writeNullableString(@Nullable String value,
+                                           @NotNull DataOutput out) throws IOException {
+        out.writeBoolean(value != null);
+        if (value != null) {
+            out.writeUTF(value);
+        }
+    }
+
+    @Nullable
+    public static String readNullableString(@NotNull DataInput in) throws IOException {
+        return in.readBoolean() ? in.readUTF() : null;
     }
 }

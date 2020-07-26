@@ -16,11 +16,16 @@ public interface OdooDomField extends OdooDomElement, OdooDomModelScoped {
     @Attribute("name")
     @Required
     @Referencing(OdooFieldNameReferenceConverter.class)
-    GenericAttributeValue<String> getName();
+    GenericAttributeValue<String> getNameAttr();
+
+    @Nullable
+    default String getName() {
+        return getNameAttr().getStringValue();
+    }
 
     @Nullable
     default String getComodel() {
-        PsiElement targetField = Optional.ofNullable(getName())
+        PsiElement targetField = Optional.ofNullable(getNameAttr())
                 .map(GenericAttributeValue::getXmlAttributeValue)
                 .map(PsiElement::getReference)
                 .map(PsiReference::resolve)

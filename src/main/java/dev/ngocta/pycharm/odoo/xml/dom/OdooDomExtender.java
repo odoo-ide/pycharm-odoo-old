@@ -46,7 +46,7 @@ public class OdooDomExtender extends DomExtender<OdooDomElement> {
             }
             registerModelScopedViewElements(domElement, registrar);
         } else if (domElement instanceof OdooDomTemplate) {
-            if (OdooXmlUtils.getViewInheritId((OdooDomTemplate) domElement) != null) {
+            if (((OdooDomTemplate) domElement).getInheritId() != null) {
                 registerInheritLocators(domElement, registrar);
             } else {
                 registerViewElements(domElement, registrar);
@@ -60,7 +60,7 @@ public class OdooDomExtender extends DomExtender<OdooDomElement> {
 
     private boolean isViewArchFieldAssignment(@Nullable DomElement domElement) {
         return domElement instanceof OdooDomFieldAssignment
-                && "arch".equals(((OdooDomFieldAssignment) domElement).getName().getStringValue())
+                && "arch".equals(((OdooDomFieldAssignment) domElement).getName())
                 && OdooNames.IR_UI_VIEW.equals(((OdooDomFieldAssignment) domElement).getModel());
     }
 

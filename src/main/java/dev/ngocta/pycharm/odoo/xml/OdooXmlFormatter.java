@@ -14,7 +14,7 @@ public class OdooXmlFormatter extends XmlFormattingModelBuilder implements Custo
     public boolean isEngagedToFormat(PsiElement context) {
         PsiElement file = context.getContainingFile();
         if (file instanceof XmlFile) {
-            return OdooXmlUtils.getOdooDomRoot((XmlFile) file) != null;
+            return OdooXmlUtils.getOdooDataDomRoot((XmlFile) file) != null;
         }
         return false;
     }

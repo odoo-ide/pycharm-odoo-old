@@ -5,19 +5,35 @@ import com.intellij.psi.PsiReference;
 import com.intellij.util.xml.*;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.data.OdooExternalIdReference;
-import dev.ngocta.pycharm.odoo.data.OdooRecord;
-import dev.ngocta.pycharm.odoo.data.OdooRecordSubType;
+import dev.ngocta.pycharm.odoo.data.OdooRecordExtraInfo;
+import dev.ngocta.pycharm.odoo.data.OdooRecordViewInfo;
+import dev.ngocta.pycharm.odoo.data.filter.OdooRecordFilters;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface OdooDomTemplate extends OdooDomRecordLike {
-    @Override
-    default OdooRecord getRecord() {
-        return getRecord(OdooNames.IR_UI_VIEW, OdooRecordSubType.QWEB);
-    }
-
     @Attribute("inherit_id")
     @Referencing(TemplateIdReferenceConverter.class)
-    GenericAttributeValue<String> getInheritId();
+    GenericAttributeValue<String> getInheritIdAttribute();
+
+    @Override
+    default String getModel() {
+        return OdooNames.IR_UI_VIEW;
+    }
+
+    default String getInheritId() {
+        return getInheritIdAttribute().getStringValue();
+    }
+
+    default String getViewType() {
+        return OdooNames.VIEW_TYPE_QWEB;
+    }
+
+    @Override
+    @Nullable
+    default OdooRecordExtraInfo getRecordExtraInfo() {
+        return new OdooRecordViewInfo(getViewType(), null, getInheritId());
+    }
 
     class TemplateIdReferenceConverter implements CustomReferenceConverter<String> {
         @NotNull
@@ -26,7 +42,7 @@ public interface OdooDomTemplate extends OdooDomRecordLike {
                                                PsiElement element,
                                                ConvertContext context) {
             return new PsiReference[]{
-                    new OdooExternalIdReference(element, null, OdooNames.IR_UI_VIEW, OdooRecordSubType.QWEB, true)
+                    new OdooExternalIdReference(element, null, OdooRecordFilters.QWEB, true)
             };
         }
     }

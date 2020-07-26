@@ -7,10 +7,10 @@ import com.intellij.util.xml.Required;
 public interface OdooDomViewXPath extends OdooDomViewInheritLocator {
     @Attribute("expr")
     @Required
-    GenericAttributeValue<String> getExpr();
+    GenericAttributeValue<String> getExprAttribute();
 
-    default String getXPathExpr() {
-        return getExpr().getStringValue();
+    default String getExpr() {
+        return getExprAttribute().getStringValue();
     }
 }
 

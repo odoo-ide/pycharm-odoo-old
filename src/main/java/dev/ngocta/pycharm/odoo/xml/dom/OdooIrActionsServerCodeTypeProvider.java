@@ -74,7 +74,7 @@ public class OdooIrActionsServerCodeTypeProvider extends PyTypeProviderBase {
             return null;
         }
         OdooDomFieldAssignment fieldAssignment = (OdooDomFieldAssignment) domElement;
-        if (!"code".equals(fieldAssignment.getName().getStringValue())) {
+        if (!"code".equals(fieldAssignment.getNameAttr().getStringValue())) {
             return null;
         }
         if (!ArrayUtil.contains(fieldAssignment.getModel(), OdooNames.IR_ACTIONS_SERVER, OdooNames.IR_CRON)) {
@@ -84,10 +84,9 @@ public class OdooIrActionsServerCodeTypeProvider extends PyTypeProviderBase {
         if (record == null) {
             return null;
         }
-        for (OdooDomFieldAssignment field : record.getFields()) {
-            if ("model_id".equals(field.getName().getStringValue())) {
-                return field.getRefModel();
-            }
+        OdooDomFieldAssignment field = record.findField("model_id");
+        if (field != null) {
+            return field.getRefModel();
         }
         return null;
     }

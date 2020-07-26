@@ -9,9 +9,9 @@ import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.util.ArrayUtil;
 import com.intellij.util.PlatformIcons;
 import com.jetbrains.python.psi.PyUtil;
+import dev.ngocta.pycharm.odoo.data.filter.OdooRecordFilter;
 import dev.ngocta.pycharm.odoo.python.module.OdooModule;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -21,29 +21,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
-    private final String[] myModels;
-    private final OdooRecordSubType mySubType;
+    private final OdooRecordFilter myFilter;
     private final boolean myAllowRelative;
 
     public OdooExternalIdReference(@NotNull PsiElement element,
                                    @Nullable TextRange rangeInElement,
-                                   @Nullable String model,
-                                   @Nullable OdooRecordSubType subType,
+                                   @Nullable OdooRecordFilter filter,
                                    boolean allowRelative) {
         super(element, rangeInElement, false);
-        myModels = model != null ? new String[]{model} : new String[0];
-        mySubType = subType;
-        myAllowRelative = allowRelative;
-    }
-
-    public OdooExternalIdReference(@NotNull PsiElement element,
-                                   @Nullable TextRange rangeInElement,
-                                   @NotNull String[] models,
-                                   @Nullable OdooRecordSubType subType,
-                                   boolean allowRelative) {
-        super(element, rangeInElement, false);
-        myModels = models;
-        mySubType = subType;
+        myFilter = filter;
         myAllowRelative = allowRelative;
     }
 
@@ -83,12 +69,11 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
         GlobalSearchScope scope = module.getOdooModuleWithDependenciesScope();
         Project project = getElement().getProject();
         OdooExternalIdIndex.processAllRecords(project, scope, record -> {
-            if ((myModels.length == 0 || ArrayUtil.contains(record.getModel(), myModels))
-                    && (mySubType == null || mySubType == record.getSubType())) {
+            if (myFilter == null || myFilter.accept(record)) {
                 List<String> ids = new LinkedList<>();
-                ids.add(record.getId());
-                if (myAllowRelative && record.getModule().equals(module.getName())) {
-                    ids.add(record.getName());
+                ids.add(record.getQualifiedId());
+                if (myAllowRelative && record.getOriginModule().equals(module.getName())) {
+                    ids.add(record.getUnqualifiedId());
                 }
                 ids.forEach(id -> {
                     LookupElement element = LookupElementBuilder.create(id)

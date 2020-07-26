@@ -1,7 +1,12 @@
 package dev.ngocta.pycharm.odoo.xml.dom;
 
 import com.intellij.util.xml.*;
-import dev.ngocta.pycharm.odoo.data.OdooRecord;
+import dev.ngocta.pycharm.odoo.OdooNames;
+import dev.ngocta.pycharm.odoo.data.OdooRecordExtraInfo;
+import dev.ngocta.pycharm.odoo.data.OdooRecordViewInfo;
+import dev.ngocta.pycharm.odoo.xml.OdooXmlUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -9,13 +14,36 @@ public interface OdooDomRecord extends OdooDomRecordLike {
     @Attribute("model")
     @Required
     @Referencing(OdooModelReferenceConverter.class)
-    GenericAttributeValue<String> getModel();
+    GenericAttributeValue<String> getModelAttribute();
 
     @SubTag("field")
     List<OdooDomFieldAssignment> getFields();
 
+    @Nullable
+    default OdooDomFieldAssignment findField(@NotNull String name) {
+        List<OdooDomFieldAssignment> fields = getFields();
+        for (OdooDomFieldAssignment field : fields) {
+            if (name.equals(field.getName())) {
+                return field;
+            }
+        }
+        return null;
+    }
+
     @Override
-    default OdooRecord getRecord() {
-        return getRecord(getModel().getStringValue(), null);
+    @Nullable
+    default String getModel() {
+        return getModelAttribute().getStringValue();
+    }
+
+    @Override
+    @Nullable
+    default OdooRecordExtraInfo getRecordExtraInfo() {
+        if (OdooNames.IR_UI_VIEW.equals(getModel())) {
+            OdooDomFieldAssignment modelField = findField("model");
+            String viewModel = modelField != null ? modelField.getStringValue() : null;
+            return new OdooRecordViewInfo(null, viewModel, OdooXmlUtils.getViewInheritId(this));
+        }
+        return null;
     }
 }

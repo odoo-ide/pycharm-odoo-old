@@ -4,7 +4,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.PairProcessor;
 import dev.ngocta.pycharm.odoo.data.OdooRecord;
-import dev.ngocta.pycharm.odoo.data.OdooRecordImpl;
 import dev.ngocta.pycharm.odoo.python.module.OdooModule;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import org.apache.commons.csv.CSVFormat;
@@ -41,7 +40,7 @@ public class OdooCsvUtils {
             for (CSVRecord csvRecord : parser) {
                 String id = csvRecord.get("id");
                 if (id != null) {
-                    OdooRecord record = new OdooRecordImpl(id, model, null, moduleName, file);
+                    OdooRecord record = new OdooRecord(id, model, moduleName, null, file);
                     if (!processor.process(record, (int) parser.getCurrentLineNumber())) {
                         break;
                     }

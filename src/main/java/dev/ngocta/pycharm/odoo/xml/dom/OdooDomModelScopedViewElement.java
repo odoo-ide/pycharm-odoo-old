@@ -32,17 +32,16 @@ public interface OdooDomModelScopedViewElement extends OdooDomViewElement, OdooD
             } else if (parent instanceof OdooDomFieldAssignment) {
                 parent = parent.getParent();
                 if (parent instanceof OdooDomRecord) {
-                    for (OdooDomFieldAssignment field : ((OdooDomRecord) parent).getFields()) {
-                        if ("model".equals(field.getName().getStringValue())) {
-                            return field.getStringValue();
-                        }
+                    OdooDomFieldAssignment field = ((OdooDomRecord) parent).findField("model");
+                    if (field != null) {
+                        return field.getStringValue();
                     }
                 }
                 return null;
             } else if (parent instanceof OdooDomViewField) {
                 TypeEvalContext context = TypeEvalContext.codeAnalysis(project, element.getContainingFile());
                 String model = ((OdooDomViewField) parent).getModel();
-                String fieldName = ((OdooDomViewField) parent).getName().getStringValue();
+                String fieldName = ((OdooDomViewField) parent).getNameAttr().getStringValue();
                 if (model != null && fieldName != null) {
                     PyTargetExpression field = OdooModelClass.getInstance(model, element.getProject()).findField(fieldName, context);
                     if (field != null) {

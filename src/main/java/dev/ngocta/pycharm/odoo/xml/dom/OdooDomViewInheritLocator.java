@@ -22,9 +22,9 @@ import java.util.List;
 
 public interface OdooDomViewInheritLocator extends OdooDomViewElement {
     @Attribute("position")
-    GenericAttributeValue<String> getPosition();
+    GenericAttributeValue<String> getPositionAttribute();
 
-    default String getXPathExpr() {
+    default String getExpr() {
         StringBuilder xpath = new StringBuilder("//" + getXmlElementName());
         XmlTag tag = getXmlTag();
         if (tag != null) {
@@ -48,7 +48,7 @@ public interface OdooDomViewInheritLocator extends OdooDomViewElement {
             return null;
         }
         return PyUtil.getNullableParameterizedCachedValue(element, null, param -> {
-            String xPathExpr = getXPathExpr();
+            String xPathExpr = getExpr();
             if (xPathExpr == null) {
                 return null;
             }

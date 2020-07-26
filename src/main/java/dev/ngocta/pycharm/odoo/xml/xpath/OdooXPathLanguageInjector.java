@@ -18,7 +18,7 @@ public class OdooXPathLanguageInjector implements LanguageInjector {
             XmlPatterns.xmlAttributeValue().withParent(
                     XmlPatterns.xmlAttribute("expr").withParent(
                             XmlPatterns.xmlTag().withLocalName("xpath"))).with(
-                    OdooXmlUtils.ODOO_XML_ELEMENT_PATTERN_CONDITION);
+                    OdooXmlUtils.ODOO_XML_DATA_ELEMENT_PATTERN_CONDITION);
 
     @Override
     public void getLanguagesToInject(@NotNull PsiLanguageInjectionHost host,

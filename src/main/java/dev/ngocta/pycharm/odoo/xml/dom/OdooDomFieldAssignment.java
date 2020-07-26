@@ -13,16 +13,16 @@ import java.util.Optional;
 public interface OdooDomFieldAssignment extends OdooDomField, GenericDomValue<String> {
     @Attribute("ref")
     @Referencing(OdooFieldRefValueReferenceConverter.class)
-    GenericAttributeValue<String> getRef();
+    GenericAttributeValue<String> getRefAttr();
 
     @Attribute("file")
     @Referencing(OdooFieldFileValueReferenceConverter.class)
-    GenericAttributeValue<String> getFile();
+    GenericAttributeValue<String> getFileAttr();
 
     default String getModel() {
         OdooDomRecord record = getRecord();
         if (record != null) {
-            return record.getModel().getStringValue();
+            return record.getModel();
         }
         return null;
     }
@@ -36,7 +36,7 @@ public interface OdooDomFieldAssignment extends OdooDomField, GenericDomValue<St
     }
 
     default String getRefModel() {
-        return Optional.of(getRef())
+        return Optional.of(getRefAttr())
                 .map(GenericAttributeValue::getXmlAttributeValue)
                 .map(PsiElement::getReference)
                 .map(PsiReference::resolve)

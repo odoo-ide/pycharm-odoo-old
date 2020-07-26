@@ -13,14 +13,14 @@ import org.jetbrains.annotations.Nullable;
 public class OdooCsvRecord extends FakePsiElement implements Navigatable {
     private final VirtualFile myFile;
     private final Project myProject;
-    private final String myRecordId;
+    private final String myId;
 
     public OdooCsvRecord(@NotNull VirtualFile file,
                          @NotNull Project project,
-                         @NotNull String recordId) {
+                         @NotNull String id) {
         myFile = file;
         myProject = project;
-        myRecordId = recordId;
+        myId = id;
     }
 
     @Override
@@ -73,7 +73,7 @@ public class OdooCsvRecord extends FakePsiElement implements Navigatable {
     @Override
     public void navigate(boolean requestFocus) {
         OdooCsvUtils.processRecordInCsvFile(myFile, myProject, (record, lineNumber) -> {
-            if (myRecordId.equals(record.getId())) {
+            if (myId.equals(record.getId())) {
                 Navigatable navigatable = (new OpenFileDescriptor(myProject, myFile, lineNumber - 1, 0));
                 navigatable.navigate(requestFocus);
                 return false;

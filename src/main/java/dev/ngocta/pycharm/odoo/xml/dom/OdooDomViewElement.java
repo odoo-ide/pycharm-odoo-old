@@ -4,30 +4,22 @@ import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.Referencing;
+import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.Nullable;
 
 public interface OdooDomViewElement extends OdooDomElement {
     @Attribute("groups")
     @Referencing(OdooGroupsReferenceConverter.class)
-    GenericAttributeValue<String> getGroups();
+    GenericAttributeValue<String> getGroupsAttribute();
 
     @Nullable
-    default OdooDomViewType getViewType() {
+    default String getViewType() {
         DomElement parent = getParent();
         if (parent instanceof OdooDomTemplate) {
-            return OdooDomViewType.QWeb;
+            return OdooNames.VIEW_TYPE_QWEB;
         }
         if (parent instanceof OdooDomField) {
-            switch (getXmlElementName()) {
-                case "form":
-                    return OdooDomViewType.Form;
-                case "tree":
-                    return OdooDomViewType.Tree;
-                case "search":
-                    return OdooDomViewType.Search;
-                case "kanban":
-                    return OdooDomViewType.Kanban;
-            }
+            return getXmlElementName();
         }
         if (parent instanceof OdooDomViewElement) {
             return ((OdooDomViewElement) parent).getViewType();

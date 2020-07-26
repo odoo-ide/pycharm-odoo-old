@@ -33,7 +33,7 @@ public class OdooHtmlLanguageInjector implements LanguageInjector {
                     DomElement domElement = domManager.getDomElement(tag);
                     if (domElement instanceof OdooDomFieldAssignment) {
                         OdooDomFieldAssignment fieldAssignment = (OdooDomFieldAssignment) domElement;
-                        String field = fieldAssignment.getName().getStringValue();
+                        String field = fieldAssignment.getNameAttr().getStringValue();
                         String model = fieldAssignment.getModel();
                         return "body_html".equals(field) && OdooNames.MAIL_TEMPLATE.equals(model);
                     }
