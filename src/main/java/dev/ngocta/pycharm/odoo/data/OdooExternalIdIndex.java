@@ -207,19 +207,33 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
 
     @NotNull
     public static List<OdooRecord> findRecordsById(@NotNull String id,
-                                                   @NotNull PsiElement anchor) {
+                                                   @NotNull PsiElement anchor,
+                                                   boolean allowUnqualified) {
         Project project = anchor.getProject();
         OdooModule odooModule = OdooModuleUtils.getContainingOdooModule(anchor);
         if (odooModule != null) {
-            return findRecordsById(id, project, odooModule.getOdooModuleWithDependenciesScope());
+            if (!id.contains(".")) {
+                if (allowUnqualified) {
+                    id = odooModule.getName() + "." + id;
+                } else {
+                    return Collections.emptyList();
+                }
+            }
+            return findRecordsByQualifiedId(id, project, odooModule.getOdooModuleWithDependenciesScope());
         }
         return Collections.emptyList();
     }
 
     @NotNull
-    public static List<OdooRecord> findRecordsById(@NotNull String id,
-                                                   @NotNull Project project,
-                                                   @NotNull GlobalSearchScope scope) {
+    public static List<OdooRecord> findRecordsByQualifiedId(@NotNull String id,
+                                                            @NotNull PsiElement anchor) {
+        return findRecordsById(id, anchor, false);
+    }
+
+    @NotNull
+    public static List<OdooRecord> findRecordsByQualifiedId(@NotNull String id,
+                                                            @NotNull Project project,
+                                                            @NotNull GlobalSearchScope scope) {
         List<OdooRecord> records = new LinkedList<>();
         processRecordsByIds(project, scope, records::add, Collections.singleton(id));
         return records;

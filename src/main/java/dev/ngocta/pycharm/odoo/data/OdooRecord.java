@@ -1,8 +1,8 @@
 package dev.ngocta.pycharm.odoo.data;
 
-import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -140,13 +140,13 @@ public class OdooRecord {
         return Collections.unmodifiableList(result);
     }
 
-    public List<NavigationItem> getNavigationItems(@NotNull Project project) {
+    public List<NavigatablePsiElement> getNavigableElements(@NotNull Project project) {
         return getElements(project).stream()
                 .map(element -> {
                     if (element instanceof PyElement) {
                         return (PyElement) element;
                     } else {
-                        return new OdooRecordNavigationItem(this, element);
+                        return new OdooRecordNavigableElement(this, element);
                     }
                 })
                 .collect(Collectors.toList());

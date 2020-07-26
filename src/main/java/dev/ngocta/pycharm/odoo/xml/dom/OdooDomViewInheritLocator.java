@@ -61,7 +61,7 @@ public interface OdooDomViewInheritLocator extends OdooDomViewElement {
                 return null;
             }
             Project project = element.getProject();
-            List<OdooRecord> records = OdooExternalIdIndex.findRecordsById(inheritId, element);
+            List<OdooRecord> records = OdooExternalIdIndex.findRecordsById(inheritId, element, true);
             if (records.isEmpty()) {
                 return null;
             }

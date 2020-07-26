@@ -1,17 +1,20 @@
 package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.navigation.ItemPresentation;
-import com.intellij.navigation.NavigationItem;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.pom.Navigatable;
+import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.impl.FakePsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class OdooRecordNavigationItem implements NavigationItem {
+public class OdooRecordNavigableElement extends FakePsiElement implements NavigatablePsiElement {
     private final OdooRecord myRecord;
     private final PsiElement myElement;
 
-    public OdooRecordNavigationItem(@NotNull OdooRecord record,
-                                    @NotNull PsiElement element) {
+    public OdooRecordNavigableElement(@NotNull OdooRecord record,
+                                      @NotNull PsiElement element) {
         myRecord = record;
         myElement = element;
     }
@@ -39,7 +42,13 @@ public class OdooRecordNavigationItem implements NavigationItem {
     }
 
     @Override
-    public boolean canNavigateToSource() {
-        return true;
+    public PsiElement getParent() {
+        return myElement.getParent();
+    }
+
+    @Override
+    @Nullable
+    public TextRange getTextRange() {
+        return myElement.getTextRange();
     }
 }

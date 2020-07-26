@@ -22,15 +22,15 @@ import java.util.List;
 
 public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
     private final OdooRecordFilter myFilter;
-    private final boolean myAllowRelative;
+    private final boolean myAllowUnqualified;
 
     public OdooExternalIdReference(@NotNull PsiElement element,
                                    @Nullable TextRange rangeInElement,
                                    @Nullable OdooRecordFilter filter,
-                                   boolean allowRelative) {
+                                   boolean allowUnqualified) {
         super(element, rangeInElement, false);
         myFilter = filter;
-        myAllowRelative = allowRelative;
+        myAllowUnqualified = allowUnqualified;
     }
 
     @NotNull
@@ -42,18 +42,9 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
     @NotNull
     protected List<PsiElement> resolveInner() {
         return PyUtil.getParameterizedCachedValue(getElement(), null, param -> {
-            PsiElement element = getElement();
-            String id = getValue();
-            if (!id.contains(".") && myAllowRelative) {
-                OdooModule module = OdooModuleUtils.getContainingOdooModule(element);
-                if (module != null) {
-                    id = module.getName() + "." + id;
-                }
-            }
-            Project project = element.getProject();
-            List<OdooRecord> records = OdooExternalIdIndex.findRecordsById(id, element);
+            List<OdooRecord> records = OdooExternalIdIndex.findRecordsById(getValue(), getElement(), myAllowUnqualified);
             List<PsiElement> elements = new LinkedList<>();
-            records.forEach(record -> elements.addAll(record.getElements(project)));
+            records.forEach(record -> elements.addAll(record.getElements(getElement().getProject())));
             return elements;
         });
     }
@@ -72,7 +63,7 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
             if (myFilter == null || myFilter.accept(record)) {
                 List<String> ids = new LinkedList<>();
                 ids.add(record.getQualifiedId());
-                if (myAllowRelative && record.getOriginModule().equals(module.getName())) {
+                if (myAllowUnqualified && record.getOriginModule().equals(module.getName())) {
                     ids.add(record.getUnqualifiedId());
                 }
                 ids.forEach(id -> {

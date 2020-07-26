@@ -8,9 +8,11 @@ import com.intellij.util.xml.CustomReferenceConverter;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.GenericDomValue;
 import dev.ngocta.pycharm.odoo.data.OdooExternalIdReference;
+import dev.ngocta.pycharm.odoo.data.OdooRecord;
 import dev.ngocta.pycharm.odoo.data.OdooRecordViewInfo;
 import dev.ngocta.pycharm.odoo.data.filter.OdooRecordFilter;
 import dev.ngocta.pycharm.odoo.data.filter.OdooRecordModelFilter;
+import dev.ngocta.pycharm.odoo.data.filter.OdooRecordViewModelFilter;
 import org.jetbrains.annotations.NotNull;
 
 public class OdooFieldRefValueReferenceConverter implements CustomReferenceConverter<String> {
@@ -23,21 +25,20 @@ public class OdooFieldRefValueReferenceConverter implements CustomReferenceConve
         DomElement parent = value.getParent();
         if (parent instanceof OdooDomFieldAssignment) {
             String model = ((OdooDomFieldAssignment) parent).getComodel();
-            parent = parent.getParent();
-            if (parent instanceof OdooDomRecord) {
-                OdooDomRecord record = (OdooDomRecord) parent;
-                OdooDomFieldAssignment modelField = record.findField("model");
-                if (modelField != null) {
-                    String viewModel = modelField.getStringValue();
-                    if (viewModel != null) {
-                        filter = r -> {
-                            OdooRecordViewInfo viewInfo = ObjectUtils.tryCast(r.getExtraInfo(), OdooRecordViewInfo.class);
-                            return viewInfo != null && viewModel.equals(viewInfo.getViewModel());
-                        };
-                    } else {
-                        filter = new OdooRecordModelFilter(model);
+            OdooDomFieldAssignment field = (OdooDomFieldAssignment) parent;
+            if ("inherit_id".equals(field.getName())) {
+                parent = parent.getParent();
+                if (parent instanceof OdooDomRecord) {
+                    OdooRecord record = ((OdooDomRecord) parent).getRecord();
+                    if (record != null) {
+                        OdooRecordViewInfo viewInfo = ObjectUtils.tryCast(record.getExtraInfo(), OdooRecordViewInfo.class);
+                        if (viewInfo != null && viewInfo.getViewModel() != null) {
+                            filter = new OdooRecordViewModelFilter(viewInfo.getViewModel(), record.getQualifiedId());
+                        }
                     }
                 }
+            } else {
+                filter = new OdooRecordModelFilter(model);
             }
         }
         return new PsiReference[]{
