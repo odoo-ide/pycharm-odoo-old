@@ -7,7 +7,6 @@ import com.intellij.util.Processor;
 import com.intellij.util.QueryExecutor;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.search.PyClassInheritorsSearch;
-import dev.ngocta.pycharm.odoo.OdooUtils;
 import dev.ngocta.pycharm.odoo.python.module.OdooModule;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +24,7 @@ public class OdooModelClassInheritorsSearch implements QueryExecutor<PyClass, Py
             OdooModelInfo modelInfo = OdooModelInfo.getInfo(superClass);
             if (module != null && modelInfo != null) {
                 Project project = superClass.getProject();
-                GlobalSearchScope scope = OdooUtils.getProjectModuleWithDependenciesScope(superClass);
+                GlobalSearchScope scope = module.getOdooModuleWithExtensionsScope();
                 List<String> visitedModels = new LinkedList<>();
                 List<String> toVisitModels = new LinkedList<>();
                 toVisitModels.add(modelInfo.getName());
@@ -63,5 +62,4 @@ public class OdooModelClassInheritorsSearch implements QueryExecutor<PyClass, Py
             return true;
         });
     }
-
 }

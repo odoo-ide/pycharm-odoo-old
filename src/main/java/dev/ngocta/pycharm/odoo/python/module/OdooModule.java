@@ -1,7 +1,7 @@
 package dev.ngocta.pycharm.odoo.python.module;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.util.Pair;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class OdooModule {
     private final PsiDirectory myDirectory;
@@ -89,23 +88,36 @@ public class OdooModule {
 
     @NotNull
     public GlobalSearchScope getOdooModuleWithDependenciesScope() {
-        return getOdooModuleScope(true);
+        return getOdooModuleScope(true, false);
     }
 
     @NotNull
-    public GlobalSearchScope getOdooModuleScope(boolean includeDependencies) {
-        return PyUtil.getParameterizedCachedValue(getDirectory(), includeDependencies, param -> {
+    public GlobalSearchScope getOdooModuleScope(boolean includeDependencies,
+                                                boolean includeExtensions) {
+        return PyUtil.getParameterizedCachedValue(getDirectory(), Pair.create(includeDependencies, includeExtensions), param -> {
+            List<GlobalSearchScope> scopes = new LinkedList<>();
+            List<OdooModule> modules = new LinkedList<>();
+            scopes.add(GlobalSearchScopes.directoryScope(getDirectory(), true));
             if (includeDependencies) {
-                List<OdooModule> modules = getFlattenedDependsGraph();
-                VirtualFile[] dirs = modules.stream()
-                        .map(OdooModule::getDirectory)
-                        .map(PsiDirectory::getVirtualFile)
-                        .collect(Collectors.toList())
-                        .toArray(VirtualFile.EMPTY_ARRAY);
-                return GlobalSearchScopes.directoriesScope(getProject(), true, dirs);
+                modules.addAll(getFlattenedDependsGraph());
             }
-            return GlobalSearchScopes.directoryScope(getDirectory(), true);
+            if (includeExtensions) {
+                List<OdooModule> availableModules = OdooModuleIndex.getAvailableOdooModules(getDirectory());
+                for (OdooModule module : availableModules) {
+                    if (module.isDependOn(this)) {
+                        modules.add(module);
+                    }
+                }
+            }
+            for (OdooModule module : modules) {
+                scopes.add(module.getOdooModuleScope(false, false));
+            }
+            return GlobalSearchScope.union(scopes);
         });
+    }
+
+    public GlobalSearchScope getOdooModuleWithExtensionsScope() {
+        return getOdooModuleScope(false, true);
     }
 
     public boolean isDependOn(@Nullable OdooModule module) {
