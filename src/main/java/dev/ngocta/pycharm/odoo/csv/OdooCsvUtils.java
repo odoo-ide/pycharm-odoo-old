@@ -24,7 +24,7 @@ public class OdooCsvUtils {
 
     public static void processRecordInCsvFile(@NotNull VirtualFile file,
                                               @NotNull Project project,
-                                              @NotNull PairProcessor<OdooRecord, Integer> processor) {
+                                              @NotNull PairProcessor<OdooRecord, CSVRecord> processor) {
         OdooModule module = OdooModuleUtils.getContainingOdooModule(file, project);
         if (module == null) {
             return;
@@ -41,7 +41,7 @@ public class OdooCsvUtils {
                 String id = csvRecord.get("id");
                 if (id != null) {
                     OdooRecord record = new OdooRecord(id, model, moduleName, null, file);
-                    if (!processor.process(record, (int) parser.getCurrentLineNumber())) {
+                    if (!processor.process(record, csvRecord)) {
                         break;
                     }
                 }

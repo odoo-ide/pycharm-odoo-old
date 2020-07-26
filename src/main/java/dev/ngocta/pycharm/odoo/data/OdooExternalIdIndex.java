@@ -75,7 +75,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                     }
                 }
             } else if (OdooCsvUtils.isCsvFile(file)) {
-                OdooCsvUtils.processRecordInCsvFile(file, project, (record, lineNumber) -> {
+                OdooCsvUtils.processRecordInCsvFile(file, project, (record, csvRecord) -> {
                     records.add(record);
                     return true;
                 });
