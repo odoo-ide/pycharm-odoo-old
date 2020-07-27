@@ -2,12 +2,13 @@ package dev.ngocta.pycharm.odoo.python.module;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.impl.source.resolve.FileContextUtil;
-import com.intellij.psi.util.CachedValueProvider;
-import com.intellij.psi.util.CachedValuesManager;
-import com.intellij.psi.util.PsiModificationTracker;
 import com.jetbrains.python.PyNames;
+import com.jetbrains.python.psi.PyUtil;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,29 +50,21 @@ public class OdooModuleUtils {
             return null;
         }
         if (element instanceof PsiFile) {
-            element = FileContextUtil.getContextFile(element);
-            if (element == null) {
-                return null;
-            }
-            element = ((PsiFile) element).getOriginalFile();
-            element = element.getParent();
-            if (element == null) {
-                return null;
-            }
-        }
-        if (element instanceof PsiFileSystemItem) {
-            PsiFileSystemItem fileSystemItem = (PsiFileSystemItem) element;
-            return CachedValuesManager.getCachedValue(fileSystemItem, () -> {
-                OdooModule odooModule = null;
-                VirtualFile file = fileSystemItem.getVirtualFile();
-                VirtualFile directory = getContainingOdooModuleDirectory(file);
-                if (directory != null) {
-                    PsiDirectory psiDirectory = PsiManager.getInstance(fileSystemItem.getProject()).findDirectory(directory);
-                    if (psiDirectory != null) {
-                        odooModule = new OdooModule(psiDirectory);
-                    }
+            return PyUtil.getNullableParameterizedCachedValue(element, null, param -> {
+                PsiFile file = (PsiFile) element;
+                file = FileContextUtil.getContextFile(file);
+                if (file == null) {
+                    return null;
                 }
-                return CachedValueProvider.Result.create(odooModule, PsiModificationTracker.MODIFICATION_COUNT);
+                file = file.getOriginalFile();
+                PsiDirectory directory = file.getParent();
+                while (directory != null) {
+                    if (isOdooModuleDirectory(directory.getVirtualFile())) {
+                        return new OdooModule(directory);
+                    }
+                    directory = directory.getParent();
+                }
+                return null;
             });
         }
         return getContainingOdooModule(element.getContainingFile());
