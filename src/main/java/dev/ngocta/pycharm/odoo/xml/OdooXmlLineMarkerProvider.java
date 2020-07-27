@@ -9,7 +9,6 @@ import com.intellij.ide.util.DefaultPsiElementCellRenderer;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Ref;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
@@ -20,9 +19,9 @@ import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
 import dev.ngocta.pycharm.odoo.data.OdooExternalIdIndex;
 import dev.ngocta.pycharm.odoo.data.OdooRecord;
-import dev.ngocta.pycharm.odoo.data.filter.OdooRecordFilter;
-import dev.ngocta.pycharm.odoo.data.filter.OdooRecordViewInheritFilter;
+import dev.ngocta.pycharm.odoo.data.OdooViewInheritIdIndex;
 import dev.ngocta.pycharm.odoo.python.module.OdooModule;
+import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRecordLike;
 import dev.ngocta.pycharm.odoo.xml.dom.OdooDomViewInheritLocator;
 import org.jetbrains.annotations.NotNull;
@@ -54,7 +53,8 @@ public class OdooXmlLineMarkerProvider implements LineMarkerProvider {
         if (locator.getInheritedElement() == null) {
             return null;
         }
-        return new LineMarkerInfo<>(identifier,
+        return new LineMarkerInfo<>(
+                identifier,
                 identifier.getTextRange(),
                 AllIcons.Gutter.OverridingMethod,
                 e -> "View inherited element",
@@ -71,46 +71,41 @@ public class OdooXmlLineMarkerProvider implements LineMarkerProvider {
     private LineMarkerInfo<PsiElement> getOverridingViews(@NotNull PsiElement identifier,
                                                           @NotNull OdooDomRecordLike domRecord) {
         OdooRecord record = domRecord.getRecord();
-        if (record != null) {
-            OdooRecordFilter filter = new OdooRecordViewInheritFilter(record.getQualifiedId());
-            OdooModule odooModule = domRecord.getOdooModule();
-            if (odooModule != null) {
-                Project project = identifier.getProject();
-                GlobalSearchScope scope = odooModule.getOdooModuleWithExtensionsScope();
-                Ref<Boolean> hasOverriding = new Ref<>(false);
-                OdooExternalIdIndex.processAllRecords(project, scope, r -> {
-                    if (filter.accept(r)) {
-                        hasOverriding.set(true);
-                        return false;
-                    }
-                    return true;
-                });
-                if (hasOverriding.get()) {
-                    GutterIconNavigationHandler<PsiElement> navigationHandler = (e, elt) -> {
-                        List<OdooRecord> records = new LinkedList<>();
-                        List<NavigatablePsiElement> elements = new LinkedList<>();
-                        OdooExternalIdIndex.processAllRecords(project, scope, r -> {
-                            if (filter.accept(r)) {
-                                records.add(r);
-                            }
-                            return true;
-                        });
-                        for (OdooRecord r : records) {
-                            elements.addAll(r.getNavigationElements(project));
-                        }
-                        PsiElementListNavigator.openTargets(e, elements.toArray(NavigatablePsiElement.EMPTY_NAVIGATABLE_ELEMENT_ARRAY),
-                                "Overriding views", null, new DefaultPsiElementCellRenderer());
-                    };
-                    return new LineMarkerInfo<>(
-                            identifier,
-                            identifier.getTextRange(),
-                            AllIcons.Gutter.OverridenMethod,
-                            e -> "View overriding views",
-                            navigationHandler,
-                            GutterIconRenderer.Alignment.RIGHT);
-                }
-            }
+        if (record == null) {
+            return null;
         }
-        return null;
+        OdooModule odooModule = domRecord.getOdooModule();
+        if (odooModule == null) {
+            return null;
+        }
+        Project project = identifier.getProject();
+        GlobalSearchScope scope = odooModule.getOdooModuleWithExtensionsScope();
+        boolean hasOverriding = OdooViewInheritIdIndex.hasOverridingId(record.getQualifiedId(), scope);
+        if (!hasOverriding) {
+            return null;
+        }
+        GutterIconNavigationHandler<PsiElement> navigationHandler = (e, elt) -> {
+            List<String> overridingIds = OdooViewInheritIdIndex.getOverridingIds(record.getQualifiedId(), scope);
+            List<OdooRecord> records = new LinkedList<>();
+            OdooExternalIdIndex.processRecordsByIds(project, scope, r -> {
+                records.add(r);
+                return true;
+            }, overridingIds);
+            List<NavigatablePsiElement> elements = new LinkedList<>();
+            for (OdooRecord r : records) {
+                elements.addAll(r.getNavigationElements(project));
+            }
+            elements = OdooModuleUtils.sortElementByOdooModuleDependOrder(elements, true);
+            PsiElementListNavigator.openTargets(
+                    e, elements.toArray(NavigatablePsiElement.EMPTY_NAVIGATABLE_ELEMENT_ARRAY),
+                    "Overriding views", null, new DefaultPsiElementCellRenderer());
+        };
+        return new LineMarkerInfo<>(
+                identifier,
+                identifier.getTextRange(),
+                AllIcons.Gutter.OverridenMethod,
+                e -> "View overriding views",
+                navigationHandler,
+                GutterIconRenderer.Alignment.RIGHT);
     }
 }

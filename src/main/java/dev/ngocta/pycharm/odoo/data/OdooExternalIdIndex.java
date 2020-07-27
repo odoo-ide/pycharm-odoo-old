@@ -126,8 +126,8 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                 out.writeUTF(value.getModel());
                 out.writeUTF(value.getModule());
                 out.writeBoolean(value.getExtraInfo() != null);
-                if (value.getExtraInfo() != null) {
-                    value.getExtraInfo().write(out);
+                if (value.getExtraInfo() instanceof OdooRecordViewInfo) {
+                    OdooRecordViewInfoExternalizer.INSTANCE.save(out, (OdooRecordViewInfo) value.getExtraInfo());
                 }
             }
 
@@ -138,7 +138,9 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                 String module = in.readUTF();
                 OdooRecordExtraInfo extraInfo = null;
                 if (in.readBoolean()) {
-                    extraInfo = OdooRecordExtraInfo.read(model, in);
+                    if (OdooNames.IR_UI_VIEW.equals(model)) {
+                        extraInfo = OdooRecordViewInfoExternalizer.INSTANCE.read(in);
+                    }
                 }
                 return new OdooRecord(id, model, module, extraInfo, null);
             }
@@ -155,9 +157,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
     public FileBasedIndex.InputFilter getInputFilter() {
         return file -> {
             String extension = file.getExtension();
-            return extension != null
-                    && ArrayUtil.contains(extension.toLowerCase().trim(), "csv", "xml", "py")
-                    && OdooModuleUtils.isInOdooModule(file);
+            return extension != null && ArrayUtil.contains(extension.toLowerCase().trim(), "csv", "xml", "py");
         };
     }
 
@@ -174,10 +174,10 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
         return ids;
     }
 
-    private static boolean processRecordsByIds(@NotNull Project project,
-                                               @NotNull GlobalSearchScope scope,
-                                               @NotNull Processor<OdooRecord> processor,
-                                               @NotNull Collection<String> ids) {
+    public static boolean processRecordsByIds(@NotNull Project project,
+                                              @NotNull GlobalSearchScope scope,
+                                              @NotNull Processor<OdooRecord> processor,
+                                              @NotNull Collection<String> ids) {
         FileBasedIndex index = FileBasedIndex.getInstance();
         GlobalSearchScope everythingScope = new EverythingGlobalScope(project);
         for (String id : ids) {

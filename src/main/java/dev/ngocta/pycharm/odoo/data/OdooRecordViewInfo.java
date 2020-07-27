@@ -1,11 +1,7 @@
 package dev.ngocta.pycharm.odoo.data;
 
-import dev.ngocta.pycharm.odoo.OdooUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.DataOutput;
-import java.io.IOException;
 import java.util.Objects;
 
 public class OdooRecordViewInfo extends OdooRecordExtraInfo {
@@ -49,12 +45,5 @@ public class OdooRecordViewInfo extends OdooRecordExtraInfo {
     @Override
     public int hashCode() {
         return Objects.hash(myViewType, myViewModel, myInheritId);
-    }
-
-    @Override
-    void write(@NotNull DataOutput out) throws IOException {
-        OdooUtils.writeNullableString(getViewType(), out);
-        OdooUtils.writeNullableString(getViewModel(), out);
-        OdooUtils.writeNullableString(getInheritId(), out);
     }
 }
