@@ -96,7 +96,7 @@ public class OdooXmlLineMarkerProvider implements LineMarkerProvider {
                             return true;
                         });
                         for (OdooRecord r : records) {
-                            elements.addAll(r.getNavigableElements(project));
+                            elements.addAll(r.getNavigationElements(project));
                         }
                         PsiElementListNavigator.openTargets(e, elements.toArray(NavigatablePsiElement.EMPTY_NAVIGATABLE_ELEMENT_ARRAY),
                                 "Overriding views", null, new DefaultPsiElementCellRenderer());

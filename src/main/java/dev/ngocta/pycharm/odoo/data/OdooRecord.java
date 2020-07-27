@@ -140,13 +140,13 @@ public class OdooRecord {
         return Collections.unmodifiableList(result);
     }
 
-    public List<NavigatablePsiElement> getNavigableElements(@NotNull Project project) {
+    public List<NavigatablePsiElement> getNavigationElements(@NotNull Project project) {
         return getElements(project).stream()
                 .map(element -> {
                     if (element instanceof PyElement) {
                         return (PyElement) element;
                     } else {
-                        return new OdooRecordNavigableElement(this, element);
+                        return new OdooRecordElement(this, element);
                     }
                 })
                 .collect(Collectors.toList());
