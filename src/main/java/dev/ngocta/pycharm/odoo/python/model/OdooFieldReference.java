@@ -144,6 +144,10 @@ public class OdooFieldReference extends PsiReferenceBase.Poly<PsiElement> {
         if (cls == null) {
             return true;
         }
+        if (myFieldPathReferences != null) {
+            String[] fieldNames = myFieldPathReferences.getFieldNames();
+            return fieldNames.length > 1 && "parent".equals(fieldNames[0]);
+        }
         if (OdooNames.IR_RULE.equals(cls.getName()) && OdooNames.IR_RULE_FIELD_GLOBAL.equals(getValue())) {
             return true;
         }
