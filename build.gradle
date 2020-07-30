@@ -19,9 +19,9 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version 'PY-2020.1'
+    version 'PY-2020.2'
     downloadSources = true
-    plugins = ['python', 'CSS', 'JavaScriptLanguage', 'XPathView:201.6668.73']
+    plugins = ['python', 'CSS', 'JavaScriptLanguage', 'XPathView:202.6397.21']
 }
 patchPluginXml {
 //    changeNotes """

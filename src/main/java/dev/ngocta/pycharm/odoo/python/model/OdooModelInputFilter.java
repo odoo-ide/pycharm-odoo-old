@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class OdooModelInputFilter implements FileBasedIndex.FileTypeSpecificInputFilter {
     @Override
-    public void registerFileTypesUsedForIndexing(@NotNull Consumer<FileType> fileTypeSink) {
+    public void registerFileTypesUsedForIndexing(@NotNull Consumer<? super FileType> fileTypeSink) {
         fileTypeSink.consume(PythonFileType.INSTANCE);
     }
 

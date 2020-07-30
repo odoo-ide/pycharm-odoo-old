@@ -83,8 +83,8 @@ public class OdooModelLineMarkerProvider implements LineMarkerProvider {
     }
 
     @Override
-    public void collectSlowLineMarkers(@NotNull List<PsiElement> elements,
-                                       @NotNull Collection<LineMarkerInfo> result) {
+    public void collectSlowLineMarkers(@NotNull List<? extends PsiElement> elements,
+                                       @NotNull Collection<? super LineMarkerInfo<?>> result) {
         Set<PyTargetExpression> attributes = new HashSet<>();
         for (PsiElement element : elements) {
             if (element instanceof PyTargetExpression) {
@@ -95,7 +95,7 @@ public class OdooModelLineMarkerProvider implements LineMarkerProvider {
     }
 
     private static void collectionOverridingAttributeMaker(Set<PyTargetExpression> attributes,
-                                                           Collection<LineMarkerInfo> result) {
+                                                           Collection<? super LineMarkerInfo<?>> result) {
         Set<PyClass> classes = new HashSet<>();
         final MultiMap<PyClass, PyTargetExpression> candidates = new MultiMap<>();
         for (PyTargetExpression attribute : attributes) {
