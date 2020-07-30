@@ -5,6 +5,7 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.xml.XmlFile;
 import com.jetbrains.python.inspections.PyInspectionExtension;
 import com.jetbrains.python.psi.PyElement;
+import com.jetbrains.python.psi.PyExpression;
 import com.jetbrains.python.psi.PyExpressionStatement;
 import com.jetbrains.python.psi.PyReferenceExpression;
 import com.jetbrains.python.psi.types.TypeEvalContext;
@@ -15,10 +16,14 @@ public class OdooPyInspectionExtension extends PyInspectionExtension {
     public boolean ignoreUnresolvedReference(@NotNull PyElement node,
                                              @NotNull PsiReference reference,
                                              @NotNull TypeEvalContext context) {
-        if (node instanceof PyReferenceExpression) {
+        if (context.getOrigin() instanceof XmlFile && node instanceof PyReferenceExpression) {
             PyReferenceExpression referenceExpression = (PyReferenceExpression) node;
-            if (!referenceExpression.isQualified()) {
-                return context.getOrigin() instanceof XmlFile;
+            PyExpression qualifier = referenceExpression.getQualifier();
+            if (qualifier == null) {
+                return true;
+            } else if (qualifier instanceof PyReferenceExpression) {
+                referenceExpression = (PyReferenceExpression) qualifier;
+                return referenceExpression.getQualifier() == null && "object".equals(referenceExpression.getName());
             }
         }
         return false;
