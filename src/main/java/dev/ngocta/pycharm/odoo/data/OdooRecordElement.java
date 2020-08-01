@@ -25,6 +25,11 @@ public class OdooRecordElement extends FakePsiElement implements NavigatablePsiE
         myElement = element;
     }
 
+    @NotNull
+    public OdooRecord getRecord() {
+        return myRecord;
+    }
+
     @Override
     public String getName() {
         return myRecord.getQualifiedId();
