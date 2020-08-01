@@ -2,6 +2,7 @@ package dev.ngocta.pycharm.odoo.python.module;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -95,9 +96,8 @@ public class OdooModule {
     public GlobalSearchScope getOdooModuleScope(boolean includeDependencies,
                                                 boolean includeExtensions) {
         return PyUtil.getParameterizedCachedValue(getDirectory(), Pair.create(includeDependencies, includeExtensions), param -> {
-            List<GlobalSearchScope> scopes = new LinkedList<>();
             List<OdooModule> modules = new LinkedList<>();
-            scopes.add(GlobalSearchScopes.directoryScope(getDirectory(), true));
+            modules.add(this);
             if (includeDependencies) {
                 modules.addAll(getFlattenedDependsGraph());
             }
@@ -109,10 +109,11 @@ public class OdooModule {
                     }
                 }
             }
+            List<VirtualFile> dirs = new LinkedList<>();
             for (OdooModule module : modules) {
-                scopes.add(module.getOdooModuleScope(false, false));
+                dirs.add(module.getDirectory().getVirtualFile());
             }
-            return GlobalSearchScope.union(scopes);
+            return GlobalSearchScopes.directoriesScope(getProject(), true, dirs.toArray(VirtualFile.EMPTY_ARRAY));
         });
     }
 
