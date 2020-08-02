@@ -12,10 +12,7 @@ import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class OdooModule {
     private final PsiDirectory myDirectory;
@@ -100,6 +97,16 @@ public class OdooModule {
             modules.add(this);
             if (includeDependencies) {
                 modules.addAll(getFlattenedDependsGraph());
+                List<String> systemWideModuleNames = new LinkedList<>(Arrays.asList("web", "base"));
+                for (OdooModule module : modules) {
+                    systemWideModuleNames.remove(module.getName());
+                }
+                for (String moduleName : systemWideModuleNames) {
+                    OdooModule module = OdooModuleIndex.getOdooModuleByName(moduleName, getDirectory());
+                    if (module != null) {
+                        modules.add(module);
+                    }
+                }
             }
             if (includeExtensions) {
                 List<OdooModule> availableModules = OdooModuleIndex.getAvailableOdooModules(getDirectory());
