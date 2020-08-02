@@ -12,6 +12,7 @@ import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.xml.XmlTag;
+import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.PlatformIcons;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
@@ -111,5 +112,13 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
             }
         }
         return false;
+    }
+
+    @Override
+    public PsiElement handleElementRename(@NotNull String newElementName) throws IncorrectOperationException {
+        if (getValue().contains(".")) {
+            newElementName = getValue().split("\\.")[0] + "." + newElementName;
+        }
+        return super.handleElementRename(newElementName);
     }
 }
