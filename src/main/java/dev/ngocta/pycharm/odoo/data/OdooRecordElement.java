@@ -7,6 +7,9 @@ import com.intellij.pom.Navigatable;
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.FakePsiElement;
+import com.intellij.psi.xml.XmlAttribute;
+import com.intellij.psi.xml.XmlTag;
+import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.PlatformIcons;
 import dev.ngocta.pycharm.odoo.python.module.OdooModule;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
@@ -83,5 +86,22 @@ public class OdooRecordElement extends FakePsiElement implements NavigatablePsiE
     @Override
     public Icon getIcon(boolean unused) {
         return PlatformIcons.XML_TAG_ICON;
+    }
+
+    @Override
+    public PsiElement getOriginalElement() {
+        return myElement;
+    }
+
+    @Override
+    public PsiElement setName(@NotNull String name) throws IncorrectOperationException {
+        if (myElement instanceof XmlTag) {
+            XmlAttribute attribute = ((XmlTag) myElement).getAttribute("id");
+            if (attribute != null) {
+                attribute.setValue(name);
+                return attribute;
+            }
+        }
+        return super.setName(name);
     }
 }
