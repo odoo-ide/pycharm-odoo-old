@@ -268,6 +268,7 @@
         <documentationProvider implementation="dev.ngocta.pycharm.odoo.data.OdooRecordDocumentProvider"/>
         <lang.parserDefinition implementationClass="dev.ngocta.pycharm.odoo.python.OdooPythonParserDefinition" language="Python" order="first"/>
         <useScopeOptimizer implementation="dev.ngocta.pycharm.odoo.OdooScopeOptimizer"/>
+        <lang.findUsagesProvider implementationClass="dev.ngocta.pycharm.odoo.xml.OdooXmlFindUsagesProvider" language="XML" />
     </extensions>
 
     <actions>

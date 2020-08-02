@@ -4,16 +4,23 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.pom.PomTarget;
+import com.intellij.pom.PomTargetPsiElement;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.PlatformIcons;
+import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.DomManager;
+import com.intellij.util.xml.DomTarget;
 import com.jetbrains.python.psi.PyUtil;
 import dev.ngocta.pycharm.odoo.data.filter.OdooRecordFilter;
 import dev.ngocta.pycharm.odoo.python.module.OdooModule;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
+import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRecordLike;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,5 +83,33 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
             return true;
         });
         return elements.toArray();
+    }
+
+    @Override
+    public boolean isReferenceTo(@NotNull PsiElement element) {
+        if (isRecordDefinition(element)) {
+            OdooModule odooModule = OdooModuleUtils.getContainingOdooModule(getElement());
+            OdooModule referenceToOdooModule = OdooModuleUtils.getContainingOdooModule(element);
+            if (odooModule != null && referenceToOdooModule != null) {
+                if (getValue().startsWith(referenceToOdooModule.getName() + ".")) {
+                    return true;
+                }
+                return odooModule.equals(referenceToOdooModule) && !getValue().contains(".");
+            }
+        }
+        return super.isReferenceTo(element);
+    }
+
+    private boolean isRecordDefinition(@NotNull PsiElement element) {
+        if (element instanceof XmlTag) {
+            DomElement domElement = DomManager.getDomManager(element.getProject()).getDomElement((XmlTag) element);
+            return domElement instanceof OdooDomRecordLike;
+        } else if (element instanceof PomTargetPsiElement) {
+            PomTarget target = ((PomTargetPsiElement) element).getTarget();
+            if (target instanceof DomTarget) {
+                return ((DomTarget) target).getDomElement() instanceof OdooDomRecordLike;
+            }
+        }
+        return false;
     }
 }
