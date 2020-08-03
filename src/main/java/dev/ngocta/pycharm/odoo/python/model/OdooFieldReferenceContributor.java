@@ -82,6 +82,9 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                     PsiElement parent = pyStringLiteralExpression.getParent();
                     if (parent instanceof PyArgumentList) {
                         parent = parent.getParent();
+                        if (parent instanceof PyCallExpression) {
+                            parent = parent.getParent();
+                        }
                         if (parent instanceof PyDecorator) {
                             PyDecorator decorator = (PyDecorator) parent;
                             QualifiedName qualifiedName = decorator.getQualifiedName();
