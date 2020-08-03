@@ -41,18 +41,19 @@ public class OdooJSTypeEvaluator extends ES6TypeEvaluator {
     }
 
     @Override
-    protected void doAddType(@NotNull JSType type,
-                             @Nullable PsiElement source) {
+    protected void doAddType(@Nullable JSType type,
+                             @Nullable PsiElement source,
+                             boolean skipGuard) {
         if (type instanceof JSRequireCallExpressionType) {
             String moduleName = ((JSRequireCallExpressionType) type).resolveReferencedModule();
             PsiElement sourceElement = type.getSourceElement();
             if (sourceElement != null) {
                 JSType moduleType = getModuleType(moduleName, sourceElement);
                 if (moduleType != null) {
-                    super.doAddType(moduleType, source);
+                    super.doAddType(moduleType, source, skipGuard);
                 }
             }
         }
-        super.doAddType(type, source);
+        super.doAddType(type, source, skipGuard);
     }
 }
