@@ -3,14 +3,8 @@ package dev.ngocta.pycharm.odoo.python;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.jetbrains.python.PythonParserDefinition;
-import com.jetbrains.python.psi.impl.PyCallExpressionImpl;
-import com.jetbrains.python.psi.impl.PyReferenceExpressionImpl;
-import com.jetbrains.python.psi.impl.PySliceExpressionImpl;
-import com.jetbrains.python.psi.impl.PySubscriptionExpressionImpl;
-import dev.ngocta.pycharm.odoo.python.psi.OdooPyCallExpression;
-import dev.ngocta.pycharm.odoo.python.psi.OdooPyReferenceExpression;
-import dev.ngocta.pycharm.odoo.python.psi.OdooPySliceExpression;
-import dev.ngocta.pycharm.odoo.python.psi.OdooPySubscriptionExpression;
+import com.jetbrains.python.psi.impl.*;
+import dev.ngocta.pycharm.odoo.python.psi.*;
 import org.jetbrains.annotations.NotNull;
 
 public class OdooPythonParserDefinition extends PythonParserDefinition {
@@ -26,6 +20,8 @@ public class OdooPythonParserDefinition extends PythonParserDefinition {
             element = new OdooPySliceExpression(node);
         } else if (element instanceof PyCallExpressionImpl) {
             element = new OdooPyCallExpression(node);
+        } else if (element instanceof PyStringLiteralExpressionImpl) {
+            element = new OdooPyStringLiteralExpression(node);
         }
         return element;
     }
