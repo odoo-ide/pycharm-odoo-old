@@ -48,12 +48,13 @@ public class OdooPyCallExpression extends PyCallExpressionImpl {
             if (PyNames.SUPER.equals(callee.getText())) {
                 isSuperCall = true;
                 type = getOdooModelClassSuperType(context);
-            } else {
+            } else if (COMMON_ORM_METHODS_RETURN_SAME_MODEL.contains(calleeName)) {
                 PyExpression receiver = getReceiver(null);
                 if (receiver != null) {
                     PyType receiverType = context.getType(receiver);
-                    if (receiverType instanceof OdooModelClassType && COMMON_ORM_METHODS_RETURN_SAME_MODEL.contains(calleeName)) {
-                        type = receiverType;
+                    OdooModelClassType modelClassType = OdooModelUtils.extractOdooModelClassType(receiverType);
+                    if (modelClassType != null) {
+                        return modelClassType;
                     }
                 }
             }
