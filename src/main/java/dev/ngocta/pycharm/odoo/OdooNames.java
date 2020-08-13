@@ -100,6 +100,7 @@ public class OdooNames {
             IR_ACTIONS_REPORT,
     };
     public static final String IR_MODEL = "ir.model";
+    public static final String IR_MODEL_ACCESS = "ir.model.access";
     public static final String RES_GROUPS = "res.groups";
     public static final String BASE_MODEL = "base";
     public static final String IR_RULE = "ir.rule";

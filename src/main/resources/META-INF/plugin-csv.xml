@@ -1,0 +1,9 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <lang.parserDefinition implementationClass="dev.ngocta.pycharm.odoo.csv.OdooCsvParserDefinition" language="csv" order="first"/>
+        <lang.elementManipulator forClass="dev.ngocta.pycharm.odoo.csv.OdooCsvField"
+                                 implementationClass="dev.ngocta.pycharm.odoo.csv.OdooCsvFieldManipulator"/>
+        <localInspection language="csv" enabledByDefault="true" groupName="Odoo" displayName="CSV unresolved references"
+                         implementationClass="dev.ngocta.pycharm.odoo.csv.OdooCsvUnresolvedReferencesInspection"/>
+    </extensions>
+</idea-plugin>
