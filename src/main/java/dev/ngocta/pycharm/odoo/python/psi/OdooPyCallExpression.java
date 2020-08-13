@@ -51,16 +51,9 @@ public class OdooPyCallExpression extends PyCallExpressionImpl {
             } else if (COMMON_ORM_METHODS_RETURN_SAME_MODEL.contains(calleeName)) {
                 PyExpression receiver = getReceiver(null);
                 if (receiver != null) {
-                    PyType receiverType = context.getType(receiver);
-                    OdooModelClassType modelClassType = OdooModelUtils.extractOdooModelClassType(receiverType);
-                    if (modelClassType != null) {
-                        return modelClassType;
-                    }
+                    type = context.getType(receiver);
                 }
             }
-        }
-        if (type == null) {
-            type = super.getType(context, key);
         }
         OdooModelClassType modelClassType = OdooModelUtils.extractOdooModelClassType(type);
         if (modelClassType != null) {
@@ -69,7 +62,7 @@ public class OdooPyCallExpression extends PyCallExpressionImpl {
             }
             return modelClassType;
         }
-        return type;
+        return super.getType(context, key);
     }
 
     private PyType getOdooModelClassSuperType(TypeEvalContext context) {
