@@ -9,7 +9,6 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlFile;
 import com.jetbrains.python.psi.PyClass;
-import com.jetbrains.python.psi.PyElement;
 import com.jetbrains.python.psi.PyFile;
 import com.jetbrains.python.psi.PyUtil;
 import dev.ngocta.pycharm.odoo.csv.OdooCsvRecord;
@@ -142,13 +141,7 @@ public class OdooRecord {
 
     public List<NavigatablePsiElement> getNavigationElements(@NotNull Project project) {
         return getElements(project).stream()
-                .map(element -> {
-                    if (element instanceof PyElement) {
-                        return (PyElement) element;
-                    } else {
-                        return new OdooRecordElement(this, element);
-                    }
-                })
+                .map(element -> new OdooRecordElement(this, element))
                 .collect(Collectors.toList());
     }
 
