@@ -1,5 +1,8 @@
 package dev.ngocta.pycharm.odoo.data;
 
+import com.intellij.codeInsight.completion.CompletionUtilCore;
+import com.intellij.codeInsight.completion.PrefixMatcher;
+import com.intellij.codeInsight.completion.impl.CamelHumpMatcher;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
@@ -14,6 +17,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.PlatformIcons;
+import com.intellij.util.indexing.FileBasedIndex;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
 import com.intellij.util.xml.DomTarget;
@@ -27,6 +31,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
     private final OdooRecordFilter myFilter;
@@ -64,10 +70,24 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
         if (module == null) {
             return new Object[0];
         }
-        List<LookupElement> elements = new LinkedList<>();
-        GlobalSearchScope scope = module.getOdooModuleWithDependenciesScope();
         Project project = getElement().getProject();
-        OdooExternalIdIndex.processAllRecords(project, scope, record -> {
+        GlobalSearchScope scope = module.getOdooModuleWithDependenciesScope();
+        Set<String> scopeModuleNames = module.getFlattenedDependsGraph().stream().map(OdooModule::getName).collect(Collectors.toSet());
+        List<String> scopeIds = new LinkedList<>();
+        String prefix = getValue().replace(CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED, "");
+        PrefixMatcher matcher = new CamelHumpMatcher(prefix);
+        FileBasedIndex.getInstance().processAllKeys(OdooExternalIdIndex.NAME, s -> {
+            if (s != null && matcher.prefixMatches(s)) {
+                String[] splits = s.split("\\.", 2);
+                if (splits.length > 1 && scopeModuleNames.contains(splits[0])) {
+                    scopeIds.add(s);
+                }
+            }
+            return true;
+        }, project);
+
+        List<LookupElement> elements = new LinkedList<>();
+        OdooExternalIdIndex.processRecordsByIds(project, scope, record -> {
             if (myFilter == null || myFilter.accept(record)) {
                 List<String> ids = new LinkedList<>();
                 ids.add(record.getQualifiedId());
@@ -82,7 +102,7 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
                 });
             }
             return true;
-        });
+        }, scopeIds);
         return elements.toArray();
     }
 

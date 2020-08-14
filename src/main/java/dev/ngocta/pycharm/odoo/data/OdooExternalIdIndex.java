@@ -1,12 +1,10 @@
 package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.psi.search.EverythingGlobalScope;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.ArrayUtil;
@@ -33,12 +31,9 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRecord> {
-    private static final ID<String, OdooRecord> NAME = ID.create("odoo.external.id");
-    private static final OdooRecordCache RECORD_CACHE = new OdooRecordCache();
-    private static final Key<Set<String>> IN_FILE_IDS = new Key<>("odooExternalIds");
+    public static final ID<String, OdooRecord> NAME = ID.create("odoo.external.id");
 
     @NotNull
     @Override
@@ -95,16 +90,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
             }
             for (OdooRecord record : records) {
                 result.put(record.getQualifiedId(), record.withoutDataFile());
-                RECORD_CACHE.add(record);
             }
-            Set<String> inFileIds = file.putUserDataIfAbsent(IN_FILE_IDS, ConcurrentHashMap.newKeySet());
-            for (String id : inFileIds) {
-                if (!result.containsKey(id)) {
-                    RECORD_CACHE.clearCache(id, file);
-                }
-            }
-            inFileIds.clear();
-            inFileIds.addAll(result.keySet());
             return result;
         };
     }
@@ -179,20 +165,12 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                                               @NotNull Processor<OdooRecord> processor,
                                               @NotNull Collection<String> ids) {
         FileBasedIndex index = FileBasedIndex.getInstance();
-        GlobalSearchScope everythingScope = new EverythingGlobalScope(project);
         for (String id : ids) {
-            if (!RECORD_CACHE.processRecords(id, processor, scope)) {
-                if (!index.processValues(NAME, id, null, (file, value) -> {
-                    file.putUserDataIfAbsent(IN_FILE_IDS, ConcurrentHashMap.newKeySet()).add(id);
-                    OdooRecord record = value.withDataFile(file);
-                    RECORD_CACHE.add(record);
-                    if (everythingScope.contains(file)) {
-                        return processor.process(record);
-                    }
-                    return true;
-                }, everythingScope)) {
-                    return false;
-                }
+            if (!index.processValues(NAME, id, null, (file, value) -> {
+                OdooRecord record = value.withDataFile(file);
+                return processor.process(record);
+            }, scope)) {
+                return false;
             }
         }
         return true;
