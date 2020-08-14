@@ -7,7 +7,6 @@ import com.intellij.psi.PsiReference;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.data.OdooExternalIdReference;
 import dev.ngocta.pycharm.odoo.data.filter.OdooRecordFilters;
-import dev.ngocta.pycharm.odoo.data.filter.OdooRecordModelFilter;
 import net.seesharpsoft.intellij.plugins.csv.CsvColumnInfo;
 import net.seesharpsoft.intellij.plugins.csv.CsvColumnInfoMap;
 import net.seesharpsoft.intellij.plugins.csv.psi.CsvFile;
@@ -30,7 +29,7 @@ public class OdooCsvField extends CsvFieldImpl {
             if (header != null && header != this) {
                 String headerText = header.getText();
                 if ("model_id:id".equals(headerText)) {
-                    return new OdooExternalIdReference(this, null, new OdooRecordModelFilter(OdooNames.IR_MODEL), true);
+                    return new OdooExternalIdReference(this, null, OdooRecordFilters.IR_MODEL, true);
                 } else if ("group_id:id".equals(headerText)) {
                     return new OdooExternalIdReference(this, null, OdooRecordFilters.RES_GROUPS, true);
                 }
