@@ -186,7 +186,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                     file.putUserDataIfAbsent(IN_FILE_IDS, ConcurrentHashMap.newKeySet()).add(id);
                     OdooRecord record = value.withDataFile(file);
                     RECORD_CACHE.add(record);
-                    if (scope.contains(file)) {
+                    if (everythingScope.contains(file)) {
                         return processor.process(record);
                     }
                     return true;

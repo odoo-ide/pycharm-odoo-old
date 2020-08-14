@@ -21,7 +21,7 @@ public class OdooCsvField extends CsvFieldImpl {
     @Override
     public PsiReference getReference() {
         PsiFile file = getContainingFile();
-        if (file instanceof CsvFile && file.getName().startsWith(OdooNames.IR_MODEL_ACCESS)) {
+        if (file instanceof CsvFile && file.getName().startsWith(OdooNames.IR_MODEL_ACCESS) && !getText().isEmpty()) {
             CsvFile csvFile = (CsvFile) file;
             CsvColumnInfoMap<PsiElement> columnInfoMap = csvFile.getColumnInfoMap();
             CsvColumnInfo<PsiElement> columnInfo = columnInfoMap.getColumnInfo(this);
