@@ -147,8 +147,8 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                         }
                     }));
 
-    public static final XmlAttributeValuePattern T_CALL_PATTERN =
-            XmlPatterns.xmlAttributeValue("t-call", "t-call-assets")
+    public static final XmlAttributeValuePattern T_PATTERN =
+            XmlPatterns.xmlAttributeValue("t-call", "t-call-assets", "t-snippet")
                     .with(OdooXmlUtils.ODOO_XML_DATA_ELEMENT_PATTERN_CONDITION)
                     .with(new PatternCondition<XmlAttributeValue>("tCall") {
                         @Override
@@ -166,6 +166,6 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
         registrar.registerReferenceProvider(REQUEST_RENDER_PATTERN, provider);
         registrar.registerReferenceProvider(FIELD_ATTR_GROUPS_PATTERN, provider);
         registrar.registerReferenceProvider(USER_HAS_GROUP_PATTERN, provider);
-        registrar.registerReferenceProvider(T_CALL_PATTERN, provider);
+        registrar.registerReferenceProvider(T_PATTERN, provider);
     }
 }
