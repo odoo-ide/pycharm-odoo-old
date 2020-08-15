@@ -262,7 +262,7 @@
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelReferenceContributor" language="Python"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.python.model.OdooFieldReferenceContributor" language="Python"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.data.OdooExternalIdReferenceContributor"/>
-        <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.xml.OdooXmlElementReferenceContributor" language="XML"/>
+        <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.OdooFilePathReferenceContributor" language="XML"/>
         <dom.fileMetaData implementation="dev.ngocta.pycharm.odoo.xml.dom.OdooDomFileMetaData" rootTagName="odoo"/>
         <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.data.OdooGotoExternalIdContributor"/>
         <lang.psiStructureViewFactory implementationClass="dev.ngocta.pycharm.odoo.python.model.OdooModelStructureViewFactory" language="Python" order="first"/>
