@@ -1,11 +1,11 @@
 package dev.ngocta.pycharm.odoo.xml.dom;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
-import com.jetbrains.python.psi.PyTargetExpression;
 import com.jetbrains.python.psi.PyUtil;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.python.model.OdooFieldInfo;
@@ -43,12 +43,10 @@ public interface OdooDomModelScopedViewElement extends OdooDomViewElement, OdooD
                 String model = ((OdooDomViewField) parent).getModel();
                 String fieldName = ((OdooDomViewField) parent).getNameAttr().getStringValue();
                 if (model != null && fieldName != null) {
-                    PyTargetExpression field = OdooModelClass.getInstance(model, element.getProject()).findField(fieldName, context);
-                    if (field != null) {
-                        OdooFieldInfo info = OdooFieldInfo.getInfo(field);
-                        if (info != null) {
-                            return info.getComodel();
-                        }
+                    PsiElement field = OdooModelClass.getInstance(model, element.getProject()).findField(fieldName, context);
+                    OdooFieldInfo info = OdooFieldInfo.getInfo(field);
+                    if (info != null) {
+                        return info.getComodel();
                     }
                 }
                 return null;

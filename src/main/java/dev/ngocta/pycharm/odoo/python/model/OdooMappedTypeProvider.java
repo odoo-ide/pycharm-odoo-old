@@ -1,13 +1,13 @@
 package dev.ngocta.pycharm.odoo.python.model;
 
 import com.intellij.openapi.util.Ref;
+import com.intellij.psi.PsiElement;
 import com.jetbrains.python.psi.*;
-import com.jetbrains.python.psi.impl.PyBuiltinCache;
-import com.jetbrains.python.psi.types.PyCollectionTypeImpl;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.PyTypeProviderBase;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
+import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,28 +20,25 @@ public class OdooMappedTypeProvider extends PyTypeProviderBase {
                                    @NotNull PyCallSiteExpression callSite,
                                    @NotNull TypeEvalContext context) {
         if (OdooNames.MAPPED.equals(function.getName()) && callSite instanceof PyCallExpression) {
-            PyCallExpression mapped = (PyCallExpression) callSite;
-            PyType qualifierType = getCalleeQualifierType(mapped, context);
-            if (qualifierType instanceof OdooModelClassType) {
-                Ref<PyType> result = new Ref<>();
-                PyStringLiteralExpression fieldPathExpression = mapped.getArgument(0, PyStringLiteralExpression.class);
-                if (fieldPathExpression != null) {
-                    String fieldPath = fieldPathExpression.getStringValue();
-                    PyType fieldType = ((OdooModelClassType) qualifierType).getFieldTypeByPath(fieldPath, context);
-                    if (fieldType != null) {
-                        if (fieldType instanceof OdooModelClassType) {
-                            result.set(((OdooModelClassType) fieldType).withMultiRecord());
-                        } else {
-                            PyClass cls = PyBuiltinCache.getInstance(callSite).getClass("list");
-                            if (cls != null) {
-                                result.set(new PyCollectionTypeImpl(cls, false, Collections.singletonList(fieldType)));
-                            }
-                        }
-                    }
-                }
-                return result;
+            PyCallExpression mappedCall = (PyCallExpression) callSite;
+            PyType qualifierType = getCalleeQualifierType(mappedCall, context);
+            OdooModelClassType modelClassType = OdooModelUtils.extractOdooModelClassType(qualifierType);
+            if (modelClassType == null) {
+                return null;
             }
-            return null;
+            Ref<PyType> result = new Ref<>();
+            PyStringLiteralExpression fieldPathExpression = mappedCall.getArgument(0, PyStringLiteralExpression.class);
+            if (fieldPathExpression != null) {
+                String fieldPath = fieldPathExpression.getStringValue();
+                PsiElement field = modelClassType.getPyClass().findFieldByPath(fieldPath, context);
+                PyType fieldType = OdooFieldInfo.getFieldType(field, context);
+                if (fieldType instanceof OdooModelClassType) {
+                    result.set(((OdooModelClassType) fieldType).withMultiRecord());
+                } else if (fieldType != null) {
+                    result.set(OdooPyUtils.getListType(Collections.singletonList(fieldType), false, function));
+                }
+            }
+            return result;
         }
         return null;
     }

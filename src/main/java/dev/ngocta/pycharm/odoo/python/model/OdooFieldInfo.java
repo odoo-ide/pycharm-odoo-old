@@ -2,6 +2,8 @@ package dev.ngocta.pycharm.odoo.python.model;
 
 import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.util.ObjectUtils;
@@ -19,16 +21,24 @@ import java.util.Map;
 import java.util.Optional;
 
 public class OdooFieldInfo {
-    private final PyTargetExpression myField;
+    private final String myName;
+    private final PsiElement myElement;
     private final String myTypeName;
     private final Map<String, Object> myAttributes;
 
-    private OdooFieldInfo(@NotNull PyTargetExpression field,
-                          @NotNull String typeName,
-                          @NotNull Map<String, Object> attributes) {
-        myField = field;
+    public OdooFieldInfo(@NotNull String name,
+                         @Nullable PsiElement element,
+                         @NotNull String typeName,
+                         @NotNull Map<String, Object> attributes) {
+        myName = name;
+        myElement = element;
         myTypeName = typeName;
         myAttributes = attributes;
+    }
+
+    @NotNull
+    public String getName() {
+        return myName;
     }
 
     @NotNull
@@ -55,15 +65,21 @@ public class OdooFieldInfo {
     }
 
     @Nullable
-    public static OdooFieldInfo getInfo(@NotNull PyTargetExpression field) {
-        return CachedValuesManager.getCachedValue(field, () -> {
-            OdooFieldInfo info = getInfoInner(field);
-            return CachedValueProvider.Result.create(info, field);
-        });
+    public static OdooFieldInfo getInfo(@Nullable PsiElement field) {
+        if (field instanceof PyTargetExpression) {
+            return CachedValuesManager.getCachedValue(field, () -> {
+                OdooFieldInfo info = getInfoInner((PyTargetExpression) field);
+                return CachedValueProvider.Result.create(info, field);
+            });
+        }
+        return null;
     }
 
     @Nullable
     private static OdooFieldInfo getInfoInner(@NotNull PyTargetExpression field) {
+        if (field.getName() == null || field.getName().startsWith("_")) {
+            return null;
+        }
         PyExpression assignedValue = field.findAssignedValue();
         if (assignedValue instanceof PyCallExpression) {
             PyCallExpression callExpression = (PyCallExpression) assignedValue;
@@ -85,7 +101,7 @@ public class OdooFieldInfo {
                         boolean delegate = getCallArgumentBooleanValue(callExpression, OdooNames.FIELD_ATTR_DELEGATE, false);
                         attributes.put(OdooNames.FIELD_ATTR_DELEGATE, delegate);
                     }
-                    return new OdooFieldInfo(field, typeName, attributes);
+                    return new OdooFieldInfo(field.getName(), field, typeName, attributes);
                 }
             }
         }
@@ -126,8 +142,12 @@ public class OdooFieldInfo {
 
     @Nullable
     public PyType getType(@NotNull TypeEvalContext context) {
-        Project project = myField.getProject();
-        PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(myField);
+        PsiFile file = context.getOrigin();
+        if (file == null) {
+            return null;
+        }
+        Project project = file.getProject();
+        PyBuiltinCache builtinCache = PyBuiltinCache.getInstance(file);
         switch (getTypeName()) {
             case OdooNames.FIELD_TYPE_MANY2ONE:
             case OdooNames.FIELD_TYPE_ONE2MANY:
@@ -140,14 +160,12 @@ public class OdooFieldInfo {
                 }
                 String related = getRelated();
                 if (related != null) {
-                    OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(myField);
+                    OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(myElement);
                     if (modelClass != null) {
-                        PyTargetExpression relatedField = modelClass.findFieldByPath(related, context);
-                        if (relatedField != null) {
-                            OdooFieldInfo relatedFieldInfo = getInfo(relatedField);
-                            if (relatedFieldInfo != null) {
-                                return relatedFieldInfo.getType(context);
-                            }
+                        PsiElement relatedField = modelClass.findFieldByPath(related, context);
+                        OdooFieldInfo relatedFieldInfo = getInfo(relatedField);
+                        if (relatedFieldInfo != null) {
+                            return relatedFieldInfo.getType(context);
                         }
                     }
                 }
@@ -166,18 +184,18 @@ public class OdooFieldInfo {
             case OdooNames.FIELD_TYPE_SELECTION:
                 return builtinCache.getStrType();
             case OdooNames.FIELD_TYPE_DATE:
-                return OdooPyUtils.getDateType(myField);
+                return OdooPyUtils.getDateType(file);
             case OdooNames.FIELD_TYPE_DATETIME:
-                return OdooPyUtils.getDatetimeType(myField);
+                return OdooPyUtils.getDatetimeType(file);
             case OdooNames.FIELD_TYPE_BINARY:
-                return builtinCache.getBytesType(PyPsiFacade.getInstance(project).getLanguageLevel(myField));
+                return builtinCache.getBytesType(PyPsiFacade.getInstance(project).getLanguageLevel(file));
             default:
                 return null;
         }
     }
 
     @Nullable
-    public static PyType getFieldType(@NotNull PyTargetExpression field,
+    public static PyType getFieldType(@Nullable PsiElement field,
                                       @NotNull TypeEvalContext context) {
         OdooFieldInfo info = getInfo(field);
         if (info != null) {

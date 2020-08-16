@@ -68,34 +68,39 @@ public class OdooModelUtils {
     }
 
     @Nullable
-    public static LookupElement createCompletionLine(@NotNull PsiNamedElement element,
-                                                     @NotNull TypeEvalContext context) {
-        String name = element.getName();
-        if (name == null) {
-            return null;
-        }
-        String tailText = null;
+    public static LookupElement createLookupElement(@NotNull PsiElement element,
+                                                    @NotNull TypeEvalContext context) {
+        String name;
         String typeText = null;
+        String tailText = null;
         double priority = 0;
         InsertHandler<LookupElement> insertHandler = new BasicInsertHandler<>();
-        if (element instanceof PyTargetExpression) {
-            OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) element);
-            if (info != null) {
-                typeText = info.getTypeName();
-                PyType type = info.getType(context);
-                if (type instanceof OdooModelClassType) {
-                    typeText = "(" + type.getName() + ") " + typeText;
-                }
-                priority = COMPLETION_PRIORITY_FIELD;
+        OdooFieldInfo fieldInfo = OdooFieldInfo.getInfo(element);
+        if (fieldInfo != null) {
+            name = fieldInfo.getName();
+            typeText = fieldInfo.getTypeName();
+            PyType type = fieldInfo.getType(context);
+            if (type instanceof OdooModelClassType) {
+                typeText = "(" + type.getName() + ") " + typeText;
             }
-        } else if (element instanceof PyFunction && ((PyFunction) element).getProperty() == null) {
-            List<PyCallableParameter> params = ((PyFunction) element).getParameters(context);
-            String paramsText = StringUtil.join(params, PyCallableParameter::getName, ", ");
-            tailText = "(" + paramsText + ")";
-            priority = COMPLETION_PRIORITY_FUNCTION;
-            insertHandler = PyFunctionInsertHandler.INSTANCE;
+            priority = COMPLETION_PRIORITY_FIELD;
+        } else if (element instanceof PsiNamedElement) {
+            name = ((PsiNamedElement) element).getName();
+            if (name == null) {
+                return null;
+            }
+            if (element instanceof PyFunction && ((PyFunction) element).getProperty() == null) {
+                List<PyCallableParameter> params = ((PyFunction) element).getParameters(context);
+                String paramsText = StringUtil.join(params, PyCallableParameter::getName, ", ");
+                tailText = "(" + paramsText + ")";
+                priority = COMPLETION_PRIORITY_FUNCTION;
+                insertHandler = PyFunctionInsertHandler.INSTANCE;
+            }
+        } else {
+            return null;
         }
-        LookupElement lookupElementBuilder = LookupElementBuilder.create(element)
+        LookupElement lookupElementBuilder = LookupElementBuilder.create(name)
+                .withPsiElement(element)
                 .withTailText(tailText)
                 .withTypeText(typeText)
                 .withIcon(element.getIcon(Iconable.ICON_FLAG_READ_STATUS))
@@ -208,7 +213,8 @@ public class OdooModelUtils {
     }
 
     @Nullable
-    public static Computable<OdooModelClass> getSearchDomainContextResolver(@NotNull PyListLiteralExpression domainExpression,
+    public static Computable<OdooModelClass> getSearchDomainContextResolver(@NotNull PyListLiteralExpression
+                                                                                    domainExpression,
                                                                             boolean forLeftOperand) {
         return PyUtil.getNullableParameterizedCachedValue(domainExpression, forLeftOperand, param -> {
             PsiElement parent = domainExpression.getParent();
@@ -270,11 +276,9 @@ public class OdooModelUtils {
                             parent = PsiTreeUtil.getParentOfType(parent, PyAssignmentStatement.class);
                             if (parent != null) {
                                 PyExpression left = ((PyAssignmentStatement) parent).getLeftHandSideExpression();
-                                if (left instanceof PyTargetExpression) {
-                                    OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) left);
-                                    if (info != null && info.getComodel() != null) {
-                                        return () -> OdooModelClass.getInstance(info.getComodel(), project);
-                                    }
+                                OdooFieldInfo fieldInfo = OdooFieldInfo.getInfo(left);
+                                if (fieldInfo != null && fieldInfo.getComodel() != null) {
+                                    return () -> OdooModelClass.getInstance(fieldInfo.getComodel(), project);
                                 }
                             }
                         } else {
@@ -395,14 +399,13 @@ public class OdooModelUtils {
                                 PyExpression k = ((PyKeyValueExpression) parent).getKey();
                                 if (k instanceof PyStringLiteralExpression) {
                                     return () -> {
-                                        PsiElement ref = Optional.ofNullable(k.getReference())
+                                        String comodel = Optional.ofNullable(k.getReference())
                                                 .map(PsiReference::resolve)
+                                                .map(OdooFieldInfo::getInfo)
+                                                .map(OdooFieldInfo::getComodel)
                                                 .orElse(null);
-                                        if (ref instanceof PyTargetExpression) {
-                                            OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) ref);
-                                            if (info != null && info.getComodel() != null) {
-                                                return OdooModelClass.getInstance(info.getComodel(), project);
-                                            }
+                                        if (comodel != null) {
+                                            return OdooModelClass.getInstance(comodel, project);
                                         }
                                         return null;
                                     };
@@ -469,7 +472,7 @@ public class OdooModelUtils {
         });
     }
 
-    public static String getIrModelRecordId(@NotNull String model) {
+    public static String getExternalIdOfModel(@NotNull String model) {
         return "model_" + model.replace(".", "_");
     }
 
@@ -489,12 +492,12 @@ public class OdooModelUtils {
     }
 
     @NotNull
-    public static Collection<PyTargetExpression> findFields(@NotNull String name,
-                                                            @NotNull Project project,
-                                                            @NotNull GlobalSearchScope scope) {
+    public static Collection<PsiElement> findFields(@NotNull String name,
+                                                    @NotNull Project project,
+                                                    @NotNull GlobalSearchScope scope) {
         Collection<PyTargetExpression> attributes = OdooPyUtils.findClassAttributes(name, project, scope);
-        List<PyTargetExpression> fields = new LinkedList<>();
-        for (PyTargetExpression attribute : attributes) {
+        List<PsiElement> fields = new LinkedList<>();
+        for (PsiElement attribute : attributes) {
             if (OdooFieldInfo.getInfo(attribute) != null) {
                 fields.add(attribute);
             }
@@ -503,8 +506,8 @@ public class OdooModelUtils {
     }
 
     @NotNull
-    public static Collection<PyTargetExpression> findFields(@NotNull String name,
-                                                            @NotNull PsiElement anchor) {
+    public static Collection<PsiElement> findFields(@NotNull String name,
+                                                    @NotNull PsiElement anchor) {
         OdooModule module = OdooModuleUtils.getContainingOdooModule(anchor);
         if (module == null) {
             return Collections.emptyList();
@@ -516,15 +519,12 @@ public class OdooModelUtils {
     public static PyType guessFieldTypeByName(@NotNull String name,
                                               @NotNull PsiElement anchor,
                                               @NotNull TypeEvalContext context) {
-        Collection<PyTargetExpression> fields = findFields(name, anchor);
+        Collection<PsiElement> fields = findFields(name, anchor);
         Set<PyType> types = new HashSet<>();
-        for (PyTargetExpression field : fields) {
-            OdooFieldInfo info = OdooFieldInfo.getInfo(field);
-            if (info != null) {
-                PyType type = info.getType(context);
-                if (type != null) {
-                    types.add(type);
-                }
+        for (PsiElement field : fields) {
+            PyType type = OdooFieldInfo.getFieldType(field, context);
+            if (type != null) {
+                types.add(type);
             }
         }
         if (types.size() == 1) {

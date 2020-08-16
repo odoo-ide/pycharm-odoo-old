@@ -93,18 +93,18 @@ public class OdooFieldReference extends PsiReferenceBase.Poly<PsiElement> {
     protected ResolveResult[] multiResolveInner() {
         OdooModelClass cls = getModelClass();
         if (cls != null) {
-            PyTargetExpression field = cls.findField(getValue(), myContext);
+            PsiElement field = cls.findField(getValue(), myContext);
             return field != null ? PsiElementResolveResult.createResults(field) : ResolveResult.EMPTY_ARRAY;
         }
-        Collection<PyTargetExpression> implicitFields = resolveImplicitFields();
+        Collection<PsiElement> implicitFields = resolveImplicitFields();
         return PsiElementResolveResult.createResults(implicitFields);
     }
 
     @NotNull
-    protected Collection<PyTargetExpression> resolveImplicitFields() {
+    protected Collection<PsiElement> resolveImplicitFields() {
         OdooModule module = OdooModuleUtils.getContainingOdooModule(getElement());
         if (module != null) {
-            Collection<PyTargetExpression> fields = OdooModelUtils.findFields(getValue(), getElement());
+            Collection<PsiElement> fields = OdooModelUtils.findFields(getValue(), getElement());
             return OdooModuleUtils.sortElementByOdooModuleDependOrder(fields);
         }
         return Collections.emptyList();
@@ -129,9 +129,9 @@ public class OdooFieldReference extends PsiReferenceBase.Poly<PsiElement> {
         }
         Map<String, LookupElement> elements = new LinkedHashMap<>();
         cls.visitField(field -> {
-            if (field.getName() != null) {
-                LookupElement lookupElement = OdooModelUtils.createCompletionLine(field, myContext);
-                elements.putIfAbsent(field.getName(), lookupElement);
+            LookupElement lookupElement = OdooModelUtils.createLookupElement(field, myContext);
+            if (lookupElement != null) {
+                elements.putIfAbsent(lookupElement.getLookupString(), lookupElement);
             }
             return true;
         }, myContext);

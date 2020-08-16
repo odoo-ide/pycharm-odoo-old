@@ -56,8 +56,7 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                 model = Optional.of(key)
                         .map(PsiElement::getReference)
                         .map(PsiReference::resolve)
-                        .filter(PyTargetExpression.class::isInstance)
-                        .map(f -> OdooFieldInfo.getInfo((PyTargetExpression) f))
+                        .map(OdooFieldInfo::getInfo)
                         .map(OdooFieldInfo::getComodel)
                         .orElse(null);
             }

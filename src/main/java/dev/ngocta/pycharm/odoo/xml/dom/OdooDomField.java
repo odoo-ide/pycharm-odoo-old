@@ -6,7 +6,6 @@ import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.Referencing;
 import com.intellij.util.xml.Required;
-import com.jetbrains.python.psi.PyTargetExpression;
 import dev.ngocta.pycharm.odoo.python.model.OdooFieldInfo;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,17 +24,12 @@ public interface OdooDomField extends OdooDomElement, OdooDomModelScoped {
 
     @Nullable
     default String getComodel() {
-        PsiElement targetField = Optional.ofNullable(getNameAttr())
+        return Optional.ofNullable(getNameAttr())
                 .map(GenericAttributeValue::getXmlAttributeValue)
                 .map(PsiElement::getReference)
                 .map(PsiReference::resolve)
+                .map(OdooFieldInfo::getInfo)
+                .map(OdooFieldInfo::getComodel)
                 .orElse(null);
-        if (targetField instanceof PyTargetExpression) {
-            OdooFieldInfo fieldInfo = OdooFieldInfo.getInfo((PyTargetExpression) targetField);
-            if (fieldInfo != null) {
-                return fieldInfo.getComodel();
-            }
-        }
-        return null;
     }
 }

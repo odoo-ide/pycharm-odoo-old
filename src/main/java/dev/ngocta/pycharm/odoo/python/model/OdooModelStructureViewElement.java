@@ -98,10 +98,7 @@ public class OdooModelStructureViewElement extends PyStructureViewElement {
     @Override
     public ItemPresentation getPresentation() {
         PyElement element = getValue();
-        if (!(element instanceof PyTargetExpression)) {
-            return super.getPresentation();
-        }
-        OdooFieldInfo info = OdooFieldInfo.getInfo((PyTargetExpression) element);
+        OdooFieldInfo info = OdooFieldInfo.getInfo(element);
         if (info == null) {
             return super.getPresentation();
         }

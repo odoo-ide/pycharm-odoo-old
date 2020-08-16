@@ -1,9 +1,9 @@
 package dev.ngocta.pycharm.odoo.python.model;
 
 import com.intellij.openapi.util.Computable;
+import com.intellij.psi.PsiElement;
 import com.jetbrains.python.psi.PyListLiteralExpression;
 import com.jetbrains.python.psi.PyQualifiedExpression;
-import com.jetbrains.python.psi.PyTargetExpression;
 import com.jetbrains.python.psi.resolve.PyReferenceResolveProvider;
 import com.jetbrains.python.psi.resolve.RatedResolveResult;
 import com.jetbrains.python.psi.types.TypeEvalContext;
@@ -27,7 +27,7 @@ public class OdooSearchDomainFieldReferenceResolveProvider implements PyReferenc
             if (modelClassResolver != null) {
                 OdooModelClass modelClass = modelClassResolver.compute();
                 if (modelClass != null) {
-                    PyTargetExpression field = modelClass.findField(name, typeEvalContext);
+                    PsiElement field = modelClass.findField(name, typeEvalContext);
                     if (field != null) {
                         return Collections.singletonList(new RatedResolveResult(RatedResolveResult.RATE_NORMAL, field));
                     }

@@ -1,6 +1,7 @@
 package dev.ngocta.pycharm.odoo.python.model;
 
 import com.google.common.collect.ImmutableList;
+import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.UserDataHolderBase;
@@ -141,16 +142,7 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
                              boolean inherited,
                              @NotNull TypeEvalContext context) {
         if (inherited) {
-            for (PyClass cls : myClass.getAncestorClasses(context)) {
-                if (!cls.processClassLevelDeclarations((element, state) -> processor.process(element))) {
-                    return;
-                }
-            }
-            for (OdooModelClass cls : myClass.getDelegationChildren(context)) {
-                if (!cls.visitField(processor::process, context)) {
-                    return;
-                }
-            }
+            myClass.visitMembers(processor, context);
         }
     }
 
@@ -227,11 +219,9 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
         TypeEvalContext context = TypeEvalContext.codeCompletion(location.getProject(), location.getContainingFile());
         Map<String, Object> map = new LinkedHashMap<>();
         visitMembers(member -> {
-            if (member instanceof PsiNamedElement) {
-                String name = ((PsiNamedElement) member).getName();
-                if (!map.containsKey(name)) {
-                    map.put(name, OdooModelUtils.createCompletionLine((PsiNamedElement) member, context));
-                }
+            LookupElement lookupElement = OdooModelUtils.createLookupElement(member, context);
+            if (lookupElement != null && !map.containsKey(lookupElement.getLookupString())) {
+                map.put(lookupElement.getLookupString(), OdooModelUtils.createLookupElement(member, context));
             }
             return true;
         }, true, context);
@@ -265,26 +255,6 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
     @Override
     public OdooModelClass getPyClass() {
         return myClass;
-    }
-
-    @Nullable
-    public PyType getFieldTypeByPath(@NotNull String path,
-                                     @NotNull TypeEvalContext context) {
-        String[] fieldNames = path.split("\\.");
-        return getFieldTypeByPath(fieldNames, context);
-    }
-
-    @Nullable
-    public PyType getFieldTypeByPath(@NotNull String[] fieldNames,
-                                     @NotNull TypeEvalContext context) {
-        if (fieldNames.length == 0) {
-            return null;
-        }
-        PyTargetExpression field = myClass.findFieldByPath(fieldNames, context);
-        if (field != null) {
-            return OdooFieldInfo.getFieldType(field, context);
-        }
-        return null;
     }
 
     @Override

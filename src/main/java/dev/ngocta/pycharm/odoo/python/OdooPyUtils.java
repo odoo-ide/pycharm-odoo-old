@@ -8,6 +8,7 @@ import com.intellij.psi.stubs.StubIndex;
 import com.intellij.util.ObjectUtils;
 import com.jetbrains.python.PyNames;
 import com.jetbrains.python.psi.*;
+import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.stubs.PyClassAttributesIndex;
 import com.jetbrains.python.psi.types.*;
 import dev.ngocta.pycharm.odoo.OdooNames;
@@ -55,6 +56,17 @@ public class OdooPyUtils {
     @Nullable
     public static PyClassType getDatetimeType(@NotNull PsiElement anchor) {
         return getClassTypeByQName(PyNames.TYPE_DATE_TIME, anchor, false);
+    }
+
+    @Nullable
+    public static PyCollectionType getListType(@NotNull List<PyType> members,
+                                               boolean isDefinition,
+                                               @NotNull PsiElement anchor) {
+        PyClass cls = PyBuiltinCache.getInstance(anchor).getClass("list");
+        if (cls != null) {
+            return new PyCollectionTypeImpl(cls, isDefinition, members);
+        }
+        return null;
     }
 
     @Nullable

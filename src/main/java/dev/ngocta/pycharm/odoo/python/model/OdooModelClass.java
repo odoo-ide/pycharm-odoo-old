@@ -567,16 +567,10 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
         return result;
     }
 
-    public boolean visitField(Processor<PyTargetExpression> processor,
-                              @NotNull TypeEvalContext context) {
-        List<PyClass> ancestorClasses = getAncestorClasses(context);
-        for (PyClass cls : ancestorClasses) {
-            if (!cls.visitClassAttributes(attr -> {
-                if (OdooFieldInfo.getInfo(attr) != null) {
-                    return processor.process(attr);
-                }
-                return true;
-            }, false, context)) {
+    public boolean visitMembers(@NotNull Processor<PsiElement> processor,
+                                @NotNull TypeEvalContext context) {
+        for (PyClass cls : getAncestorClasses(context)) {
+            if (!cls.processClassLevelDeclarations((element, state) -> processor.process(element))) {
                 return false;
             }
         }
@@ -588,14 +582,25 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
         return true;
     }
 
+    public boolean visitField(@NotNull Processor<PsiElement> processor,
+                              @NotNull TypeEvalContext context) {
+        return visitMembers(element -> {
+            if (OdooFieldInfo.getInfo(element) != null) {
+                return processor.process(element);
+            }
+            return true;
+        }, context);
+    }
+
     @Nullable
-    public PyTargetExpression findField(@NotNull String name,
-                                        @NotNull TypeEvalContext context) {
+    public PsiElement findField(@NotNull String name,
+                                @NotNull TypeEvalContext context) {
         return PyUtil.getNullableParameterizedCachedValue(this, Pair.create(context.getOrigin(), name), param -> {
-            Ref<PyTargetExpression> ref = new Ref<>();
-            visitField(attr -> {
-                if (name.equals(attr.getName())) {
-                    ref.set(attr);
+            Ref<PsiElement> ref = new Ref<>();
+            visitMembers(member -> {
+                OdooFieldInfo fieldInfo = OdooFieldInfo.getInfo(member);
+                if (fieldInfo != null && name.equals(fieldInfo.getName())) {
+                    ref.set(member);
                     return false;
                 }
                 return true;
@@ -605,16 +610,16 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     }
 
     @Nullable
-    public PyTargetExpression findFieldByPath(@NotNull String path,
-                                              @NotNull TypeEvalContext context) {
+    public PsiElement findFieldByPath(@NotNull String path,
+                                      @NotNull TypeEvalContext context) {
         String[] names = path.split("\\.");
         return findFieldByPath(names, context);
     }
 
     @Nullable
-    public PyTargetExpression findFieldByPath(@NotNull String[] fieldNames,
-                                              @NotNull TypeEvalContext context) {
-        List<PyTargetExpression> fields = findFieldsInPath(fieldNames, context);
+    public PsiElement findFieldByPath(@NotNull String[] fieldNames,
+                                      @NotNull TypeEvalContext context) {
+        List<PsiElement> fields = findFieldsInPath(fieldNames, context);
         if (fieldNames.length != fields.size()) {
             return null;
         }
@@ -622,15 +627,15 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     }
 
     @NotNull
-    public List<PyTargetExpression> findFieldsInPath(@NotNull String[] fieldNames,
-                                                     @NotNull TypeEvalContext context) {
+    public List<PsiElement> findFieldsInPath(@NotNull String[] fieldNames,
+                                             @NotNull TypeEvalContext context) {
         return PyUtil.getParameterizedCachedValue(this, Pair.create(context.getOrigin(), fieldNames), param -> {
-            List<PyTargetExpression> result = new LinkedList<>();
+            List<PsiElement> result = new LinkedList<>();
             if (fieldNames.length == 0) {
                 return result;
             }
             String name = fieldNames[0];
-            PyTargetExpression field = findField(name, context);
+            PsiElement field = findField(name, context);
             if (field != null) {
                 result.add(field);
                 PyType fieldType = OdooFieldInfo.getFieldType(field, context);

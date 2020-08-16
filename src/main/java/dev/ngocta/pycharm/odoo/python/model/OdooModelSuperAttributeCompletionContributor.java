@@ -40,11 +40,10 @@ public class OdooModelSuperAttributeCompletionContributor extends CompletionCont
                         Set<String> seenNames = new THashSet<>();
                         for (PyClass ancestor : unknownAncestors) {
                             ancestor.visitClassAttributes(pyTargetExpression -> {
-                                String name = pyTargetExpression.getName();
-                                if (name != null & !seenNames.contains(name)) {
-                                    seenNames.add(name);
-                                    LookupElement completionLine = OdooModelUtils.createCompletionLine(pyTargetExpression, typeEvalContext);
-                                    result.consume(completionLine);
+                                LookupElement lookupElement = OdooModelUtils.createLookupElement(pyTargetExpression, typeEvalContext);
+                                if (lookupElement != null && !seenNames.contains(lookupElement.getLookupString())) {
+                                    seenNames.add(lookupElement.getLookupString());
+                                    result.consume(lookupElement);
                                 }
                                 return true;
                             }, false, null);

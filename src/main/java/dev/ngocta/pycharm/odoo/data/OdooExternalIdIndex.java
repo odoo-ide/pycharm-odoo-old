@@ -81,7 +81,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                         super.visitPyClass(cls);
                         OdooModelInfo info = OdooModelInfo.getInfo(cls);
                         if (info != null) {
-                            String id = OdooModelUtils.getIrModelRecordId(info.getName());
+                            String id = OdooModelUtils.getExternalIdOfModel(info.getName());
                             OdooRecord record = new OdooRecord(id, OdooNames.IR_MODEL, moduleDirectory.getName(), null, null);
                             records.add(record);
                         }

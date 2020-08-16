@@ -129,7 +129,7 @@ public class OdooRecord {
                 List<PyClass> classes = ((PyFile) file).getTopLevelClasses();
                 for (PyClass cls : classes) {
                     OdooModelInfo info = OdooModelInfo.getInfo(cls);
-                    if (info != null && OdooModelUtils.getIrModelRecordId(info.getName()).equals(myId)) {
+                    if (info != null && OdooModelUtils.getExternalIdOfModel(info.getName()).equals(myId)) {
                         elements.add(cls);
                     }
                 }

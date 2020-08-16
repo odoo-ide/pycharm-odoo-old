@@ -13,11 +13,6 @@ public class OdooModelInfo {
     private final String myName;
     private final List<String> myInherit;
     private final Map<String, String> myInherits;
-    private final static String[] KNOWN_SUPER_CLASSES = new String[]{
-            "models.Model",
-            "models.TransientModel",
-            "models.AbstractModel"
-    };
 
     private OdooModelInfo(@NotNull String name,
                           @Nullable List<String> inherit,
