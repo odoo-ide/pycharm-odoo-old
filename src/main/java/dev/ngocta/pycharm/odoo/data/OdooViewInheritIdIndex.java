@@ -6,15 +6,14 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import dev.ngocta.pycharm.odoo.xml.OdooXmlUtils;
+import dev.ngocta.pycharm.odoo.xml.dom.OdooDomFile;
 import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRecordLike;
-import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRoot;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -40,10 +39,7 @@ public class OdooViewInheritIdIndex extends FileBasedIndexExtension<String, Stri
                 return result;
             }
             PsiFile psiFile = PsiManager.getInstance(inputData.getProject()).findFile(inputData.getFile());
-            if (!(psiFile instanceof XmlFile)) {
-                return result;
-            }
-            OdooDomRoot root = OdooXmlUtils.getOdooDataDomRoot((XmlFile) psiFile);
+            OdooDomFile root = OdooXmlUtils.getOdooDataDomFile(psiFile);
             if (root == null) {
                 return result;
             }

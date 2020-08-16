@@ -8,7 +8,7 @@ import com.intellij.ide.structureView.xml.XmlStructureViewBuilderProvider;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.xml.DomManager;
-import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRoot;
+import dev.ngocta.pycharm.odoo.xml.dom.OdooDomFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +17,7 @@ public class OdooXmlStructureViewBuilderProvider implements XmlStructureViewBuil
     @Override
     public StructureViewBuilder createStructureViewBuilder(@NotNull XmlFile file) {
         // Own dom is not completed, fallback to default structure view
-        if (DomManager.getDomManager(file.getProject()).getFileElement(file, OdooDomRoot.class) != null) {
+        if (DomManager.getDomManager(file.getProject()).getFileElement(file, OdooDomFile.class) != null) {
             return new TreeBasedStructureViewBuilder() {
                 @Override
                 @NotNull

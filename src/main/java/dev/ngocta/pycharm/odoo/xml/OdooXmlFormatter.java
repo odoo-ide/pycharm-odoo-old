@@ -7,16 +7,12 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.formatter.FormattingDocumentModelImpl;
 import com.intellij.psi.formatter.xml.XmlBlock;
-import com.intellij.psi.xml.XmlFile;
+import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 
 public class OdooXmlFormatter extends XmlFormattingModelBuilder implements CustomFormattingModelBuilder {
     @Override
     public boolean isEngagedToFormat(PsiElement context) {
-        PsiElement file = context.getContainingFile();
-        if (file instanceof XmlFile) {
-            return OdooXmlUtils.getOdooDataDomRoot((XmlFile) file) != null;
-        }
-        return false;
+        return OdooModuleUtils.isInOdooModule(context);
     }
 
     @Override

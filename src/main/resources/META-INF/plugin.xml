@@ -257,13 +257,18 @@
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.python.model.OdooFieldIndex"/>
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.data.OdooExternalIdIndex"/>
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.data.OdooViewInheritIdIndex"/>
+        <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.xml.OdooJSTemplateIndex"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.python.module.OdooManifestReferenceContributor" language="Python"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.python.model.OdooComputeFunctionReferenceContributor" language="Python"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelReferenceContributor" language="Python"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.python.model.OdooFieldReferenceContributor" language="Python"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.data.OdooExternalIdReferenceContributor"/>
+        <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.xml.OdooJSTemplateReferenceContributor" language="XML"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.OdooFilePathReferenceContributor" language="XML"/>
         <dom.fileMetaData implementation="dev.ngocta.pycharm.odoo.xml.dom.OdooDomFileMetaData" rootTagName="odoo"/>
+        <dom.fileMetaData implementation="dev.ngocta.pycharm.odoo.xml.dom.js.OdooDomJSTemplateFileMetaData"/>
+        <dom.extender domClass="dev.ngocta.pycharm.odoo.xml.dom.OdooDomElement" extenderClass="dev.ngocta.pycharm.odoo.xml.dom.OdooDomExtender"/>
+        <dom.extender domClass="dev.ngocta.pycharm.odoo.xml.dom.js.OdooDomJSTemplateElement" extenderClass="dev.ngocta.pycharm.odoo.xml.dom.js.OdooDomJSTemplateExtender"/>
         <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.data.OdooGotoExternalIdContributor"/>
         <lang.psiStructureViewFactory implementationClass="dev.ngocta.pycharm.odoo.python.model.OdooModelStructureViewFactory" language="Python" order="first"/>
         <xmlStructureViewBuilderProvider implementation="dev.ngocta.pycharm.odoo.xml.OdooXmlStructureViewBuilderProvider" order="first"/>
@@ -271,7 +276,6 @@
         <localInspection implementationClass="dev.ngocta.pycharm.odoo.xml.OdooXmlInspection"
                          language="XML" displayName="XML inspection" groupName="Odoo" enabledByDefault="true"/>
         <xml.xmlSuppressionProvider implementation="dev.ngocta.pycharm.odoo.xml.OdooXmlSuppressionProvider"/>
-        <dom.extender domClass="dev.ngocta.pycharm.odoo.xml.dom.OdooDomElement" extenderClass="dev.ngocta.pycharm.odoo.xml.dom.OdooDomExtender"/>
         <codeInsight.lineMarkerProvider implementationClass="dev.ngocta.pycharm.odoo.xml.OdooXmlLineMarkerProvider" language="XML"/>
         <codeInsight.lineMarkerProvider implementationClass="dev.ngocta.pycharm.odoo.python.model.OdooModelLineMarkerProvider" language="Python"/>
         <languageInjector implementation="dev.ngocta.pycharm.odoo.python.OdooPythonLanguageInjector"/>

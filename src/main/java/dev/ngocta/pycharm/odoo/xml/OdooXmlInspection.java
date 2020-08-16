@@ -4,11 +4,11 @@ import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.highlighting.BasicDomElementsInspection;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
 import com.intellij.util.xml.highlighting.DomHighlightingHelper;
-import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRoot;
+import dev.ngocta.pycharm.odoo.xml.dom.OdooDomElement;
 
-public class OdooXmlInspection extends BasicDomElementsInspection<OdooDomRoot> {
+public class OdooXmlInspection extends BasicDomElementsInspection<OdooDomElement> {
     public OdooXmlInspection() {
-        super(OdooDomRoot.class);
+        super(OdooDomElement.class);
     }
 
     @Override

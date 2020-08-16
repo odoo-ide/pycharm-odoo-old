@@ -6,7 +6,7 @@ import com.intellij.util.xml.SubTagList;
 import java.util.LinkedList;
 import java.util.List;
 
-public interface OdooDomRoot extends OdooDomOperationContainer {
+public interface OdooDomFile extends OdooDomOperationContainer {
     String NAME = "odoo";
 
     @SubTagList("data")

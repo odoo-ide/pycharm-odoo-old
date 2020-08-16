@@ -23,8 +23,8 @@ import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
 import dev.ngocta.pycharm.odoo.python.module.OdooModule;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import dev.ngocta.pycharm.odoo.xml.OdooXmlUtils;
+import dev.ngocta.pycharm.odoo.xml.dom.OdooDomFile;
 import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRecordLike;
-import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRoot;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInput;
@@ -55,7 +55,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
             List<OdooRecord> records = new LinkedList<>();
             PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
             if (psiFile instanceof XmlFile) {
-                OdooDomRoot root = OdooXmlUtils.getOdooDataDomRoot((XmlFile) psiFile);
+                OdooDomFile root = OdooXmlUtils.getOdooDataDomFile(psiFile);
                 if (root == null) {
                     return result;
                 }
