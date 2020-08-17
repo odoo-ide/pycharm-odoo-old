@@ -11,6 +11,7 @@ import com.intellij.util.ProcessingContext;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.DomManager;
+import com.intellij.util.xml.DomUtil;
 import dev.ngocta.pycharm.odoo.xml.dom.*;
 import dev.ngocta.pycharm.odoo.xml.dom.js.OdooDomJSTemplateFile;
 import org.jetbrains.annotations.NotNull;
@@ -35,6 +36,15 @@ public class OdooXmlUtils {
                 public boolean accepts(@NotNull PsiElement element,
                                        ProcessingContext context) {
                     return isOdooJSTemplateElement(element);
+                }
+            };
+
+    public static final PatternCondition<PsiElement> ODOO_XML_ELEMENT_PATTERN_CONDITION =
+            new PatternCondition<PsiElement>("odooXmlElement") {
+                @Override
+                public boolean accepts(@NotNull PsiElement element,
+                                       ProcessingContext context) {
+                    return DomUtil.getDomElement(element) instanceof OdooDomElement;
                 }
             };
 
