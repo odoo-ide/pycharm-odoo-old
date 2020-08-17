@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.util.Processor;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
@@ -69,18 +70,24 @@ public class OdooJSTemplateIndex extends ScalarIndexExtension<String> {
         return true;
     }
 
-    @NotNull
-    public static List<String> getAvailableTemplateNames(@NotNull GlobalSearchScope scope,
-                                                         @NotNull Project project) {
+    public static void processAvailableTemplateNames(@NotNull GlobalSearchScope scope,
+                                                     @NotNull Project project,
+                                                     @NotNull Processor<String> processor) {
         FileBasedIndex index = FileBasedIndex.getInstance();
         Collection<String> allNames = index.getAllKeys(NAME, project);
-        List<String> names = new LinkedList<>();
         for (String name : allNames) {
             index.processValues(NAME, name, null, (file, value) -> {
-                names.add(name);
+                processor.process(name);
                 return false;
             }, scope);
         }
+    }
+
+    @NotNull
+    public static List<String> getAvailableTemplateNames(@NotNull GlobalSearchScope scope,
+                                                         @NotNull Project project) {
+        List<String> names = new LinkedList<>();
+        processAvailableTemplateNames(scope, project, names::add);
         return names;
     }
 

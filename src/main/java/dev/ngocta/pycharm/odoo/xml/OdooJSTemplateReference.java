@@ -48,7 +48,10 @@ public class OdooJSTemplateReference extends PsiReferenceBase.Poly<PsiElement> {
                         continue;
                     }
                 }
-                elements.add(xmlTag);
+                OdooJSTemplateElement element = template.getNavigationElement();
+                if (element != null) {
+                    elements.add(element);
+                }
             }
         }
         return PsiElementResolveResult.createResults(elements);

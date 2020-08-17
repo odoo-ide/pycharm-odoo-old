@@ -271,6 +271,7 @@
         <dom.extender domClass="dev.ngocta.pycharm.odoo.xml.dom.OdooDomElement" extenderClass="dev.ngocta.pycharm.odoo.xml.dom.OdooDomExtender"/>
         <dom.extender domClass="dev.ngocta.pycharm.odoo.xml.dom.js.OdooDomJSTemplateElement" extenderClass="dev.ngocta.pycharm.odoo.xml.dom.js.OdooDomJSTemplateExtender"/>
         <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.data.OdooGotoExternalIdContributor"/>
+        <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.xml.OdooGotoJSTemplateContributor"/>
         <lang.psiStructureViewFactory implementationClass="dev.ngocta.pycharm.odoo.python.model.OdooModelStructureViewFactory" language="Python" order="first"/>
         <xmlStructureViewBuilderProvider implementation="dev.ngocta.pycharm.odoo.xml.OdooXmlStructureViewBuilderProvider" order="first"/>
         <lang.formatter implementationClass="dev.ngocta.pycharm.odoo.xml.OdooXmlFormatter" language="XML"/>

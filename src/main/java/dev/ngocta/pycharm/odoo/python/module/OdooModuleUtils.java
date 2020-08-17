@@ -1,6 +1,7 @@
 package dev.ngocta.pycharm.odoo.python.module;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
@@ -111,5 +112,23 @@ public class OdooModuleUtils {
             return reverse ? count1 - count2 : count2 - count1;
         });
         return sortedElements;
+    }
+
+    @Nullable
+    public static String getLocationStringForFile(@Nullable VirtualFile file) {
+        VirtualFile moduleDir = getContainingOdooModuleDirectory(file);
+        if (moduleDir == null) {
+            return null;
+        }
+        VirtualFile parent = moduleDir.getParent();
+        if (parent == null) {
+            return null;
+        }
+        return VfsUtil.getRelativePath(file, parent);
+    }
+
+    @Nullable
+    public static String getLocationStringForFile(@Nullable PsiFile file) {
+        return file == null ? null : getLocationStringForFile(file.getVirtualFile());
     }
 }
