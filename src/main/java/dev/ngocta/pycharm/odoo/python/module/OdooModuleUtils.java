@@ -82,8 +82,11 @@ public class OdooModuleUtils {
     }
 
     @Nullable
-    public static OdooModule getContainingOdooModule(@NotNull VirtualFile file,
+    public static OdooModule getContainingOdooModule(@Nullable VirtualFile file,
                                                      @NotNull Project project) {
+        if (file == null) {
+            return null;
+        }
         VirtualFile dir = getContainingOdooModuleDirectory(file);
         if (dir == null) {
             return null;
