@@ -1,0 +1,5 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+       <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.xml.OdooCssInXmlReferenceContributor"/>
+    </extensions>
+</idea-plugin>

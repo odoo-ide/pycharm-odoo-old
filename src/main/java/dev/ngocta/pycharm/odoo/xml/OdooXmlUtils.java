@@ -30,7 +30,7 @@ public class OdooXmlUtils {
             };
 
     public static final PatternCondition<PsiElement> ODOO_JS_TEMPLATE_ELEMENT_PATTERN_CONDITION =
-            new PatternCondition<PsiElement>("odooXmlDataElement") {
+            new PatternCondition<PsiElement>("odooJSTemplateElement") {
                 @Override
                 public boolean accepts(@NotNull PsiElement element,
                                        ProcessingContext context) {

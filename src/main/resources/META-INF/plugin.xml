@@ -223,6 +223,7 @@
     <depends>com.intellij.modules.python</depends>
     <depends optional="true" config-file="plugin-xpath.xml">XPathView</depends>
     <depends optional="true" config-file="plugin-javascript.xml">JavaScript</depends>
+    <depends optional="true" config-file="plugin-css.xml">com.intellij.css</depends>
     <depends optional="true" config-file="plugin-csv.xml">net.seesharpsoft.intellij.plugins.csv</depends>
 
     <extensions defaultExtensionNs="Pythonid">

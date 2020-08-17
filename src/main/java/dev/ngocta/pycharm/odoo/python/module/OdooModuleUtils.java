@@ -2,11 +2,13 @@ package dev.ngocta.pycharm.odoo.python.module;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.patterns.PatternCondition;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.impl.source.resolve.FileContextUtil;
+import com.intellij.util.ProcessingContext;
 import com.jetbrains.python.PyNames;
 import com.jetbrains.python.psi.PyUtil;
 import dev.ngocta.pycharm.odoo.OdooNames;
@@ -16,6 +18,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class OdooModuleUtils {
+    public static final PatternCondition<PsiElement> IN_ODOO_MODULE_PATTERN_CONDITION =
+            new PatternCondition<PsiElement>("inOdooModule") {
+                @Override
+                public boolean accepts(@NotNull PsiElement element,
+                                       ProcessingContext context) {
+                    return isInOdooModule(element);
+                }
+            };
+
     private OdooModuleUtils() {
     }
 
