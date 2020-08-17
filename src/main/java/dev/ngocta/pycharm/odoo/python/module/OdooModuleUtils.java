@@ -10,7 +10,6 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.impl.source.resolve.FileContextUtil;
 import com.intellij.util.ProcessingContext;
 import com.jetbrains.python.PyNames;
-import com.jetbrains.python.psi.PyUtil;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,31 +60,39 @@ public class OdooModuleUtils {
             return null;
         }
         if (element instanceof PsiFile) {
-            return PyUtil.getNullableParameterizedCachedValue(element, null, param -> {
-                PsiFile file = (PsiFile) element;
-                file = FileContextUtil.getContextFile(file);
-                if (file == null) {
-                    return null;
-                }
-                file = file.getOriginalFile();
-                PsiDirectory directory = file.getParent();
-                while (directory != null) {
-                    if (isOdooModuleDirectory(directory.getVirtualFile())) {
-                        return new OdooModule(directory);
-                    }
-                    directory = directory.getParent();
-                }
-                return null;
-            });
+            return getContainingOdooModule((PsiFile) element);
+        }
+        if (element instanceof PsiDirectory) {
+            return getContainingOdooModule(((PsiDirectory) element).getVirtualFile(), element.getProject());
         }
         return getContainingOdooModule(element.getContainingFile());
     }
 
     @Nullable
+    public static OdooModule getContainingOdooModule(@Nullable PsiFile file) {
+        if (file == null) {
+            return null;
+        }
+        file = FileContextUtil.getContextFile(file);
+        if (file == null) {
+            return null;
+        }
+        file = file.getOriginalFile();
+        return getContainingOdooModule(file.getVirtualFile(), file.getProject());
+    }
+
+    @Nullable
     public static OdooModule getContainingOdooModule(@NotNull VirtualFile file,
                                                      @NotNull Project project) {
-        PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
-        return getContainingOdooModule(psiFile);
+        VirtualFile dir = getContainingOdooModuleDirectory(file);
+        if (dir == null) {
+            return null;
+        }
+        PsiDirectory psiDir = PsiManager.getInstance(project).findDirectory(dir);
+        if (psiDir != null) {
+            return new OdooModule(psiDir);
+        }
+        return null;
     }
 
     @NotNull
