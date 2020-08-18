@@ -546,18 +546,27 @@ public class OdooModelUtils {
     }
 
     @NotNull
-    public static List<PyClass> getUnknownAncestorModelClasses(@NotNull PyClass cls,
-                                                               @NotNull TypeEvalContext context) {
+    public static List<PyClass> getUnknownModelClassAncestors(@NotNull PyClass cls,
+                                                              @NotNull TypeEvalContext context) {
+        List<PyClass> ancestors = getModelClassAncestors(cls, context);
+        ancestors.removeAll(cls.getAncestorClasses(context));
+        return ancestors;
+    }
+
+    @NotNull
+    public static List<PyClass> getModelClassAncestors(@NotNull PyClass cls,
+                                                       @Nullable TypeEvalContext context) {
+        if (context == null) {
+            context = TypeEvalContext.codeAnalysis(cls.getProject(), cls.getContainingFile());
+        }
         OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(cls);
         if (modelClass == null) {
             return Collections.emptyList();
         }
-        List<PyClass> knownAncestors = cls.getAncestorClasses(context);
-        List<PyClass> ancestors = new LinkedList<>(modelClass.getAncestorClasses(context));
-        ancestors.removeAll(knownAncestors);
-        int clsIndex = ancestors.indexOf(cls);
-        if (clsIndex >= 0) {
-            ancestors = ancestors.subList(clsIndex + 1, ancestors.size());
+        List<PyClass> ancestors = modelClass.getAncestorClasses(context);
+        int idx = ancestors.indexOf(cls);
+        if (idx >= 0 && idx < ancestors.size()) {
+            ancestors = ancestors.subList(idx + 1, ancestors.size());
         }
         return ancestors;
     }

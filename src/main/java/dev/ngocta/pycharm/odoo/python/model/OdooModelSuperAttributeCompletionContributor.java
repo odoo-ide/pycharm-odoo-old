@@ -36,7 +36,7 @@ public class OdooModelSuperAttributeCompletionContributor extends CompletionCont
                             return;
                         }
                         TypeEvalContext typeEvalContext = TypeEvalContext.codeCompletion(containingClass.getProject(), containingClass.getContainingFile());
-                        List<PyClass> unknownAncestors = OdooModelUtils.getUnknownAncestorModelClasses(containingClass, typeEvalContext);
+                        List<PyClass> unknownAncestors = OdooModelUtils.getUnknownModelClassAncestors(containingClass, typeEvalContext);
                         Set<String> seenNames = new THashSet<>();
                         for (PyClass ancestor : unknownAncestors) {
                             ancestor.visitClassAttributes(pyTargetExpression -> {

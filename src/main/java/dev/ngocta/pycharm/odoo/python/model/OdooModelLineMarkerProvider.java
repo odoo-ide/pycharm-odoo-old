@@ -24,13 +24,38 @@ public class OdooModelLineMarkerProvider implements LineMarkerProvider {
     @Nullable
     @Override
     public LineMarkerInfo<PsiElement> getLineMarkerInfo(@NotNull PsiElement element) {
-        if (PyUtil.isClassAttribute(element)) {
+        if (element instanceof PyClass) {
+            return getSuperClassMaker((PyClass) element);
+        } else if (PyUtil.isClassAttribute(element)) {
             return getSuperAttributeMarker((PyTargetExpression) element);
         }
         return null;
     }
 
-    private LineMarkerInfo<PsiElement> getSuperAttributeMarker(PyTargetExpression element) {
+    private static LineMarkerInfo<PsiElement> getSuperClassMaker(@NotNull PyClass cls) {
+        PsiElement identifier = cls.getNameIdentifier();
+        if (identifier == null) {
+            return null;
+        }
+        List<PyClass> ancestors = OdooModelUtils.getModelClassAncestors(cls, null);
+        if (ancestors.isEmpty()) {
+            return null;
+        }
+        GutterIconNavigationHandler<PsiElement> navigationHandler = (e, elt) -> {
+            PsiElementListNavigator.openTargets(e, ancestors.toArray(PyClass.EMPTY_ARRAY),
+                    "Super classes", null, new DefaultPsiElementCellRenderer());
+        };
+        return new LineMarkerInfo<>(
+                identifier,
+                identifier.getTextRange(),
+                AllIcons.Gutter.OverridingMethod,
+                null,
+                navigationHandler,
+                GutterIconRenderer.Alignment.LEFT);
+    }
+
+    @Nullable
+    private LineMarkerInfo<PsiElement> getSuperAttributeMarker(@NotNull PyTargetExpression element) {
         String name = element.getName();
         if (name == null) {
             return null;
@@ -49,12 +74,12 @@ public class OdooModelLineMarkerProvider implements LineMarkerProvider {
         }
         TypeEvalContext context = TypeEvalContext.codeAnalysis(element.getProject(), element.getContainingFile());
         List<PyClass> knownAncestors = containingClass.getAncestorClasses(context);
-        for (PyClass ancestorClass : knownAncestors) {
-            if (ancestorClass.findClassAttribute(name, false, null) != null) {
+        for (PyClass ancestor : knownAncestors) {
+            if (ancestor.findClassAttribute(name, false, null) != null) {
                 return null;
             }
         }
-        List<PyClass> unknownAncestors = OdooModelUtils.getUnknownAncestorModelClasses(containingClass, context);
+        List<PyClass> unknownAncestors = OdooModelUtils.getUnknownModelClassAncestors(containingClass, context);
         for (PyClass ancestor : unknownAncestors) {
             PyTargetExpression attribute = ancestor.findClassAttribute(name, false, null);
             if (attribute == null) {
@@ -91,11 +116,11 @@ public class OdooModelLineMarkerProvider implements LineMarkerProvider {
                 attributes.add((PyTargetExpression) element);
             }
         }
-        collectionOverridingAttributeMaker(attributes, result);
+        collectionOverridingAttributeMakers(attributes, result);
     }
 
-    private static void collectionOverridingAttributeMaker(Set<PyTargetExpression> attributes,
-                                                           Collection<? super LineMarkerInfo<?>> result) {
+    private static void collectionOverridingAttributeMakers(Set<PyTargetExpression> attributes,
+                                                            Collection<? super LineMarkerInfo<?>> result) {
         Set<PyClass> classes = new HashSet<>();
         final MultiMap<PyClass, PyTargetExpression> candidates = new MultiMap<>();
         for (PyTargetExpression attribute : attributes) {
