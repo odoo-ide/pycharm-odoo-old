@@ -24,7 +24,7 @@ public class OdooModelLineMarkerProvider implements LineMarkerProvider {
     @Nullable
     @Override
     public LineMarkerInfo<PsiElement> getLineMarkerInfo(@NotNull PsiElement element) {
-        if (element instanceof PyTargetExpression && PyUtil.isClassAttribute(element)) {
+        if (PyUtil.isClassAttribute(element)) {
             return getSuperAttributeMarker((PyTargetExpression) element);
         }
         return null;
@@ -87,7 +87,7 @@ public class OdooModelLineMarkerProvider implements LineMarkerProvider {
                                        @NotNull Collection<? super LineMarkerInfo<?>> result) {
         Set<PyTargetExpression> attributes = new HashSet<>();
         for (PsiElement element : elements) {
-            if (element instanceof PyTargetExpression) {
+            if (PyUtil.isClassAttribute(element)) {
                 attributes.add((PyTargetExpression) element);
             }
         }
