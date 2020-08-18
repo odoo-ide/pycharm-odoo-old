@@ -17,7 +17,6 @@ import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyElementVisitor;
 import com.jetbrains.python.psi.PyFile;
 import com.jetbrains.python.psi.PyUtil;
-import dev.ngocta.pycharm.odoo.OdooUtils;
 import dev.ngocta.pycharm.odoo.python.module.OdooModule;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -115,25 +114,17 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
     }
 
     @NotNull
-    private static List<PyClass> getAvailableOdooModelClassesByName(@NotNull String model,
-                                                                    @NotNull OdooModule module) {
-        Project project = module.getProject();
+    public static List<PyClass> getAvailableOdooModelClassesByName(@NotNull String model,
+                                                                   @NotNull PsiElement anchor) {
+        OdooModule module = OdooModuleUtils.getContainingOdooModule(anchor);
+        if (module == null) {
+            return Collections.emptyList();
+        }
         return PyUtil.getParameterizedCachedValue(module.getDirectory(), model, param -> {
-            List<PyClass> classes = getOdooModelClassesByName(model, project, module.getOdooModuleWithDependenciesScope());
+            List<PyClass> classes = getOdooModelClassesByName(model, anchor.getProject(), module.getOdooModuleWithDependenciesScope());
             List<PyClass> sortedClasses = OdooModuleUtils.sortElementByOdooModuleDependOrder(classes);
             return ImmutableList.copyOf(sortedClasses);
         });
-    }
-
-    @NotNull
-    public static List<PyClass> getAvailableOdooModelClassesByName(@NotNull String model,
-                                                                   @NotNull PsiElement anchor) {
-        Project project = anchor.getProject();
-        OdooModule odooModule = OdooModuleUtils.getContainingOdooModule(anchor);
-        if (odooModule != null) {
-            return getAvailableOdooModelClassesByName(model, odooModule);
-        }
-        return getOdooModelClassesByName(model, project, OdooUtils.getProjectModuleWithDependenciesScope(anchor));
     }
 
     @NotNull

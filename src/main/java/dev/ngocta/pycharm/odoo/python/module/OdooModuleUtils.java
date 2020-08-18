@@ -96,21 +96,30 @@ public class OdooModuleUtils {
     @NotNull
     public static <T extends PsiElement> List<T> sortElementByOdooModuleDependOrder(@NotNull Collection<T> elements,
                                                                                     boolean reverse) {
-        Map<T, Integer> element2DependsCount = new HashMap<>();
+        Map<OdooModule, List<T>> module2Elements = new LinkedHashMap<>();
         for (T element : elements) {
-            if (element != null) {
-                OdooModule module = getContainingOdooModule(element);
-                if (module != null) {
-                    element2DependsCount.put(element, module.getFlattenedDependsGraph().size());
-                }
+            OdooModule module = getContainingOdooModule(element);
+            if (module != null) {
+                module2Elements.computeIfAbsent(module, k -> new LinkedList<>()).add(element);
             }
         }
-        List<T> sortedElements = new LinkedList<>(element2DependsCount.keySet());
-        sortedElements.sort((e1, e2) -> {
-            int count1 = element2DependsCount.get(e1);
-            int count2 = element2DependsCount.get(e2);
-            return reverse ? count1 - count2 : count2 - count1;
+        Map<OdooModule, Integer> module2DependsCount = new HashMap<>();
+        for (OdooModule module : module2Elements.keySet()) {
+            module2DependsCount.put(module, module.getFlattenedDependsGraph().size());
+        }
+        List<OdooModule> sortedModules = new LinkedList<>(module2DependsCount.keySet());
+        sortedModules.sort((e1, e2) -> {
+            int count1 = module2DependsCount.get(e1);
+            int count2 = module2DependsCount.get(e2);
+            return count2 - count1;
         });
+        List<T> sortedElements = new LinkedList<>();
+        for (OdooModule module : sortedModules) {
+            sortedElements.addAll(module2Elements.get(module));
+        }
+        if (reverse) {
+            Collections.reverse(sortedElements);
+        }
         return sortedElements;
     }
 
