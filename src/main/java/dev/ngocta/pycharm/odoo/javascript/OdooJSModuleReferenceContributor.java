@@ -5,13 +5,14 @@ import com.intellij.lang.javascript.frameworks.modules.JSBaseModuleReferenceCont
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceProvider;
+import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class OdooJSModuleReferenceContributor extends JSBaseModuleReferenceContributor {
     @Override
     public boolean isApplicable(@NotNull PsiElement psiElement) {
-        return DialectDetector.isJavaScript(psiElement);
+        return DialectDetector.isJavaScript(psiElement) && OdooModuleUtils.isInOdooModule(psiElement);
     }
 
     @NotNull
