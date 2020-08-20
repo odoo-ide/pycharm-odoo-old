@@ -56,7 +56,11 @@ public class OdooModelUtils {
     private OdooModelUtils() {
     }
 
-    public static OdooModelClass getContainingOdooModelClass(@NotNull PsiElement element) {
+    @Nullable
+    public static OdooModelClass getContainingOdooModelClass(@Nullable PsiElement element) {
+        if (element == null) {
+            return null;
+        }
         PyClass cls = PyUtil.getContainingClassOrSelf(element);
         if (cls != null) {
             OdooModelInfo info = OdooModelInfo.getInfo(cls);
@@ -65,6 +69,10 @@ public class OdooModelUtils {
             }
         }
         return null;
+    }
+
+    public static boolean isInOdooModelClass(@Nullable PsiElement element) {
+        return getContainingOdooModelClass(element) != null;
     }
 
     @Nullable

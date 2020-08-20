@@ -53,7 +53,7 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
             }
             if (element instanceof PyTargetExpression
                     && !PyUtil.isClassAttribute(element)
-                    && OdooModelUtils.getContainingOdooModelClass(element) != null) {
+                    && OdooModelUtils.isInOdooModelClass(element)) {
                 return true;
             }
             OdooModule targetOdooModule = OdooModuleUtils.getContainingOdooModule(element);
