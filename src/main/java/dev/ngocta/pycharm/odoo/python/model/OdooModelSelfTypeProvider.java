@@ -9,7 +9,7 @@ import com.jetbrains.python.psi.types.TypeEvalContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class OdooModelFunctionParamTypeProvider extends PyTypeProviderBase {
+public class OdooModelSelfTypeProvider extends PyTypeProviderBase {
     @Nullable
     @Override
     public Ref<PyType> getParameterType(@NotNull PyNamedParameter param,
