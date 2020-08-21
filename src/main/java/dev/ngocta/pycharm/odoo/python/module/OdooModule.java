@@ -2,17 +2,20 @@ package dev.ngocta.pycharm.odoo.python.module;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.search.GlobalSearchScopes;
 import com.jetbrains.python.psi.PyUtil;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 public class OdooModule {
     private final PsiDirectory myDirectory;
@@ -90,6 +93,16 @@ public class OdooModule {
     }
 
     @NotNull
+    public GlobalSearchScope getOdooModuleWithExtensionsScope() {
+        return getOdooModuleScope(false, true);
+    }
+
+    @NotNull
+    public GlobalSearchScope getOdooModuleScope() {
+        return getOdooModuleScope(false, false);
+    }
+
+    @NotNull
     public GlobalSearchScope getOdooModuleScope(boolean includeDependencies,
                                                 boolean includeExtensions) {
         return PyUtil.getParameterizedCachedValue(getDirectory(), Pair.create(includeDependencies, includeExtensions), param -> {
@@ -97,13 +110,8 @@ public class OdooModule {
             modules.add(this);
             if (includeDependencies) {
                 modules.addAll(getFlattenedDependsGraph());
-                List<String> systemWideModuleNames = new LinkedList<>(Arrays.asList("web", "base"));
-                for (OdooModule module : modules) {
-                    systemWideModuleNames.remove(module.getName());
-                }
-                for (String moduleName : systemWideModuleNames) {
-                    OdooModule module = OdooModuleIndex.getOdooModuleByName(moduleName, getDirectory());
-                    if (module != null) {
+                for (OdooModule module : OdooModuleUtils.getSystemWideOdooModules(getDirectory())) {
+                    if (!modules.contains(module)) {
                         modules.add(module);
                     }
                 }
@@ -116,16 +124,12 @@ public class OdooModule {
                     }
                 }
             }
-            List<VirtualFile> dirs = new LinkedList<>();
+            List<VirtualFile> files = new LinkedList<>();
             for (OdooModule module : modules) {
-                dirs.add(module.getDirectory().getVirtualFile());
+                VfsUtilCore.processFilesRecursively(module.getDirectory().getVirtualFile(), files::add);
             }
-            return GlobalSearchScopes.directoriesScope(getProject(), true, dirs.toArray(VirtualFile.EMPTY_ARRAY));
+            return GlobalSearchScope.filesWithLibrariesScope(getProject(), files);
         });
-    }
-
-    public GlobalSearchScope getOdooModuleWithExtensionsScope() {
-        return getOdooModuleScope(false, true);
     }
 
     public boolean isDependOn(@Nullable OdooModule module) {

@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.impl.source.resolve.FileContextUtil;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.jetbrains.python.PyNames;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
@@ -139,5 +140,40 @@ public class OdooModuleUtils {
     @Nullable
     public static String getLocationStringForFile(@Nullable PsiFile file) {
         return file == null ? null : getLocationStringForFile(file.getVirtualFile());
+    }
+
+    @NotNull
+    public static Collection<String> getSystemWideOdooModuleNames() {
+        return Arrays.asList("base", "web");
+    }
+
+    @NotNull
+    public static Collection<OdooModule> getSystemWideOdooModules(@NotNull PsiElement anchor) {
+        List<OdooModule> modules = new LinkedList<>();
+        for (String moduleName : getSystemWideOdooModuleNames()) {
+            OdooModule module = OdooModuleIndex.getOdooModuleByName(moduleName, anchor);
+            if (module != null) {
+                modules.add(module);
+            }
+        }
+        return modules;
+    }
+
+    @NotNull
+    public static GlobalSearchScope getSystemWideOdooModulesScope(@NotNull PsiElement anchor) {
+        List<GlobalSearchScope> scopes = new LinkedList<>();
+        for (OdooModule module : getSystemWideOdooModules(anchor)) {
+            scopes.add(module.getOdooModuleScope());
+        }
+        return GlobalSearchScope.union(scopes);
+    }
+
+    @NotNull
+    public static GlobalSearchScope getOdooModuleWithDependenciesOrSystemWideModulesScope(@NotNull PsiElement anchor) {
+        OdooModule module = getContainingOdooModule(anchor);
+        if (module != null) {
+            return module.getOdooModuleWithDependenciesScope();
+        }
+        return getSystemWideOdooModulesScope(anchor);
     }
 }

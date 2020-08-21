@@ -17,7 +17,6 @@ import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyElementVisitor;
 import com.jetbrains.python.psi.PyFile;
 import com.jetbrains.python.psi.PyUtil;
-import dev.ngocta.pycharm.odoo.python.module.OdooModule;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -116,12 +115,13 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
     @NotNull
     public static List<PyClass> getAvailableOdooModelClassesByName(@NotNull String model,
                                                                    @NotNull PsiElement anchor) {
-        OdooModule module = OdooModuleUtils.getContainingOdooModule(anchor);
-        if (module == null) {
+        PsiFile file = anchor.getContainingFile();
+        if (file == null) {
             return Collections.emptyList();
         }
-        return PyUtil.getParameterizedCachedValue(module.getDirectory(), model, param -> {
-            List<PyClass> classes = getOdooModelClassesByName(model, anchor.getProject(), module.getOdooModuleWithDependenciesScope());
+        return PyUtil.getParameterizedCachedValue(file, model, param -> {
+            GlobalSearchScope scope = OdooModuleUtils.getOdooModuleWithDependenciesOrSystemWideModulesScope(file);
+            List<PyClass> classes = getOdooModelClassesByName(model, anchor.getProject(), scope);
             List<PyClass> sortedClasses = OdooModuleUtils.sortElementByOdooModuleDependOrder(classes);
             return ImmutableList.copyOf(sortedClasses);
         });
@@ -129,13 +129,10 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
 
     @NotNull
     public static Collection<String> getAvailableOdooModels(@NotNull PsiElement anchor) {
-        OdooModule module = OdooModuleUtils.getContainingOdooModule(anchor);
-        if (module != null) {
-            Collection<String> models = getAllOdooModels(anchor.getProject());
-            models = filterOdooModels(models, module.getOdooModuleWithDependenciesScope());
-            return models;
-        }
-        return Collections.emptyList();
+        GlobalSearchScope scope = OdooModuleUtils.getOdooModuleWithDependenciesOrSystemWideModulesScope(anchor);
+        Collection<String> models = getAllOdooModels(anchor.getProject());
+        models = filterOdooModels(models, scope);
+        return models;
     }
 
     @NotNull

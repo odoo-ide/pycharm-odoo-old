@@ -2,14 +2,16 @@ package dev.ngocta.pycharm.odoo.python.model;
 
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementResolveResult;
+import com.intellij.psi.PsiReferenceBase;
+import com.intellij.psi.ResolveResult;
 import com.intellij.util.PlatformIcons;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,11 +29,7 @@ public class OdooModelReference extends PsiReferenceBase.Poly<PsiElement> {
     @NotNull
     protected List<PyClass> resolveInner() {
         return PyUtil.getParameterizedCachedValue(getElement(), null, param -> {
-            PsiFile file = getElement().getContainingFile();
-            if (file != null) {
-                return OdooModelIndex.getAvailableOdooModelClassesByName(getValue(), getElement());
-            }
-            return Collections.emptyList();
+            return OdooModelIndex.getAvailableOdooModelClassesByName(getValue(), getElement());
         });
     }
 
