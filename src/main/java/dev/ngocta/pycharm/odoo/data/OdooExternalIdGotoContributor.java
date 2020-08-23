@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
-public class OdooGotoExternalIdContributor implements ChooseByNameContributorEx {
+public class OdooExternalIdGotoContributor implements ChooseByNameContributorEx {
     @Override
     public void processNames(@NotNull Processor<? super String> processor,
                              @NotNull GlobalSearchScope scope,

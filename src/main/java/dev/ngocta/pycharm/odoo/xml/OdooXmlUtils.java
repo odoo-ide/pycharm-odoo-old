@@ -3,22 +3,17 @@ package dev.ngocta.pycharm.odoo.xml;
 import com.intellij.patterns.PatternCondition;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlFile;
-import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.DomManager;
 import com.intellij.util.xml.DomUtil;
+import dev.ngocta.pycharm.odoo.data.OdooRecordExtraInfo;
+import dev.ngocta.pycharm.odoo.data.OdooRecordViewInfo;
 import dev.ngocta.pycharm.odoo.xml.dom.*;
-import dev.ngocta.pycharm.odoo.xml.dom.js.OdooDomJSTemplateFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class OdooXmlUtils {
     public static final PatternCondition<PsiElement> ODOO_XML_DATA_ELEMENT_PATTERN_CONDITION =
@@ -73,8 +68,8 @@ public class OdooXmlUtils {
     }
 
     @Nullable
-    public static OdooDomFile getOdooDataDomFile(@Nullable PsiElement element) {
-        return getDomFile(element, OdooDomFile.class);
+    public static OdooDomDataFile getOdooDataDomFile(@Nullable PsiElement element) {
+        return getDomFile(element, OdooDomDataFile.class);
     }
 
     @Nullable
@@ -91,24 +86,17 @@ public class OdooXmlUtils {
     }
 
     @Nullable
-    public static String getViewInheritId(@NotNull OdooDomRecordLike record) {
-        if (record instanceof OdooDomRecord) {
-            OdooDomFieldAssignment field = ((OdooDomRecord) record).findField("inherit_id");
-            if (field != null) {
-                return field.getRefAttr().getStringValue();
+    public static String getViewInheritId(@Nullable DomElement viewDefinition) {
+        if (viewDefinition instanceof OdooDomRecord) {
+            OdooRecordExtraInfo extraInfo = ((OdooDomRecord) viewDefinition).getRecordExtraInfo();
+            if (extraInfo instanceof OdooRecordViewInfo) {
+                return ((OdooRecordViewInfo) extraInfo).getInheritId();
             }
-        } else if (record instanceof OdooDomTemplate) {
-            return ((OdooDomTemplate) record).getInheritId();
+        } else if (viewDefinition instanceof OdooDomTemplate) {
+            return ((OdooDomTemplate) viewDefinition).getInheritId();
+        } else if (viewDefinition instanceof OdooDomJSTemplate) {
+            return ((OdooDomJSTemplate) viewDefinition).getInheritName();
         }
         return null;
-    }
-
-    public static Set<String> getChildTagNames(@NotNull DomElement domElement) {
-        XmlElement element = domElement.getXmlElement();
-        return PsiTreeUtil.getChildrenOfTypeAsList(element, XmlTag.class)
-                .stream()
-                .map(XmlTag::getName)
-                .filter(s -> !s.isEmpty())
-                .collect(Collectors.toSet());
     }
 }

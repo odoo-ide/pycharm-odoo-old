@@ -6,11 +6,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.ResolveResult;
-import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.PlatformIcons;
-import dev.ngocta.pycharm.odoo.python.module.OdooModule;
-import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
-import dev.ngocta.pycharm.odoo.xml.dom.js.OdooDomJSTemplate;
+import com.intellij.util.xml.DomUtil;
+import dev.ngocta.pycharm.odoo.xml.dom.OdooDomJSTemplate;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
@@ -29,29 +27,16 @@ public class OdooJSTemplateReference extends PsiReferenceBase.Poly<PsiElement> {
     @NotNull
     public ResolveResult[] multiResolve(boolean incompleteCode) {
         String name = getValue();
-        String moduleName = null;
-        if (myIsQualified) {
-            String[] splits = name.split("\\.", 2);
-            if (splits.length > 1) {
-                name = splits[1];
-                moduleName = splits[0];
-            }
-        }
+        OdooDomJSTemplate inTemplate = DomUtil.findDomElement(getElement(), OdooDomJSTemplate.class);
         List<PsiElement> elements = new LinkedList<>();
-        List<OdooDomJSTemplate> templates = OdooJSTemplateIndex.findTemplatesByName(name, getElement());
-        for (OdooDomJSTemplate template : templates) {
-            XmlTag xmlTag = template.getXmlTag();
-            if (xmlTag != null) {
-                if (moduleName != null) {
-                    OdooModule module = OdooModuleUtils.getContainingOdooModule(xmlTag);
-                    if (module != null && !module.getName().equals(moduleName)) {
-                        continue;
-                    }
-                }
-                OdooJSTemplateElement element = template.getNavigationElement();
-                if (element != null) {
-                    elements.add(element);
-                }
+        List<OdooDomJSTemplate> templates = OdooJSTemplateIndex.findTemplatesByName(name, getElement(), myIsQualified);
+        for (OdooDomJSTemplate t : templates) {
+            if (t.equals(inTemplate)) {
+                continue;
+            }
+            OdooJSTemplateElement element = t.getNavigationElement();
+            if (element != null) {
+                elements.add(element);
             }
         }
         return PsiElementResolveResult.createResults(elements);
@@ -61,7 +46,7 @@ public class OdooJSTemplateReference extends PsiReferenceBase.Poly<PsiElement> {
     @NotNull
     public Object[] getVariants() {
         List<Object> variants = new LinkedList<>();
-        List<String> names = OdooJSTemplateIndex.getAvailableTemplateNames(getElement());
+        List<String> names = OdooJSTemplateIndex.getAvailableTemplateNames(getElement(), myIsQualified);
         for (String name : names) {
             LookupElement lookupElement = LookupElementBuilder.create(name).withIcon(PlatformIcons.XML_TAG_ICON);
             variants.add(lookupElement);

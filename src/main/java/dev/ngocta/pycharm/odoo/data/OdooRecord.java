@@ -16,7 +16,7 @@ import dev.ngocta.pycharm.odoo.csv.OdooCsvUtils;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelInfo;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
 import dev.ngocta.pycharm.odoo.xml.OdooXmlUtils;
-import dev.ngocta.pycharm.odoo.xml.dom.OdooDomFile;
+import dev.ngocta.pycharm.odoo.xml.dom.OdooDomDataFile;
 import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRecordLike;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -113,7 +113,7 @@ public class OdooRecord {
         List<PsiElement> result = PyUtil.getParameterizedCachedValue(file, this, param -> {
             List<PsiElement> elements = new LinkedList<>();
             if (file instanceof XmlFile) {
-                OdooDomFile root = OdooXmlUtils.getOdooDataDomFile(file);
+                OdooDomDataFile root = OdooXmlUtils.getOdooDataDomFile(file);
                 if (root != null) {
                     List<OdooDomRecordLike> records = root.getAllRecordLikeItems();
                     for (OdooDomRecordLike record : records) {

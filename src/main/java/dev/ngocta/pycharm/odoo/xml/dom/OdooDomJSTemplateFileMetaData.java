@@ -1,4 +1,4 @@
-package dev.ngocta.pycharm.odoo.xml.dom.js;
+package dev.ngocta.pycharm.odoo.xml.dom;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.psi.xml.XmlFile;

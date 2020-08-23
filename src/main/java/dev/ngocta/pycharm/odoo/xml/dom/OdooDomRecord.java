@@ -4,7 +4,6 @@ import com.intellij.util.xml.*;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.data.OdooRecordExtraInfo;
 import dev.ngocta.pycharm.odoo.data.OdooRecordViewInfo;
-import dev.ngocta.pycharm.odoo.xml.OdooXmlUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +41,9 @@ public interface OdooDomRecord extends OdooDomRecordLike {
         if (OdooNames.IR_UI_VIEW.equals(getModel())) {
             OdooDomFieldAssignment modelField = findField("model");
             String viewModel = modelField != null ? modelField.getStringValue() : null;
-            return new OdooRecordViewInfo(null, viewModel, OdooXmlUtils.getViewInheritId(this));
+            OdooDomFieldAssignment inheritField = findField("inherit_id");
+            String inheritId = inheritField != null ? inheritField.getRefAttr().getStringValue() : null;
+            return new OdooRecordViewInfo(null, viewModel, inheritId);
         }
         return null;
     }
