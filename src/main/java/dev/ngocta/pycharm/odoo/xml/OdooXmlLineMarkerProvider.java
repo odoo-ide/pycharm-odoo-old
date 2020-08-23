@@ -48,7 +48,7 @@ public class OdooXmlLineMarkerProvider implements LineMarkerProvider {
                 DomElement domElement = DomManager.getDomManager(project).getDomElement((XmlTag) element.getParent());
                 LineMarkerInfo<PsiElement> markerInfo = null;
                 if (domElement instanceof OdooDomViewInheritLocator) {
-                    markerInfo = getInheritedElementsLineMarker(element, (OdooDomViewInheritLocator) domElement);
+                    markerInfo = getInheritedElementLineMarker(element, (OdooDomViewInheritLocator) domElement);
                 } else if (domElement instanceof OdooDomRecordLike) {
                     markerInfo = getChildrenViewRecordLineMarker(element, (OdooDomRecordLike) domElement);
                 } else if (domElement instanceof OdooDomJSTemplate) {
@@ -62,8 +62,8 @@ public class OdooXmlLineMarkerProvider implements LineMarkerProvider {
     }
 
     @Nullable
-    private LineMarkerInfo<PsiElement> getInheritedElementsLineMarker(@NotNull PsiElement identifier,
-                                                                      @NotNull OdooDomViewInheritLocator locator) {
+    private LineMarkerInfo<PsiElement> getInheritedElementLineMarker(@NotNull PsiElement identifier,
+                                                                     @NotNull OdooDomViewInheritLocator locator) {
         if (locator.getInheritedElement() == null) {
             return null;
         }

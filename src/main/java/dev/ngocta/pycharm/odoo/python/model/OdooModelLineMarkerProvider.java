@@ -24,15 +24,30 @@ public class OdooModelLineMarkerProvider implements LineMarkerProvider {
     @Nullable
     @Override
     public LineMarkerInfo<PsiElement> getLineMarkerInfo(@NotNull PsiElement element) {
-        if (element instanceof PyClass) {
-            return getSuperClassMaker((PyClass) element);
-        } else if (PyUtil.isClassAttribute(element)) {
-            return getSuperAttributeMarker((PyTargetExpression) element);
-        }
         return null;
     }
 
-    private static LineMarkerInfo<PsiElement> getSuperClassMaker(@NotNull PyClass cls) {
+    @Override
+    public void collectSlowLineMarkers(@NotNull List<? extends PsiElement> elements,
+                                       @NotNull Collection<? super LineMarkerInfo<?>> result) {
+        Set<PyTargetExpression> attributes = new HashSet<>();
+        for (PsiElement element : elements) {
+            LineMarkerInfo<PsiElement> markerInfo = null;
+            if (PyUtil.isClassAttribute(element)) {
+                attributes.add((PyTargetExpression) element);
+            } else if (element instanceof PyClass) {
+                markerInfo = getSuperClassLineMarker((PyClass) element);
+            } else if (PyUtil.isClassAttribute(element)) {
+                markerInfo = getSuperAttributeLineMarker((PyTargetExpression) element);
+            }
+            if (markerInfo != null) {
+                result.add(markerInfo);
+            }
+        }
+        collectionOverridingAttributeMakers(attributes, result);
+    }
+
+    private static LineMarkerInfo<PsiElement> getSuperClassLineMarker(@NotNull PyClass cls) {
         PsiElement identifier = cls.getNameIdentifier();
         if (identifier == null) {
             return null;
@@ -49,13 +64,13 @@ public class OdooModelLineMarkerProvider implements LineMarkerProvider {
                 identifier,
                 identifier.getTextRange(),
                 AllIcons.Gutter.OverridingMethod,
-                null,
+                e -> "View super classes",
                 navigationHandler,
                 GutterIconRenderer.Alignment.LEFT);
     }
 
     @Nullable
-    private LineMarkerInfo<PsiElement> getSuperAttributeMarker(@NotNull PyTargetExpression element) {
+    private LineMarkerInfo<PsiElement> getSuperAttributeLineMarker(@NotNull PyTargetExpression element) {
         String name = element.getName();
         if (name == null) {
             return null;
@@ -100,23 +115,11 @@ public class OdooModelLineMarkerProvider implements LineMarkerProvider {
                     identifier,
                     identifier.getTextRange(),
                     AllIcons.Gutter.OverridingMethod,
-                    null,
+                    e -> "View super attributes",
                     navigationHandler,
                     GutterIconRenderer.Alignment.RIGHT);
         }
         return null;
-    }
-
-    @Override
-    public void collectSlowLineMarkers(@NotNull List<? extends PsiElement> elements,
-                                       @NotNull Collection<? super LineMarkerInfo<?>> result) {
-        Set<PyTargetExpression> attributes = new HashSet<>();
-        for (PsiElement element : elements) {
-            if (PyUtil.isClassAttribute(element)) {
-                attributes.add((PyTargetExpression) element);
-            }
-        }
-        collectionOverridingAttributeMakers(attributes, result);
     }
 
     private static void collectionOverridingAttributeMakers(Set<PyTargetExpression> attributes,
@@ -168,7 +171,7 @@ public class OdooModelLineMarkerProvider implements LineMarkerProvider {
                     identifier,
                     identifier.getTextRange(),
                     AllIcons.Gutter.OverridenMethod,
-                    null,
+                    e -> "View overriding attributes",
                     navigationHandler,
                     GutterIconRenderer.Alignment.RIGHT);
             result.add(maker);
