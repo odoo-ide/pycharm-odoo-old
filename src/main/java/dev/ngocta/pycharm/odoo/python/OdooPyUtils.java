@@ -85,8 +85,11 @@ public class OdooPyUtils {
     }
 
     @Nullable
-    public static PyType extractCompositedType(@NotNull PyType type,
+    public static PyType extractCompositedType(@Nullable PyType type,
                                                @NotNull Predicate<PyType> matcher) {
+        if (type == null) {
+            return null;
+        }
         if (type instanceof PyUnionType) {
             for (PyType member : ((PyUnionType) type).getMembers()) {
                 if (matcher.test(member)) {
@@ -99,10 +102,12 @@ public class OdooPyUtils {
         return null;
     }
 
-    public static boolean isEnvironmentType(@NotNull PyType type,
-                                            @NotNull PsiElement anchor) {
-        PyType envType = getEnvironmentType(anchor);
-        return envType != null && extractCompositedType(type, envType::equals) != null;
+    public static boolean isEnvironmentType(@Nullable PyType type) {
+        PyType extractedType = extractCompositedType(type, t -> {
+            PyClassType classType = ObjectUtils.tryCast(t, PyClassType.class);
+            return classType != null && OdooNames.ENVIRONMENT_CLASS_QNAME.equals(classType.getPyClass().getQualifiedName());
+        });
+        return extractedType != null;
     }
 
     public static boolean isEnvironmentTypeExpression(@NotNull PyExpression expression,
@@ -111,7 +116,7 @@ public class OdooPyUtils {
             return true;
         }
         PyType type = context.getType(expression);
-        return type != null && isEnvironmentType(type, expression);
+        return isEnvironmentType(type);
     }
 
     public static Collection<PyTargetExpression> findClassAttributes(@NotNull String name,
@@ -136,9 +141,6 @@ public class OdooPyUtils {
         if (type instanceof PyStructuralType && ((PyStructuralType) type).isInferredFromUsages()) {
             return true;
         }
-        if (type instanceof PyUnionType && ((PyUnionType) type).isWeak()) {
-            return true;
-        }
-        return false;
+        return type instanceof PyUnionType && ((PyUnionType) type).isWeak();
     }
 }
