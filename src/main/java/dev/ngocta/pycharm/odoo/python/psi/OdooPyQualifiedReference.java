@@ -6,10 +6,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
-import com.jetbrains.python.psi.PyExpression;
-import com.jetbrains.python.psi.PyQualifiedExpression;
-import com.jetbrains.python.psi.PyTargetExpression;
-import com.jetbrains.python.psi.PyUtil;
+import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.references.PyQualifiedReference;
 import com.jetbrains.python.psi.resolve.ImplicitResolveResult;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
@@ -17,6 +14,7 @@ import com.jetbrains.python.psi.resolve.RatedResolveResult;
 import com.jetbrains.python.psi.stubs.PyClassAttributesIndex;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
+import com.jetbrains.python.pyi.PyiUtil;
 import dev.ngocta.pycharm.odoo.OdooUtils;
 import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
@@ -26,7 +24,9 @@ import gnu.trove.THashSet;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class OdooPyQualifiedReference extends PyQualifiedReference {
     public OdooPyQualifiedReference(PyQualifiedExpression element,
@@ -43,13 +43,23 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
         }
         OdooModule odooModule = OdooModuleUtils.getContainingOdooModule(getElement());
         GlobalSearchScope scope = OdooUtils.getProjectModuleWithDependenciesScope(getElement());
+        Set<PsiElement> elements = results.stream()
+                .map(RatedResolveResult::getElement)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
         results.removeIf(result -> {
             if (!(result instanceof ImplicitResolveResult)) {
                 return false;
             }
             PsiElement element = result.getElement();
             if (element == null) {
-                return false;
+                return true;
+            }
+            if (element instanceof PyElement) {
+                PsiElement origin = PyiUtil.getOriginalElementOrLeaveAsIs((PyElement) element, PyElement.class);
+                if (!origin.equals(element) && elements.contains(origin)) {
+                    return true;
+                }
             }
             if (element instanceof PyTargetExpression
                     && !PyUtil.isClassAttribute(element)
