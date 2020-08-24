@@ -153,6 +153,9 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                         @Override
                         public boolean accepts(@NotNull XmlAttributeValue xmlAttributeValue,
                                                ProcessingContext context) {
+                            if (xmlAttributeValue.getValue().contains("{")) {
+                                return false;
+                            }
                             context.put(OdooExternalIdReferenceProvider.FILTER, OdooRecordFilters.QWEB);
                             return true;
                         }
