@@ -4,6 +4,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiPolyVariantReference;
 import com.jetbrains.python.psi.impl.PyReferenceExpressionImpl;
 import com.jetbrains.python.psi.impl.references.PyQualifiedReference;
+import com.jetbrains.python.psi.impl.references.PyReferenceImpl;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,6 +19,8 @@ public class OdooPyReferenceExpression extends PyReferenceExpressionImpl {
         PsiPolyVariantReference reference = super.getReference(context);
         if (reference instanceof PyQualifiedReference) {
             reference = new OdooPyQualifiedReference(this, context);
+        } else if (reference instanceof PyReferenceImpl) {
+            reference = new OdooPyReference(this, context);
         }
         return reference;
     }
