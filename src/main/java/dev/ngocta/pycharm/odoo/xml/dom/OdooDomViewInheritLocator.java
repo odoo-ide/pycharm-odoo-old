@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public interface OdooDomViewInheritLocator extends OdooDomElement {
+public interface OdooDomViewInheritLocator extends OdooDomViewElement {
     @Attribute("position")
     GenericAttributeValue<String> getPositionAttribute();
 
