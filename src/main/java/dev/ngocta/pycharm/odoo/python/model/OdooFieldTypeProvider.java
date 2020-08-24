@@ -8,6 +8,7 @@ import com.jetbrains.python.psi.PyReferenceExpression;
 import com.jetbrains.python.psi.PyTargetExpression;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.PyTypeProviderBase;
+import com.jetbrains.python.psi.types.PyUnionType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
 import org.jetbrains.annotations.NotNull;
@@ -35,13 +36,13 @@ public class OdooFieldTypeProvider extends PyTypeProviderBase {
             Ref<PyType> ref = new Ref<>();
             PsiElement element = modelType.resolvePsiMember(referenceName, context);
             if (element instanceof PyTargetExpression) {
-                PyType type = OdooFieldInfo.getFieldType((PyTargetExpression) element, context);
+                PyType type = OdooFieldInfo.getFieldType(element, context);
                 ref.set(type);
             }
             return ref.get();
         }
-        if (OdooPyUtils.isWeakType(qualifierType) && (referenceName.endsWith("_id") || referenceName.endsWith("_ids"))) {
-            return OdooModelUtils.guessFieldTypeByName(referenceName, referenceExpression, context);
+        if (OdooPyUtils.isUnknownType(qualifierType) && (referenceName.endsWith("_id") || referenceName.endsWith("_ids"))) {
+            return PyUnionType.createWeakType(OdooModelUtils.guessFieldTypeByName(referenceName, referenceExpression, context));
         }
         return null;
     }

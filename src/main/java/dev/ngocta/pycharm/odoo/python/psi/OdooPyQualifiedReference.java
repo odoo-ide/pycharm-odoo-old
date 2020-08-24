@@ -93,7 +93,7 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
         }
         final PyQualifiedExpression element = CompletionUtilCoreImpl.getOriginalOrSelf(myElement);
         PyType qualifierType = TypeEvalContext.codeCompletion(element.getProject(), element.getContainingFile()).getType(qualifier);
-        if (!OdooPyUtils.isWeakType(qualifierType)) {
+        if (!OdooPyUtils.isUnknownType(qualifierType)) {
             return variants;
         }
 

@@ -134,13 +134,10 @@ public class OdooPyUtils {
         return result;
     }
 
-    public static boolean isWeakType(@Nullable PyType type) {
+    public static boolean isUnknownType(@Nullable PyType type) {
         if (type == null) {
             return true;
         }
-        if (type instanceof PyStructuralType && ((PyStructuralType) type).isInferredFromUsages()) {
-            return true;
-        }
-        return type instanceof PyUnionType && ((PyUnionType) type).isWeak();
+        return type instanceof PyStructuralType && ((PyStructuralType) type).isInferredFromUsages();
     }
 }

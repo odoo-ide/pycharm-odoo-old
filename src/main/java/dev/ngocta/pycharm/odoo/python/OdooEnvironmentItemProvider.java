@@ -5,9 +5,8 @@ import com.intellij.openapi.util.Ref;
 import com.jetbrains.python.PyNames;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.PyStringLiteralExpressionImpl;
-import com.jetbrains.python.psi.types.PyType;
-import com.jetbrains.python.psi.types.PyTypeProviderBase;
-import com.jetbrains.python.psi.types.TypeEvalContext;
+import com.jetbrains.python.psi.types.*;
+import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelClassType;
 import dev.ngocta.pycharm.odoo.python.model.OdooRecordSetType;
 import org.jetbrains.annotations.NotNull;
@@ -30,6 +29,9 @@ public class OdooEnvironmentItemProvider extends PyTypeProviderBase {
                     String model = ((PyStringLiteralExpressionImpl) index).getStringValue();
                     OdooModelClassType modelClassType = new OdooModelClassType(model, OdooRecordSetType.MODEL, project);
                     return Ref.create(modelClassType);
+                } else {
+                    PyClassType type = OdooPyUtils.getClassTypeByQName(OdooNames.BASE_MODEL_CLASS_QNAME, function, false);
+                    return Ref.create(PyUnionType.createWeakType(type));
                 }
             }
         }
