@@ -1,6 +1,7 @@
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSModuleIndex"/>
+        <languageInjector implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSLanguageInjector"/>
     </extensions>
     <extensions defaultExtensionNs="JavaScript">
         <moduleReferenceContributor implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSModuleReferenceContributor"/>

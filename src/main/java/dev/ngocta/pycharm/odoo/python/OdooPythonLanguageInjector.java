@@ -20,6 +20,7 @@ import com.jetbrains.python.PythonLanguage;
 import com.jetbrains.python.psi.PyStringLiteralExpression;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
+import dev.ngocta.pycharm.odoo.xml.OdooXmlUtils;
 import dev.ngocta.pycharm.odoo.xml.dom.OdooDomFieldAssignment;
 import dev.ngocta.pycharm.odoo.xml.dom.OdooDomViewElement;
 import org.jetbrains.annotations.NotNull;
@@ -28,11 +29,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class OdooPythonLanguageInjector implements LanguageInjector {
-    private static final Pattern RE_PATTERN_PY = Pattern.compile("\\s*(.*\\S)\\s*", Pattern.DOTALL);
-    private static final Pattern RE_PATTERN_PY_TEMPLATE = Pattern.compile("(?:#\\{\\s*((?!.*&(amp|lt|gt|quot|apos);).+?)\\s*})|(?:\\{\\{\\s*(.+?)\\s*}})", Pattern.DOTALL);
     private static final Map<String, Set<String>> KNOWN_FIELDS_TO_INJECT = ImmutableMap.<String, Set<String>>builder()
             .put(OdooNames.IR_RULE_FIELD_DOMAIN_FORCE, ImmutableSet.of(OdooNames.IR_RULE))
             .put("domain", ImmutableSet.of(OdooNames.IR_ACTIONS_ACT_WINDOW))
@@ -40,7 +38,7 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
             .put("code", ImmutableSet.of(OdooNames.IR_ACTIONS_SERVER, OdooNames.IR_CRON))
             .build();
 
-    public static final XmlAttributeValuePattern XML_ATTRIBUTE_VALUE_PATTERN =
+    public static final XmlAttributeValuePattern XML_ATTR_VALUE_PATTERN =
             XmlPatterns.xmlAttributeValue().with(new PatternCondition<XmlAttributeValue>("xmlAttributeValue") {
                 @Override
                 public boolean accepts(@NotNull XmlAttributeValue xmlAttributeValue,
@@ -77,7 +75,7 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
                 }
             });
 
-    public static final XmlElementPattern.XmlTextPattern XML_ATTRIBUTE_VALUE_INHERITANCE_PATTERN =
+    public static final XmlElementPattern.XmlTextPattern XML_ATTR_VALUE_INHERIT_PATTERN =
             XmlPatterns.xmlText().withParent(XmlPatterns.xmlTag().withLocalName("attribute").with(new PatternCondition<XmlTag>("xmlAttributeValueOverride") {
                 @Override
                 public boolean accepts(@NotNull final XmlTag xmlTag,
@@ -120,8 +118,8 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> RELATION_FIELD_DOMAIN_PATTERN =
             OdooModelUtils.getFieldArgumentPattern(-1, OdooNames.FIELD_ATTR_DOMAIN, OdooNames.RELATIONAL_FIELD_TYPES);
 
-    public static final XmlAttributeValuePattern PY_TEMPLATE_PATTERN =
-            XmlPatterns.xmlAttributeValue().with(new PatternCondition<XmlAttributeValue>("pyTemplate") {
+    public static final XmlAttributeValuePattern XML_ATTR_VALUE_FORMAT_STRING_PATTERN =
+            XmlPatterns.xmlAttributeValue().with(new PatternCondition<XmlAttributeValue>("xmlAttributeValueFormatString") {
                 @Override
                 public boolean accepts(@NotNull XmlAttributeValue xmlAttributeValue,
                                        ProcessingContext context) {
@@ -144,26 +142,24 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
     @Override
     public void getLanguagesToInject(@NotNull PsiLanguageInjectionHost host,
                                      @NotNull InjectedLanguagePlaces injectionPlacesRegistrar) {
-        if (XML_ATTRIBUTE_VALUE_PATTERN.accepts(host)
-                || XML_ATTRIBUTE_VALUE_INHERITANCE_PATTERN.accepts(host)
+        TextRange range = ElementManipulators.getValueTextRange(host);
+        String text = ElementManipulators.getValueText(host);
+        if (XML_ATTR_VALUE_PATTERN.accepts(host)
+                || XML_ATTR_VALUE_INHERIT_PATTERN.accepts(host)
                 || XML_TEXT_FIELD_VALUE_PATTERN.accepts(host)
                 || RELATION_FIELD_DOMAIN_PATTERN.accepts(host)) {
-            TextRange range = ElementManipulators.getValueTextRange(host);
-            String text = ElementManipulators.getValueText(host);
-            Matcher matcher = RE_PATTERN_PY.matcher(text);
+            Matcher matcher = OdooXmlUtils.XML_ATTR_VALUE_RE_PATTERN.matcher(text);
             if (matcher.find()) {
                 TextRange subRange = range.cutOut(new TextRange(matcher.start(1), matcher.end(1)));
-                injectionPlacesRegistrar.addPlace(PythonLanguage.getInstance(), subRange, "'''Python'''\n", null);
+                injectionPlacesRegistrar.addPlace(PythonLanguage.getInstance(), subRange, "___ = ", null);
             }
-        } else if (PY_TEMPLATE_PATTERN.accepts(host)) {
-            TextRange range = ElementManipulators.getValueTextRange(host);
-            String text = ElementManipulators.getValueText(host);
-            Matcher matcher = RE_PATTERN_PY_TEMPLATE.matcher(text);
+        } else if (XML_ATTR_VALUE_FORMAT_STRING_PATTERN.accepts(host)) {
+            Matcher matcher = OdooXmlUtils.XML_ATTR_VALUE_RE_PATTERN_FORMAT_STRING.matcher(text);
             while (matcher.find()) {
                 for (int i = 1; i <= matcher.groupCount(); i++) {
                     if (matcher.group(i) != null) {
                         TextRange subRange = range.cutOut(new TextRange(matcher.start(i), matcher.end(i)));
-                        injectionPlacesRegistrar.addPlace(PythonLanguage.getInstance(), subRange, "'''Python'''\n", null);
+                        injectionPlacesRegistrar.addPlace(PythonLanguage.getInstance(), subRange, "___ = ", null);
                         break;
                     }
                 }

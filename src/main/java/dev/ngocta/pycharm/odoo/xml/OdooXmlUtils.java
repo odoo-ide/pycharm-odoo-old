@@ -15,7 +15,12 @@ import dev.ngocta.pycharm.odoo.xml.dom.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.regex.Pattern;
+
 public class OdooXmlUtils {
+    private OdooXmlUtils() {
+    }
+
     public static final PatternCondition<PsiElement> ODOO_XML_DATA_ELEMENT_PATTERN_CONDITION =
             new PatternCondition<PsiElement>("odooXmlDataElement") {
                 @Override
@@ -43,8 +48,8 @@ public class OdooXmlUtils {
                 }
             };
 
-    private OdooXmlUtils() {
-    }
+    public static final Pattern XML_ATTR_VALUE_RE_PATTERN = Pattern.compile("\\s*(.*\\S)\\s*", Pattern.DOTALL);
+    public static final Pattern XML_ATTR_VALUE_RE_PATTERN_FORMAT_STRING = Pattern.compile("(?:#\\{\\s*((?!.*&(amp|lt|gt|quot|apos);).+?)\\s*})|(?:\\{\\{\\s*(.+?)\\s*}})", Pattern.DOTALL);
 
     @Nullable
     public static <T extends DomElement> T getDomFile(@Nullable PsiElement element,
