@@ -1,10 +1,11 @@
 package dev.ngocta.pycharm.odoo.python.psi;
 
-import com.intellij.psi.xml.XmlFile;
+import com.intellij.psi.PsiFile;
 import com.jetbrains.python.psi.PyQualifiedExpression;
 import com.jetbrains.python.psi.impl.references.PyReferenceImpl;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
 import com.jetbrains.python.psi.resolve.RatedResolveResult;
+import dev.ngocta.pycharm.odoo.xml.OdooXmlUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -19,7 +20,8 @@ public class OdooPyReference extends PyReferenceImpl {
     @Override
     @NotNull
     protected List<RatedResolveResult> resolveInner() {
-        if (myContext.getTypeEvalContext().getOrigin() instanceof XmlFile) {
+        PsiFile file = myContext.getTypeEvalContext().getOrigin();
+        if (OdooXmlUtils.isOdooXmlDataElement(file)) {
             return Collections.emptyList();
         }
         return super.resolveInner();
