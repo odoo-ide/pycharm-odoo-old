@@ -50,7 +50,7 @@ public class OdooDomExtender extends DomExtender<OdooDomElement> {
             } else {
                 registerViewElements(domElement, registrar);
             }
-        } else if (domElement instanceof OdooDomModelScopedViewElement) {
+        } else if (domElement instanceof OdooDomModelScopedViewElement || isViewArchFieldAssignment(domElement.getParent())) {
             registerModelScopedViewElements(domElement, registrar);
         } else if (domElement instanceof OdooDomViewElement) {
             registerViewElements(domElement, registrar);
