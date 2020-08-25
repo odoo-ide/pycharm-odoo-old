@@ -10,6 +10,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.impl.source.resolve.FileContextUtil;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.jetbrains.python.PyNames;
+import com.jetbrains.python.psi.PyUtil;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -64,12 +65,14 @@ public class OdooModuleUtils {
         if (file == null) {
             return null;
         }
-        file = FileContextUtil.getContextFile(file);
-        if (file == null) {
-            return null;
-        }
-        file = file.getOriginalFile();
-        return getContainingOdooModule(file.getVirtualFile(), file.getProject());
+        return PyUtil.getNullableParameterizedCachedValue(file, file, f -> {
+            f = FileContextUtil.getContextFile(f);
+            if (f == null) {
+                return null;
+            }
+            f = f.getOriginalFile();
+            return getContainingOdooModule(f.getVirtualFile(), f.getProject());
+        });
     }
 
     @Nullable
