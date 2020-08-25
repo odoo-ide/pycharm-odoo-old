@@ -7,7 +7,6 @@ import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.ResolveResult;
 import com.intellij.util.PlatformIcons;
-import com.intellij.util.xml.DomUtil;
 import dev.ngocta.pycharm.odoo.xml.dom.OdooDomJSTemplate;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,13 +26,9 @@ public class OdooJSTemplateReference extends PsiReferenceBase.Poly<PsiElement> {
     @NotNull
     public ResolveResult[] multiResolve(boolean incompleteCode) {
         String name = getValue();
-        OdooDomJSTemplate inTemplate = DomUtil.findDomElement(getElement(), OdooDomJSTemplate.class);
         List<PsiElement> elements = new LinkedList<>();
         List<OdooDomJSTemplate> templates = OdooJSTemplateIndex.findTemplatesByName(name, getElement(), myIsQualified);
         for (OdooDomJSTemplate t : templates) {
-            if (t.equals(inTemplate)) {
-                continue;
-            }
             OdooJSTemplateElement element = t.getNavigationElement();
             if (element != null) {
                 elements.add(element);
