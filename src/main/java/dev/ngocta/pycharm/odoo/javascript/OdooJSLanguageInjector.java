@@ -54,15 +54,17 @@ public class OdooJSLanguageInjector implements LanguageInjector {
     @Override
     public void getLanguagesToInject(@NotNull PsiLanguageInjectionHost host,
                                      @NotNull InjectedLanguagePlaces injectionPlacesRegistrar) {
-        TextRange range = ElementManipulators.getValueTextRange(host);
-        String text = ElementManipulators.getValueText(host);
         if (XML_ATTR_VALUE_PATTERN.accepts(host)) {
+            TextRange range = ElementManipulators.getValueTextRange(host);
+            String text = ElementManipulators.getValueText(host);
             Matcher matcher = OdooXmlUtils.XML_ATTR_VALUE_RE_PATTERN.matcher(text);
             if (matcher.find()) {
                 TextRange subRange = range.cutOut(new TextRange(matcher.start(1), matcher.end(1)));
                 injectionPlacesRegistrar.addPlace(JavascriptLanguage.INSTANCE, subRange, "var ___ = ", null);
             }
         } else if (XML_ATTR_VALUE_FORMAT_STRING_PATTERN.accepts(host)) {
+            TextRange range = ElementManipulators.getValueTextRange(host);
+            String text = ElementManipulators.getValueText(host);
             Matcher matcher = OdooXmlUtils.XML_ATTR_VALUE_RE_PATTERN_FORMAT_STRING.matcher(text);
             while (matcher.find()) {
                 for (int i = 1; i <= matcher.groupCount(); i++) {
