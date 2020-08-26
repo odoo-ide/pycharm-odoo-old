@@ -29,7 +29,8 @@ public class OdooPyCallExpression extends PyCallExpressionImpl {
             OdooNames.BROWSE,
             OdooNames.WITH_CONTEXT,
             OdooNames.WITH_ENV,
-            OdooNames.SUDO
+            OdooNames.SUDO,
+            OdooNames.EXISTS
     );
 
     public OdooPyCallExpression(ASTNode astNode) {
