@@ -68,7 +68,7 @@ public class OdooFieldReference extends PsiReferenceBase.Poly<PsiElement> {
             PsiReference prevReference = myFieldPathReferences.getReferences()[idx - 1];
             PsiElement field = prevReference.resolve();
             if (field instanceof PyTargetExpression) {
-                PyType type = OdooFieldInfo.getFieldType((PyTargetExpression) field, myContext);
+                PyType type = OdooFieldInfo.getFieldType(field, myContext);
                 if (type instanceof OdooModelClassType) {
                     return ((OdooModelClassType) type).getPyClass();
                 }

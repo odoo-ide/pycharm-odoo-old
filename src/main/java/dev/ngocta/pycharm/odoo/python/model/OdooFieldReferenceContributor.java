@@ -12,8 +12,8 @@ import com.intellij.util.ProcessingContext;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.PyPsiUtils;
 import com.jetbrains.python.psi.types.PyType;
-import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
+import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
@@ -56,13 +56,12 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                                 if (OdooNames.MAPPED.equals(referenceExpression.getName())) {
                                     PyExpression qualifier = referenceExpression.getQualifier();
                                     if (qualifier != null) {
-                                        TypeEvalContext typeEvalContext = TypeEvalContext.codeAnalysis(
-                                                callExpression.getProject(), callExpression.getContainingFile());
-                                        PyType qualifierType = typeEvalContext.getType(qualifier);
-                                        OdooModelClassType modelClassType = OdooModelUtils.extractOdooModelClassType(qualifierType);
-                                        OdooModelClass modelClass = modelClassType != null ? modelClassType.getPyClass() : null;
                                         context.put(OdooFieldReferenceProvider.ENABLE_SUB_FIELD, true);
-                                        context.put(OdooFieldReferenceProvider.MODEL_CLASS, modelClass);
+                                        context.put(OdooFieldReferenceProvider.MODEL_CLASS_RESOLVER, () -> {
+                                            PyType qualifierType = OdooPyUtils.getType(qualifier);
+                                            OdooModelClassType modelClassType = OdooModelUtils.extractOdooModelClassType(qualifierType);
+                                            return modelClassType != null ? modelClassType.getPyClass() : null;
+                                        });
                                         return true;
                                     }
                                 }

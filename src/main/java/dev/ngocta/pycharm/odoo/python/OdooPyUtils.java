@@ -3,6 +3,7 @@ package dev.ngocta.pycharm.odoo.python;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
 import com.intellij.util.ObjectUtils;
@@ -139,5 +140,23 @@ public class OdooPyUtils {
             return true;
         }
         return type instanceof PyStructuralType && ((PyStructuralType) type).isInferredFromUsages();
+    }
+
+    @Nullable
+    public static PyType getType(@Nullable PyTypedElement element) {
+        if (element == null) {
+            return null;
+        }
+        PsiFile file = element.getContainingFile();
+        if (file == null) {
+            return null;
+        }
+        TypeEvalContext context = TypeEvalContext.codeAnalysis(file.getProject(), file);
+        PyType type = context.getType(element);
+        if (type == null) {
+            context = TypeEvalContext.userInitiated(file.getProject(), file);
+            type = context.getType(element);
+        }
+        return type;
     }
 }
