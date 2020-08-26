@@ -44,7 +44,7 @@ public class OdooDomExtender extends DomExtender<OdooDomElement> {
             } else {
                 registerModelScopedViewElements(domElement, registrar);
             }
-        } else if (isTemplateDefinition(domElement)) {
+        } else if (domElement instanceof OdooDomTemplate || domElement instanceof OdooDomJSTemplate) {
             if (OdooXmlUtils.getViewInheritId(domElement) != null) {
                 registerInheritLocators(domElement, registrar);
             } else {
@@ -61,11 +61,6 @@ public class OdooDomExtender extends DomExtender<OdooDomElement> {
         return domElement instanceof OdooDomFieldAssignment
                 && "arch".equals(((OdooDomFieldAssignment) domElement).getName())
                 && OdooNames.IR_UI_VIEW.equals(((OdooDomFieldAssignment) domElement).getModel());
-    }
-
-    private boolean isTemplateDefinition(@Nullable DomElement domElement) {
-        return domElement instanceof OdooDomTemplate
-                || (domElement instanceof OdooDomJSTemplate && ((OdooDomJSTemplate) domElement).isNewInheritanceMechanism());
     }
 
     @NotNull
@@ -90,6 +85,9 @@ public class OdooDomExtender extends DomExtender<OdooDomElement> {
 
     private void registerInheritLocators(@NotNull OdooDomElement domElement,
                                          @NotNull DomExtensionsRegistrar registrar) {
+        if (domElement instanceof OdooDomJSTemplate && !((OdooDomJSTemplate) domElement).isNewInheritanceMechanism()) {
+            return;
+        }
         getChildTagNames(domElement).forEach(name -> {
             Type type = "xpath".equals(name) ? OdooDomViewXPath.class : OdooDomViewInheritLocator.class;
             registrar.registerCollectionChildrenExtension(new XmlName(name), type);
