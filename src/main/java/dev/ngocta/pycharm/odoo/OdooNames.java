@@ -115,4 +115,6 @@ public class OdooNames {
     public static final String REGISTRY_CLASS_QNAME = "odoo.modules.registry.Registry";
     public static final String HTTP_ROUTE_FUNC_QNAME = "odoo.http.route";
     public static final String VIEW_TYPE_QWEB = "qweb";
+    public static final String VIEW_TYPE_TREE = "tree";
+    public static final String VIEW_TYPE_KANBAN = "kanban";
 }

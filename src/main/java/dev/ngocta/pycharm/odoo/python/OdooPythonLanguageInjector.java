@@ -66,7 +66,7 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
                                     "t-if", "t-elif", "t-foreach", "t-set", "t-value",
                                     "t-as", "t-esc", "t-raw", "t-field", "t-options");
                         }
-                        if ("tree".equals(tag.getLocalName())) {
+                        if (OdooNames.VIEW_TYPE_TREE.equals(tag.getLocalName())) {
                             return attributeName.startsWith("decoration-");
                         }
                         return ArrayUtil.contains(attributeName, "attrs", "context", "options", "domain", "filter_domain");

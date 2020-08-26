@@ -4,11 +4,13 @@ import com.intellij.patterns.PatternCondition;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlFile;
+import com.intellij.util.ArrayUtil;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.DomManager;
 import com.intellij.util.xml.DomUtil;
+import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.data.OdooRecordExtraInfo;
 import dev.ngocta.pycharm.odoo.data.OdooRecordViewInfo;
 import dev.ngocta.pycharm.odoo.xml.dom.*;
@@ -87,6 +89,13 @@ public class OdooXmlUtils {
     }
 
     public static boolean isOdooJSTemplateElement(@Nullable PsiElement element) {
+        OdooDomViewElement domViewElement = DomUtil.findDomElement(element, OdooDomViewElement.class);
+        if (domViewElement == null) {
+            return false;
+        }
+        if (ArrayUtil.contains(domViewElement.getViewType(), OdooNames.VIEW_TYPE_KANBAN)) {
+            return true;
+        }
         return getOdooDomJSTemplateFile(element) != null;
     }
 
