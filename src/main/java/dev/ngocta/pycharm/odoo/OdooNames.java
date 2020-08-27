@@ -117,4 +117,5 @@ public class OdooNames {
     public static final String VIEW_TYPE_QWEB = "qweb";
     public static final String VIEW_TYPE_TREE = "tree";
     public static final String VIEW_TYPE_KANBAN = "kanban";
+    public static final String TEST_BASE_CASE_QNAME = "odoo.tests.common.BaseCase";
 }
