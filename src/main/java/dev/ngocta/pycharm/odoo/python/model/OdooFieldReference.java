@@ -1,12 +1,9 @@
 package dev.ngocta.pycharm.odoo.python.model;
 
-import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
-import com.intellij.util.PlatformIcons;
 import com.jetbrains.python.psi.PyTargetExpression;
 import com.jetbrains.python.psi.PyUtil;
 import com.jetbrains.python.psi.types.PyType;
@@ -17,7 +14,9 @@ import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 public class OdooFieldReference extends PsiReferenceBase.Poly<PsiElement> {
     private final OdooModelClass myModelClass;
@@ -111,31 +110,13 @@ public class OdooFieldReference extends PsiReferenceBase.Poly<PsiElement> {
     }
 
     @NotNull
-    protected Collection<String> getImplicitVariants() {
-        return OdooFieldIndex.getAvailableFieldNames(getElement());
-    }
-
-    @NotNull
     @Override
     public Object[] getVariants() {
         OdooModelClass cls = getModelClass();
-        if (cls == null) {
-            List<Object> variants = new LinkedList<>();
-            for (String variant : getImplicitVariants()) {
-                LookupElement lookupElement = LookupElementBuilder.create(variant).withIcon(PlatformIcons.FIELD_ICON);
-                variants.add(lookupElement);
-            }
-            return variants.toArray();
+        if (cls != null) {
+            return OdooModelUtils.getFieldLookupElements(cls, myContext);
         }
-        Map<String, LookupElement> elements = new LinkedHashMap<>();
-        cls.visitField(field -> {
-            LookupElement lookupElement = OdooModelUtils.createLookupElement(field, myContext);
-            if (lookupElement != null) {
-                elements.putIfAbsent(lookupElement.getLookupString(), lookupElement);
-            }
-            return true;
-        }, myContext);
-        return elements.values().toArray();
+        return OdooModelUtils.getImplicitFieldLookupElements(getElement());
     }
 
     @Override

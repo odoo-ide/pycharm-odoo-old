@@ -24,6 +24,7 @@ import com.intellij.psi.xml.XmlTag;
 import com.intellij.psi.xml.XmlText;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.ObjectUtils;
+import com.intellij.util.PlatformIcons;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
@@ -221,8 +222,7 @@ public class OdooModelUtils {
     }
 
     @Nullable
-    public static Computable<OdooModelClass> getSearchDomainContextResolver(@NotNull PyListLiteralExpression
-                                                                                    domainExpression,
+    public static Computable<OdooModelClass> getSearchDomainContextResolver(@NotNull PyListLiteralExpression domainExpression,
                                                                             boolean forLeftOperand) {
         return PyUtil.getNullableParameterizedCachedValue(domainExpression, forLeftOperand, param -> {
             PsiElement parent = domainExpression.getParent();
@@ -564,5 +564,30 @@ public class OdooModelUtils {
             ancestors = ancestors.subList(idx + 1, ancestors.size());
         }
         return ancestors;
+    }
+
+    @NotNull
+    public static Object[] getFieldLookupElements(@NotNull OdooModelClass cls,
+                                                  @NotNull TypeEvalContext context) {
+        Map<String, LookupElement> lookupElementMap = new LinkedHashMap<>();
+        cls.visitField(field -> {
+            LookupElement lookupElement = createLookupElement(field, context);
+            if (lookupElement != null) {
+                lookupElementMap.putIfAbsent(lookupElement.getLookupString(), lookupElement);
+            }
+            return true;
+        }, context);
+        return lookupElementMap.values().toArray();
+    }
+
+    @NotNull
+    public static Object[] getImplicitFieldLookupElements(@NotNull PsiElement element) {
+        List<Object> lookupElements = new LinkedList<>();
+        Collection<String> names = OdooFieldIndex.getAvailableFieldNames(element);
+        for (String name : names) {
+            LookupElement lookupElement = LookupElementBuilder.create(name).withIcon(PlatformIcons.FIELD_ICON);
+            lookupElements.add(lookupElement);
+        }
+        return lookupElements.toArray();
     }
 }

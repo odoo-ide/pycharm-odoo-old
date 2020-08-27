@@ -1,10 +1,14 @@
 package dev.ngocta.pycharm.odoo.python.psi;
 
+import com.intellij.openapi.util.Computable;
 import com.intellij.psi.PsiFile;
+import com.jetbrains.python.psi.PyListLiteralExpression;
 import com.jetbrains.python.psi.PyQualifiedExpression;
 import com.jetbrains.python.psi.impl.references.PyReferenceImpl;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
 import com.jetbrains.python.psi.resolve.RatedResolveResult;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelClass;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
 import dev.ngocta.pycharm.odoo.xml.OdooXmlUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,5 +29,32 @@ public class OdooPyReference extends PyReferenceImpl {
             return Collections.emptyList();
         }
         return super.resolveInner();
+    }
+
+    @Override
+    @NotNull
+    public Object[] getVariants() {
+        Object[] variants = getSearchDomainFieldVariants();
+        if (variants != null) {
+            return variants;
+        }
+        return super.getVariants();
+    }
+
+    private Object[] getSearchDomainFieldVariants() {
+        PyListLiteralExpression domainExpression = OdooModelUtils.getSearchDomainExpression(getElement());
+        if (domainExpression == null) {
+            return null;
+        }
+        Computable<OdooModelClass> modelClassResolver = OdooModelUtils.getSearchDomainContextResolver(domainExpression, false);
+        if (modelClassResolver != null) {
+            OdooModelClass modelClass = modelClassResolver.compute();
+            if (modelClass != null) {
+                return OdooModelUtils.getFieldLookupElements(modelClass, myContext.getTypeEvalContext());
+            } else {
+                return OdooModelUtils.getImplicitFieldLookupElements(getElement());
+            }
+        }
+        return null;
     }
 }
