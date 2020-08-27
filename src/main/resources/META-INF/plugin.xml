@@ -231,18 +231,19 @@
         <importResolver implementation="dev.ngocta.pycharm.odoo.python.module.OdooAddonsImportResolver"/>
         <pyModuleMembersProvider implementation="dev.ngocta.pycharm.odoo.python.module.OdooAddonsMembersProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooFieldTypeProvider"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooEnvironmentItemProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelSelfTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooMappedTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooLambdaTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooRecordInSelfTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooEnvironmentItemProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooRefCallTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooSelfTypeProvider" order="first"/>
-        <typeProvider implementation="dev.ngocta.pycharm.odoo.xml.dom.OdooIrActionsServerCodeTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooMigrateFunctionParamTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooInitHookFunctionParamTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooHttpRouteFunctionParamTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooFunctionParamBooleanTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooPyDocStringTypeProvider" order="before pythonDocstringTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.xml.dom.OdooIrActionsServerCodeTypeProvider"/>
         <inspectionExtension implementation="dev.ngocta.pycharm.odoo.python.OdooPyInspectionExtension"/>
         <runnableScriptFilter implementation="dev.ngocta.pycharm.odoo.python.OdooPyRunnableScriptFilter"/>
         <pySuperMethodsSearch implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelSuperMethodsSearch" order="first"/>
