@@ -236,19 +236,25 @@ public class OdooModelUtils {
             if (parent instanceof PyArgumentList) {
                 parent = parent.getParent();
                 if (parent instanceof PyCallExpression) {
-                    PyCallExpression callExpression = ((PyCallExpression) parent);
+                    PyCallExpression callExpression = (PyCallExpression) parent;
+                    parent = parent.getParent();
+                    if (parent instanceof PyAssignmentStatement) {
+                        PyExpression left = ((PyAssignmentStatement) parent).getLeftHandSideExpression();
+                        OdooFieldInfo fieldInfo = OdooFieldInfo.getInfo(left);
+                        if (fieldInfo != null && ArrayUtil.contains(fieldInfo.getTypeName(), OdooNames.RELATIONAL_FIELD_TYPES)) {
+                            return () -> {
+                                String comodel = fieldInfo.getComodel();
+                                if (comodel != null) {
+                                    return OdooModelClass.getInstance(comodel, project);
+                                }
+                                return null;
+                            };
+                        }
+                    }
                     PyExpression callee = callExpression.getCallee();
                     if (callee instanceof PyReferenceExpression) {
                         PyReferenceExpression ref = (PyReferenceExpression) callee;
                         String refName = ref.getName();
-                        if (ArrayUtil.contains(refName, OdooNames.RELATIONAL_FIELD_TYPES)) {
-                            PyStringLiteralExpression comodelExpression = callExpression.getArgument(
-                                    0, OdooNames.FIELD_ATTR_COMODEL_NAME, PyStringLiteralExpression.class);
-                            if (comodelExpression != null) {
-                                return () -> OdooModelClass.getInstance(comodelExpression.getStringValue(), project);
-                            }
-                            return null;
-                        }
                         PyExpression qualifier = ref.getQualifier();
                         if (qualifier != null && ArrayUtil.contains(refName, OdooNames.SEARCH, OdooNames.SEARCH_READ, OdooNames.SEARCH_COUNT)) {
                             return () -> {

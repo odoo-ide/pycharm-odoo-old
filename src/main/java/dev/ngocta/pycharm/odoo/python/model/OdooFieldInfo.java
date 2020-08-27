@@ -11,10 +11,10 @@ import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
-import com.sun.istack.NotNull;
-import com.sun.istack.Nullable;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,12 +48,39 @@ public class OdooFieldInfo {
 
     @Nullable
     public String getComodel() {
-        return ObjectUtils.tryCast(myAttributes.get(OdooNames.FIELD_ATTR_COMODEL_NAME), String.class);
+        String comodel = ObjectUtils.tryCast(myAttributes.get(OdooNames.FIELD_ATTR_COMODEL_NAME), String.class);
+        if (comodel == null) {
+            OdooFieldInfo relatedInfo = getRelatedFieldInfo();
+            if (relatedInfo != null) {
+                comodel = relatedInfo.getComodel();
+            }
+        }
+        return comodel;
     }
 
     @Nullable
     public String getRelated() {
         return ObjectUtils.tryCast(myAttributes.get(OdooNames.FIELD_ATTR_RELATED), String.class);
+    }
+
+    @Nullable
+    public PsiElement getRelatedField() {
+        String related = getRelated();
+        if (related == null || myName.equals(related)) {
+            return null;
+        }
+        OdooModelClass cls = OdooModelUtils.getContainingOdooModelClass(myElement);
+        if (cls == null) {
+            return null;
+        }
+        TypeEvalContext context = TypeEvalContext.userInitiated(myElement.getProject(), myElement.getContainingFile());
+        return cls.findFieldByPath(related, context);
+    }
+
+    @Nullable
+    public OdooFieldInfo getRelatedFieldInfo() {
+        PsiElement relatedField = getRelatedField();
+        return getInfo(relatedField);
     }
 
     public boolean isDelegate() {
@@ -157,17 +184,6 @@ public class OdooFieldInfo {
                     OdooRecordSetType recordSetType = OdooNames.FIELD_TYPE_MANY2ONE.equals(myTypeName)
                             ? OdooRecordSetType.ONE : OdooRecordSetType.MULTI;
                     return new OdooModelClassType(comodel, recordSetType, project);
-                }
-                String related = getRelated();
-                if (related != null) {
-                    OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(myElement);
-                    if (modelClass != null) {
-                        PsiElement relatedField = modelClass.findFieldByPath(related, context);
-                        OdooFieldInfo relatedFieldInfo = getInfo(relatedField);
-                        if (relatedFieldInfo != null) {
-                            return relatedFieldInfo.getType(context);
-                        }
-                    }
                 }
                 return null;
             case OdooNames.FIELD_TYPE_BOOLEAN:
