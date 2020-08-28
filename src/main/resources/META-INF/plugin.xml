@@ -19,8 +19,9 @@
             <li>Install this plugin from <a href="https://plugins.jetbrains.com/plugin/13499-pycharm-odoo">JetBrains Plugins Repository</a>
                 or manually download and install the latest version at <a href="https://github.com/trinhanhngoc/pycharm-odoo/releases">here</a>.
             </li>
-            <li>(Recommended) Clone <a href="https://github.com/trinhanhngoc/odoo-stubs">Odoo Stubs</a> and attach to your project to improve code completion.</li>
-            <li>(Recommended) Install <a href="https://plugins.jetbrains.com/plugin/12478-xpathview--xslt">XPathView</a> to improve code completion in XML inheritance views.</li>
+            <li>(Recommended) Clone <a href="https://github.com/trinhanhngoc/odoo-stubs">Odoo Stubs</a> and attach to your project to improve code analysis.</li>
+            <li>(Recommended) Install <a href="https://plugins.jetbrains.com/plugin/12478-xpathview--xslt">XPathView</a> to support XML view inheritance features.</li>
+            <li>(Recommended) Install <a href="https://plugins.jetbrains.com/plugin/10037-csv-plugin">CSV Plugin</a> to support code completion and navigation in CSV files.</li>
             <li>(Optional) Install <a href="https://github.com/trinhanhngoc/pydevd-odoo">PyDev.Debugger plugin for Odoo</a> to improve Odoo debugging.</li>
         </ul>
 
@@ -47,6 +48,15 @@
 
     <change-notes><![CDATA[
         <ul>
+            <li>
+                Version 4.4
+                <ul>
+                    <li>Support ir.model.access.csv files (code completion, navigation)</li>
+                    <li>Support QWeb JS Templates (code completion, navigation, highlight JS syntax)</li>
+                    <li>Add code completion for CSS classes in XML</li>
+                    <li>Various performance improvements and bug fixes</li>
+                </ul>
+            </li>
             <li>
                 Version 4.3.1
                 <ul>
