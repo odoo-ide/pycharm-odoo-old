@@ -33,12 +33,11 @@ public class OdooModelLineMarkerProvider implements LineMarkerProvider {
         Set<PyTargetExpression> attributes = new HashSet<>();
         for (PsiElement element : elements) {
             LineMarkerInfo<PsiElement> markerInfo = null;
-            if (PyUtil.isClassAttribute(element)) {
-                attributes.add((PyTargetExpression) element);
-            } else if (element instanceof PyClass) {
+            if (element instanceof PyClass) {
                 markerInfo = getSuperClassLineMarker((PyClass) element);
             } else if (PyUtil.isClassAttribute(element)) {
                 markerInfo = getSuperAttributeLineMarker((PyTargetExpression) element);
+                attributes.add((PyTargetExpression) element);
             }
             if (markerInfo != null) {
                 result.add(markerInfo);
