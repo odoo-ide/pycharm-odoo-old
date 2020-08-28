@@ -1,5 +1,5 @@
 ## Features
-* Improve code completion and navigation for Python, XML and JavaScript
+* Improve code completion and navigation for Python, XML, CSV and JavaScript
 * Support working with multiple Odoo versions in one project window
 * Other improvements to make PyCharm is the best IDE for Odoo
 
