@@ -14,7 +14,7 @@ public class OdooScopeOptimizer implements ScopeOptimizer {
     public SearchScope getRestrictedUseScope(@NotNull PsiElement element) {
         OdooModule containingOdooModule = OdooModuleUtils.getContainingOdooModule(element);
         if (containingOdooModule != null) {
-            return containingOdooModule.getOdooModuleWithExtensionsScope();
+            return containingOdooModule.getOdooModuleScope(true, true);
         }
         return null;
     }

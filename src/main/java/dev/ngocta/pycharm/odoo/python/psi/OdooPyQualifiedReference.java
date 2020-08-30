@@ -4,6 +4,7 @@ import com.intellij.codeInsight.completion.CompletionUtilCoreImpl;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.ResolveResult;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
 import com.jetbrains.python.psi.*;
@@ -17,6 +18,7 @@ import com.jetbrains.python.psi.types.TypeEvalContext;
 import com.jetbrains.python.pyi.PyiUtil;
 import dev.ngocta.pycharm.odoo.OdooUtils;
 import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelClass;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
 import dev.ngocta.pycharm.odoo.python.module.OdooModule;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
@@ -114,5 +116,29 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
         }, scope, null);
 
         return extendedVariants.toArray();
+    }
+
+    @Override
+    public boolean isReferenceTo(@NotNull PsiElement element) {
+        if (isReferenceToSameOdooModelAttribute(element)) {
+            return true;
+        }
+        return super.isReferenceTo(element);
+    }
+
+    protected boolean isReferenceToSameOdooModelAttribute(@NotNull PsiElement element) {
+        if (element instanceof PyFunction || PyUtil.isClassAttribute(element)) {
+            OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(element);
+            if (modelClass != null) {
+                ResolveResult[] results = multiResolve(true);
+                for (ResolveResult result : results) {
+                    OdooModelClass modelClassOfResult = OdooModelUtils.getContainingOdooModelClass(result.getElement());
+                    if (modelClass.equals(modelClassOfResult)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
