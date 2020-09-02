@@ -22,9 +22,6 @@ public class OdooJSModuleReferenceContributor extends JSBaseModuleReferenceContr
                                            int offset,
                                            @Nullable PsiReferenceProvider psiReferenceProvider,
                                            boolean isCommonJSModule) {
-        if (isCommonJSModule) {
-            return new PsiReference[]{new OdooJSModuleReference(host, text)};
-        }
-        return new PsiReference[0];
+        return new PsiReference[]{new OdooJSModuleReference(host, text)};
     }
 }
