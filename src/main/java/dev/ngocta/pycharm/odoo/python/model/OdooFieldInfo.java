@@ -13,12 +13,14 @@ import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
+import gnu.trove.THashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class OdooFieldInfo {
     private final String myName;
@@ -48,11 +50,19 @@ public class OdooFieldInfo {
 
     @Nullable
     public String getComodel() {
+        return doGetComodel(new THashSet<>());
+    }
+
+    private String doGetComodel(Set<PsiElement> visitedFields) {
+        if (visitedFields.contains(myElement)) {
+            return null;
+        }
+        visitedFields.add(myElement);
         String comodel = ObjectUtils.tryCast(myAttributes.get(OdooNames.FIELD_ATTR_COMODEL_NAME), String.class);
         if (comodel == null) {
             OdooFieldInfo relatedInfo = getRelatedFieldInfo();
             if (relatedInfo != null) {
-                comodel = relatedInfo.getComodel();
+                comodel = relatedInfo.doGetComodel(visitedFields);
             }
         }
         return comodel;
