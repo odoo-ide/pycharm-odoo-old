@@ -2,7 +2,6 @@ package dev.ngocta.pycharm.odoo.python.psi;
 
 import com.intellij.openapi.util.Computable;
 import com.intellij.psi.PsiFile;
-import com.jetbrains.python.psi.PyListLiteralExpression;
 import com.jetbrains.python.psi.PyQualifiedExpression;
 import com.jetbrains.python.psi.impl.references.PyReferenceImpl;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
@@ -42,11 +41,7 @@ public class OdooPyReference extends PyReferenceImpl {
     }
 
     private Object[] getSearchDomainFieldVariants() {
-        PyListLiteralExpression domainExpression = OdooModelUtils.getSearchDomainExpression(getElement());
-        if (domainExpression == null) {
-            return null;
-        }
-        Computable<OdooModelClass> modelClassResolver = OdooModelUtils.getSearchDomainContextResolver(domainExpression, false);
+        Computable<OdooModelClass> modelClassResolver = OdooModelUtils.getSearchDomainContextResolver(getElement(), false);
         if (modelClassResolver != null) {
             OdooModelClass modelClass = modelClassResolver.compute();
             if (modelClass != null) {

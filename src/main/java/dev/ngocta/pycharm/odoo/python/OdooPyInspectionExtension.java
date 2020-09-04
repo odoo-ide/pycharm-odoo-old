@@ -10,6 +10,7 @@ import com.jetbrains.python.psi.PyExpressionStatement;
 import com.jetbrains.python.psi.PyReferenceExpression;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class OdooPyInspectionExtension extends PyInspectionExtension {
@@ -26,7 +27,7 @@ public class OdooPyInspectionExtension extends PyInspectionExtension {
                 return referenceExpression.getQualifier() == null && "object".equals(referenceExpression.getName());
             }
         }
-        return false;
+        return OdooModelUtils.getSearchDomainContextResolver(node, false) != null;
     }
 
     @Override

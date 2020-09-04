@@ -190,7 +190,10 @@ public class OdooModelUtils {
     }
 
     @Nullable
-    public static PyListLiteralExpression getSearchDomainExpression(@NotNull PsiElement leftOrRightOperand) {
+    public static PyListLiteralExpression getSearchDomainExpression(@Nullable PsiElement leftOrRightOperand) {
+        if (leftOrRightOperand == null) {
+            return null;
+        }
         PsiElement parent = leftOrRightOperand.getParent();
         if (!(parent instanceof PyTupleExpression
                 || parent instanceof PyListLiteralExpression
@@ -222,9 +225,19 @@ public class OdooModelUtils {
     }
 
     @Nullable
-    public static Computable<OdooModelClass> getSearchDomainContextResolver(@NotNull PyListLiteralExpression domainExpression,
-                                                                            boolean forLeftOperand) {
-        return PyUtil.getNullableParameterizedCachedValue(domainExpression, forLeftOperand, param -> {
+    public static Computable<OdooModelClass> getSearchDomainContextResolver(@Nullable PsiElement leftOrRightOperand,
+                                                                            boolean isLeftOperand) {
+        PyListLiteralExpression domainExpression = getSearchDomainExpression(leftOrRightOperand);
+        return getSearchDomainContextResolver(domainExpression, isLeftOperand);
+    }
+
+    @Nullable
+    public static Computable<OdooModelClass> getSearchDomainContextResolver(@Nullable PyListLiteralExpression domainExpression,
+                                                                            boolean isLeftOperand) {
+        if (domainExpression == null) {
+            return null;
+        }
+        return PyUtil.getNullableParameterizedCachedValue(domainExpression, isLeftOperand, param -> {
             PsiElement parent = domainExpression.getParent();
             if (parent instanceof PyKeywordArgument) {
                 parent = parent.getParent();
@@ -284,7 +297,7 @@ public class OdooModelUtils {
                 parent = parent.getParent();
                 if (parent instanceof PyKeywordArgument) {
                     if (OdooNames.FIELD_ATTR_DOMAIN.equals(((PyKeywordArgument) parent).getKeyword())) {
-                        if (forLeftOperand) {
+                        if (isLeftOperand) {
                             parent = PsiTreeUtil.getParentOfType(parent, PyAssignmentStatement.class);
                             if (parent != null) {
                                 PyExpression left = ((PyAssignmentStatement) parent).getLeftHandSideExpression();
@@ -314,7 +327,7 @@ public class OdooModelUtils {
                                 String model;
                                 if (domElement instanceof OdooDomViewField
                                         && OdooNames.FIELD_ATTR_DOMAIN.equals(attribute.getName())
-                                        && forLeftOperand) {
+                                        && isLeftOperand) {
                                     model = ((OdooDomField) domElement).getComodel();
                                 } else {
                                     model = ((OdooDomModelScopedViewElement) domElement).getModel();
