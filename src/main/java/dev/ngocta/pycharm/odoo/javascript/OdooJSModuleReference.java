@@ -1,11 +1,13 @@
 package dev.ngocta.pycharm.odoo.javascript;
 
 import com.intellij.javascript.JSModuleBaseReference;
+import com.intellij.lang.javascript.psi.JSCallExpression;
 import com.intellij.lang.javascript.psi.JSFunctionExpression;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.PsiPolyVariantReferenceBase;
 import com.intellij.psi.ResolveResult;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 
 public class OdooJSModuleReference extends PsiPolyVariantReferenceBase<PsiElement> implements JSModuleBaseReference {
@@ -21,8 +23,9 @@ public class OdooJSModuleReference extends PsiPolyVariantReferenceBase<PsiElemen
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
         JSFunctionExpression func = OdooJSModuleIndex.findModuleDefineFunction(myModuleName, myElement);
-        if (func != null) {
-            return PsiElementResolveResult.createResults(func);
+        JSCallExpression callExpression = PsiTreeUtil.getParentOfType(func, JSCallExpression.class);
+        if (callExpression != null) {
+            return PsiElementResolveResult.createResults(callExpression);
         }
         return new ResolveResult[0];
     }

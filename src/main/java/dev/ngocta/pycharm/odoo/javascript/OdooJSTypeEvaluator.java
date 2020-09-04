@@ -19,18 +19,18 @@ public class OdooJSTypeEvaluator extends ES6TypeEvaluator {
 
     @Override
     protected void evaluateCallExpressionTypes(@NotNull JSCallExpression callExpression) {
-        if (callExpression.isRequireCall()) {
+        if (callExpression.isRequireCall() && OdooJSUtils.isInOdooJSModule(callExpression)) {
             JSExpression arg = callExpression.getArguments()[0];
             if (arg instanceof JSLiteralExpression) {
                 String moduleName = ((JSLiteralExpression) arg).getStringValue();
                 if (moduleName != null) {
                     JSType type = getModuleType(moduleName, callExpression);
                     addType(type, callExpression);
+                    return;
                 }
             }
-        } else {
-            super.evaluateCallExpressionTypes(callExpression);
         }
+        super.evaluateCallExpressionTypes(callExpression);
     }
 
     @Nullable
@@ -47,10 +47,11 @@ public class OdooJSTypeEvaluator extends ES6TypeEvaluator {
         if (type instanceof JSRequireCallExpressionType) {
             String moduleName = ((JSRequireCallExpressionType) type).resolveReferencedModule();
             PsiElement sourceElement = type.getSourceElement();
-            if (sourceElement != null) {
+            if (sourceElement != null && OdooJSUtils.isInOdooJSModule(sourceElement)) {
                 JSType moduleType = getModuleType(moduleName, sourceElement);
                 if (moduleType != null) {
                     super.doAddType(moduleType, source, skipGuard);
+                    return;
                 }
             }
         }

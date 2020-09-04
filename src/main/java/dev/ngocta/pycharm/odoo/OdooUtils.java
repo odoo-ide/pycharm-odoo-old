@@ -3,6 +3,8 @@ package dev.ngocta.pycharm.odoo;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.impl.source.resolve.FileContextUtil;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,5 +38,17 @@ public class OdooUtils {
     @Nullable
     public static String readNullableString(@NotNull DataInput in) throws IOException {
         return in.readBoolean() ? in.readUTF() : null;
+    }
+
+    @Nullable
+    public static PsiFile getOriginalContextFile(@Nullable PsiElement element) {
+        if (element == null) {
+            return null;
+        }
+        PsiFile file = FileContextUtil.getContextFile(element);
+        if (file == null) {
+            return null;
+        }
+        return file.getOriginalFile();
     }
 }
