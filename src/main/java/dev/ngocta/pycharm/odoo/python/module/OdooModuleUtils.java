@@ -167,6 +167,9 @@ public class OdooModuleUtils {
         for (OdooModule module : getSystemWideOdooModules(anchor)) {
             scopes.add(module.getOdooModuleScope());
         }
+        if (scopes.isEmpty()) {
+            return GlobalSearchScope.EMPTY_SCOPE;
+        }
         return GlobalSearchScope.union(scopes);
     }
 
