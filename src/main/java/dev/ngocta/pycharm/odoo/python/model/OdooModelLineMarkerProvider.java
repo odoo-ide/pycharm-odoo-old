@@ -65,7 +65,7 @@ public class OdooModelLineMarkerProvider implements LineMarkerProvider {
                 AllIcons.Gutter.OverridingMethod,
                 e -> "View super classes",
                 navigationHandler,
-                GutterIconRenderer.Alignment.LEFT);
+                GutterIconRenderer.Alignment.RIGHT);
     }
 
     @Nullable
