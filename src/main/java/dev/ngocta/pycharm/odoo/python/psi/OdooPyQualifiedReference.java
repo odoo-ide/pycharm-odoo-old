@@ -3,12 +3,12 @@ package dev.ngocta.pycharm.odoo.python.psi;
 import com.intellij.codeInsight.completion.CompletionUtilCoreImpl;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.icons.AllIcons;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
-import com.intellij.util.PlatformIcons;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.references.PyQualifiedReference;
 import com.jetbrains.python.psi.resolve.ImplicitResolveResult;
@@ -123,7 +123,7 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
                                     @NotNull Set<String> visitedNames,
                                     @NotNull Collection<Object> result) {
         if (!visitedNames.contains(name)) {
-            result.add(LookupElementBuilder.create(name).withIcon(PlatformIcons.VARIABLE_ICON));
+            result.add(LookupElementBuilder.create(name).withIcon(AllIcons.Nodes.ObjectTypeAttribute));
             visitedNames.add(name);
         }
     }
