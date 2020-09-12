@@ -139,6 +139,12 @@ public class OdooPyUtils {
         if (type == null) {
             return true;
         }
+        if (type instanceof PyUnionType) {
+            Collection<PyType> members = ((PyUnionType) type).getMembers();
+            if (members.size() == 2 && members.contains(null) && members.stream().anyMatch(t -> t instanceof PyNoneType)) {
+                return true;
+            }
+        }
         return type instanceof PyStructuralType && ((PyStructuralType) type).isInferredFromUsages();
     }
 

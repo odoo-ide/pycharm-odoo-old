@@ -2,11 +2,13 @@ package dev.ngocta.pycharm.odoo.python.psi;
 
 import com.intellij.codeInsight.completion.CompletionUtilCoreImpl;
 import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
+import com.intellij.util.PlatformIcons;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.references.PyQualifiedReference;
 import com.jetbrains.python.psi.resolve.ImplicitResolveResult;
@@ -25,9 +27,7 @@ import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class OdooPyQualifiedReference extends PyQualifiedReference {
@@ -99,23 +99,33 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
             return variants;
         }
 
-        Set<String> extendedVariants = new THashSet<>();
+        List<Object> extendedVariants = new LinkedList<>();
+        Set<String> visitedNames = new THashSet<>();
         for (Object variant : variants) {
             if (variant instanceof LookupElement) {
                 String name = ((LookupElement) variant).getLookupString();
-                extendedVariants.add(name);
+                addExtendedVariant(name, visitedNames, extendedVariants);
             }
         }
 
-        GlobalSearchScope scope = OdooUtils.getProjectModuleWithDependenciesScope(element);
+        GlobalSearchScope scope = GlobalSearchScope.everythingScope(element.getProject());
         StubIndex.getInstance().processAllKeys(PyClassAttributesIndex.KEY, s -> {
-            if (s.length() > 3) {
-                extendedVariants.add(s);
+            if (s.length() >= 5) {
+                addExtendedVariant(s, visitedNames, extendedVariants);
             }
             return true;
         }, scope, null);
 
         return extendedVariants.toArray();
+    }
+
+    private void addExtendedVariant(@NotNull String name,
+                                    @NotNull Set<String> visitedNames,
+                                    @NotNull Collection<Object> result) {
+        if (!visitedNames.contains(name)) {
+            result.add(LookupElementBuilder.create(name).withIcon(PlatformIcons.VARIABLE_ICON));
+            visitedNames.add(name);
+        }
     }
 
     @Override
