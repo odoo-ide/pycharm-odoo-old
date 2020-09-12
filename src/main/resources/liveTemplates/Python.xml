@@ -1,0 +1,11 @@
+<templateSet group="Python">
+    <template name="superp" value="super($class$, self).$method$($param$)" description="'super(...)' call with params" toReformat="false" toShortenFQNames="true">
+        <variable name="class" expression="pyClassName()" defaultValue="" alwaysStopAt="false"/>
+        <variable name="method" expression="pyFunctionName()" defaultValue="" alwaysStopAt="false"/>
+        <variable name="param" expression="pySuperFunctionParam" defaultValue="" alwaysStopAt="false"/>
+        <context>
+            <option name="Python_Class" value="true"/>
+        </context>
+    </template>
+</templateSet>
+
