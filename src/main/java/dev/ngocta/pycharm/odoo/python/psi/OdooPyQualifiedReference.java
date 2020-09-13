@@ -47,7 +47,7 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
             return results;
         }
 
-        if (results.isEmpty() && myElement.getName() != null) {
+        if (results.isEmpty() && myElement.getName() != null && myContext.allowImplicits()) {
             PyExpression qualifier = myElement.getQualifier();
             if (qualifier != null) {
                 PyType qualifierType = myContext.getTypeEvalContext().getType(qualifier);
