@@ -133,7 +133,7 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
             }
         }
 
-        GlobalSearchScope scope = GlobalSearchScope.everythingScope(element.getProject());
+        GlobalSearchScope scope = GlobalSearchScope.projectScope(element.getProject());
         StubIndex.getInstance().processAllKeys(PyClassAttributesIndex.KEY, s -> {
             if (s.length() >= 5) {
                 addExtendedVariant(s, visitedNames, extendedVariants);
