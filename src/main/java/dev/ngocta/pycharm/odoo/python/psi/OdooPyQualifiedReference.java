@@ -1,9 +1,11 @@
 package dev.ngocta.pycharm.odoo.python.psi;
 
+import com.google.common.collect.Streams;
 import com.intellij.codeInsight.completion.CompletionUtilCoreImpl;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.ResolveResult;
@@ -15,6 +17,7 @@ import com.jetbrains.python.psi.resolve.ImplicitResolveResult;
 import com.jetbrains.python.psi.resolve.PyResolveContext;
 import com.jetbrains.python.psi.resolve.RatedResolveResult;
 import com.jetbrains.python.psi.stubs.PyClassAttributesIndex;
+import com.jetbrains.python.psi.stubs.PyFunctionNameIndex;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import com.jetbrains.python.pyi.PyiUtil;
@@ -40,11 +43,33 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
     @Override
     protected List<RatedResolveResult> resolveInner() {
         List<RatedResolveResult> results = super.resolveInner();
-        if (results.size() <= 1) {
+        if (results.size() == 1) {
             return results;
         }
+
+        if (results.isEmpty() && myElement.getName() != null) {
+            PyExpression qualifier = myElement.getQualifier();
+            if (qualifier != null) {
+                PyType qualifierType = myContext.getTypeEvalContext().getType(qualifier);
+                if (OdooPyUtils.isUnknownType(qualifierType)) {
+                    Project project = myElement.getProject();
+                    GlobalSearchScope scope = OdooUtils.getProjectModuleWithDependenciesScope(myElement);
+                    Collection<PyTargetExpression> attrs = PyClassAttributesIndex.findClassAndInstanceAttributes(myElement.getName(), project, scope);
+                    Collection<PyFunction> functions = PyFunctionNameIndex.find(myElement.getName(), project, scope);
+                    Streams.concat(attrs.stream(), functions.stream()).forEach(e -> {
+                        results.add(new ImplicitResolveResult(e, RatedResolveResult.RATE_NORMAL));
+                    });
+                }
+            }
+        }
+
+        if (results.isEmpty()) {
+            return results;
+        }
+
         OdooModule odooModule = OdooModuleUtils.getContainingOdooModule(getElement());
         GlobalSearchScope scope = OdooUtils.getProjectModuleWithDependenciesScope(getElement());
+
         Set<PsiElement> elements = results.stream()
                 .map(RatedResolveResult::getElement)
                 .filter(Objects::nonNull)
