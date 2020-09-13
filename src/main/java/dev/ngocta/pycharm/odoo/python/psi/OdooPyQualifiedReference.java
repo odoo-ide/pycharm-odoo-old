@@ -148,7 +148,7 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
                                     @NotNull Set<String> visitedNames,
                                     @NotNull Collection<Object> result) {
         if (!visitedNames.contains(name)) {
-            result.add(LookupElementBuilder.create(name).withIcon(AllIcons.Nodes.ObjectTypeAttribute));
+            result.add(LookupElementBuilder.create(name).withIcon(AllIcons.Nodes.MultipleTypeDefinitions));
             visitedNames.add(name);
         }
     }
