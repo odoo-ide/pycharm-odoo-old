@@ -154,7 +154,7 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                 @Override
                 public boolean accepts(@NotNull PyStringLiteralExpression pyReferenceExpression,
                                        ProcessingContext context) {
-                    PyListLiteralExpression domainExpression = OdooModelUtils.getSearchDomainExpression(pyReferenceExpression);
+                    PyListLiteralExpression domainExpression = OdooModelUtils.getSearchDomainExpression(pyReferenceExpression, true);
                     if (domainExpression == null) {
                         return false;
                     }

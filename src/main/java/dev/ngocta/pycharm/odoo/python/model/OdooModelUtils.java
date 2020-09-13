@@ -190,7 +190,8 @@ public class OdooModelUtils {
     }
 
     @Nullable
-    public static PyListLiteralExpression getSearchDomainExpression(@Nullable PsiElement leftOrRightOperand) {
+    public static PyListLiteralExpression getSearchDomainExpression(@Nullable PsiElement leftOrRightOperand,
+                                                                    boolean isLeftOperand) {
         if (leftOrRightOperand == null) {
             return null;
         }
@@ -208,12 +209,14 @@ public class OdooModelUtils {
         }
         boolean isLeft = leftOrRightOperand instanceof PyStringLiteralExpression
                 && sequenceElements.length > 0
-                && sequenceElements[0].equals(leftOrRightOperand);
+                && sequenceElements[0].equals(leftOrRightOperand)
+                && isLeftOperand;
         boolean isRight = leftOrRightOperand instanceof PyReferenceExpression
                 && sequenceElements.length > 2
                 && sequenceElements[0] instanceof PyLiteralExpression
                 && sequenceElements[1] instanceof PyLiteralExpression
-                && sequenceElements[2].equals(leftOrRightOperand);
+                && sequenceElements[2].equals(leftOrRightOperand)
+                && !isLeftOperand;
         if (!isLeft && !isRight) {
             return null;
         }
@@ -227,7 +230,7 @@ public class OdooModelUtils {
     @Nullable
     public static Computable<OdooModelClass> getSearchDomainContextResolver(@Nullable PsiElement leftOrRightOperand,
                                                                             boolean isLeftOperand) {
-        PyListLiteralExpression domainExpression = getSearchDomainExpression(leftOrRightOperand);
+        PyListLiteralExpression domainExpression = getSearchDomainExpression(leftOrRightOperand, isLeftOperand);
         return getSearchDomainContextResolver(domainExpression, isLeftOperand);
     }
 
