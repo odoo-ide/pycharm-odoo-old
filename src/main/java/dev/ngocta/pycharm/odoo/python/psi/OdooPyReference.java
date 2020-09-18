@@ -41,6 +41,10 @@ public class OdooPyReference extends PyReferenceImpl {
     }
 
     private Object[] getSearchDomainFieldVariants() {
+        PsiFile file = getElement().getContainingFile();
+        if (file == null || file.getContext() == null) {
+            return null;
+        }
         Computable<OdooModelClass> modelClassResolver = OdooModelUtils.getSearchDomainContextResolver(getElement(), false);
         if (modelClassResolver != null) {
             OdooModelClass modelClass = modelClassResolver.compute();
