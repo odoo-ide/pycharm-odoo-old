@@ -151,7 +151,13 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
             Matcher matcher = OdooXmlUtils.XML_ATTR_VALUE_RE_PATTERN.matcher(text);
             if (matcher.find()) {
                 TextRange subRange = range.cutOut(new TextRange(matcher.start(1), matcher.end(1)));
-                injectionPlacesRegistrar.addPlace(PythonLanguage.getInstance(), subRange, "___ = ", null);
+                String trimmedText = text.trim();
+                String prefix = null;
+                if (trimmedText.startsWith("'") || trimmedText.startsWith("\"")) {
+                    // avoid a regular string is highlighted as a doc string
+                    prefix = "___ = ";
+                }
+                injectionPlacesRegistrar.addPlace(PythonLanguage.getInstance(), subRange, prefix, null);
             }
         } else if (XML_ATTR_VALUE_FORMAT_STRING_PATTERN.accepts(host)) {
             TextRange range = ElementManipulators.getValueTextRange(host);
