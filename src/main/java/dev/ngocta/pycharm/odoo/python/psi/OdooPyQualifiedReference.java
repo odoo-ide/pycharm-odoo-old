@@ -29,7 +29,6 @@ import dev.ngocta.pycharm.odoo.python.model.OdooModelClass;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
 import dev.ngocta.pycharm.odoo.python.module.OdooModule;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
-import gnu.trove.THashSet;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -127,11 +126,10 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
         }
 
         List<Object> extendedVariants = new LinkedList<>();
-        Set<String> visitedNames = new THashSet<>();
         for (Object variant : variants) {
             if (variant instanceof LookupElement) {
                 String name = ((LookupElement) variant).getLookupString();
-                addExtendedVariant(name, visitedNames, extendedVariants);
+                addExtendedVariant(name, extendedVariants);
             }
         }
 
@@ -139,7 +137,7 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
         GlobalSearchScope scope = GlobalSearchScope.projectScope(element.getProject());
         StubIndex.getInstance().processAllKeys(PyClassAttributesIndex.KEY, s -> {
             if (s.length() >= prefix.length()) {
-                addExtendedVariant(s, visitedNames, extendedVariants);
+                addExtendedVariant(s, extendedVariants);
             }
             return true;
         }, scope, null);
@@ -148,12 +146,8 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
     }
 
     private void addExtendedVariant(@NotNull String name,
-                                    @NotNull Set<String> visitedNames,
                                     @NotNull Collection<Object> result) {
-        if (!visitedNames.contains(name)) {
-            result.add(LookupElementBuilder.create(name).withIcon(AllIcons.Nodes.MultipleTypeDefinitions));
-            visitedNames.add(name);
-        }
+        result.add(LookupElementBuilder.create(name).withIcon(AllIcons.Nodes.MultipleTypeDefinitions));
     }
 
     @Override
