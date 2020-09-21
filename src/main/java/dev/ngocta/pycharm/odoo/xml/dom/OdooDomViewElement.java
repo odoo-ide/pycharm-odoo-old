@@ -19,7 +19,11 @@ public interface OdooDomViewElement extends OdooDomElement {
             return OdooNames.VIEW_TYPE_QWEB;
         }
         if (parent instanceof OdooDomField) {
-            return getXmlElementName();
+            String tagName = getXmlElementName();
+            if ("t".equals(tagName) && parent instanceof OdooDomFieldAssignment) {
+                return OdooNames.VIEW_TYPE_QWEB;
+            }
+            return tagName;
         }
         if (parent instanceof OdooDomViewElement) {
             return ((OdooDomViewElement) parent).getViewType();
