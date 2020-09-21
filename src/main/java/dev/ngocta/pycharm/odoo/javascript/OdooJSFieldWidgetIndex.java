@@ -1,6 +1,5 @@
 package dev.ngocta.pycharm.odoo.javascript;
 
-import com.intellij.lang.javascript.JavaScriptFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -74,7 +73,10 @@ public class OdooJSFieldWidgetIndex extends ScalarIndexExtension<String> {
     @Override
     @NotNull
     public FileBasedIndex.InputFilter getInputFilter() {
-        return new DefaultFileTypeSpecificInputFilter(JavaScriptFileType.INSTANCE);
+        return file -> {
+            String extension = file.getExtension();
+            return extension != null && extension.toLowerCase().equals("js");
+        };
     }
 
     @Override
