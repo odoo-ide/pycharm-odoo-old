@@ -78,7 +78,7 @@ public class OdooXmlLineMarkerProvider implements LineMarkerProvider {
                         ((Navigatable) inheritedElement).navigate(true);
                     }
                 },
-                GutterIconRenderer.Alignment.LEFT);
+                GutterIconRenderer.Alignment.RIGHT);
     }
 
     @Nullable
