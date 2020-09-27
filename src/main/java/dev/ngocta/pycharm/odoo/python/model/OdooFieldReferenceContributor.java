@@ -9,6 +9,7 @@ import com.intellij.psi.PsiReferenceRegistrar;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.QualifiedName;
 import com.intellij.util.ProcessingContext;
+import com.jetbrains.python.PyTokenTypes;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.PyPsiUtils;
 import com.jetbrains.python.psi.types.PyType;
@@ -39,6 +40,19 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                     return false;
                 }
             });
+
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> REC_NAME_PATTERN =
+            psiElement(PyStringLiteralExpression.class).afterSiblingSkipping(
+                    psiElement().withElementType(PyTokenTypes.EQ),
+                    psiElement(PyTargetExpression.class).withName(OdooNames.MODEL_REC_NAME))
+                    .with(new PatternCondition<PyStringLiteralExpression>("") {
+                        @Override
+                        public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression, ProcessingContext context) {
+                            OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(pyStringLiteralExpression);
+                            context.put(OdooFieldReferenceProvider.MODEL_CLASS, modelClass);
+                            return true;
+                        }
+                    });
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> MAPPED_PATTERN =
             psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("mapped") {
@@ -194,6 +208,7 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
         OdooFieldReferenceProvider provider = new OdooFieldReferenceProvider();
         registrar.registerReferenceProvider(INHERITS_PATTERN, provider);
+        registrar.registerReferenceProvider(REC_NAME_PATTERN, provider);
         registrar.registerReferenceProvider(MAPPED_PATTERN, provider);
         registrar.registerReferenceProvider(DECORATOR_PATTERN, provider);
         registrar.registerReferenceProvider(ONE2MANY_INVERSE_NAME_PATTERN, provider);
