@@ -16,8 +16,10 @@ import org.jetbrains.annotations.NotNull;
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class OdooModelReferenceContributor extends PsiReferenceContributor {
-    public static final PsiElementPattern.Capture<PyStringLiteralExpression> COMODEL_NAME_PATTERN =
-            OdooModelUtils.getFieldArgumentPattern(0, OdooNames.FIELD_ATTR_COMODEL_NAME, OdooNames.RELATIONAL_FIELD_TYPES);
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> NAME_PATTERN =
+            psiElement(PyStringLiteralExpression.class).afterSiblingSkipping(
+                    psiElement().withElementType(PyTokenTypes.EQ),
+                    psiElement(PyTargetExpression.class).withName(OdooNames.MODEL_NAME));
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> INHERIT_PATTERN =
             psiElement(PyStringLiteralExpression.class).afterSiblingSkipping(
@@ -47,6 +49,9 @@ public class OdooModelReferenceContributor extends PsiReferenceContributor {
                 }
             });
 
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> COMODEL_NAME_PATTERN =
+            OdooModelUtils.getFieldArgumentPattern(0, OdooNames.FIELD_ATTR_COMODEL_NAME, OdooNames.RELATIONAL_FIELD_TYPES);
+
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> ENV_PATTERN =
             psiElement(PyStringLiteralExpression.class).withParent(PySubscriptionExpression.class).afterSiblingSkipping(
                     psiElement().withElementType(PyTokenTypes.LBRACE),
@@ -62,6 +67,7 @@ public class OdooModelReferenceContributor extends PsiReferenceContributor {
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
         OdooModelReferenceProvider provider = new OdooModelReferenceProvider();
+        registrar.registerReferenceProvider(NAME_PATTERN, provider);
         registrar.registerReferenceProvider(INHERIT_PATTERN, provider);
         registrar.registerReferenceProvider(INHERIT_LIST_PATTERN, provider);
         registrar.registerReferenceProvider(INHERITS_PATTERN, provider);
