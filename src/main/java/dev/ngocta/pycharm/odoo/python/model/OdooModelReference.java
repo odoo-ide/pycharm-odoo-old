@@ -27,9 +27,15 @@ public class OdooModelReference extends PsiReferenceBase.Poly<PsiElement> {
     }
 
     @NotNull
-    protected List<PyClass> resolveInner() {
+    protected List<PsiElement> resolveInner() {
         return PyUtil.getParameterizedCachedValue(getElement(), null, param -> {
-            return OdooModelIndex.getAvailableOdooModelClassesByName(getValue(), getElement());
+            OdooModelClass modelClass = OdooModelClass.getInstance(getValue(), myElement.getProject());
+            List<PsiElement> elements = new LinkedList<>();
+            List<PyClass> classes = OdooModelIndex.getAvailableOdooModelClassesByName(getValue(), getElement());
+            for (PyClass cls : classes) {
+                elements.add(modelClass.bindWithElement(cls));
+            }
+            return elements;
         });
     }
 

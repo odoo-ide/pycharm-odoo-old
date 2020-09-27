@@ -3,6 +3,7 @@ package dev.ngocta.pycharm.odoo.python.model;
 import com.google.common.collect.Lists;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.Language;
+import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.openapi.util.Ref;
@@ -10,11 +11,12 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.impl.PsiElementBase;
+import com.intellij.psi.impl.FakePsiElement;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
+import com.intellij.util.PlatformIcons;
 import com.intellij.util.Processor;
 import com.jetbrains.python.PyStubElementTypes;
 import com.jetbrains.python.PythonFileType;
@@ -30,18 +32,22 @@ import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class OdooModelClass extends PsiElementBase implements PyClass {
+public class OdooModelClass extends FakePsiElement implements PyClass {
     private final String myName;
     private final Project myProject;
+    private final PyClass myElement;
 
     private OdooModelClass(@NotNull String name,
-                           @NotNull Project project) {
+                           @NotNull Project project,
+                           @Nullable PyClass element) {
         myName = name;
         myProject = project;
+        myElement = element;
     }
 
     public static OdooModelClass getInstance(@NotNull String model,
@@ -51,7 +57,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
         });
         OdooModelClass cls = registry.get(model);
         if (cls == null) {
-            cls = new OdooModelClass(model, project);
+            cls = new OdooModelClass(model, project, null);
             registry.put(model, cls);
         }
         return cls;
@@ -363,19 +369,19 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @Nullable
     @Override
     public String getDocStringValue() {
-        return null;
+        return myElement != null ? myElement.getDocStringValue() : null;
     }
 
     @Nullable
     @Override
     public StructuredDocString getStructuredDocString() {
-        return null;
+        return myElement != null ? myElement.getStructuredDocString() : null;
     }
 
     @Nullable
     @Override
     public PyStringLiteralExpression getDocStringExpression() {
-        return null;
+        return myElement != null ? myElement.getDocStringExpression() : null;
     }
 
     @Override
@@ -414,7 +420,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @Nullable
     @Override
     public PsiElement getNameIdentifier() {
-        return this;
+        return myElement != null ? myElement.getNameIdentifier() : this;
     }
 
     @NotNull
@@ -424,12 +430,7 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     }
 
     @Override
-    public PsiElement setName(@NotNull String name) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public IStubElementType getElementType() {
+    public IStubElementType<PyClassStub, PyClass> getElementType() {
         return PyStubElementTypes.CLASS_DECLARATION;
     }
 
@@ -479,66 +480,34 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
     @Nullable
     @Override
     public PsiElement getParent() {
-        return null;
+        return myElement != null ? myElement.getParent() : null;
     }
 
     @Nullable
     @Override
     public PsiFile getContainingFile() {
-        return null;
+        return myElement != null ? myElement.getContainingFile() : null;
+    }
+
+    @Override
+    public ItemPresentation getPresentation() {
+        return myElement != null ? myElement.getPresentation() : super.getPresentation();
+    }
+
+    @Override
+    @Nullable
+    public Icon getIcon(boolean open) {
+        return PlatformIcons.CLASS_ICON;
     }
 
     @Override
     public TextRange getTextRange() {
-        return null;
-    }
-
-    @Override
-    public int getStartOffsetInParent() {
-        return 0;
-    }
-
-    @Override
-    public int getTextLength() {
-        return 0;
-    }
-
-    @Nullable
-    @Override
-    public PsiElement findElementAt(int offset) {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public PsiReference findReferenceAt(int offset) {
-        return null;
-    }
-
-    @Override
-    public int getTextOffset() {
-        return 0;
-    }
-
-    @Override
-    public String getText() {
-        return "";
-    }
-
-    @NotNull
-    @Override
-    public char[] textToCharArray() {
-        return new char[0];
+        return myElement != null ? myElement.getTextRange() : null;
     }
 
     @Override
     public boolean isValid() {
         return true;
-    }
-
-    @Override
-    public ASTNode getNode() {
-        return null;
     }
 
     @Nullable
@@ -647,5 +616,48 @@ public class OdooModelClass extends PsiElementBase implements PyClass {
             }
             return result;
         });
+    }
+
+    @NotNull
+    public OdooModelClass bindWithElement(PyClass pyClass) {
+        return new OdooModelClass(myName, myProject, pyClass);
+    }
+
+    @Override
+    public void navigate(boolean requestFocus) {
+        if (myElement != null) {
+            myElement.navigate(requestFocus);
+        }
+    }
+
+    @Override
+    public boolean isEquivalentTo(PsiElement another) {
+        for (PsiReference reference : another.getReferences()) {
+            if (reference instanceof OdooModelReference) {
+                return true;
+            }
+        }
+        return super.isEquivalentTo(another);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OdooModelClass that = (OdooModelClass) o;
+        return myName.equals(that.myName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(myName);
+    }
+
+    @Override
+    public String toString() {
+        return "OdooModelClass{" +
+                "myName='" + myName + '\'' +
+                ", myElement=" + myElement +
+                '}';
     }
 }
