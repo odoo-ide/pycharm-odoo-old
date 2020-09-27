@@ -5,7 +5,6 @@ import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProvider;
 import com.intellij.codeInsight.daemon.impl.PsiElementListNavigator;
 import com.intellij.icons.AllIcons;
-import com.intellij.ide.util.DefaultPsiElementCellRenderer;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
@@ -15,6 +14,7 @@ import com.jetbrains.python.psi.PyTargetExpression;
 import com.jetbrains.python.psi.PyUtil;
 import com.jetbrains.python.psi.search.PyClassInheritorsSearch;
 import com.jetbrains.python.psi.types.TypeEvalContext;
+import dev.ngocta.pycharm.odoo.OdooPsiElementCellRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,7 +57,7 @@ public class OdooModelLineMarkerProvider implements LineMarkerProvider {
         }
         GutterIconNavigationHandler<PsiElement> navigationHandler = (e, elt) -> {
             PsiElementListNavigator.openTargets(e, ancestors.toArray(PyClass.EMPTY_ARRAY),
-                    "Super classes", null, new DefaultPsiElementCellRenderer());
+                    "Super classes", null, new OdooPsiElementCellRenderer());
         };
         return new LineMarkerInfo<>(
                 identifier,
@@ -108,7 +108,7 @@ public class OdooModelLineMarkerProvider implements LineMarkerProvider {
                     }
                 }
                 PsiElementListNavigator.openTargets(e, attributes.toArray(NavigatablePsiElement.EMPTY_NAVIGATABLE_ELEMENT_ARRAY),
-                        "Super attributes", null, new DefaultPsiElementCellRenderer());
+                        "Super attributes", null, new OdooPsiElementCellRenderer());
             };
             return new LineMarkerInfo<>(
                     identifier,
@@ -164,7 +164,7 @@ public class OdooModelLineMarkerProvider implements LineMarkerProvider {
                     }
                 }
                 PsiElementListNavigator.openTargets(e, navElements.toArray(NavigatablePsiElement.EMPTY_NAVIGATABLE_ELEMENT_ARRAY),
-                        "Overriding attributes", null, new DefaultPsiElementCellRenderer());
+                        "Overriding attributes", null, new OdooPsiElementCellRenderer());
             };
             LineMarkerInfo<PsiElement> maker = new LineMarkerInfo<>(
                     identifier,

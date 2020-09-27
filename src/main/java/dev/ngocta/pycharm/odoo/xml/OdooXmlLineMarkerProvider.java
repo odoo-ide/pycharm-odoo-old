@@ -5,7 +5,6 @@ import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProvider;
 import com.intellij.codeInsight.daemon.impl.PsiElementListNavigator;
 import com.intellij.icons.AllIcons;
-import com.intellij.ide.util.DefaultPsiElementCellRenderer;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.project.Project;
@@ -18,6 +17,7 @@ import com.intellij.psi.xml.XmlTag;
 import com.intellij.psi.xml.XmlTokenType;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
+import dev.ngocta.pycharm.odoo.OdooPsiElementCellRenderer;
 import dev.ngocta.pycharm.odoo.data.OdooRecord;
 import dev.ngocta.pycharm.odoo.python.module.OdooModule;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
@@ -119,7 +119,7 @@ public class OdooXmlLineMarkerProvider implements LineMarkerProvider {
             elements = OdooModuleUtils.sortElementByOdooModuleDependOrder(elements, true);
             PsiElementListNavigator.openTargets(
                     e, elements.toArray(NavigatablePsiElement.EMPTY_NAVIGATABLE_ELEMENT_ARRAY),
-                    "Children views", null, new DefaultPsiElementCellRenderer());
+                    "Children views", null, new OdooPsiElementCellRenderer());
         };
         return new LineMarkerInfo<>(
                 identifier,
@@ -159,7 +159,7 @@ public class OdooXmlLineMarkerProvider implements LineMarkerProvider {
             }, scope, project);
             PsiElementListNavigator.openTargets(
                     e, elements.toArray(NavigatablePsiElement.EMPTY_NAVIGATABLE_ELEMENT_ARRAY),
-                    "Children templates", null, new DefaultPsiElementCellRenderer());
+                    "Children templates", null, new OdooPsiElementCellRenderer());
         };
         return new LineMarkerInfo<>(
                 identifier,
