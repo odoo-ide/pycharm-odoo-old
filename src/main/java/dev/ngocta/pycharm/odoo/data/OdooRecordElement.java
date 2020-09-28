@@ -106,4 +106,17 @@ public class OdooRecordElement extends FakePsiElement implements NavigatablePsiE
         }
         return super.setName(name);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OdooRecordElement that = (OdooRecordElement) o;
+        return myRecord.getQualifiedId().equals(that.myRecord.getQualifiedId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(myRecord.getQualifiedId());
+    }
 }
