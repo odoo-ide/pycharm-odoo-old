@@ -56,9 +56,10 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
     @NotNull
     protected List<PsiElement> resolveInner() {
         return PyUtil.getParameterizedCachedValue(getElement(), null, param -> {
+            Project project = myElement.getProject();
             List<OdooRecord> records = OdooExternalIdIndex.findRecordsById(getValue(), getElement(), myAllowUnqualified);
             List<PsiElement> elements = new LinkedList<>();
-            records.forEach(record -> elements.addAll(record.getNavigationElements(getElement().getProject())));
+            records.forEach(record -> elements.addAll(record.getNavigationElements(project)));
             return OdooModuleUtils.sortElementByOdooModuleDependOrder(elements, true);
         });
     }
