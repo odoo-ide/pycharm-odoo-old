@@ -1,5 +1,6 @@
 package dev.ngocta.pycharm.odoo.data;
 
+import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.pom.Navigatable;
@@ -9,7 +10,7 @@ import com.intellij.psi.impl.FakePsiElement;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.IncorrectOperationException;
-import com.intellij.util.PlatformIcons;
+import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyElement;
 import com.jetbrains.python.psi.resolve.QualifiedNameFinder;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.Objects;
 
 public class OdooRecordElement extends FakePsiElement implements NavigatablePsiElement {
     private final OdooRecord myRecord;
@@ -65,6 +67,12 @@ public class OdooRecordElement extends FakePsiElement implements NavigatablePsiE
     }
 
     public String getPresentableText() {
+        if (myElement instanceof PyClass) {
+            ItemPresentation presentation = ((PyClass) myElement).getPresentation();
+            if (presentation != null) {
+                return presentation.getPresentableText();
+            }
+        }
         String text = myRecord.getQualifiedId();
         if (StringUtil.isNotEmpty(myRecord.getModel())) {
             text += " (" + myRecord.getModel() + ")";
@@ -79,7 +87,7 @@ public class OdooRecordElement extends FakePsiElement implements NavigatablePsiE
 
     @Override
     public Icon getIcon(boolean unused) {
-        return PlatformIcons.XML_TAG_ICON;
+        return myElement.getIcon(ICON_FLAG_READ_STATUS);
     }
 
     @Override

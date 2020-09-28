@@ -10,8 +10,11 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.impl.FakePsiElement;
+import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import javax.swing.*;
 
 public class OdooCsvRecord extends FakePsiElement implements Navigatable {
     private final VirtualFile myFile;
@@ -98,5 +101,11 @@ public class OdooCsvRecord extends FakePsiElement implements Navigatable {
             return true;
         });
         return rangeRef.get();
+    }
+
+    @Override
+    @Nullable
+    public Icon getIcon(boolean open) {
+        return PlatformIcons.RECORD_ICON;
     }
 }

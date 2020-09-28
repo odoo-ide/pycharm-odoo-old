@@ -11,9 +11,21 @@ public class OdooRecordDocumentProvider implements DocumentationProvider {
     public String generateDoc(PsiElement element,
                               @Nullable PsiElement originalElement) {
         if (element instanceof OdooRecordElement) {
-            String model = ((OdooRecordElement) element).getRecord().getModel();
-            return DocumentationMarkup.DEFINITION_START + "A record of model <b>" + model + "</b>" + DocumentationMarkup.DEFINITION_END;
+            OdooRecordElement recordElement = (OdooRecordElement) element;
+            return DocumentationMarkup.DEFINITION_START +
+                    recordElement.getPresentableText() +
+                    DocumentationMarkup.GRAYED_START +
+                    " (" + recordElement.getLocationString() + ")" +
+                    DocumentationMarkup.GRAYED_END +
+                    DocumentationMarkup.DEFINITION_END;
         }
         return null;
+    }
+
+    @Override
+    @Nullable
+    public String getQuickNavigateInfo(PsiElement element,
+                                       PsiElement originalElement) {
+        return generateDoc(element, originalElement);
     }
 }
