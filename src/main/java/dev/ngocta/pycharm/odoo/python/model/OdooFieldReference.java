@@ -57,6 +57,9 @@ public class OdooFieldReference extends PsiReferenceBase.Poly<PsiElement> {
             if (cls == null && myModelClassResolver != null) {
                 cls = myModelClassResolver.compute();
             }
+            if (cls != null && cls.getName().isEmpty()) {
+                cls = null;
+            }
             if (myFieldPathReferences == null) {
                 return cls;
             }

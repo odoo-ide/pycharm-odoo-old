@@ -375,7 +375,7 @@ public class OdooModelUtils {
                                             .map(OdooModelUtils::getContainingOdooModelClass)
                                             .orElse(null);
                                 }
-                                String model = modelField.getValue();
+                                String model = modelField.getStringValue();
                                 if (model != null) {
                                     return () -> OdooModelClass.getInstance(model, project);
                                 }
