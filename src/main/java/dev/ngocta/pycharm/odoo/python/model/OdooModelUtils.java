@@ -371,6 +371,7 @@ public class OdooModelUtils {
                                     return () -> Optional.of(refValue)
                                             .map(PsiElement::getReference)
                                             .map(PsiReference::resolve)
+                                            .map(PsiElement::getOriginalElement)
                                             .map(OdooModelUtils::getContainingOdooModelClass)
                                             .orElse(null);
                                 }
