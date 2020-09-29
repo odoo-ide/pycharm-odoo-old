@@ -108,15 +108,25 @@ public class OdooRecordElement extends FakePsiElement implements NavigatablePsiE
     }
 
     @Override
+    public boolean isEquivalentTo(PsiElement another) {
+        if (another instanceof OdooRecordElement &&
+                myRecord.getQualifiedId().equals(((OdooRecordElement) another).myRecord.getQualifiedId())) {
+            return true;
+        }
+        return super.isEquivalentTo(another);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OdooRecordElement that = (OdooRecordElement) o;
-        return myRecord.getQualifiedId().equals(that.myRecord.getQualifiedId());
+        return myRecord.equals(that.myRecord) &&
+                myElement.equals(that.myElement);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(myRecord.getQualifiedId());
+        return Objects.hash(myRecord, myElement);
     }
 }
