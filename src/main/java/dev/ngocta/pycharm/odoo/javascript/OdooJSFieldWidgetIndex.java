@@ -113,7 +113,7 @@ public class OdooJSFieldWidgetIndex extends ScalarIndexExtension<String> {
         for (VirtualFile file : files) {
             PsiFile psiFile = psiManager.findFile(file);
             if (psiFile != null) {
-                definitions.add(psiFile);
+                definitions.add(new OdooJSFieldWidget(name, psiFile));
             }
         }
         return definitions;
