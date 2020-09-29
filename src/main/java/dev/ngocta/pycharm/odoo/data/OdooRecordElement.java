@@ -11,8 +11,6 @@ import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.IncorrectOperationException;
 import com.jetbrains.python.psi.PyClass;
-import com.jetbrains.python.psi.PyElement;
-import com.jetbrains.python.psi.resolve.QualifiedNameFinder;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,10 +35,7 @@ public class OdooRecordElement extends FakePsiElement implements NavigatablePsiE
 
     @Override
     public String getName() {
-        if (myElement instanceof PyElement) {
-            return QualifiedNameFinder.getQualifiedName((PyElement) myElement);
-        }
-        return myRecord.getQualifiedId();
+        return myRecord.getUnqualifiedId();
     }
 
     @Override
