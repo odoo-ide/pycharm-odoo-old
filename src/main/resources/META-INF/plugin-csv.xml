@@ -5,6 +5,7 @@
                                  implementationClass="dev.ngocta.pycharm.odoo.csv.OdooCsvFieldManipulator"/>
         <localInspection language="csv" enabledByDefault="true" groupName="Odoo" displayName="CSV unresolved references"
                          implementationClass="dev.ngocta.pycharm.odoo.csv.OdooCsvUnresolvedReferencesInspection"/>
+        <lang.findUsagesProvider implementationClass="dev.ngocta.pycharm.odoo.data.OdooExternalIdFindUsagesProvider" language="csv"/>
         <highlightUsagesHandlerFactory implementation="dev.ngocta.pycharm.odoo.csv.OdooCsvHighlightUsagesHandlerFactory" order="first"/>
     </extensions>
 </idea-plugin>

@@ -1,16 +1,28 @@
-package dev.ngocta.pycharm.odoo.xml;
+package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.lang.findUsages.FindUsagesProvider;
+import com.intellij.pom.PomTarget;
 import com.intellij.pom.PomTargetPsiElement;
 import com.intellij.psi.PsiElement;
+import com.intellij.util.xml.DomTarget;
+import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRecordLike;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class OdooXmlFindUsagesProvider implements FindUsagesProvider {
+public class OdooExternalIdFindUsagesProvider implements FindUsagesProvider {
     @Override
     public boolean canFindUsagesFor(@NotNull PsiElement psiElement) {
-        return psiElement instanceof PomTargetPsiElement;
+        if (psiElement instanceof OdooRecordElement) {
+            return true;
+        }
+        if (psiElement instanceof PomTargetPsiElement) {
+            PomTarget target = ((PomTargetPsiElement) psiElement).getTarget();
+            if (target instanceof DomTarget) {
+                return ((DomTarget) target).getDomElement() instanceof OdooDomRecordLike;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -23,13 +35,16 @@ public class OdooXmlFindUsagesProvider implements FindUsagesProvider {
     @Nls
     @NotNull
     public String getType(@NotNull PsiElement element) {
-        return "";
+        return "Record";
     }
 
     @Override
     @Nls
     @NotNull
     public String getDescriptiveName(@NotNull PsiElement element) {
+        if (element instanceof OdooRecordElement) {
+            return ((OdooRecordElement) element).getRecord().getUnqualifiedId();
+        }
         return "";
     }
 

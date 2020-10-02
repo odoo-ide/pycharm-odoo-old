@@ -326,7 +326,8 @@
         <documentationProvider implementation="dev.ngocta.pycharm.odoo.data.OdooRecordDocumentProvider"/>
         <lang.parserDefinition implementationClass="dev.ngocta.pycharm.odoo.python.OdooPythonParserDefinition" language="Python" order="first"/>
         <useScopeOptimizer implementation="dev.ngocta.pycharm.odoo.OdooScopeOptimizer"/>
-        <lang.findUsagesProvider implementationClass="dev.ngocta.pycharm.odoo.xml.OdooXmlFindUsagesProvider" language="XML"/>
+        <lang.findUsagesProvider implementationClass="dev.ngocta.pycharm.odoo.data.OdooExternalIdFindUsagesProvider" language=""/>
+        <lang.findUsagesProvider implementationClass="dev.ngocta.pycharm.odoo.data.OdooExternalIdFindUsagesProvider" language="XML"/>
         <referencesSearch implementation="dev.ngocta.pycharm.odoo.data.OdooRecordElementReferencesSearch"/>
         <elementDescriptionProvider implementation="dev.ngocta.pycharm.odoo.data.OdooRecordElementDescriptionProvider"/>
         <defaultLiveTemplates file="/liveTemplates/Python.xml"/>
