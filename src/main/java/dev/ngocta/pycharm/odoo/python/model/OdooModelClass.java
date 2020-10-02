@@ -10,7 +10,6 @@ import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiReference;
 import com.intellij.psi.impl.FakePsiElement;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.stubs.IStubElementType;
@@ -628,16 +627,6 @@ public class OdooModelClass extends FakePsiElement implements PyClass {
         if (myElement != null) {
             myElement.navigate(requestFocus);
         }
-    }
-
-    @Override
-    public boolean isEquivalentTo(PsiElement another) {
-        for (PsiReference reference : another.getReferences()) {
-            if (reference instanceof OdooModelReference) {
-                return true;
-            }
-        }
-        return super.isEquivalentTo(another);
     }
 
     @Override
