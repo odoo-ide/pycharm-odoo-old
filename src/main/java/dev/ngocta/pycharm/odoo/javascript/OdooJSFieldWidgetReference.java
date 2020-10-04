@@ -7,8 +7,12 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.ResolveResult;
+import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.DomUtil;
 import com.jetbrains.python.psi.PyUtil;
+import dev.ngocta.pycharm.odoo.xml.dom.OdooDomViewElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -19,10 +23,23 @@ public class OdooJSFieldWidgetReference extends PsiReferenceBase.Poly<PsiElement
         super(element);
     }
 
+    @Nullable
+    private String getViewType() {
+        DomElement domElement = DomUtil.getDomElement(getElement());
+        if (domElement instanceof OdooDomViewElement) {
+            return ((OdooDomViewElement) domElement).getViewType();
+        }
+        return null;
+    }
+
     @Override
     public @NotNull ResolveResult[] multiResolve(boolean incompleteCode) {
         return PyUtil.getParameterizedCachedValue(getElement(), getValue(), param -> {
             Collection<OdooJSFieldWidget> widgets = OdooJSFieldWidgetIndex.getWidgetsByName(getValue(), getElement(), false);
+            String viewType = getViewType();
+            if (viewType != null) {
+                widgets.removeIf(widget -> widget.getViewType() != null && !widget.getViewType().equals(viewType));
+            }
             return PsiElementResolveResult.createResults(widgets);
         });
     }

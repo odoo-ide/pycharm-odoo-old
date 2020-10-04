@@ -87,12 +87,12 @@ public class OdooJSFieldWidgetIndex extends ScalarIndexExtension<String> {
 
     public static Collection<String> getAvailableWidgetNames(@NotNull GlobalSearchScope scope,
                                                              @NotNull Project project,
-                                                             boolean withViewPrefix) {
+                                                             boolean withViewTypePrefix) {
         FileBasedIndex index = FileBasedIndex.getInstance();
         Collection<String> allNames = index.getAllKeys(NAME, project);
         Set<String> names = new HashSet<>();
         for (String name : allNames) {
-            if (name.contains(".") && !withViewPrefix) {
+            if (name.contains(".") && !withViewTypePrefix) {
                 String[] splits = name.split("\\.", 2);
                 name = splits[1];
                 if (names.contains(name)) {
@@ -109,9 +109,9 @@ public class OdooJSFieldWidgetIndex extends ScalarIndexExtension<String> {
     }
 
     public static Collection<String> getAvailableWidgetNames(@NotNull PsiElement anchor,
-                                                             boolean withViewPrefix) {
+                                                             boolean withViewTypePrefix) {
         GlobalSearchScope scope = OdooModuleUtils.getOdooModuleWithDependenciesOrSystemWideModulesScope(anchor);
-        return getAvailableWidgetNames(scope, anchor.getProject(), withViewPrefix);
+        return getAvailableWidgetNames(scope, anchor.getProject(), withViewTypePrefix);
     }
 
     public static void processAvailableWidgets(@NotNull GlobalSearchScope scope,
@@ -134,11 +134,11 @@ public class OdooJSFieldWidgetIndex extends ScalarIndexExtension<String> {
     public static Collection<OdooJSFieldWidget> getWidgetsByName(@NotNull String name,
                                                                  @NotNull GlobalSearchScope scope,
                                                                  @NotNull Project project,
-                                                                 boolean withViewPrefix) {
+                                                                 boolean withViewTypePrefix) {
         List<OdooJSFieldWidget> widgets = new LinkedList<>();
         processAvailableWidgets(scope, project, widget -> {
-            if ((withViewPrefix && name.equals(widget.getNameWithViewPrefix()))
-                    || (!withViewPrefix && name.equals(widget.getName()))) {
+            if ((withViewTypePrefix && name.equals(widget.getOriginName()))
+                    || (!withViewTypePrefix && name.equals(widget.getName()))) {
                 widgets.add(widget);
             }
             return true;
@@ -148,8 +148,8 @@ public class OdooJSFieldWidgetIndex extends ScalarIndexExtension<String> {
 
     public static Collection<OdooJSFieldWidget> getWidgetsByName(@NotNull String name,
                                                                  @NotNull PsiElement anchor,
-                                                                 boolean withViewPrefix) {
+                                                                 boolean withViewTypePrefix) {
         GlobalSearchScope scope = OdooModuleUtils.getOdooModuleWithDependenciesOrSystemWideModulesScope(anchor);
-        return getWidgetsByName(name, scope, anchor.getProject(), withViewPrefix);
+        return getWidgetsByName(name, scope, anchor.getProject(), withViewTypePrefix);
     }
 }

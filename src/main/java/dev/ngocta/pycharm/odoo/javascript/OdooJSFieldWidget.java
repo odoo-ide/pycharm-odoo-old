@@ -16,21 +16,21 @@ import java.util.Objects;
 
 public class OdooJSFieldWidget extends FakePsiElement implements NavigationItem {
     private final String myName;
-    private final String myNameWithViewPrefix;
+    private final String myOriginName;
     private final PsiElement myElement;
-    private final String myView;
+    private final String myViewType;
 
     public OdooJSFieldWidget(@NotNull String name,
                              @NotNull PsiElement element) {
-        myNameWithViewPrefix = name;
+        myOriginName = name;
         myElement = element;
         if (name.contains(".")) {
             String[] splits = name.split("\\.");
             myName = splits[1];
-            myView = splits[0];
+            myViewType = splits[0];
         } else {
             myName = name;
-            myView = null;
+            myViewType = null;
         }
     }
 
@@ -41,18 +41,18 @@ public class OdooJSFieldWidget extends FakePsiElement implements NavigationItem 
     }
 
     @NotNull
-    public String getNameWithViewPrefix() {
-        return myNameWithViewPrefix;
+    public String getOriginName() {
+        return myOriginName;
     }
 
     @Override
     public String getPresentableText() {
-        return getNameWithViewPrefix();
+        return getOriginName();
     }
 
     @Nullable
-    public String getView() {
-        return myView;
+    public String getViewType() {
+        return myViewType;
     }
 
     @Override
@@ -109,19 +109,19 @@ public class OdooJSFieldWidget extends FakePsiElement implements NavigationItem 
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OdooJSFieldWidget that = (OdooJSFieldWidget) o;
-        return myNameWithViewPrefix.equals(that.myNameWithViewPrefix) &&
+        return myOriginName.equals(that.myOriginName) &&
                 myElement.equals(that.myElement);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(myNameWithViewPrefix, myElement);
+        return Objects.hash(myOriginName, myElement);
     }
 
     @Override
     public String toString() {
         return "OdooJSFieldWidget{" +
-                "myName='" + myNameWithViewPrefix + '\'' +
+                "myName='" + myOriginName + '\'' +
                 ", myElement=" + myElement +
                 '}';
     }
