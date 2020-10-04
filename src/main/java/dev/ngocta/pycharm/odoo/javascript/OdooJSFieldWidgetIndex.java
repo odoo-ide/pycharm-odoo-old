@@ -6,6 +6,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.util.Processor;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
@@ -84,44 +85,71 @@ public class OdooJSFieldWidgetIndex extends ScalarIndexExtension<String> {
         return true;
     }
 
-    public static List<String> getAvailableWidgets(@NotNull GlobalSearchScope scope,
-                                                   @NotNull Project project) {
+    public static Collection<String> getAvailableWidgetNames(@NotNull GlobalSearchScope scope,
+                                                             @NotNull Project project,
+                                                             boolean withViewPrefix) {
         FileBasedIndex index = FileBasedIndex.getInstance();
-        Collection<String> allWidgets = index.getAllKeys(NAME, project);
-        List<String> widgets = new LinkedList<>();
-        for (String widget : allWidgets) {
-            index.processValues(NAME, widget, null, (file, value) -> {
-                widgets.add(widget);
+        Collection<String> allNames = index.getAllKeys(NAME, project);
+        Set<String> names = new HashSet<>();
+        for (String name : allNames) {
+            if (name.contains(".") && !withViewPrefix) {
+                String[] splits = name.split("\\.", 2);
+                name = splits[1];
+                if (names.contains(name)) {
+                    continue;
+                }
+            }
+            String finalName = name;
+            index.processValues(NAME, name, null, (file, value) -> {
+                names.add(finalName);
                 return false;
             }, scope);
         }
+        return names;
+    }
+
+    public static Collection<String> getAvailableWidgetNames(@NotNull PsiElement anchor,
+                                                             boolean withViewPrefix) {
+        GlobalSearchScope scope = OdooModuleUtils.getOdooModuleWithDependenciesOrSystemWideModulesScope(anchor);
+        return getAvailableWidgetNames(scope, anchor.getProject(), withViewPrefix);
+    }
+
+    public static void processAvailableWidgets(@NotNull GlobalSearchScope scope,
+                                               @NotNull Project project,
+                                               @NotNull Processor<OdooJSFieldWidget> processor) {
+        FileBasedIndex index = FileBasedIndex.getInstance();
+        PsiManager psiManager = PsiManager.getInstance(project);
+        Collection<String> allNames = index.getAllKeys(NAME, project);
+        for (String name : allNames) {
+            index.processValues(NAME, name, null, (file, value) -> {
+                PsiFile psiFile = psiManager.findFile(file);
+                if (psiFile != null) {
+                    processor.process(new OdooJSFieldWidget(name, psiFile));
+                }
+                return true;
+            }, scope);
+        }
+    }
+
+    public static Collection<OdooJSFieldWidget> getWidgetsByName(@NotNull String name,
+                                                                 @NotNull GlobalSearchScope scope,
+                                                                 @NotNull Project project,
+                                                                 boolean withViewPrefix) {
+        List<OdooJSFieldWidget> widgets = new LinkedList<>();
+        processAvailableWidgets(scope, project, widget -> {
+            if ((withViewPrefix && name.equals(widget.getNameWithViewPrefix()))
+                    || (!withViewPrefix && name.equals(widget.getName()))) {
+                widgets.add(widget);
+            }
+            return true;
+        });
         return widgets;
     }
 
-    public static List<String> getAvailableWidgets(@NotNull PsiElement anchor) {
+    public static Collection<OdooJSFieldWidget> getWidgetsByName(@NotNull String name,
+                                                                 @NotNull PsiElement anchor,
+                                                                 boolean withViewPrefix) {
         GlobalSearchScope scope = OdooModuleUtils.getOdooModuleWithDependenciesOrSystemWideModulesScope(anchor);
-        return getAvailableWidgets(scope, anchor.getProject());
-    }
-
-    public static List<PsiElement> getWidgetDefinitionsByName(@NotNull String name,
-                                                              @NotNull GlobalSearchScope scope,
-                                                              @NotNull Project project) {
-        List<PsiElement> definitions = new LinkedList<>();
-        FileBasedIndex index = FileBasedIndex.getInstance();
-        Collection<VirtualFile> files = index.getContainingFiles(NAME, name, scope);
-        PsiManager psiManager = PsiManager.getInstance(project);
-        for (VirtualFile file : files) {
-            PsiFile psiFile = psiManager.findFile(file);
-            if (psiFile != null) {
-                definitions.add(new OdooJSFieldWidget(name, psiFile));
-            }
-        }
-        return definitions;
-    }
-
-    public static List<PsiElement> getWidgetDefinitionsByName(@NotNull String name,
-                                                              @NotNull PsiElement anchor) {
-        GlobalSearchScope scope = OdooModuleUtils.getOdooModuleWithDependenciesOrSystemWideModulesScope(anchor);
-        return getWidgetDefinitionsByName(name, scope, anchor.getProject());
+        return getWidgetsByName(name, scope, anchor.getProject(), withViewPrefix);
     }
 }

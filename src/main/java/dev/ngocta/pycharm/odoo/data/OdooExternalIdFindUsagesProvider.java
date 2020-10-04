@@ -35,7 +35,10 @@ public class OdooExternalIdFindUsagesProvider implements FindUsagesProvider {
     @Nls
     @NotNull
     public String getType(@NotNull PsiElement element) {
-        return "Record";
+        if (canFindUsagesFor(element)) {
+            return "record";
+        }
+        return "";
     }
 
     @Override

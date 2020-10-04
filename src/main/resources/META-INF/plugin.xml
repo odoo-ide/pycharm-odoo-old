@@ -310,6 +310,7 @@
         <dom.extender domClass="dev.ngocta.pycharm.odoo.xml.dom.OdooDomElement" extenderClass="dev.ngocta.pycharm.odoo.xml.dom.OdooDomExtender"/>
         <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.data.OdooExternalIdGotoContributor"/>
         <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.xml.OdooJSTemplateGotoContributor"/>
+        <gotoSymbolContributor implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSFieldWidgetGotoContributor"/>
         <lang.psiStructureViewFactory implementationClass="dev.ngocta.pycharm.odoo.python.model.OdooModelStructureViewFactory" language="Python" order="first"/>
         <xmlStructureViewBuilderProvider implementation="dev.ngocta.pycharm.odoo.xml.OdooXmlStructureViewBuilderProvider" order="first"/>
         <lang.formatter implementationClass="dev.ngocta.pycharm.odoo.xml.OdooXmlFormatter" language="XML"/>
@@ -328,6 +329,7 @@
         <useScopeOptimizer implementation="dev.ngocta.pycharm.odoo.OdooScopeOptimizer"/>
         <lang.findUsagesProvider implementationClass="dev.ngocta.pycharm.odoo.data.OdooExternalIdFindUsagesProvider" language=""/>
         <lang.findUsagesProvider implementationClass="dev.ngocta.pycharm.odoo.data.OdooExternalIdFindUsagesProvider" language="XML"/>
+        <lang.findUsagesProvider implementationClass="dev.ngocta.pycharm.odoo.javascript.OdooJSFieldWidgetFindUsagesProvider" language=""/>
         <referencesSearch implementation="dev.ngocta.pycharm.odoo.data.OdooRecordElementReferencesSearch"/>
         <elementDescriptionProvider implementation="dev.ngocta.pycharm.odoo.data.OdooRecordElementDescriptionProvider"/>
         <defaultLiveTemplates file="/liveTemplates/Python.xml"/>
