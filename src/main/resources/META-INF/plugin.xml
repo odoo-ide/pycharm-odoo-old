@@ -332,6 +332,7 @@
         <elementDescriptionProvider implementation="dev.ngocta.pycharm.odoo.data.OdooRecordElementDescriptionProvider"/>
         <defaultLiveTemplates file="/liveTemplates/Python.xml"/>
         <liveTemplateMacro implementation="dev.ngocta.pycharm.odoo.python.OdooPySuperFunctionParamMacro"/>
+        <renameInputValidator implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelRenameInputValidator"/>
     </extensions>
 
     <actions>
