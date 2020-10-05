@@ -6,7 +6,6 @@ import com.intellij.psi.ElementDescriptionLocation;
 import com.intellij.psi.ElementDescriptionProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlTag;
-import com.intellij.usageView.UsageViewShortNameLocation;
 import com.intellij.usageView.UsageViewTypeLocation;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomTarget;
@@ -21,22 +20,24 @@ public class OdooRecordElementDescriptionProvider implements ElementDescriptionP
     public String getElementDescription(@NotNull PsiElement element,
                                         @NotNull ElementDescriptionLocation location) {
         if (element instanceof OdooRecordElement) {
-            if (location instanceof UsageViewShortNameLocation) {
-                return ((OdooRecordElement) element).getRecord().getUnqualifiedId();
-            } else if (location instanceof UsageViewTypeLocation) {
+            if (location instanceof UsageViewTypeLocation) {
                 if (element.getOriginalElement() instanceof XmlTag) {
                     return ((XmlTag) element.getOriginalElement()).getName();
                 }
                 return ((OdooRecordElement) element).getRecord().getModel();
             }
         } else if (element instanceof XmlTag && OdooXmlUtils.isOdooXmlDataElement(element)) {
-            return ((XmlTag) element).getName();
+            if (location instanceof UsageViewTypeLocation) {
+                return ((XmlTag) element).getName();
+            }
         } else if (element instanceof PomTargetPsiElement) {
             PomTarget target = ((PomTargetPsiElement) element).getTarget();
             if (target instanceof DomTarget) {
                 DomElement domElement = ((DomTarget) target).getDomElement();
                 if (domElement instanceof OdooDomRecordLike) {
-                    return domElement.getXmlElementName();
+                    if (location instanceof UsageViewTypeLocation) {
+                        return domElement.getXmlElementName();
+                    }
                 }
             }
         }
