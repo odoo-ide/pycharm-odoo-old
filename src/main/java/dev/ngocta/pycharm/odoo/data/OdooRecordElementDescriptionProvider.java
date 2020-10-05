@@ -8,8 +8,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.usageView.UsageViewTypeLocation;
 import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.DomManager;
 import com.intellij.util.xml.DomTarget;
-import dev.ngocta.pycharm.odoo.xml.OdooXmlUtils;
 import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRecordLike;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,16 +19,12 @@ public class OdooRecordElementDescriptionProvider implements ElementDescriptionP
     @Nullable
     public String getElementDescription(@NotNull PsiElement element,
                                         @NotNull ElementDescriptionLocation location) {
-        if (element instanceof OdooRecordElement) {
-            if (location instanceof UsageViewTypeLocation) {
-                if (element.getOriginalElement() instanceof XmlTag) {
-                    return ((XmlTag) element.getOriginalElement()).getName();
+        if (element instanceof XmlTag) {
+            DomElement domElement = DomManager.getDomManager(element.getProject()).getDomElement((XmlTag) element);
+            if (domElement instanceof OdooDomRecordLike) {
+                if (location instanceof UsageViewTypeLocation) {
+                    return ((XmlTag) element).getName();
                 }
-                return ((OdooRecordElement) element).getRecord().getModel();
-            }
-        } else if (element instanceof XmlTag && OdooXmlUtils.isOdooXmlDataElement(element)) {
-            if (location instanceof UsageViewTypeLocation) {
-                return ((XmlTag) element).getName();
             }
         } else if (element instanceof PomTargetPsiElement) {
             PomTarget target = ((PomTargetPsiElement) element).getTarget();
@@ -38,6 +34,11 @@ public class OdooRecordElementDescriptionProvider implements ElementDescriptionP
                     if (location instanceof UsageViewTypeLocation) {
                         return domElement.getXmlElementName();
                     }
+                }
+            }
+            if (element instanceof OdooRecordElement) {
+                if (location instanceof UsageViewTypeLocation) {
+                    return ((OdooRecordElement) element).getRecord().getModel();
                 }
             }
         }

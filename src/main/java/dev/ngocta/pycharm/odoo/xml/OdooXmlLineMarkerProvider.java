@@ -114,7 +114,7 @@ public class OdooXmlLineMarkerProvider implements LineMarkerProvider {
             }, scope, project);
             List<NavigatablePsiElement> elements = new LinkedList<>();
             for (OdooRecord r : records) {
-                elements.addAll(r.getNavigationElements(project));
+                elements.addAll(r.getRecordElements(project));
             }
             elements = OdooModuleUtils.sortElementByOdooModuleDependOrder(elements, true);
             PsiElementListNavigator.openTargets(

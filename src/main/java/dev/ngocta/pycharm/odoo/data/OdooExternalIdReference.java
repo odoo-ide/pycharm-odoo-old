@@ -59,7 +59,7 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
             Project project = myElement.getProject();
             List<OdooRecord> records = OdooExternalIdIndex.findRecordsById(getValue(), getElement(), myAllowUnqualified);
             List<PsiElement> elements = new LinkedList<>();
-            records.forEach(record -> elements.addAll(record.getNavigationElements(project)));
+            records.forEach(record -> elements.addAll(record.getRecordElements(project)));
             return OdooModuleUtils.sortElementByOdooModuleDependOrder(elements, true);
         });
     }

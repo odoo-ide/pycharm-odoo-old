@@ -2,12 +2,13 @@ package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.NavigatablePsiElement;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
+import com.intellij.psi.*;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlFile;
+import com.intellij.psi.xml.XmlTag;
+import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.DomManager;
+import com.intellij.util.xml.DomTarget;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyFile;
 import com.jetbrains.python.psi.PyUtil;
@@ -25,7 +26,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class OdooRecord {
     private final String myId;
@@ -139,10 +139,23 @@ public class OdooRecord {
         return Collections.unmodifiableList(result);
     }
 
-    public List<NavigatablePsiElement> getNavigationElements(@NotNull Project project) {
-        return getElements(project).stream()
-                .map(element -> new OdooRecordElement(this, element))
-                .collect(Collectors.toList());
+    public List<OdooRecordElement> getRecordElements(@NotNull Project project) {
+        List<OdooRecordElement> recordElements = new LinkedList<>();
+        List<PsiElement> elements = getElements(project);
+        for (PsiElement element : elements) {
+            PsiTarget target = null;
+            if (element instanceof XmlTag) {
+                DomElement domElement = DomManager.getDomManager(project).getDomElement((XmlTag) element);
+                if (domElement != null) {
+                    target = DomTarget.getTarget(domElement);
+                }
+            }
+            if (target == null) {
+                target = new DelegatePsiTarget(element);
+            }
+            recordElements.add(new OdooRecordElement(this, target));
+        }
+        return recordElements;
     }
 
     @Override

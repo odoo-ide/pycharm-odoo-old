@@ -31,7 +31,7 @@ public class OdooExternalIdGotoContributor implements ChooseByNameContributorEx 
         Project project = parameters.getProject();
         Collection<OdooRecord> records = OdooExternalIdIndex.findRecordsByQualifiedId(name, project, parameters.getSearchScope());
         records.forEach(record -> {
-            record.getNavigationElements(project).forEach(processor::process);
+            record.getRecordElements(project).forEach(processor::process);
         });
     }
 }

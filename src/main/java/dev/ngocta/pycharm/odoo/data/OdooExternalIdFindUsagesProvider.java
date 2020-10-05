@@ -35,9 +35,6 @@ public class OdooExternalIdFindUsagesProvider implements FindUsagesProvider {
     @Nls
     @NotNull
     public String getType(@NotNull PsiElement element) {
-        if (canFindUsagesFor(element)) {
-            return "record";
-        }
         return "";
     }
 
@@ -45,9 +42,6 @@ public class OdooExternalIdFindUsagesProvider implements FindUsagesProvider {
     @Nls
     @NotNull
     public String getDescriptiveName(@NotNull PsiElement element) {
-        if (element instanceof OdooRecordElement) {
-            return ((OdooRecordElement) element).getRecord().getUnqualifiedId();
-        }
         return "";
     }
 
