@@ -2,11 +2,12 @@
     <extensions defaultExtensionNs="com.intellij">
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSModuleIndex"/>
         <languageInjector implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSLanguageInjector"/>
+        <lang.findUsagesProvider implementationClass="dev.ngocta.pycharm.odoo.javascript.OdooJSFieldWidgetFindUsagesProvider" language="JavaScript"/>
     </extensions>
     <extensions defaultExtensionNs="JavaScript">
         <moduleReferenceContributor implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSModuleReferenceContributor"/>
         <dialectSpecificHandlersFactory implementationClass="dev.ngocta.pycharm.odoo.javascript.OdooJSDialectSpecificHandlersFactory"
                                         language="ECMAScript 6" order="first"/>
-        <elementScopeProvider implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSElementScopeProvider" />
+        <elementScopeProvider implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSElementScopeProvider"/>
     </extensions>
 </idea-plugin>

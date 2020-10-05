@@ -1,12 +1,11 @@
 package dev.ngocta.pycharm.odoo.javascript;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.navigation.NavigationItem;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.pom.Navigatable;
+import com.intellij.psi.DelegatePsiTarget;
+import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.impl.FakePsiElement;
+import com.intellij.psi.impl.PomTargetPsiElementImpl;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,16 +13,15 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.util.Objects;
 
-public class OdooJSFieldWidget extends FakePsiElement implements NavigationItem {
+public class OdooJSFieldWidget extends PomTargetPsiElementImpl implements NavigatablePsiElement {
     private final String myName;
     private final String myOriginName;
-    private final PsiElement myElement;
     private final String myViewType;
 
     public OdooJSFieldWidget(@NotNull String name,
                              @NotNull PsiElement element) {
+        super(new DelegatePsiTarget(element));
         myOriginName = name;
-        myElement = element;
         if (name.contains(".")) {
             String[] splits = name.split("\\.");
             myName = splits[1];
@@ -56,48 +54,15 @@ public class OdooJSFieldWidget extends FakePsiElement implements NavigationItem 
     }
 
     @Override
-    public PsiElement getParent() {
-        return myElement.getParent();
-    }
-
-    @Override
-    public PsiFile getContainingFile() {
-        return myElement.getContainingFile();
-    }
-
-    @Override
-    public PsiElement getOriginalElement() {
-        return myElement;
-    }
-
-    @Override
     @Nullable
-    public TextRange getTextRange() {
-        return myElement.getTextRange();
-    }
-
-    @Override
-    public boolean canNavigate() {
-        return myElement instanceof Navigatable;
-    }
-
-    @Override
-    public void navigate(boolean requestFocus) {
-        if (myElement instanceof Navigatable) {
-            ((Navigatable) myElement).navigate(requestFocus);
-        }
-    }
-
-    @Override
-    @Nullable
-    public Icon getIcon(boolean open) {
+    public Icon getIcon() {
         return AllIcons.Nodes.MultipleTypeDefinitions;
     }
 
     @Override
     @Nullable
     public String getLocationString() {
-        PsiFile file = myElement.getContainingFile();
+        PsiFile file = getNavigationElement().getContainingFile();
         if (file != null) {
             return OdooModuleUtils.getLocationStringForFile(file.getVirtualFile());
         }
@@ -110,19 +75,19 @@ public class OdooJSFieldWidget extends FakePsiElement implements NavigationItem 
         if (o == null || getClass() != o.getClass()) return false;
         OdooJSFieldWidget that = (OdooJSFieldWidget) o;
         return myOriginName.equals(that.myOriginName) &&
-                myElement.equals(that.myElement);
+                getTarget().equals(that.getTarget());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(myOriginName, myElement);
+        return Objects.hash(myOriginName, getTarget());
     }
 
     @Override
     public String toString() {
         return "OdooJSFieldWidget{" +
                 "myName='" + myOriginName + '\'' +
-                ", myElement=" + myElement +
+                ", myElement=" + getNavigationElement() +
                 '}';
     }
 }

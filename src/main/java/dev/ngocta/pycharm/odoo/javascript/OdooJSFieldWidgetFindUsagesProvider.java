@@ -22,9 +22,6 @@ public class OdooJSFieldWidgetFindUsagesProvider implements FindUsagesProvider {
     @Nls
     @NotNull
     public String getType(@NotNull PsiElement element) {
-        if (canFindUsagesFor(element)) {
-            return "widget";
-        }
         return "";
     }
 
@@ -32,9 +29,6 @@ public class OdooJSFieldWidgetFindUsagesProvider implements FindUsagesProvider {
     @Nls
     @NotNull
     public String getDescriptiveName(@NotNull PsiElement element) {
-        if (element instanceof OdooJSFieldWidget) {
-            return ((OdooJSFieldWidget) element).getName();
-        }
         return "";
     }
 
