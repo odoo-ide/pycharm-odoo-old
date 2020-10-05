@@ -13,6 +13,7 @@ import com.intellij.psi.ResolveResult;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
 import com.intellij.util.ObjectUtils;
+import com.jetbrains.python.codeInsight.dataflow.scope.ScopeUtil;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.references.PyQualifiedReference;
 import com.jetbrains.python.psi.resolve.ImplicitResolveResult;
@@ -26,6 +27,7 @@ import com.jetbrains.python.pyi.PyiUtil;
 import dev.ngocta.pycharm.odoo.OdooUtils;
 import dev.ngocta.pycharm.odoo.python.OdooPyUtils;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelClass;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelClassType;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
 import dev.ngocta.pycharm.odoo.python.module.OdooModule;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
@@ -121,6 +123,21 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
         }
         final PyQualifiedExpression element = CompletionUtilCoreImpl.getOriginalOrSelf(myElement);
         PyType qualifierType = TypeEvalContext.codeCompletion(element.getProject(), element.getContainingFile()).getType(qualifier);
+
+        // Remove duplicate variants
+        if (qualifierType instanceof OdooModelClassType) {
+            variants = Arrays.stream(variants).filter(variant -> {
+                if (variant instanceof LookupElement) {
+                    PsiElement e = ((LookupElement) variant).getPsiElement();
+                    if (e != null) {
+                        return ScopeUtil.getScopeOwner(e) instanceof PyClass;
+                    }
+                }
+                return true;
+            }).toArray();
+            return variants;
+        }
+
         if (!OdooPyUtils.isUnknownType(qualifierType)) {
             return variants;
         }
