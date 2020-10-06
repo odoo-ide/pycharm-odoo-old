@@ -2,15 +2,15 @@ package dev.ngocta.pycharm.odoo.xml.dom;
 
 import com.intellij.psi.PsiTarget;
 import com.intellij.util.ObjectUtils;
-import com.intellij.util.xml.Attribute;
-import com.intellij.util.xml.DomTarget;
-import com.intellij.util.xml.GenericAttributeValue;
-import com.intellij.util.xml.NameValue;
+import com.intellij.util.PlatformIcons;
+import com.intellij.util.xml.*;
 import dev.ngocta.pycharm.odoo.python.module.OdooModule;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import dev.ngocta.pycharm.odoo.xml.OdooJSTemplateElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import javax.swing.*;
 
 public interface OdooDomJSTemplate extends OdooDomElement {
     @NameValue
@@ -70,5 +70,28 @@ public interface OdooDomJSTemplate extends OdooDomElement {
             psiTarget = DomTarget.getTarget(this, getExtendAttribute());
         }
         return psiTarget == null ? null : new OdooJSTemplateElement(psiTarget);
+    }
+
+    @Override
+    @NotNull
+    default ElementPresentation getPresentation() {
+        return new ElementPresentation() {
+            @Override
+            @Nullable
+            public String getElementName() {
+                return getName();
+            }
+
+            @Override
+            public String getTypeName() {
+                return "template";
+            }
+
+            @Override
+            @Nullable
+            public Icon getIcon() {
+                return PlatformIcons.XML_TAG_ICON;
+            }
+        };
     }
 }
