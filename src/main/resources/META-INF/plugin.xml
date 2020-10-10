@@ -49,6 +49,12 @@
     <change-notes><![CDATA[
         <ul>
             <li>
+                Version 4.5.1
+                <ul>
+                    <li>Bug fixes</li>
+                </ul>
+            </li>
+            <li>
                 Version 4.5
                 <ul>
                     <li>Improve usages highlighting and searching for model name and external id</li>
