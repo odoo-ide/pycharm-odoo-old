@@ -3,6 +3,10 @@
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSModuleIndex"/>
         <languageInjector implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSLanguageInjector"/>
         <lang.findUsagesProvider implementationClass="dev.ngocta.pycharm.odoo.javascript.OdooJSFieldWidgetFindUsagesProvider" language="JavaScript"/>
+        <lang.findUsagesProvider implementationClass="dev.ngocta.pycharm.odoo.javascript.OdooJSModuleFindUsagesProvider" language="JavaScript"/>
+        <elementDescriptionProvider implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSModuleDescriptionProvider"/>
+        <targetElementEvaluator implementationClass="dev.ngocta.pycharm.odoo.javascript.OdooJSTargetElementEvaluator" language="JavaScript" order="first"/>
+        <renameInputValidator implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSModuleRenameInputValidator"/>
     </extensions>
     <extensions defaultExtensionNs="JavaScript">
         <moduleReferenceContributor implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSModuleReferenceContributor"/>

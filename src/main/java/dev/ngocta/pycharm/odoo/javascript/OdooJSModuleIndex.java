@@ -38,7 +38,7 @@ public class OdooJSModuleIndex extends ScalarIndexExtension<String> {
             VirtualFile virtualFile = inputData.getFile();
             PsiFile psiFile = PsiManager.getInstance(inputData.getProject()).findFile(virtualFile);
             if (OdooJSUtils.isOdooJSFile(psiFile)) {
-                getModuleDefinesInFile((JSFile) psiFile).forEach((moduleName, moduleFunc) -> {
+                getModuleDefineCallsInFile((JSFile) psiFile).forEach((moduleName, moduleDefineCall) -> {
                     result.put(moduleName, null);
                 });
             }
@@ -68,9 +68,9 @@ public class OdooJSModuleIndex extends ScalarIndexExtension<String> {
         return true;
     }
 
-    private static Map<String, JSFunctionExpression> getModuleDefinesInFile(@NotNull JSFile file) {
+    private static Map<String, JSCallExpression> getModuleDefineCallsInFile(@NotNull JSFile file) {
         return CachedValuesManager.getCachedValue(file, () -> {
-            Map<String, JSFunctionExpression> result = new HashMap<>();
+            Map<String, JSCallExpression> result = new HashMap<>();
             for (JSExpressionStatement statement : PsiTreeUtil.getChildrenOfTypeAsList(file, JSExpressionStatement.class)) {
                 JSExpression expression = statement.getExpression();
                 if (expression instanceof JSCallExpression) {
@@ -79,11 +79,7 @@ public class OdooJSModuleIndex extends ScalarIndexExtension<String> {
                         JSExpression[] args = ((JSCallExpression) expression).getArguments();
                         if (args.length > 1 && args[0] instanceof JSLiteralExpression) {
                             String moduleName = ((JSLiteralExpression) args[0]).getStringValue();
-                            if (args.length == 2 && args[1] instanceof JSFunctionExpression) {
-                                result.put(moduleName, (JSFunctionExpression) args[1]);
-                            } else if (args.length == 3 && args[2] instanceof JSFunctionExpression) {
-                                result.put(moduleName, (JSFunctionExpression) args[2]);
-                            }
+                            result.put(moduleName, (JSCallExpression) expression);
                         }
                     }
                 }
@@ -123,24 +119,36 @@ public class OdooJSModuleIndex extends ScalarIndexExtension<String> {
         return result;
     }
 
-    @Nullable
-    public static JSFunctionExpression findModuleDefineFunction(@NotNull String moduleName,
-                                                                @NotNull PsiElement anchor) {
-        OdooModule module = OdooModuleUtils.getContainingOdooModule(anchor);
-        if (module != null) {
-            Collection<VirtualFile> files = FileBasedIndex.getInstance().getContainingFiles(NAME, moduleName, module.getOdooModuleWithDependenciesScope());
-            if (files.isEmpty()) {
-                return null;
-            }
-            PsiFile psiFile = PsiManager.getInstance(anchor.getProject()).findFile(files.iterator().next());
+    @NotNull
+    public static Collection<OdooJSModule> findModules(@NotNull String moduleName,
+                                                       @NotNull GlobalSearchScope scope,
+                                                       @NotNull Project project) {
+        List<OdooJSModule> modules = new LinkedList<>();
+        Collection<VirtualFile> files = FileBasedIndex.getInstance().getContainingFiles(NAME, moduleName, scope);
+        if (files.isEmpty()) {
+            return modules;
+        }
+        for (VirtualFile file : files) {
+            PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
             if (psiFile instanceof JSFile) {
-                Map<String, JSFunctionExpression> map = getModuleDefinesInFile((JSFile) psiFile);
-                for (Map.Entry<String, JSFunctionExpression> entry : map.entrySet()) {
+                Map<String, JSCallExpression> map = getModuleDefineCallsInFile((JSFile) psiFile);
+                for (Map.Entry<String, JSCallExpression> entry : map.entrySet()) {
                     if (moduleName.equals(entry.getKey())) {
-                        return entry.getValue();
+                        modules.add(new OdooJSModule(moduleName, entry.getValue()));
                     }
                 }
             }
+        }
+        return modules;
+    }
+
+    @Nullable
+    public static OdooJSModule findModule(@NotNull String moduleName,
+                                          @NotNull PsiElement anchor) {
+        OdooModule module = OdooModuleUtils.getContainingOdooModule(anchor);
+        if (module != null) {
+            Collection<OdooJSModule> modules = findModules(moduleName, module.getOdooModuleWithDependenciesScope(), anchor.getProject());
+            return modules.iterator().next();
         }
         return null;
     }

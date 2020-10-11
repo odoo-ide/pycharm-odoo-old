@@ -1,7 +1,10 @@
 package dev.ngocta.pycharm.odoo.javascript;
 
 import com.intellij.lang.ecmascript6.resolve.ES6TypeEvaluator;
-import com.intellij.lang.javascript.psi.*;
+import com.intellij.lang.javascript.psi.JSCallExpression;
+import com.intellij.lang.javascript.psi.JSExpression;
+import com.intellij.lang.javascript.psi.JSLiteralExpression;
+import com.intellij.lang.javascript.psi.JSType;
 import com.intellij.lang.javascript.psi.resolve.JSEvaluateContext;
 import com.intellij.lang.javascript.psi.resolve.JSTypeEvaluationHelper;
 import com.intellij.lang.javascript.psi.resolve.JSTypeProcessor;
@@ -24,7 +27,7 @@ public class OdooJSTypeEvaluator extends ES6TypeEvaluator {
             if (arg instanceof JSLiteralExpression) {
                 String moduleName = ((JSLiteralExpression) arg).getStringValue();
                 if (moduleName != null) {
-                    JSType type = getModuleType(moduleName, callExpression);
+                    JSType type = getModuleReturnType(moduleName, callExpression);
                     addType(type, callExpression);
                     return;
                 }
@@ -34,10 +37,10 @@ public class OdooJSTypeEvaluator extends ES6TypeEvaluator {
     }
 
     @Nullable
-    private JSType getModuleType(@NotNull String moduleName,
-                                 @NotNull PsiElement anchor) {
-        JSFunctionExpression func = OdooJSModuleIndex.findModuleDefineFunction(moduleName, anchor);
-        return func != null ? func.getReturnType() : null;
+    private JSType getModuleReturnType(@NotNull String moduleName,
+                                       @NotNull PsiElement anchor) {
+        OdooJSModule module = OdooJSModuleIndex.findModule(moduleName, anchor);
+        return module != null ? module.getReturnType() : null;
     }
 
     @Override
@@ -48,7 +51,7 @@ public class OdooJSTypeEvaluator extends ES6TypeEvaluator {
             String moduleName = ((JSRequireCallExpressionType) type).resolveReferencedModule();
             PsiElement sourceElement = type.getSourceElement();
             if (sourceElement != null && OdooJSUtils.isInOdooJSModule(sourceElement)) {
-                JSType moduleType = getModuleType(moduleName, sourceElement);
+                JSType moduleType = getModuleReturnType(moduleName, sourceElement);
                 if (moduleType != null) {
                     super.doAddType(moduleType, source, skipGuard);
                     return;
@@ -56,5 +59,18 @@ public class OdooJSTypeEvaluator extends ES6TypeEvaluator {
             }
         }
         super.doAddType(type, source, skipGuard);
+    }
+
+    @Override
+    public void addTypeFromExternalModuleReferenceResolveResult(@NotNull PsiElement resolve,
+                                                                boolean fromRequire) {
+        if (resolve instanceof OdooJSModule) {
+            JSType type = ((OdooJSModule) resolve).getReturnType();
+            if (type != null) {
+                addType(type, resolve);
+            }
+            return;
+        }
+        super.addTypeFromExternalModuleReferenceResolveResult(resolve, fromRequire);
     }
 }
