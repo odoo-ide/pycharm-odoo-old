@@ -148,7 +148,9 @@ public class OdooJSModuleIndex extends ScalarIndexExtension<String> {
         OdooModule module = OdooModuleUtils.getContainingOdooModule(anchor);
         if (module != null) {
             Collection<OdooJSModule> modules = findModules(moduleName, module.getOdooModuleWithDependenciesScope(), anchor.getProject());
-            return modules.iterator().next();
+            if (!modules.isEmpty()) {
+                return modules.iterator().next();
+            }
         }
         return null;
     }
