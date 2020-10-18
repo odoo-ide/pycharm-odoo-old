@@ -49,6 +49,14 @@
     <change-notes><![CDATA[
         <ul>
             <li>
+                Version 4.6
+                <ul>
+                    <li>Support JS module find usages and refactoring</li>
+                    <li>Improve ES6 class member completion</li>
+                </ul>
+            </li>
+            </li>
+            <li>
                 Version 4.5.1
                 <ul>
                     <li>Bug fixes</li>
