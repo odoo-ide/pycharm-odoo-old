@@ -116,7 +116,7 @@ public class OdooPythonLanguageInjector implements LanguageInjector {
             });
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> RELATION_FIELD_DOMAIN_PATTERN =
-            OdooModelUtils.getFieldArgumentPattern(-1, OdooNames.FIELD_ATTR_DOMAIN, OdooNames.RELATIONAL_FIELD_TYPES);
+            OdooModelUtils.getFieldAttributePattern(-1, OdooNames.FIELD_ATTR_DOMAIN, OdooNames.RELATIONAL_FIELD_TYPES);
 
     public static final XmlAttributeValuePattern XML_ATTR_VALUE_FORMAT_STRING_PATTERN =
             XmlPatterns.xmlAttributeValue().with(new PatternCondition<XmlAttributeValue>("xmlAttributeValueFormatString") {

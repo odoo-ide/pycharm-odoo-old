@@ -50,7 +50,7 @@ public class OdooModelReferenceContributor extends PsiReferenceContributor {
             });
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> COMODEL_NAME_PATTERN =
-            OdooModelUtils.getFieldArgumentPattern(0, OdooNames.FIELD_ATTR_COMODEL_NAME, OdooNames.RELATIONAL_FIELD_TYPES);
+            OdooModelUtils.getFieldAttributePattern(0, OdooNames.FIELD_ATTR_COMODEL_NAME, OdooNames.RELATIONAL_FIELD_TYPES);
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> ENV_PATTERN =
             psiElement(PyStringLiteralExpression.class).withParent(PySubscriptionExpression.class).afterSiblingSkipping(

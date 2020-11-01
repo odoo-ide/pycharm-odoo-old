@@ -118,10 +118,10 @@ public class OdooModelUtils {
     }
 
     @NotNull
-    public static PsiElementPattern.Capture<PyStringLiteralExpression> getFieldArgumentPattern(int index,
-                                                                                               @NotNull String keyword,
-                                                                                               String... fieldType) {
-        return psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("fieldArgument") {
+    public static PsiElementPattern.Capture<PyStringLiteralExpression> getFieldAttributePattern(int index,
+                                                                                                @NotNull String keyword,
+                                                                                                String... fieldType) {
+        return psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("fieldAttribute") {
             @Override
             public boolean accepts(@NotNull PyStringLiteralExpression stringExpression,
                                    ProcessingContext context) {

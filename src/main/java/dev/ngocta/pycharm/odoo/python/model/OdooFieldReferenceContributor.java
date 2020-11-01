@@ -120,7 +120,7 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
             });
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> ONE2MANY_INVERSE_NAME_PATTERN =
-            OdooModelUtils.getFieldArgumentPattern(1, OdooNames.FIELD_ATTR_INVERSE_NAME, OdooNames.FIELD_TYPE_ONE2MANY)
+            OdooModelUtils.getFieldAttributePattern(1, OdooNames.FIELD_ATTR_INVERSE_NAME, OdooNames.FIELD_TYPE_ONE2MANY)
                     .with(new PatternCondition<PyStringLiteralExpression>("inverseName") {
                         @Override
                         public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression,
@@ -139,7 +139,7 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                     });
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> RELATED_PATTERN =
-            OdooModelUtils.getFieldArgumentPattern(-1, OdooNames.FIELD_ATTR_RELATED)
+            OdooModelUtils.getFieldAttributePattern(-1, OdooNames.FIELD_ATTR_RELATED)
                     .with(new PatternCondition<PyStringLiteralExpression>("related") {
                         @Override
                         public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression,
@@ -152,7 +152,7 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                     });
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> CURRENCY_FIELD_PATTERN =
-            OdooModelUtils.getFieldArgumentPattern(-1, OdooNames.FIELD_ATTR_CURRENCY_FIELD, OdooNames.FIELD_TYPE_MONETARY)
+            OdooModelUtils.getFieldAttributePattern(-1, OdooNames.FIELD_ATTR_CURRENCY_FIELD, OdooNames.FIELD_TYPE_MONETARY)
                     .with(new PatternCondition<PyStringLiteralExpression>("currencyField") {
                         @Override
                         public boolean accepts(@NotNull PyStringLiteralExpression expression,
