@@ -319,7 +319,7 @@
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.xml.OdooJSTemplateIndex"/>
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSFieldWidgetIndex"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.python.module.OdooManifestReferenceContributor" language="Python"/>
-        <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.python.model.OdooComputeFunctionReferenceContributor" language="Python"/>
+        <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelFunctionReferenceContributor" language="Python"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.python.model.OdooModelReferenceContributor" language="Python"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.python.model.OdooFieldReferenceContributor" language="Python"/>
         <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.data.OdooExternalIdReferenceContributor"/>

@@ -64,6 +64,7 @@ public class OdooNames {
     public static final String FIELD_ATTR_CURRENCY_FIELD = "currency_field";
     public static final String FIELD_ATTR_DOMAIN = "domain";
     public static final String FIELD_ATTR_GROUPS = "groups";
+    public static final String FIELD_ATTR_GROUP_EXPAND = "group_expand";
     public static final String MAPPED = "mapped";
     public static final String FILTERED = "filtered";
     public static final String SORTED = "sorted";
