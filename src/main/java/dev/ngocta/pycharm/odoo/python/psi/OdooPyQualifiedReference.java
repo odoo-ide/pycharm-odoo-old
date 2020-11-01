@@ -1,18 +1,15 @@
 package dev.ngocta.pycharm.odoo.python.psi;
 
 import com.google.common.collect.Streams;
-import com.intellij.codeInsight.completion.CompletionUtilCore;
 import com.intellij.codeInsight.completion.CompletionUtilCoreImpl;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
-import com.intellij.util.ObjectUtils;
 import com.jetbrains.python.codeInsight.dataflow.scope.ScopeUtil;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.impl.references.PyQualifiedReference;
@@ -150,12 +147,9 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
             }
         }
 
-        String prefix = ObjectUtils.notNull(myElement.getName(), "").replace(CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED, "");
         GlobalSearchScope scope = GlobalSearchScope.projectScope(element.getProject());
         StubIndex.getInstance().processAllKeys(PyClassAttributesIndex.KEY, s -> {
-            if (s.length() >= prefix.length()) {
-                addExtendedVariant(s, extendedVariants);
-            }
+            addExtendedVariant(s, extendedVariants);
             return true;
         }, scope, null);
 
@@ -164,7 +158,7 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
 
     private void addExtendedVariant(@NotNull String name,
                                     @NotNull Collection<Object> result) {
-        result.add(LookupElementBuilder.create(name).withIcon(AllIcons.Nodes.MultipleTypeDefinitions));
+        result.add(LookupElementBuilder.create(name));
     }
 
     @Override
