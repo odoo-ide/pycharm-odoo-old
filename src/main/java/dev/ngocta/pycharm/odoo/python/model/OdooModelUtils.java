@@ -272,7 +272,8 @@ public class OdooModelUtils {
                         PyReferenceExpression ref = (PyReferenceExpression) callee;
                         String refName = ref.getName();
                         PyExpression qualifier = ref.getQualifier();
-                        if (qualifier != null && ArrayUtil.contains(refName, OdooNames.SEARCH, OdooNames.SEARCH_READ, OdooNames.SEARCH_COUNT)) {
+                        if (qualifier != null && ArrayUtil.contains(refName,
+                                OdooNames.SEARCH, OdooNames.SEARCH_READ, OdooNames.SEARCH_COUNT, OdooNames.READ_GROUP)) {
                             return () -> {
                                 PyType type = OdooPyUtils.getType(qualifier);
                                 if (type instanceof OdooModelClassType) {

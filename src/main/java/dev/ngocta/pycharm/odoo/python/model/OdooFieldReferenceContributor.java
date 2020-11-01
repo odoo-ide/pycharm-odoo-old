@@ -8,6 +8,7 @@ import com.intellij.psi.PsiReferenceContributor;
 import com.intellij.psi.PsiReferenceRegistrar;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.QualifiedName;
+import com.intellij.util.ArrayUtil;
 import com.intellij.util.ProcessingContext;
 import com.jetbrains.python.PyTokenTypes;
 import com.jetbrains.python.psi.*;
@@ -204,6 +205,51 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
         return PyPsiUtils.isMethodContext(element);
     }
 
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> READ_FIELDS_PATTERN =
+            psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("readFields") {
+                @Override
+                public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression, ProcessingContext context) {
+                    PsiElement parent = pyStringLiteralExpression.getParent();
+                    if (parent instanceof PyListLiteralExpression) {
+                        PsiElement arg = parent;
+                        parent = parent.getParent();
+                        if (parent instanceof PyKeywordArgument) {
+                            parent = parent.getParent();
+                        }
+                        if (parent instanceof PyArgumentList) {
+                            parent = parent.getParent();
+                            if (parent instanceof PyCallExpression) {
+                                PyCallExpression callExpression = (PyCallExpression) parent;
+                                PyExpression callee = callExpression.getCallee();
+                                if (callee instanceof PyReferenceExpression) {
+                                    PyReferenceExpression referenceExpression = (PyReferenceExpression) callee;
+                                    if ((OdooNames.READ.equals(referenceExpression.getName())
+                                            && arg.equals(callExpression.getArgument(0, "fields", PyExpression.class)))
+                                            || (ArrayUtil.contains(referenceExpression.getName(), OdooNames.SEARCH_READ, OdooNames.READ_GROUP)
+                                            && arg.equals(callExpression.getArgument(1, "fields", PyExpression.class)))
+                                            || (OdooNames.READ_GROUP.equals(referenceExpression.getName())
+                                            && arg.equals(callExpression.getArgument(2, "groupby", PyExpression.class))
+                                            && !pyStringLiteralExpression.getStringValue().contains(":"))) {
+                                        PyExpression qualifier = referenceExpression.getQualifier();
+                                        if (qualifier != null) {
+                                            context.put(OdooFieldReferenceProvider.MODEL_CLASS_RESOLVER, () -> {
+                                                PyType type = OdooPyUtils.getType(qualifier);
+                                                if (type instanceof OdooModelClassType) {
+                                                    return ((OdooModelClassType) type).getPyClass();
+                                                }
+                                                return null;
+                                            });
+                                            return true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                }
+            });
+
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
         OdooFieldReferenceProvider provider = new OdooFieldReferenceProvider();
@@ -216,5 +262,6 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
         registrar.registerReferenceProvider(CURRENCY_FIELD_PATTERN, provider);
         registrar.registerReferenceProvider(SEARCH_DOMAIN_PATTERN, provider);
         registrar.registerReferenceProvider(RECORD_VALUE_PATTERN, provider);
+        registrar.registerReferenceProvider(READ_FIELDS_PATTERN, provider);
     }
 }

@@ -76,6 +76,8 @@ public class OdooNames {
     public static final String UPDATE = "update";
     public static final String COPY = "copy";
     public static final String BROWSE = "browse";
+    public static final String READ = "read";
+    public static final String READ_GROUP = "read_group";
     public static final String WITH_CONTEXT = "with_context";
     public static final String WITH_ENV = "with_env";
     public static final String SUDO = "sudo";
