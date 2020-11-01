@@ -13,6 +13,7 @@ import com.jetbrains.python.psi.impl.PyBuiltinCache;
 import com.jetbrains.python.psi.stubs.PyClassAttributesIndex;
 import com.jetbrains.python.psi.types.*;
 import dev.ngocta.pycharm.odoo.OdooNames;
+import dev.ngocta.pycharm.odoo.OdooUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -111,9 +112,12 @@ public class OdooPyUtils {
         return extractedType != null;
     }
 
-    public static boolean isEnvironmentTypeExpression(@NotNull PyExpression expression,
+    public static boolean isEnvironmentTypeExpression(@Nullable PyExpression expression,
                                                       @NotNull TypeEvalContext context) {
-        if ("env".equals(expression.getName())) {
+        if (expression == null) {
+            return false;
+        }
+        if ("env".equals(expression.getName()) && OdooUtils.isOdooCode(expression)) {
             return true;
         }
         PyType type = context.getType(expression);

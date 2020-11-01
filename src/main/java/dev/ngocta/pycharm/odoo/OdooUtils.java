@@ -2,10 +2,12 @@ package dev.ngocta.pycharm.odoo;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.source.resolve.FileContextUtil;
 import com.intellij.psi.search.GlobalSearchScope;
+import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,5 +52,30 @@ public class OdooUtils {
             return null;
         }
         return file.getOriginalFile();
+    }
+
+    public static boolean isInOdooPackage(@Nullable PsiElement element) {
+        PsiFile file = getOriginalContextFile(element);
+        if (file == null) {
+            return false;
+        }
+        PsiDirectory directory = file.getParent();
+        while (directory != null) {
+            if (directory.findFile("odoo-bin") != null) {
+                return true;
+            }
+            directory = directory.getParent();
+        }
+        return false;
+    }
+
+    public static boolean isOdooCode(@Nullable PsiElement element) {
+        if (element == null) {
+            return false;
+        }
+        if (OdooModuleUtils.isInOdooModule(element)) {
+            return true;
+        }
+        return isInOdooPackage(element);
     }
 }
