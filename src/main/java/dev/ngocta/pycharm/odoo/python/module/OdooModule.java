@@ -98,6 +98,11 @@ public class OdooModule {
     }
 
     @NotNull
+    public GlobalSearchScope getOdooModuleWithDependenciesAndExtensionsScope() {
+        return getOdooModuleScope(true, true);
+    }
+
+    @NotNull
     public GlobalSearchScope getOdooModuleScope() {
         return getOdooModuleScope(false, false);
     }

@@ -16,7 +16,7 @@ import java.util.List;
 
 public class OdooModelClassInheritorsSearch implements QueryExecutor<PyClass, PyClassInheritorsSearch.SearchParameters> {
     @Override
-    public boolean execute(PyClassInheritorsSearch.@NotNull SearchParameters queryParameters,
+    public boolean execute(@NotNull PyClassInheritorsSearch.SearchParameters queryParameters,
                            @NotNull Processor<? super PyClass> consumer) {
         return ReadAction.compute(() -> {
             PyClass superClass = queryParameters.getSuperClass();
@@ -30,13 +30,14 @@ public class OdooModelClassInheritorsSearch implements QueryExecutor<PyClass, Py
             if (module == null) {
                 return true;
             }
-            GlobalSearchScope scope = module.getOdooModuleWithExtensionsScope();
+            GlobalSearchScope moduleWithExtensionsScope = module.getOdooModuleWithExtensionsScope();
+            GlobalSearchScope moduleWithDependenciesAndExtensionsScope = module.getOdooModuleWithDependenciesAndExtensionsScope();
             List<String> visitedModels = new LinkedList<>();
             List<String> toVisitModels = new LinkedList<>();
             toVisitModels.add(modelClass.getName());
             while (!toVisitModels.isEmpty()) {
                 String name = toVisitModels.remove(0);
-                List<PyClass> classes = OdooModelIndex.getOdooModelClassesByName(name, project, scope);
+                List<PyClass> classes = OdooModelIndex.getOdooModelClassesByName(name, project, moduleWithExtensionsScope);
                 classes.removeIf(cls -> superClass.equals(cls) || ancestors.contains(cls));
                 classes = OdooModuleUtils.sortElementByOdooModuleDependOrder(classes, true);
                 for (PyClass cls : classes) {
@@ -45,7 +46,7 @@ public class OdooModelClassInheritorsSearch implements QueryExecutor<PyClass, Py
                     }
                 }
                 visitedModels.add(name);
-                List<PyClass> inheritModelClasses = OdooModelInheritIndex.getOdooModelClassesByInheritModel(name, project, scope);
+                List<PyClass> inheritModelClasses = OdooModelInheritIndex.getOdooModelClassesByInheritModel(name, project, moduleWithDependenciesAndExtensionsScope);
                 for (PyClass cls : inheritModelClasses) {
                     OdooModelInfo info = OdooModelInfo.getInfo(cls);
                     if (info != null && !visitedModels.contains(info.getName())) {
