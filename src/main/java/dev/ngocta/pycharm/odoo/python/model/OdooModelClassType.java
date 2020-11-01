@@ -203,13 +203,13 @@ public class OdooModelClassType extends UserDataHolderBase implements PyClassTyp
     @NotNull
     @Override
     public PyClassLikeType toInstance() {
-        return myRecordSetType != null ? this : new OdooModelClassType(myClass, OdooRecordSetType.MODEL);
+        return isDefinition() ? new OdooModelClassType(myClass, OdooRecordSetType.MULTI) : this;
     }
 
     @NotNull
     @Override
     public PyClassLikeType toClass() {
-        return myRecordSetType == null ? this : new OdooModelClassType(myClass, OdooRecordSetType.NONE);
+        return isDefinition() ? this : new OdooModelClassType(myClass, OdooRecordSetType.NONE);
     }
 
     @Override

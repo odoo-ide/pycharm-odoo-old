@@ -52,15 +52,16 @@ public class OdooModelReferenceContributor extends PsiReferenceContributor {
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> COMODEL_NAME_PATTERN =
             OdooModelUtils.getFieldAttributePattern(0, OdooNames.FIELD_ATTR_COMODEL_NAME, OdooNames.RELATIONAL_FIELD_TYPES);
 
-    public static final PsiElementPattern.Capture<PyStringLiteralExpression> ENV_PATTERN =
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> ENVIRONMENT_AND_REGISTRY_ITEM_PATTERN =
             psiElement(PyStringLiteralExpression.class).withParent(PySubscriptionExpression.class).afterSiblingSkipping(
                     psiElement().withElementType(PyTokenTypes.LBRACE),
-                    psiElement(PyExpression.class).with(new PatternCondition<PyExpression>("env") {
+                    psiElement(PyExpression.class).with(new PatternCondition<PyExpression>("envAndRegistryItem") {
                         @Override
                         public boolean accepts(@NotNull PyExpression expression,
                                                ProcessingContext context) {
                             TypeEvalContext typeEvalContext = TypeEvalContext.codeAnalysis(expression.getProject(), expression.getContainingFile());
-                            return OdooPyUtils.isEnvironmentTypeExpression(expression, typeEvalContext);
+                            return OdooPyUtils.isEnvironmentTypeExpression(expression, typeEvalContext)
+                                    || OdooPyUtils.isRegistryTypeExpression(expression, typeEvalContext);
                         }
                     }));
 
@@ -72,6 +73,6 @@ public class OdooModelReferenceContributor extends PsiReferenceContributor {
         registrar.registerReferenceProvider(INHERIT_LIST_PATTERN, provider);
         registrar.registerReferenceProvider(INHERITS_PATTERN, provider);
         registrar.registerReferenceProvider(COMODEL_NAME_PATTERN, provider);
-        registrar.registerReferenceProvider(ENV_PATTERN, provider);
+        registrar.registerReferenceProvider(ENVIRONMENT_AND_REGISTRY_ITEM_PATTERN, provider);
     }
 }

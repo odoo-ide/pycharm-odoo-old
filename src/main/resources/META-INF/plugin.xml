@@ -291,6 +291,7 @@
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooLambdaTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.model.OdooRecordInSelfTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooEnvironmentItemProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooRegistryItemProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooRefCallTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooSelfTypeProvider" order="first"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooMigrateFunctionParamTypeProvider"/>

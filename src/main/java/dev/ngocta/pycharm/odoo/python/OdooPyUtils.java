@@ -86,6 +86,19 @@ public class OdooPyUtils {
         return getClassTypeByQName(OdooNames.REGISTRY_CLASS_QNAME, anchor, false);
     }
 
+    public static boolean isRegistryType(@Nullable PyType type) {
+        return type instanceof PyClassType && OdooNames.REGISTRY_CLASS_QNAME.equals(((PyClassType) type).getClassQName());
+    }
+
+    public static boolean isRegistryTypeExpression(@Nullable PyExpression expression,
+                                                   @NotNull TypeEvalContext context) {
+        if (expression == null) {
+            return false;
+        }
+        PyType type = context.getType(expression);
+        return isRegistryType(type);
+    }
+
     @Nullable
     public static PyType extractCompositedType(@Nullable PyType type,
                                                @NotNull Predicate<PyType> matcher) {
