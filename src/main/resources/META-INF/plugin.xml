@@ -342,7 +342,7 @@
         <codeInsight.lineMarkerProvider implementationClass="dev.ngocta.pycharm.odoo.python.model.OdooModelLineMarkerProvider" language="Python"/>
         <languageInjector implementation="dev.ngocta.pycharm.odoo.python.OdooPythonLanguageInjector"/>
         <languageInjector implementation="dev.ngocta.pycharm.odoo.OdooHtmlLanguageInjector"/>
-        <completion.contributor implementationClass="dev.ngocta.pycharm.odoo.python.model.OdooModelSuperMethodCompletionContributor" language="Python" order="first"/>
+        <completion.contributor implementationClass="dev.ngocta.pycharm.odoo.python.OdooSuperMethodCompletionContributor" language="Python" order="first"/>
         <completion.contributor implementationClass="dev.ngocta.pycharm.odoo.python.model.OdooModelSuperAttributeCompletionContributor" language="Python"/>
         <documentationProvider implementation="dev.ngocta.pycharm.odoo.python.module.OdooModuleDocumentationProvider"/>
         <documentationProvider implementation="dev.ngocta.pycharm.odoo.data.OdooRecordDocumentProvider"/>
