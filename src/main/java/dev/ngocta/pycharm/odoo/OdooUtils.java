@@ -61,7 +61,7 @@ public class OdooUtils {
         }
         PsiDirectory directory = file.getParent();
         while (directory != null) {
-            if (directory.findFile("odoo-bin") != null) {
+            if (directory.findFile(OdooNames.ODOO_BIN) != null) {
                 return true;
             }
             directory = directory.getParent();
