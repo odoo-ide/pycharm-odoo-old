@@ -49,6 +49,13 @@
     <change-notes><![CDATA[
         <ul>
             <li>
+                Version 4.7
+                <ul>
+                    <li>Improve field references</li>
+                    <li>Bug fixes</li>
+                </ul>
+            </li>
+            <li>
                 Version 4.6
                 <ul>
                     <li>Support JS module find usages and refactoring</li>
