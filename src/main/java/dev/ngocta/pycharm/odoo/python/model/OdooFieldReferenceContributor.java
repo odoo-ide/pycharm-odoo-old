@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class OdooFieldReferenceContributor extends PsiReferenceContributor {
-    public static final PsiElementPattern.Capture<PyStringLiteralExpression> INHERITS_PATTERN =
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> MODEL_INHERITS_PATTERN =
             psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("inherits") {
                 @Override
                 public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression,
@@ -42,7 +42,7 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                 }
             });
 
-    public static final PsiElementPattern.Capture<PyStringLiteralExpression> REC_NAME_PATTERN =
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> MODEL_REC_NAME_PATTERN =
             psiElement(PyStringLiteralExpression.class).afterSiblingSkipping(
                     psiElement().withElementType(PyTokenTypes.EQ),
                     psiElement(PyTargetExpression.class).withName(OdooNames.MODEL_REC_NAME))
@@ -51,6 +51,20 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                         public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression, ProcessingContext context) {
                             OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(pyStringLiteralExpression);
                             context.put(OdooFieldReferenceProvider.MODEL_CLASS, modelClass);
+                            return true;
+                        }
+                    });
+
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> MODEL_ORDER_PATTERN =
+            psiElement(PyStringLiteralExpression.class).afterSiblingSkipping(
+                    psiElement().withElementType(PyTokenTypes.EQ),
+                    psiElement(PyTargetExpression.class).withName(OdooNames.MODEL_ORDER))
+                    .with(new PatternCondition<PyStringLiteralExpression>("") {
+                        @Override
+                        public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression, ProcessingContext context) {
+                            OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(pyStringLiteralExpression);
+                            context.put(OdooFieldReferenceProvider.MODEL_CLASS, modelClass);
+                            context.put(OdooFieldReferenceProvider.IS_SORT_ORDER, true);
                             return true;
                         }
                     });
@@ -250,11 +264,53 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                 }
             });
 
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> ORDER_PATTERN =
+            psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("") {
+                @Override
+                public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression, ProcessingContext context) {
+                    PsiElement parent = pyStringLiteralExpression.getParent();
+                    if (parent instanceof PyKeywordArgument) {
+                        parent = parent.getParent();
+                    }
+                    if (parent instanceof PyArgumentList) {
+                        parent = parent.getParent();
+                        if (parent instanceof PyCallExpression) {
+                            PyCallExpression callExpression = (PyCallExpression) parent;
+                            PyExpression callee = callExpression.getCallee();
+                            if (callee instanceof PyReferenceExpression) {
+                                PyReferenceExpression referenceExpression = (PyReferenceExpression) callee;
+                                if ((ArrayUtil.contains(referenceExpression.getName(), OdooNames.SEARCH, OdooNames.SEARCH_READ)
+                                        && pyStringLiteralExpression.equals(callExpression.getKeywordArgument("order")))
+                                        || (OdooNames.READ_GROUP.equals(referenceExpression.getName())
+                                        && pyStringLiteralExpression.equals(callExpression.getKeywordArgument("orderby")))
+                                        || (OdooNames.SORTED.equals(referenceExpression.getName())
+                                        && pyStringLiteralExpression.equals(callExpression.getArgument(0, "key", PyExpression.class)))) {
+                                    PyExpression qualifier = referenceExpression.getQualifier();
+                                    if (qualifier != null) {
+                                        context.put(OdooFieldReferenceProvider.IS_SORT_ORDER, true);
+                                        context.put(OdooFieldReferenceProvider.MODEL_CLASS_RESOLVER, () -> {
+                                            PyType type = OdooPyUtils.getType(qualifier);
+                                            if (type instanceof OdooModelClassType) {
+                                                return ((OdooModelClassType) type).getPyClass();
+                                            }
+                                            return null;
+                                        });
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                }
+            });
+
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
         OdooFieldReferenceProvider provider = new OdooFieldReferenceProvider();
-        registrar.registerReferenceProvider(INHERITS_PATTERN, provider);
-        registrar.registerReferenceProvider(REC_NAME_PATTERN, provider);
+        registrar.registerReferenceProvider(MODEL_INHERITS_PATTERN, provider);
+        registrar.registerReferenceProvider(MODEL_REC_NAME_PATTERN, provider);
+        registrar.registerReferenceProvider(MODEL_ORDER_PATTERN, provider);
         registrar.registerReferenceProvider(MAPPED_PATTERN, provider);
         registrar.registerReferenceProvider(DECORATOR_PATTERN, provider);
         registrar.registerReferenceProvider(ONE2MANY_INVERSE_NAME_PATTERN, provider);
@@ -263,5 +319,6 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
         registrar.registerReferenceProvider(SEARCH_DOMAIN_PATTERN, provider);
         registrar.registerReferenceProvider(RECORD_VALUE_PATTERN, provider);
         registrar.registerReferenceProvider(READ_FIELDS_PATTERN, provider);
+        registrar.registerReferenceProvider(ORDER_PATTERN, provider);
     }
 }
