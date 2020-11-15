@@ -22,13 +22,19 @@ import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
 import com.intellij.util.xml.DomTarget;
 import com.jetbrains.python.psi.PyUtil;
+import com.jetbrains.python.psi.types.TypeEvalContext;
+import dev.ngocta.pycharm.odoo.OdooUtils;
 import dev.ngocta.pycharm.odoo.data.filter.OdooRecordFilter;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelClass;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelIndex;
 import dev.ngocta.pycharm.odoo.python.module.OdooModule;
+import dev.ngocta.pycharm.odoo.python.module.OdooModuleIndex;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRecordLike;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -56,12 +62,53 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
     @NotNull
     protected List<PsiElement> resolveInner() {
         return PyUtil.getParameterizedCachedValue(getElement(), null, param -> {
-            Project project = myElement.getProject();
-            List<OdooRecord> records = OdooExternalIdIndex.findRecordsById(getValue(), getElement(), myAllowUnqualified);
-            List<PsiElement> elements = new LinkedList<>();
-            records.forEach(record -> elements.addAll(record.getRecordElements(project)));
-            return OdooModuleUtils.sortElementByOdooModuleDependOrder(elements, true);
+            String id = getValue();
+            Project project = getElement().getProject();
+            List<OdooRecord> records = OdooExternalIdIndex.findRecordsById(id, getElement(), myAllowUnqualified);
+            if (!records.isEmpty()) {
+                List<PsiElement> elements = new LinkedList<>();
+                records.forEach(record -> elements.addAll(record.getRecordElements(project)));
+                return OdooModuleUtils.sortElementByOdooModuleDependOrder(elements, true);
+            }
+            if (id.contains("field_") && id.contains("__")) {
+                return resolveExternalIdOfField();
+            }
+            return Collections.emptyList();
         });
+    }
+
+    @NotNull
+    private List<PsiElement> resolveExternalIdOfField() {
+        String id = getValue();
+        OdooModule module = null;
+        if (id.contains(".")) {
+            String[] splits = id.split("\\.", 2);
+            id = splits[1];
+            String moduleName = splits[0];
+            module = OdooModuleIndex.getOdooModuleByName(moduleName, getElement());
+        } else if (myAllowUnqualified) {
+            module = OdooModuleUtils.getContainingOdooModule(getElement());
+        }
+        if (module == null) {
+            return Collections.emptyList();
+        }
+        if (id.startsWith("field_")) {
+            String s = id.substring(6);
+            if (s.contains("__")) {
+                String[] splits = s.split("__", 2);
+                String modelName = splits[0].replace("_", ".");
+                String fieldName = splits[1];
+                Project project = getElement().getProject();
+                if (OdooModelIndex.getAvailableOdooModels(project, module.getOdooModuleScope()).contains(modelName)) {
+                    OdooModelClass modelClass = OdooModelClass.getInstance(modelName, project);
+                    PsiElement field = modelClass.findField(fieldName, TypeEvalContext.codeAnalysis(project, getElement().getContainingFile()));
+                    if (field != null) {
+                        return Collections.singletonList(field);
+                    }
+                }
+            }
+        }
+        return Collections.emptyList();
     }
 
     @NotNull
@@ -72,7 +119,7 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
             return new Object[0];
         }
         Project project = getElement().getProject();
-        GlobalSearchScope scope = module.getOdooModuleWithDependenciesScope();
+        GlobalSearchScope scope = OdooUtils.getProjectModuleWithDependenciesScope(getElement());
         Set<String> scopeModuleNames = module.getFlattenedDependsGraph().stream().map(OdooModule::getName).collect(Collectors.toSet());
         List<String> scopeIds = new LinkedList<>();
         String prefix = getValue().replace(CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED, "");

@@ -17,6 +17,7 @@ import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyElementVisitor;
 import com.jetbrains.python.psi.PyFile;
 import dev.ngocta.pycharm.odoo.OdooNames;
+import dev.ngocta.pycharm.odoo.OdooUtils;
 import dev.ngocta.pycharm.odoo.csv.OdooCsvUtils;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelInfo;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
@@ -53,40 +54,46 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                 return result;
             }
             List<OdooRecord> records = new LinkedList<>();
-            PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
-            if (psiFile instanceof XmlFile) {
-                OdooDomDataFile root = OdooXmlUtils.getOdooDataDomFile(psiFile);
-                if (root == null) {
-                    return result;
-                }
-                List<OdooDomRecordLike> items = root.getAllRecordLikeItems();
-                for (OdooDomRecordLike item : items) {
-                    OdooRecord record = item.getRecord();
-                    if (record != null) {
-                        String id = record.getQualifiedId().trim();
-                        if (!id.isEmpty()) {
-                            records.add(record);
+            if (OdooNames.MANIFEST_FILE_NAME.equals(file.getName()) && moduleDirectory.equals(file.getParent())) {
+                String id = OdooModuleUtils.getExternalIdOfModule(moduleDirectory.getName());
+                OdooRecord record = new OdooRecord(id, OdooNames.IR_MODULE_MODULE, "base", null, null);
+                records.add(record);
+            } else {
+                PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
+                if (psiFile instanceof XmlFile) {
+                    OdooDomDataFile root = OdooXmlUtils.getOdooDataDomFile(psiFile);
+                    if (root == null) {
+                        return result;
+                    }
+                    List<OdooDomRecordLike> items = root.getAllRecordLikeItems();
+                    for (OdooDomRecordLike item : items) {
+                        OdooRecord record = item.getRecord();
+                        if (record != null) {
+                            String id = record.getQualifiedId().trim();
+                            if (!id.isEmpty()) {
+                                records.add(record);
+                            }
                         }
                     }
-                }
-            } else if (OdooCsvUtils.isCsvFile(file)) {
-                OdooCsvUtils.processRecordInCsvFile(file, project, (record, csvRecord) -> {
-                    records.add(record);
-                    return true;
-                });
-            } else if (psiFile instanceof PyFile) {
-                psiFile.acceptChildren(new PyElementVisitor() {
-                    @Override
-                    public void visitPyClass(PyClass cls) {
-                        super.visitPyClass(cls);
-                        OdooModelInfo info = OdooModelInfo.getInfo(cls);
-                        if (info != null) {
-                            String id = OdooModelUtils.getExternalIdOfModel(info.getName());
-                            OdooRecord record = new OdooRecord(id, OdooNames.IR_MODEL, moduleDirectory.getName(), null, null);
-                            records.add(record);
+                } else if (OdooCsvUtils.isCsvFile(file)) {
+                    OdooCsvUtils.processRecordInCsvFile(file, project, (record, csvRecord) -> {
+                        records.add(record);
+                        return true;
+                    });
+                } else if (psiFile instanceof PyFile) {
+                    psiFile.acceptChildren(new PyElementVisitor() {
+                        @Override
+                        public void visitPyClass(PyClass cls) {
+                            super.visitPyClass(cls);
+                            OdooModelInfo info = OdooModelInfo.getInfo(cls);
+                            if (info != null) {
+                                String id = OdooModelUtils.getExternalIdOfModel(info.getName());
+                                OdooRecord record = new OdooRecord(id, OdooNames.IR_MODEL, moduleDirectory.getName(), null, null);
+                                records.add(record);
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
             for (OdooRecord record : records) {
                 result.put(record.getQualifiedId(), record.withoutDataFile());
@@ -135,7 +142,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
 
     @Override
     public int getVersion() {
-        return 11;
+        return 12;
     }
 
     @NotNull
@@ -197,7 +204,15 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                     return Collections.emptyList();
                 }
             }
-            return findRecordsByQualifiedId(id, project, odooModule.getOdooModuleWithDependenciesScope());
+            List<OdooRecord> records = findRecordsByQualifiedId(id, project, OdooUtils.getProjectModuleWithDependenciesScope(anchor));
+            GlobalSearchScope scope = odooModule.getOdooModuleWithDependenciesScope();
+            records.removeIf(record -> {
+                if (OdooNames.IR_MODULE_MODULE.equals(record.getModel())) {
+                    return false;
+                }
+                return record.getDataFile() != null && !scope.contains(record.getDataFile());
+            });
+            return records;
         }
         return Collections.emptyList();
     }

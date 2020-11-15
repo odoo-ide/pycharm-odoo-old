@@ -105,6 +105,7 @@ public class OdooNames {
             IR_ACTIONS_CLIENT,
             IR_ACTIONS_REPORT,
     };
+    public static final String IR_MODULE_MODULE = "ir.module.module";
     public static final String IR_MODEL = "ir.model";
     public static final String IR_MODEL_ACCESS = "ir.model.access";
     public static final String RES_GROUPS = "res.groups";

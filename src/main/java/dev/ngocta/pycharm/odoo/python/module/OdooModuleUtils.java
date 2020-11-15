@@ -3,10 +3,9 @@ package dev.ngocta.pycharm.odoo.python.module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
+import com.intellij.pom.PomTarget;
+import com.intellij.pom.PomTargetPsiElement;
+import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.jetbrains.python.PyNames;
 import com.jetbrains.python.psi.PyUtil;
@@ -57,6 +56,12 @@ public class OdooModuleUtils {
         if (element instanceof PsiDirectory) {
             return getContainingOdooModule(((PsiDirectory) element).getVirtualFile(), element.getProject());
         }
+        if (element instanceof PomTargetPsiElement) {
+            PomTarget target = ((PomTargetPsiElement) element).getTarget();
+            if (target instanceof PsiTarget) {
+                return getContainingOdooModule(((PsiTarget) target).getNavigationElement());
+            }
+        }
         return getContainingOdooModule(element.getContainingFile());
     }
 
@@ -99,6 +104,12 @@ public class OdooModuleUtils {
     @NotNull
     public static <T extends PsiElement> List<T> sortElementByOdooModuleDependOrder(@NotNull Collection<T> elements,
                                                                                     boolean reverse) {
+        if (elements.isEmpty()) {
+            return Collections.emptyList();
+        }
+        if (elements.size() == 1) {
+            return new LinkedList<>(elements);
+        }
         Map<OdooModule, List<T>> module2Elements = new LinkedHashMap<>();
         for (T element : elements) {
             OdooModule module = getContainingOdooModule(element);
@@ -180,5 +191,10 @@ public class OdooModuleUtils {
             return module.getOdooModuleWithDependenciesScope();
         }
         return getSystemWideOdooModulesScope(anchor);
+    }
+
+    @NotNull
+    public static String getExternalIdOfModule(@NotNull String module) {
+        return "module_" + module;
     }
 }

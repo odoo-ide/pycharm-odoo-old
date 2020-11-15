@@ -130,7 +130,13 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
     @NotNull
     public static Collection<String> getAvailableOdooModels(@NotNull PsiElement anchor) {
         GlobalSearchScope scope = OdooModuleUtils.getOdooModuleWithDependenciesOrSystemWideModulesScope(anchor);
-        Collection<String> models = getAllOdooModels(anchor.getProject());
+        return getAvailableOdooModels(anchor.getProject(), scope);
+    }
+
+    @NotNull
+    public static Collection<String> getAvailableOdooModels(@NotNull Project project,
+                                                            @NotNull GlobalSearchScope scope) {
+        Collection<String> models = getAllOdooModels(project);
         models = filterOdooModels(models, scope);
         return models;
     }

@@ -12,10 +12,13 @@ import com.intellij.util.xml.DomTarget;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyFile;
 import com.jetbrains.python.psi.PyUtil;
+import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.csv.OdooCsvRecord;
 import dev.ngocta.pycharm.odoo.csv.OdooCsvUtils;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelInfo;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
+import dev.ngocta.pycharm.odoo.python.module.OdooModule;
+import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import dev.ngocta.pycharm.odoo.xml.OdooXmlUtils;
 import dev.ngocta.pycharm.odoo.xml.dom.OdooDomDataFile;
 import dev.ngocta.pycharm.odoo.xml.dom.OdooDomRecordLike;
@@ -126,11 +129,18 @@ public class OdooRecord {
                     }
                 }
             } else if (file instanceof PyFile) {
-                List<PyClass> classes = ((PyFile) file).getTopLevelClasses();
-                for (PyClass cls : classes) {
-                    OdooModelInfo info = OdooModelInfo.getInfo(cls);
-                    if (info != null && OdooModelUtils.getExternalIdOfModel(info.getName()).equals(myId)) {
-                        elements.add(cls);
+                if (OdooNames.IR_MODULE_MODULE.equals(myModel)) {
+                    OdooModule module = OdooModuleUtils.getContainingOdooModule(file);
+                    if (module != null) {
+                        elements.add(module.getDirectory());
+                    }
+                } else if (OdooNames.IR_MODEL.equals(myModel)) {
+                    List<PyClass> classes = ((PyFile) file).getTopLevelClasses();
+                    for (PyClass cls : classes) {
+                        OdooModelInfo info = OdooModelInfo.getInfo(cls);
+                        if (info != null && OdooModelUtils.getExternalIdOfModel(info.getName()).equals(myId)) {
+                            elements.add(cls);
+                        }
                     }
                 }
             }
