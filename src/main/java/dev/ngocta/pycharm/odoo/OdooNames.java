@@ -90,7 +90,6 @@ public class OdooNames {
     public static final String API_DEPENDS = "api.depends";
     public static final String API_CONSTRAINS = "api.constrains";
     public static final String API_ONCHANGE = "api.onchange";
-    public static final String REQUEST_RENDER_FUNC_QNAME = "odoo.http.HttpRequest.render";
     public static final String IR_UI_VIEW = "ir.ui.view";
     public static final String IR_ACTIONS_REPORT = "ir.actions.report";
     public static final String IR_UI_MENU = "ir.ui.menu";
@@ -121,6 +120,8 @@ public class OdooNames {
     public static final String DB_CURSOR_CLASS_QNAME = "odoo.sql_db.Cursor";
     public static final String REGISTRY_CLASS_QNAME = "odoo.modules.registry.Registry";
     public static final String HTTP_ROUTE_FUNC_QNAME = "odoo.http.route";
+    public static final String HTTP_REQUEST_CLASS_QNAME = "odoo.http.HttpRequest";
+    public static final String HTTP_REQUEST_RENDER_FUNC_QNAME = "odoo.http.HttpRequest.render";
     public static final String VIEW_TYPE_QWEB = "qweb";
     public static final String VIEW_TYPE_TREE = "tree";
     public static final String VIEW_TYPE_KANBAN = "kanban";

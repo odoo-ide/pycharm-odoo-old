@@ -82,6 +82,11 @@ public class OdooPyUtils {
     }
 
     @Nullable
+    public static PyClassType getHttpRequestType(@NotNull PsiElement anchor) {
+        return getClassTypeByQName(OdooNames.HTTP_REQUEST_CLASS_QNAME, anchor, false);
+    }
+
+    @Nullable
     public static PyClassType getRegistryType(@NotNull PsiElement anchor) {
         return getClassTypeByQName(OdooNames.REGISTRY_CLASS_QNAME, anchor, false);
     }

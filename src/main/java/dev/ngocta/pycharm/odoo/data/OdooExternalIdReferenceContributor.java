@@ -108,7 +108,7 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                                 PyExpression callee = callExpression.getCallee();
                                 if (callee instanceof PyReferenceExpression && "render".equals(callee.getName())) {
                                     PsiElement target = ((PyReferenceExpression) callee).getReference().resolve();
-                                    if (target instanceof PyFunction && OdooNames.REQUEST_RENDER_FUNC_QNAME.equals(((PyFunction) target).getQualifiedName())) {
+                                    if (target instanceof PyFunction && OdooNames.HTTP_REQUEST_RENDER_FUNC_QNAME.equals(((PyFunction) target).getQualifiedName())) {
                                         context.put(OdooExternalIdReferenceProvider.FILTER, OdooRecordFilters.QWEB);
                                         return true;
                                     }

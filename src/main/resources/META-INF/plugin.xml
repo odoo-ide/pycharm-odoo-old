@@ -306,6 +306,7 @@
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooHttpRouteFunctionParamTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooFunctionParamBooleanTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooPyDocStringTypeProvider" order="before pythonDocstringTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooTemplateVariableTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.xml.dom.OdooIrActionsServerCodeTypeProvider"/>
         <inspectionExtension implementation="dev.ngocta.pycharm.odoo.python.OdooPyInspectionExtension"/>
         <runnableScriptFilter implementation="dev.ngocta.pycharm.odoo.python.OdooPyRunnableScriptFilter"/>
