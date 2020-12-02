@@ -241,7 +241,7 @@ public class OdooModelClass extends FakePsiElement implements PyClass {
     }
 
     @Override
-    public boolean visitMethods(Processor<PyFunction> processor,
+    public boolean visitMethods(Processor<? super PyFunction> processor,
                                 boolean inherited,
                                 @Nullable TypeEvalContext context) {
         if (inherited) {
@@ -255,7 +255,7 @@ public class OdooModelClass extends FakePsiElement implements PyClass {
     }
 
     @Override
-    public boolean visitClassAttributes(Processor<PyTargetExpression> processor,
+    public boolean visitClassAttributes(Processor<? super PyTargetExpression> processor,
                                         boolean inherited,
                                         TypeEvalContext context) {
         if (inherited) {
@@ -330,7 +330,7 @@ public class OdooModelClass extends FakePsiElement implements PyClass {
 
     @Nullable
     @Override
-    public Property scanProperties(Processor<Property> processor,
+    public Property scanProperties(Processor<? super Property> processor,
                                    boolean inherited) {
         return null;
     }
@@ -535,7 +535,7 @@ public class OdooModelClass extends FakePsiElement implements PyClass {
         return result;
     }
 
-    public boolean visitMembers(@NotNull Processor<PsiElement> processor,
+    public boolean visitMembers(@NotNull Processor<? super PsiElement> processor,
                                 @NotNull TypeEvalContext context) {
         for (PyClass cls : getAncestorClasses(context)) {
             if (!cls.processClassLevelDeclarations((element, state) -> processor.process(element))) {
@@ -550,7 +550,7 @@ public class OdooModelClass extends FakePsiElement implements PyClass {
         return true;
     }
 
-    public boolean visitField(@NotNull Processor<PsiElement> processor,
+    public boolean visitField(@NotNull Processor<? super PsiElement> processor,
                               @NotNull TypeEvalContext context) {
         return visitMembers(element -> {
             if (OdooFieldInfo.getInfo(element) != null) {

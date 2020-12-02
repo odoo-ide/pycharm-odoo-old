@@ -28,7 +28,7 @@ public class OdooModelClassSuperType extends OdooModelClassType {
     }
 
     @Override
-    public void visitMembers(@NotNull Processor<PsiElement> processor,
+    public void visitMembers(@NotNull Processor<? super PsiElement> processor,
                              boolean inherited,
                              @NotNull TypeEvalContext context) {
         if (inherited) {

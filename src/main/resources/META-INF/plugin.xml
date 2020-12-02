@@ -2,7 +2,7 @@
     <id>dev.ngocta.pycharm-odoo</id>
     <name>PyCharm Odoo</name>
     <vendor email="atw1990@gmail.com" url="https://github.com/trinhanhngoc">Trịnh Anh Ngọc</vendor>
-    <idea-version since-build="202.1" until-build="202.*"/>
+    <idea-version since-build="202.1"/>
 
     <description><![CDATA[
         Odoo Framework support for PyCharm

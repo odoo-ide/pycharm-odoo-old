@@ -6,7 +6,6 @@ import com.intellij.lang.javascript.psi.JSExpression;
 import com.intellij.lang.javascript.psi.JSLiteralExpression;
 import com.intellij.lang.javascript.psi.JSType;
 import com.intellij.lang.javascript.psi.resolve.JSEvaluateContext;
-import com.intellij.lang.javascript.psi.resolve.JSTypeEvaluationHelper;
 import com.intellij.lang.javascript.psi.resolve.JSTypeProcessor;
 import com.intellij.lang.javascript.psi.types.evaluable.JSRequireCallExpressionType;
 import com.intellij.psi.PsiElement;
@@ -15,9 +14,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class OdooJSTypeEvaluator extends ES6TypeEvaluator {
     public OdooJSTypeEvaluator(@NotNull JSEvaluateContext context,
-                               @NotNull JSTypeProcessor processor,
-                               @NotNull JSTypeEvaluationHelper helper) {
-        super(context, processor, helper);
+                               @NotNull JSTypeProcessor processor) {
+        super(context, processor);
     }
 
     @Override
@@ -44,21 +42,20 @@ public class OdooJSTypeEvaluator extends ES6TypeEvaluator {
     }
 
     @Override
-    protected void doAddType(@Nullable JSType type,
-                             @Nullable PsiElement source,
-                             boolean skipGuard) {
+    protected void doAddType(@NotNull JSType type,
+                             @Nullable PsiElement source) {
         if (type instanceof JSRequireCallExpressionType) {
             String moduleName = ((JSRequireCallExpressionType) type).resolveReferencedModule();
             PsiElement sourceElement = type.getSourceElement();
             if (sourceElement != null && OdooJSUtils.isInOdooJSModule(sourceElement)) {
                 JSType moduleType = getModuleReturnType(moduleName, sourceElement);
                 if (moduleType != null) {
-                    super.doAddType(moduleType, source, skipGuard);
+                    super.doAddType(moduleType, source);
                     return;
                 }
             }
         }
-        super.doAddType(type, source, skipGuard);
+        super.doAddType(type, source);
     }
 
     @Override
