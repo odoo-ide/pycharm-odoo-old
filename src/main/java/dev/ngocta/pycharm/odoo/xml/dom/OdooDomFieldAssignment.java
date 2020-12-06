@@ -4,6 +4,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.xml.*;
 import com.jetbrains.python.psi.PyClass;
+import dev.ngocta.pycharm.odoo.data.OdooRecordElement;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelClass;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
 
@@ -40,6 +41,8 @@ public interface OdooDomFieldAssignment extends OdooDomField, GenericDomValue<St
                 .map(GenericAttributeValue::getXmlAttributeValue)
                 .map(PsiElement::getReference)
                 .map(PsiReference::resolve)
+                .filter(OdooRecordElement.class::isInstance)
+                .map(PsiElement::getNavigationElement)
                 .filter(PyClass.class::isInstance)
                 .map(OdooModelUtils::getContainingOdooModelClass)
                 .map(OdooModelClass::getName)
