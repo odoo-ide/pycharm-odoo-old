@@ -49,19 +49,21 @@ public class OdooModelStructureViewElement extends PyStructureViewElement {
         }
         PyPsiUtils.assertValid(element);
         if (element instanceof PyClass) {
-            OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(element);
-            if (modelClass != null) {
-                final TypeEvalContext context = TypeEvalContext.codeAnalysis(element.getProject(), element.getContainingFile());
-                List<PyClass> ancestors = modelClass.getAncestorClasses(context);
-                for (PyClass cls : ancestors) {
-                    if (cls.equals(element)) {
-                        continue;
-                    }
-                    for (PyElement e : getElementChildren(cls)) {
-                        final StructureViewTreeElement inherited = new OdooModelStructureViewElement(e, Visibility.NORMAL, true, elementIsField(e));
-                        if (!children.contains(inherited)) {
-                            children.add(inherited);
-                        }
+            PyClass cls = (PyClass) element;
+            OdooModelClass modelCls = OdooModelUtils.getContainingOdooModelClass(cls);
+            if (modelCls != null) {
+                cls = modelCls;
+            }
+            final TypeEvalContext context = TypeEvalContext.codeAnalysis(element.getProject(), element.getContainingFile());
+            List<PyClass> ancestors = cls.getAncestorClasses(context);
+            for (PyClass ancestor : ancestors) {
+                if (ancestor.equals(cls)) {
+                    continue;
+                }
+                for (PyElement e : getElementChildren(ancestor)) {
+                    final StructureViewTreeElement inherited = new OdooModelStructureViewElement(e, Visibility.NORMAL, true, elementIsField(e));
+                    if (!children.contains(inherited)) {
+                        children.add(inherited);
                     }
                 }
             }
