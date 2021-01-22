@@ -63,18 +63,30 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
     protected List<PsiElement> resolveInner() {
         return PyUtil.getParameterizedCachedValue(getElement(), null, param -> {
             String id = getValue();
-            Project project = getElement().getProject();
-            List<OdooRecord> records = OdooExternalIdIndex.findRecordsById(id, getElement(), myAllowUnqualified);
-            if (!records.isEmpty()) {
-                List<PsiElement> elements = new LinkedList<>();
-                records.forEach(record -> elements.addAll(record.getRecordElements(project)));
-                return OdooModuleUtils.sortElementByOdooModuleDependOrder(elements, true);
+            List<PsiElement> elements = resolveExternalId(id);
+            if (!elements.isEmpty()) {
+                return elements;
             }
             if (id.contains("field_") && id.contains("__")) {
                 return resolveExternalIdOfField();
             }
+            if (id.endsWith("_product_template")) {
+                return resolveExternalId(id.substring(0, id.length() - 17));
+            }
             return Collections.emptyList();
         });
+    }
+
+    @NotNull
+    private List<PsiElement> resolveExternalId(@NotNull String id) {
+        Project project = getElement().getProject();
+        List<OdooRecord> records = OdooExternalIdIndex.findRecordsById(id, getElement(), myAllowUnqualified);
+        if (!records.isEmpty()) {
+            List<PsiElement> elements = new LinkedList<>();
+            records.forEach(record -> elements.addAll(record.getRecordElements(project)));
+            return OdooModuleUtils.sortElementByOdooModuleDependOrder(elements, true);
+        }
+        return Collections.emptyList();
     }
 
     @NotNull
