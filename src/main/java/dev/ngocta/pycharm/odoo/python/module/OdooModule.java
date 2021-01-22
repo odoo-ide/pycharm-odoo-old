@@ -80,9 +80,12 @@ public class OdooModule {
         OdooModule module;
         while (!modules.isEmpty()) {
             module = modules.remove(0);
-            visitedModules.remove(module);
             visitedModules.add(module);
-            modules.addAll(module.getDepends());
+            for (OdooModule depend : module.getDepends()) {
+                if (!visitedModules.contains(depend)) {
+                    modules.add(depend);
+                }
+            }
         }
         return visitedModules;
     }
