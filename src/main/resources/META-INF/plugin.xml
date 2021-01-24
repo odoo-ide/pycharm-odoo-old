@@ -49,6 +49,12 @@
     <change-notes><![CDATA[
         <ul>
             <li>
+                Version 4.9
+                <ul>
+                    <li>Bug fixes</li>
+                </ul>
+            </li>
+            <li>
                 Version 4.8
                 <ul>
                     <li>Resolve external id of module and field</li>
