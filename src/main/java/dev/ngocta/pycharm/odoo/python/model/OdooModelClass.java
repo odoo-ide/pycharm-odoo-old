@@ -295,6 +295,11 @@ public class OdooModelClass extends FakePsiElement implements PyClass {
                     return attr;
                 }
             }
+        } else {
+            PsiElement element = findField(name, context);
+            if (element instanceof PyTargetExpression) {
+                return (PyTargetExpression) element;
+            }
         }
         return null;
     }

@@ -94,15 +94,17 @@ public class OdooModelLineMarkerProvider implements LineMarkerProvider {
             }
         }
         List<PyClass> unknownAncestors = OdooModelUtils.getUnknownModelClassAncestors(containingClass, context);
+        List<OdooModelClass> delegationChildren = modelClass.getDelegationChildren(context);
+        unknownAncestors.addAll(delegationChildren);
         for (PyClass ancestor : unknownAncestors) {
-            PyTargetExpression attribute = ancestor.findClassAttribute(name, false, null);
+            PyTargetExpression attribute = ancestor.findClassAttribute(name, false, context);
             if (attribute == null) {
                 continue;
             }
             GutterIconNavigationHandler<PsiElement> navigationHandler = (e, elt) -> {
                 List<NavigatablePsiElement> attributes = new LinkedList<>();
                 for (PyClass ancestorInner : unknownAncestors) {
-                    PyTargetExpression attributeInner = ancestorInner.findClassAttribute(name, false, null);
+                    PyTargetExpression attributeInner = ancestorInner.findClassAttribute(name, false, context);
                     if (attributeInner != null) {
                         attributes.add(attributeInner);
                     }
