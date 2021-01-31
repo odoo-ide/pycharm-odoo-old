@@ -12,10 +12,8 @@ import dev.ngocta.pycharm.odoo.OdooNames;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import javax.swing.tree.DefaultMutableTreeNode;
+import java.util.*;
 
 public class OdooModule {
     private final PsiDirectory myDirectory;
@@ -74,20 +72,29 @@ public class OdooModule {
 
     @NotNull
     public List<OdooModule> getFlattenedDependsGraph() {
-        List<OdooModule> visitedModules = new LinkedList<>();
-        List<OdooModule> modules = new LinkedList<>();
-        modules.add(this);
-        OdooModule module;
-        while (!modules.isEmpty()) {
-            module = modules.remove(0);
-            visitedModules.add(module);
+        List<OdooModule> result = new LinkedList<>();
+        List<DefaultMutableTreeNode> nodesToVisit = new LinkedList<>();
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode(this);
+        nodesToVisit.add(root);
+        while (!nodesToVisit.isEmpty()) {
+            DefaultMutableTreeNode node = nodesToVisit.remove(0);
+            List<Object> dependPath = Arrays.asList(node.getUserObjectPath());
+            OdooModule module = (OdooModule) node.getUserObject();
+            result.remove(module);
+            result.add(module);
             for (OdooModule depend : module.getDepends()) {
-                if (!visitedModules.contains(depend)) {
-                    modules.add(depend);
+                if (dependPath.contains(depend)) {
+                    continue;
                 }
+                if (nodesToVisit.stream().anyMatch(n -> depend.equals(n.getUserObject()))) {
+                    continue;
+                }
+                DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(depend);
+                node.add(childNode);
+                nodesToVisit.add(childNode);
             }
         }
-        return visitedModules;
+        return result;
     }
 
     @NotNull
@@ -158,5 +165,10 @@ public class OdooModule {
     @Override
     public int hashCode() {
         return Objects.hash(myDirectory);
+    }
+
+    @Override
+    public String toString() {
+        return "OdooModule:" + myDirectory.getVirtualFile().getPresentableUrl();
     }
 }
