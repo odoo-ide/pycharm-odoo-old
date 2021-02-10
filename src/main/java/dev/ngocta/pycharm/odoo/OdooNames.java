@@ -29,6 +29,7 @@ public class OdooNames {
     public static final String FIELD_TYPE_ONE2MANY = "One2many";
     public static final String FIELD_TYPE_MANY2MANY = "Many2many";
     public static final String FIELD_TYPE_REFERENCE = "Reference";
+    public static final String FIELD_TYPE_IMAGE = "Image";
     public static final String[] FIELD_TYPES = new String[]{
             FIELD_TYPE_ID,
             FIELD_TYPE_MANY2ONE,
@@ -47,7 +48,8 @@ public class OdooNames {
             FIELD_TYPE_SELECTION,
             FIELD_TYPE_DATE,
             FIELD_TYPE_DATETIME,
-            FIELD_TYPE_BINARY
+            FIELD_TYPE_BINARY,
+            FIELD_TYPE_IMAGE
     };
     public static final String[] RELATIONAL_FIELD_TYPES = new String[]{
             FIELD_TYPE_MANY2ONE,
