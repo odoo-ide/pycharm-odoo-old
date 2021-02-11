@@ -1,6 +1,7 @@
 <templateSet group="Python">
-    <template name="superp" value="super($class$, self).$method$($param$)" description="'super(...)' call with params" toReformat="false" toShortenFQNames="true">
+    <template name="superp" value="super($class$, $self$).$method$($param$)" description="'super(...)' call with params" toReformat="false" toShortenFQNames="true">
         <variable name="class" expression="pyClassName()" defaultValue="" alwaysStopAt="false"/>
+        <variable name="self" expression="pyFunctionSelfParamName()" defaultValue="" alwaysStopAt="false"/>
         <variable name="method" expression="pyFunctionName()" defaultValue="" alwaysStopAt="false"/>
         <variable name="param" expression="pySuperFunctionParam" defaultValue="" alwaysStopAt="false"/>
         <context>
