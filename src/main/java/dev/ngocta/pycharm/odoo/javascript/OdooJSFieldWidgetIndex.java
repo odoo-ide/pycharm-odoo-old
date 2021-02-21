@@ -19,8 +19,8 @@ import java.util.regex.Pattern;
 
 public class OdooJSFieldWidgetIndex extends ScalarIndexExtension<String> {
     public static final ID<String, Void> NAME = ID.create("odoo.js.field.widget");
-    private static final Pattern REGISTRY_VARIABLE_PATTERN = Pattern.compile("(\\w+)\\s*=\\s*require\\s*\\(\\s*['\"]web\\.field_registry['\"]\\s*\\)");
-    private static final String REGISTRY_ADD_REGEX = "(?:\\s*\\.add\\s*\\(\\s*['\"]([a-zA-Z_0-9.]+)['\"]\\s*,\\s*[a-zA-Z_0-9.]+\\)(?:\\s*(?://|/\\*).*)?)";
+    private static final Pattern REGISTRY_VARIABLE_PATTERN = Pattern.compile("(\\w+)\\s*=\\s*require\\s*\\(\\s*['\"]web\\.(?:core|field_registry)['\"]\\s*\\)");
+    private static final String REGISTRY_ADD_REGEX = "(?:(?:\\s*\\.(?:form_widget_registry|list_widget_registry))?\\s*\\.add\\s*\\(\\s*['\"]([a-zA-Z_0-9.]+)['\"]\\s*,\\s*[a-zA-Z_0-9.]+\\)(?:\\s*(?://|/\\*).*)?)";
     private static final Pattern REGISTRY_ADD_PATTERN = Pattern.compile(REGISTRY_ADD_REGEX);
 
     @Override
