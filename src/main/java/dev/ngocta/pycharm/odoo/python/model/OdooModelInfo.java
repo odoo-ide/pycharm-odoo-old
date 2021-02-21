@@ -49,6 +49,10 @@ public class OdooModelInfo {
 
     @Nullable
     public static OdooModelInfo getInfo(@NotNull PyClass pyClass) {
+        if (pyClass instanceof OdooModelClass) {
+            return new OdooModelInfo(((OdooModelClass) pyClass).getName(), null, null);
+        }
+
         return CachedValuesManager.getCachedValue(pyClass, () -> {
             OdooModelInfo info = getInfoInner(pyClass);
             return CachedValueProvider.Result.create(info, pyClass);
