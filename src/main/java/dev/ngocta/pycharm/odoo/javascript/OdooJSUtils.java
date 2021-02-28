@@ -1,6 +1,10 @@
 package dev.ngocta.pycharm.odoo.javascript;
 
+import com.intellij.lang.ASTNode;
+import com.intellij.lang.javascript.psi.JSCallExpression;
 import com.intellij.lang.javascript.psi.JSFile;
+import com.intellij.lang.javascript.psi.impl.JSCallExpressionImpl;
+import com.intellij.lang.javascript.psi.impl.JSReferenceExpressionImpl;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -31,5 +35,17 @@ public class OdooJSUtils {
     public static boolean isInOdooJSModule(@Nullable PsiElement element) {
         PsiFile file = OdooUtils.getOriginalContextFile(element);
         return isOdooJSModuleFile(file);
+    }
+
+    @Nullable
+    public static String getCallFunctionName(@Nullable JSCallExpression callExpression) {
+        if (callExpression == null) {
+            return null;
+        }
+        ASTNode methodExpression = JSCallExpressionImpl.getMethodExpression(callExpression.getNode());
+        if (methodExpression != null) {
+            return JSReferenceExpressionImpl.getReferenceName(methodExpression);
+        }
+        return null;
     }
 }

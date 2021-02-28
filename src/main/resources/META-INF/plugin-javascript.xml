@@ -2,6 +2,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <fileBasedIndex implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSModuleIndex"/>
         <languageInjector implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSLanguageInjector"/>
+        <languageInjector implementation="dev.ngocta.pycharm.odoo.javascript.OdooJQueryCSSLanguageInjector"/>
         <lang.findUsagesProvider implementationClass="dev.ngocta.pycharm.odoo.javascript.OdooJSFieldWidgetFindUsagesProvider" language="JavaScript"/>
         <lang.findUsagesProvider implementationClass="dev.ngocta.pycharm.odoo.javascript.OdooJSModuleFindUsagesProvider" language="JavaScript"/>
         <elementDescriptionProvider implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSModuleDescriptionProvider"/>

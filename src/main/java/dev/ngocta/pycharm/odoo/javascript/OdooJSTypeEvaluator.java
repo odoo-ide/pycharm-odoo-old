@@ -1,13 +1,10 @@
 package dev.ngocta.pycharm.odoo.javascript;
 
-import com.intellij.lang.ASTNode;
 import com.intellij.lang.ecmascript6.resolve.ES6TypeEvaluator;
 import com.intellij.lang.javascript.psi.JSCallExpression;
 import com.intellij.lang.javascript.psi.JSExpression;
 import com.intellij.lang.javascript.psi.JSLiteralExpression;
 import com.intellij.lang.javascript.psi.JSType;
-import com.intellij.lang.javascript.psi.impl.JSCallExpressionImpl;
-import com.intellij.lang.javascript.psi.impl.JSReferenceExpressionImpl;
 import com.intellij.lang.javascript.psi.resolve.JSEvaluateContext;
 import com.intellij.lang.javascript.psi.resolve.JSTypeProcessor;
 import com.intellij.lang.javascript.psi.types.evaluable.JSRequireCallExpressionType;
@@ -35,14 +32,11 @@ public class OdooJSTypeEvaluator extends ES6TypeEvaluator {
                 }
             }
         } else {
-            ASTNode methodExpression = JSCallExpressionImpl.getMethodExpression(callExpression.getNode());
-            if (methodExpression != null) {
-                String methodName = JSReferenceExpressionImpl.getReferenceName(methodExpression);
-                if ("$".equals(methodName) && OdooModuleUtils.isInOdooModule(callExpression)) {
-                    JSType type = getJQueryType(callExpression);
-                    addType(type, callExpression);
-                    return;
-                }
+            String callExpressionName = OdooJSUtils.getCallFunctionName(callExpression);
+            if ("$".equals(callExpressionName) && OdooModuleUtils.isInOdooModule(callExpression)) {
+                JSType type = getJQueryType(callExpression);
+                addType(type, callExpression);
+                return;
             }
         }
         super.evaluateCallExpressionTypes(callExpression);
