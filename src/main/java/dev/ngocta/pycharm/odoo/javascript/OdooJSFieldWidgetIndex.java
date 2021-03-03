@@ -19,8 +19,9 @@ import java.util.regex.Pattern;
 
 public class OdooJSFieldWidgetIndex extends ScalarIndexExtension<String> {
     public static final ID<String, Void> NAME = ID.create("odoo.js.field.widget");
-    private static final Pattern REGISTRY_VARIABLE_PATTERN = Pattern.compile("(\\w+)\\s*=\\s*require\\s*\\(\\s*['\"]web\\.(?:core|field_registry)['\"]\\s*\\)");
-    private static final String REGISTRY_ADD_REGEX = "(?:(?:\\s*\\.(?:form_widget_registry|list_widget_registry))?\\s*\\.add\\s*\\(\\s*['\"]([a-zA-Z_0-9.]+)['\"]\\s*,\\s*[a-zA-Z_0-9.]+\\)(?:\\s*(?://|/\\*).*)?)";
+    private static final Pattern REGISTRY_VARIABLE_PATTERN = Pattern.compile("(\\w+)\\s*=\\s*require\\s*\\(\\s*['\"]web\\.field_registry['\"]\\s*\\)");
+    private static final Pattern CORE_VARIABLE_PATTERN = Pattern.compile("(\\w+)\\s*=\\s*require\\s*\\(\\s*['\"]web\\.core['\"]\\s*\\)");
+    private static final String REGISTRY_ADD_REGEX = "(?:\\s*\\.add\\s*\\(\\s*['\"]([a-zA-Z_0-9.]+)['\"]\\s*,\\s*[a-zA-Z_0-9.]+\\)(?:\\s*(?://|/\\*).*)?)";
     private static final Pattern REGISTRY_ADD_PATTERN = Pattern.compile(REGISTRY_ADD_REGEX);
 
     @Override
@@ -39,21 +40,33 @@ public class OdooJSFieldWidgetIndex extends ScalarIndexExtension<String> {
                 return result;
             }
             String content = inputData.getContentAsText().toString();
-            if (!content.contains("web.field_registry")
-                    && !content.contains("form_widget_registry")
-                    && !content.contains("list_widget_registry")) {
-                return result;
-            }
-            Matcher registryVariableMatcher = REGISTRY_VARIABLE_PATTERN.matcher(content);
-            if (registryVariableMatcher.find()) {
-                String registryVariableName = registryVariableMatcher.group(1);
-                Pattern chainingAddPattern = Pattern.compile(registryVariableName + REGISTRY_ADD_REGEX + "+");
-                Matcher chainingAddMatcher = chainingAddPattern.matcher(content);
-                while (chainingAddMatcher.find()) {
-                    Matcher addMatcher = REGISTRY_ADD_PATTERN.matcher(chainingAddMatcher.group(0));
-                    while (addMatcher.find()) {
-                        if (addMatcher.groupCount() == 1 && addMatcher.group(1) != null) {
-                            result.put(addMatcher.group(1), null);
+            if (content.contains("web.field_registry")) {
+                Matcher registryVariableMatcher = REGISTRY_VARIABLE_PATTERN.matcher(content);
+                if (registryVariableMatcher.find()) {
+                    String registryVariableName = registryVariableMatcher.group(1);
+                    Pattern chainingAddPattern = Pattern.compile(registryVariableName + REGISTRY_ADD_REGEX + "+");
+                    Matcher chainingAddMatcher = chainingAddPattern.matcher(content);
+                    while (chainingAddMatcher.find()) {
+                        Matcher addMatcher = REGISTRY_ADD_PATTERN.matcher(chainingAddMatcher.group(0));
+                        while (addMatcher.find()) {
+                            if (addMatcher.groupCount() == 1 && addMatcher.group(1) != null) {
+                                result.put(addMatcher.group(1), null);
+                            }
+                        }
+                    }
+                }
+            } else if (content.contains("form_widget_registry") || content.contains("list_widget_registry")) {
+                Matcher coreVariableMatcher = CORE_VARIABLE_PATTERN.matcher(content);
+                if (coreVariableMatcher.find()) {
+                    String coreVariableName = coreVariableMatcher.group(1);
+                    Pattern chainingAddPattern = Pattern.compile(coreVariableName + "\\s*\\.(?:form_widget_registry|list_widget_registry)" + REGISTRY_ADD_REGEX + "+");
+                    Matcher chainingAddMatcher = chainingAddPattern.matcher(content);
+                    while (chainingAddMatcher.find()) {
+                        Matcher addMatcher = REGISTRY_ADD_PATTERN.matcher(chainingAddMatcher.group(0));
+                        while (addMatcher.find()) {
+                            if (addMatcher.groupCount() == 1 && addMatcher.group(1) != null) {
+                                result.put(addMatcher.group(1), null);
+                            }
                         }
                     }
                 }
@@ -70,7 +83,7 @@ public class OdooJSFieldWidgetIndex extends ScalarIndexExtension<String> {
 
     @Override
     public int getVersion() {
-        return 1;
+        return 2;
     }
 
     @Override
