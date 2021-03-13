@@ -14,6 +14,7 @@ import com.jetbrains.python.psi.stubs.PyClassAttributesIndex;
 import com.jetbrains.python.psi.types.*;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.OdooUtils;
+import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -186,5 +187,18 @@ public class OdooPyUtils {
             type = context.getType(element);
         }
         return type;
+    }
+
+    public static boolean isTranslationStringExpression(@Nullable PsiElement element) {
+        if (element instanceof PyCallExpression) {
+            PyCallExpression callExpression = (PyCallExpression) element;
+            PyExpression callee = callExpression.getCallee();
+            if (callee instanceof PyReferenceExpression) {
+                PyReferenceExpression referenceExpression = (PyReferenceExpression) callee;
+                String name = referenceExpression.getName();
+                return ("_".equals(name) || "_lt".equals(name)) && OdooModuleUtils.isInOdooModule(element);
+            }
+        }
+        return false;
     }
 }

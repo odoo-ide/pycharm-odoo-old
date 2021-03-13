@@ -340,6 +340,7 @@
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooFunctionParamBooleanTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooPyDocStringTypeProvider" order="before pythonDocstringTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooTemplateVariableTypeProvider"/>
+        <typeProvider implementation="dev.ngocta.pycharm.odoo.python.OdooTranslationStringTypeProvider"/>
         <typeProvider implementation="dev.ngocta.pycharm.odoo.xml.dom.OdooIrActionsServerCodeTypeProvider"/>
         <inspectionExtension implementation="dev.ngocta.pycharm.odoo.python.OdooPyInspectionExtension"/>
         <runnableScriptFilter implementation="dev.ngocta.pycharm.odoo.python.OdooPyRunnableScriptFilter"/>
@@ -377,6 +378,9 @@
         <lang.psiStructureViewFactory implementationClass="dev.ngocta.pycharm.odoo.python.model.OdooModelStructureViewFactory" language="Python" order="first"/>
         <xmlStructureViewBuilderProvider implementation="dev.ngocta.pycharm.odoo.xml.OdooXmlStructureViewBuilderProvider" order="first"/>
         <lang.formatter implementationClass="dev.ngocta.pycharm.odoo.xml.OdooXmlFormatter" language="XML"/>
+        <localInspection implementationClass="dev.ngocta.pycharm.odoo.python.OdooPyTranslationStringFormatInspection"
+                         language="Python" displayName="Translation string format inspection" groupName="Odoo" enabledByDefault="true"
+                         level="WARNING"/>
         <localInspection implementationClass="dev.ngocta.pycharm.odoo.xml.OdooXmlInspection"
                          language="XML" displayName="XML inspection" groupName="Odoo" enabledByDefault="true"/>
         <xml.xmlSuppressionProvider implementation="dev.ngocta.pycharm.odoo.xml.OdooXmlSuppressionProvider"/>
