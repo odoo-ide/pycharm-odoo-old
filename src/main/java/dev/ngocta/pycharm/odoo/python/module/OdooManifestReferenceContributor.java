@@ -54,7 +54,8 @@ public class OdooManifestReferenceContributor extends PsiReferenceContributor {
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> FILE_PATH_PATTERN =
             psiElement(PyStringLiteralExpression.class)
-                    .with(new ListItemPatternCondition(OdooNames.MANIFEST_DATA, OdooNames.MANIFEST_DEMO, OdooNames.MANIFEST_QWEB));
+                    .with(new ListItemPatternCondition(OdooNames.MANIFEST_DATA, OdooNames.MANIFEST_DEMO,
+                            OdooNames.MANIFEST_QWEB, OdooNames.MANIFEST_IMAGES));
 
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> AUTO_INSTALL_PATTERN =
             psiElement(PyStringLiteralExpression.class)
