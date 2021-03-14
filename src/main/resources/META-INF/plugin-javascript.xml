@@ -8,6 +8,7 @@
         <elementDescriptionProvider implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSModuleDescriptionProvider"/>
         <targetElementEvaluator implementationClass="dev.ngocta.pycharm.odoo.javascript.OdooJSTargetElementEvaluator" language="JavaScript" order="first"/>
         <renameInputValidator implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSModuleRenameInputValidator"/>
+        <psi.referenceContributor implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSReferenceContributor"/>
     </extensions>
     <extensions defaultExtensionNs="JavaScript">
         <moduleReferenceContributor implementation="dev.ngocta.pycharm.odoo.javascript.OdooJSModuleReferenceContributor"/>
