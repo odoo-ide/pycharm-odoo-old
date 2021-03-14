@@ -54,9 +54,14 @@ public class OdooManifestReferenceContributor extends PsiReferenceContributor {
             psiElement(PyStringLiteralExpression.class)
                     .with(new ListItemPatternCondition(OdooNames.MANIFEST_DATA, OdooNames.MANIFEST_DEMO, OdooNames.MANIFEST_QWEB));
 
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> AUTO_INSTALL_PATTERN =
+            psiElement(PyStringLiteralExpression.class)
+                    .with(new ListItemPatternCondition(OdooNames.MANIFEST_AUTO_INSTALL));
+
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
         registrar.registerReferenceProvider(DEPEND_PATTERN, new OdooModuleReferenceProvider());
         registrar.registerReferenceProvider(FILE_PATH_PATTERN, new OdooFilePathReferenceProvider());
+        registrar.registerReferenceProvider(AUTO_INSTALL_PATTERN, new OdooModuleReferenceProvider());
     }
 }

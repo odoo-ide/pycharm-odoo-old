@@ -7,6 +7,7 @@ public class OdooNames {
     public static final String MANIFEST_DATA = "data";
     public static final String MANIFEST_DEMO = "demo";
     public static final String MANIFEST_QWEB = "qweb";
+    public static final String MANIFEST_AUTO_INSTALL = "auto_install";
     public static final String ODOO_ADDONS_QNAME = "odoo.addons";
     public static final String MODEL_NAME = "_name";
     public static final String MODEL_INHERIT = "_inherit";
