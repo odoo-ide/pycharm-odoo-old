@@ -19,6 +19,8 @@ import org.jetbrains.annotations.NotNull;
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class OdooManifestReferenceContributor extends PsiReferenceContributor {
+    public static String[] HOOK_FUNCTION_KEYS = new String[]{"pre_init_hook", "post_init_hook", "uninstall_hook"};
+
     static class ListItemPatternCondition extends PatternCondition<PsiElement> {
         private final String[] myKeys;
 
@@ -58,10 +60,32 @@ public class OdooManifestReferenceContributor extends PsiReferenceContributor {
             psiElement(PyStringLiteralExpression.class)
                     .with(new ListItemPatternCondition(OdooNames.MANIFEST_AUTO_INSTALL));
 
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> HOOK_FUNCTION_PATTERN =
+            psiElement(PyStringLiteralExpression.class)
+                    .with(new PatternCondition<PyStringLiteralExpression>("hookFunction") {
+                        @Override
+                        public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression,
+                                               ProcessingContext context) {
+                            PsiElement parent = pyStringLiteralExpression.getParent();
+                            if (parent instanceof PyKeyValueExpression && pyStringLiteralExpression.equals(((PyKeyValueExpression) parent).getValue())) {
+                                PsiElement key = ((PyKeyValueExpression) parent).getKey();
+                                if (key instanceof PyStringLiteralExpression) {
+                                    String keyValue = ((PyStringLiteralExpression) key).getStringValue();
+                                    if (ArrayUtil.contains(keyValue, HOOK_FUNCTION_KEYS)) {
+                                        PsiFile file = parent.getContainingFile();
+                                        return OdooNames.MANIFEST_FILE_NAME.equals(file.getName());
+                                    }
+                                }
+                            }
+                            return false;
+                        }
+                    });
+
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
         registrar.registerReferenceProvider(DEPEND_PATTERN, new OdooModuleReferenceProvider());
         registrar.registerReferenceProvider(FILE_PATH_PATTERN, new OdooFilePathReferenceProvider());
         registrar.registerReferenceProvider(AUTO_INSTALL_PATTERN, new OdooModuleReferenceProvider());
+        registrar.registerReferenceProvider(HOOK_FUNCTION_PATTERN, new OdooModuleHookFunctionReferenceProvider());
     }
 }
