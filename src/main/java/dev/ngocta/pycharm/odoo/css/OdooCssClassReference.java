@@ -12,6 +12,7 @@ import com.intellij.psi.css.impl.stubs.index.CssIndexUtil;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
 import com.intellij.util.PlatformIcons;
+import com.jetbrains.python.psi.PyUtil;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,13 +28,15 @@ public class OdooCssClassReference extends PsiReferenceBase.Poly<PsiElement> {
 
     @Override
     public ResolveResult @NotNull [] multiResolve(boolean incompleteCode) {
-        List<PsiElement> elements = new LinkedList<>();
-        GlobalSearchScope scope = OdooModuleUtils.getOdooModuleWithDependenciesOrSystemWideModulesScope(getElement());
-        CssIndexUtil.processClasses(getValue(), getElement().getProject(), scope, (s, cssSelectorSuffix) -> {
-            elements.add(cssSelectorSuffix);
-            return true;
+        return PyUtil.getParameterizedCachedValue(getElement(), null, param -> {
+            List<PsiElement> elements = new LinkedList<>();
+            GlobalSearchScope scope = OdooModuleUtils.getOdooModuleWithDependenciesOrSystemWideModulesScope(getElement());
+            CssIndexUtil.processClasses(getValue(), getElement().getProject(), scope, (s, cssSelectorSuffix) -> {
+                elements.add(cssSelectorSuffix);
+                return true;
+            });
+            return PsiElementResolveResult.createResults(elements);
         });
-        return PsiElementResolveResult.createResults(elements);
     }
 
     @Override
