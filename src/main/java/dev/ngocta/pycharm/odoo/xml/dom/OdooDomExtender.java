@@ -29,6 +29,7 @@ public class OdooDomExtender extends DomExtender<OdooDomElement> {
     private static final Map<String, Type> MODEL_SCOPED_VIEW_ELEMENT_TYPES = ImmutableMap.<String, Type>builder()
             .put("field", OdooDomViewField.class)
             .put("button", OdooDomViewButton.class)
+            .put("label", OdooDomViewLabel.class)
             .build();
 
     @Override
