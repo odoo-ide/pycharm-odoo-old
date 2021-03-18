@@ -166,7 +166,6 @@ public class OdooFieldInfo {
         return null;
     }
 
-    @Nullable
     private static boolean getCallArgumentBooleanValue(@NotNull PyCallExpression callExpression,
                                                        @NotNull String keyword,
                                                        boolean defaultValue) {

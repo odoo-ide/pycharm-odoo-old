@@ -118,9 +118,8 @@ public class OdooModelClass extends FakePsiElement implements PyClass {
         return new OdooModelClassType(this, OdooRecordSetType.NONE).getSuperClassTypes(context);
     }
 
-    @NotNull
     @Override
-    public PyClass[] getSuperClasses(@Nullable TypeEvalContext context) {
+    public PyClass @NotNull [] getSuperClasses(@Nullable TypeEvalContext context) {
         if (context == null) {
             return new PyClass[0];
         }
@@ -152,15 +151,13 @@ public class OdooModelClass extends FakePsiElement implements PyClass {
         return null;
     }
 
-    @NotNull
     @Override
-    public PyExpression[] getSuperClassExpressions() {
+    public PyExpression @NotNull [] getSuperClassExpressions() {
         return new PyExpression[0];
     }
 
-    @NotNull
     @Override
-    public PyFunction[] getMethods() {
+    public PyFunction @NotNull [] getMethods() {
         return new PyFunction[0];
     }
 
@@ -475,9 +472,8 @@ public class OdooModelClass extends FakePsiElement implements PyClass {
         return PythonFileType.INSTANCE.getLanguage();
     }
 
-    @NotNull
     @Override
-    public PsiElement[] getChildren() {
+    public PsiElement @NotNull [] getChildren() {
         return new PsiElement[0];
     }
 

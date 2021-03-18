@@ -12,9 +12,8 @@ public class OdooJSTemplateReferenceProvider extends PsiReferenceProvider {
     public static final Key<Boolean> IS_QUALIFIED = new Key<>("isQualified");
 
     @Override
-    @NotNull
-    public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
-                                                 @NotNull ProcessingContext context) {
+    public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element,
+                                                           @NotNull ProcessingContext context) {
         boolean isQualifier = ObjectUtils.notNull(context.get(IS_QUALIFIED), false);
         return new PsiReference[]{new OdooJSTemplateReference(element, isQualifier)};
     }

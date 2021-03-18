@@ -83,7 +83,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                 } else if (psiFile instanceof PyFile) {
                     psiFile.acceptChildren(new PyElementVisitor() {
                         @Override
-                        public void visitPyClass(PyClass cls) {
+                        public void visitPyClass(@NotNull PyClass cls) {
                             super.visitPyClass(cls);
                             OdooModelInfo info = OdooModelInfo.getInfo(cls);
                             if (info != null) {

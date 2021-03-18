@@ -53,9 +53,8 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
         myAllowUnqualified = allowUnqualified;
     }
 
-    @NotNull
     @Override
-    public ResolveResult[] multiResolve(boolean incompleteCode) {
+    public ResolveResult @NotNull [] multiResolve(boolean incompleteCode) {
         return PsiElementResolveResult.createResults(resolveInner());
     }
 
@@ -123,9 +122,8 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
         return Collections.emptyList();
     }
 
-    @NotNull
     @Override
-    public Object[] getVariants() {
+    public Object @NotNull [] getVariants() {
         OdooModule module = OdooModuleUtils.getContainingOdooModule(getElement());
         if (module == null) {
             return new Object[0];

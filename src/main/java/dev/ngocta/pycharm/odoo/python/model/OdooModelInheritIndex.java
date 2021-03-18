@@ -34,7 +34,7 @@ public class OdooModelInheritIndex extends FileBasedIndexExtension<String, Void>
             Map<String, Void> result = new HashMap<>();
             inputData.getPsiFile().acceptChildren(new PyElementVisitor() {
                 @Override
-                public void visitPyClass(PyClass node) {
+                public void visitPyClass(@NotNull PyClass node) {
                     super.visitPyClass(node);
                     OdooModelInfo info = OdooModelInfo.getInfo(node);
                     if (info != null) {

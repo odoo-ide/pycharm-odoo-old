@@ -23,8 +23,7 @@ public class OdooJSTemplateReference extends PsiReferenceBase.Poly<PsiElement> {
     }
 
     @Override
-    @NotNull
-    public ResolveResult[] multiResolve(boolean incompleteCode) {
+    public ResolveResult @NotNull [] multiResolve(boolean incompleteCode) {
         String name = getValue();
         List<PsiElement> elements = new LinkedList<>();
         List<OdooDomJSTemplate> templates = OdooJSTemplateIndex.findTemplatesByName(name, getElement(), myIsQualified);
@@ -38,8 +37,7 @@ public class OdooJSTemplateReference extends PsiReferenceBase.Poly<PsiElement> {
     }
 
     @Override
-    @NotNull
-    public Object[] getVariants() {
+    public Object @NotNull [] getVariants() {
         List<Object> variants = new LinkedList<>();
         List<String> names = OdooJSTemplateIndex.getAvailableTemplateNames(getElement(), myIsQualified);
         for (String name : names) {

@@ -16,9 +16,8 @@ public class OdooJSModuleReference extends PsiPolyVariantReferenceBase<PsiElemen
         myModuleName = moduleName;
     }
 
-    @NotNull
     @Override
-    public ResolveResult[] multiResolve(boolean incompleteCode) {
+    public ResolveResult @NotNull [] multiResolve(boolean incompleteCode) {
         OdooJSModule module = OdooJSModuleIndex.findModule(myModuleName, myElement);
         if (module != null) {
             return PsiElementResolveResult.createResults(module);
@@ -26,9 +25,8 @@ public class OdooJSModuleReference extends PsiPolyVariantReferenceBase<PsiElemen
         return new ResolveResult[0];
     }
 
-    @NotNull
     @Override
-    public Object[] getVariants() {
+    public Object @NotNull [] getVariants() {
         return OdooJSModuleIndex.getAvailableModuleNames(myElement).toArray();
     }
 }

@@ -21,10 +21,9 @@ public class OdooExternalIdReferenceProvider extends PsiReferenceProvider {
     public static final Key<Boolean> ALLOW_RELATIVE = new Key<>("allowRelative");
     public static final Key<Boolean> COMMA_SEPARATED = new Key<>("commaSeparated");
 
-    @NotNull
     @Override
-    public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
-                                                 @NotNull ProcessingContext context) {
+    public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element,
+                                                           @NotNull ProcessingContext context) {
         OdooRecordFilter filter = context.get(FILTER);
         Boolean allowRelative = context.get(ALLOW_RELATIVE);
         Boolean commaSeparated = context.get(COMMA_SEPARATED);

@@ -16,11 +16,10 @@ public class OdooFieldValueReferenceConverter implements CustomReferenceConverte
             .put("res_model", OdooNames.IR_ACTIONS_ACT_WINDOW)
             .build();
 
-    @NotNull
     @Override
-    public PsiReference[] createReferences(GenericDomValue<String> value,
-                                           PsiElement element,
-                                           ConvertContext context) {
+    public PsiReference @NotNull [] createReferences(GenericDomValue<String> value,
+                                                     PsiElement element,
+                                                     ConvertContext context) {
         if (value instanceof OdooDomFieldAssignment) {
             String fieldName = ((OdooDomFieldAssignment) value).getNameAttr().getStringValue();
             String model = knownModelNameFields.get(fieldName);

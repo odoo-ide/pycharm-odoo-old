@@ -20,9 +20,8 @@ public class OdooModelReference extends PsiReferenceBase.Poly<PsiElement> {
         super(element);
     }
 
-    @NotNull
     @Override
-    public ResolveResult[] multiResolve(boolean incompleteCode) {
+    public ResolveResult @NotNull [] multiResolve(boolean incompleteCode) {
         return PsiElementResolveResult.createResults(resolveInner());
     }
 
@@ -39,9 +38,8 @@ public class OdooModelReference extends PsiReferenceBase.Poly<PsiElement> {
         });
     }
 
-    @NotNull
     @Override
-    public Object[] getVariants() {
+    public Object @NotNull [] getVariants() {
         List<LookupElement> elements = new LinkedList<>();
         Collection<String> models = OdooModelIndex.getAvailableOdooModels(getElement());
         models.forEach(model -> {

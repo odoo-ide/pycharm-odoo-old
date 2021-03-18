@@ -22,9 +22,8 @@ public class OdooModuleReference extends PsiReferenceBase<PsiElement> {
         });
     }
 
-    @NotNull
     @Override
-    public Object[] getVariants() {
+    public Object @NotNull [] getVariants() {
         Collection<OdooModule> modules = OdooModuleIndex.getAvailableOdooModules(getElement());
         OdooModule module = OdooModuleUtils.getContainingOdooModule(getElement());
         if (module != null) {

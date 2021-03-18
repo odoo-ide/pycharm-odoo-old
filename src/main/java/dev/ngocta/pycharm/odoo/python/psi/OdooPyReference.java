@@ -31,8 +31,7 @@ public class OdooPyReference extends PyReferenceImpl {
     }
 
     @Override
-    @NotNull
-    public Object[] getVariants() {
+    public Object @NotNull [] getVariants() {
         Object[] variants = getSearchDomainFieldVariants();
         if (variants != null) {
             return variants;

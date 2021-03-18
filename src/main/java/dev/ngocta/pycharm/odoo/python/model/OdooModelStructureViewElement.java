@@ -35,9 +35,8 @@ public class OdooModelStructureViewElement extends PyStructureViewElement {
         super(element, visibility, inherited, field);
     }
 
-    @NotNull
     @Override
-    public StructureViewTreeElement[] getChildren() {
+    public StructureViewTreeElement @NotNull [] getChildren() {
         final PyElement element = getValue();
         if (element == null) {
             return EMPTY_ARRAY;

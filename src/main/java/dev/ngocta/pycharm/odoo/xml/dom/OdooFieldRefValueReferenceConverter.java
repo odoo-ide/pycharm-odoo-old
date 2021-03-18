@@ -16,11 +16,10 @@ import dev.ngocta.pycharm.odoo.data.filter.OdooRecordViewModelFilter;
 import org.jetbrains.annotations.NotNull;
 
 public class OdooFieldRefValueReferenceConverter implements CustomReferenceConverter<String> {
-    @NotNull
     @Override
-    public PsiReference[] createReferences(GenericDomValue<String> value,
-                                           PsiElement element,
-                                           ConvertContext context) {
+    public PsiReference @NotNull [] createReferences(GenericDomValue<String> value,
+                                                     PsiElement element,
+                                                     ConvertContext context) {
         OdooRecordFilter filter = null;
         DomElement parent = value.getParent();
         if (parent instanceof OdooDomFieldAssignment) {

@@ -30,11 +30,10 @@ public interface OdooDomMenuItem extends OdooDomRecordLike {
     }
 
     class ParentReferenceConverter implements CustomReferenceConverter<String> {
-        @NotNull
         @Override
-        public PsiReference[] createReferences(GenericDomValue<String> value,
-                                               PsiElement element,
-                                               ConvertContext context) {
+        public PsiReference @NotNull [] createReferences(GenericDomValue<String> value,
+                                                         PsiElement element,
+                                                         ConvertContext context) {
             return new PsiReference[]{
                     new OdooExternalIdReference(element, null, OdooRecordFilters.IR_UI_MENU, true)
             };
@@ -42,11 +41,10 @@ public interface OdooDomMenuItem extends OdooDomRecordLike {
     }
 
     class ActionReferenceConverter implements CustomReferenceConverter<String> {
-        @NotNull
         @Override
-        public PsiReference[] createReferences(GenericDomValue<String> value,
-                                               PsiElement element,
-                                               ConvertContext context) {
+        public PsiReference @NotNull [] createReferences(GenericDomValue<String> value,
+                                                         PsiElement element,
+                                                         ConvertContext context) {
             return new PsiReference[]{
                     new OdooExternalIdReference(element, null, OdooRecordFilters.ACTION_MODELS, true)
             };

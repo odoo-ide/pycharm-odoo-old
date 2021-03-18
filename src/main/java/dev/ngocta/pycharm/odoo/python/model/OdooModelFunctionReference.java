@@ -34,9 +34,8 @@ public class OdooModelFunctionReference extends PsiReferenceBase<PsiElement> imp
         });
     }
 
-    @NotNull
     @Override
-    public Object[] getVariants() {
+    public Object @NotNull [] getVariants() {
         return getFunctions().toArray();
     }
 

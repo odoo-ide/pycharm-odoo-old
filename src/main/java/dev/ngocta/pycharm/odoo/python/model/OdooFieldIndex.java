@@ -34,7 +34,7 @@ public class OdooFieldIndex extends FileBasedIndexExtension<String, Void> {
             Map<String, Void> result = new HashMap<>();
             inputData.getPsiFile().acceptChildren(new PyElementVisitor() {
                 @Override
-                public void visitPyClass(PyClass cls) {
+                public void visitPyClass(@NotNull PyClass cls) {
                     super.visitPyClass(cls);
                     OdooModelInfo clsInfo = OdooModelInfo.getInfo(cls);
                     if (clsInfo != null) {

@@ -10,11 +10,10 @@ import dev.ngocta.pycharm.odoo.data.filter.OdooRecordFilters;
 import org.jetbrains.annotations.NotNull;
 
 public class OdooGroupsReferenceConverter implements CustomReferenceConverter<String> {
-    @NotNull
     @Override
-    public PsiReference[] createReferences(GenericDomValue<String> value,
-                                           PsiElement element,
-                                           ConvertContext context) {
+    public PsiReference @NotNull [] createReferences(GenericDomValue<String> value,
+                                                     PsiElement element,
+                                                     ConvertContext context) {
         return OdooExternalIdReferenceProvider.getCommaSeparatedReferences(element, OdooRecordFilters.RES_GROUPS, true);
     }
 }

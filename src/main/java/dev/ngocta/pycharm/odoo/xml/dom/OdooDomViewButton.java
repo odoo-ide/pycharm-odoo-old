@@ -22,11 +22,10 @@ public interface OdooDomViewButton extends OdooDomModelScopedViewElement {
     GenericAttributeValue<String> getTypeAttribute();
 
     class ButtonNameReferencing implements CustomReferenceConverter<String> {
-        @NotNull
         @Override
-        public PsiReference[] createReferences(GenericDomValue<String> value,
-                                               PsiElement element,
-                                               ConvertContext context) {
+        public PsiReference @NotNull [] createReferences(GenericDomValue<String> value,
+                                                         PsiElement element,
+                                                         ConvertContext context) {
             String name = value.getStringValue();
             OdooDomViewButton button = value.getParentOfType(OdooDomViewButton.class, true);
             if (name != null && button != null) {

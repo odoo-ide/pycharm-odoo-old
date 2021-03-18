@@ -13,13 +13,12 @@ public class OdooJSModuleReferenceContributor extends JSBaseModuleReferenceContr
         return OdooJSUtils.isInOdooJSModule(psiElement);
     }
 
-    @NotNull
     @Override
-    protected PsiReference[] getReferences(@NotNull String text,
-                                           @NotNull PsiElement host,
-                                           int offset,
-                                           @Nullable PsiReferenceProvider psiReferenceProvider,
-                                           boolean isCommonJSModule) {
+    protected PsiReference @NotNull [] getReferences(@NotNull String text,
+                                                     @NotNull PsiElement host,
+                                                     int offset,
+                                                     @Nullable PsiReferenceProvider psiReferenceProvider,
+                                                     boolean isCommonJSModule) {
         return new PsiReference[]{new OdooJSModuleReference(host, text)};
     }
 }

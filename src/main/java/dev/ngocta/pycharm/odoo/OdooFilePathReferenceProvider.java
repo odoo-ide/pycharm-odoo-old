@@ -8,10 +8,9 @@ import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 
 public class OdooFilePathReferenceProvider extends PsiReferenceProvider {
-    @NotNull
     @Override
-    public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
-                                                 @NotNull ProcessingContext context) {
+    public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element,
+                                                           @NotNull ProcessingContext context) {
         FileReferenceSet referenceSet = new OdooFileReferenceSet(element);
         return referenceSet.getAllReferences();
     }

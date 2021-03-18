@@ -107,9 +107,8 @@ public class OdooPyQualifiedReference extends PyQualifiedReference {
         return results;
     }
 
-    @NotNull
     @Override
-    public Object[] getVariants() {
+    public Object @NotNull [] getVariants() {
         Object[] variants = super.getVariants();
         PyExpression qualifier = myElement.getQualifier();
         if (qualifier != null) {

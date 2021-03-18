@@ -38,7 +38,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
             Map<String, Void> result = new HashMap<>();
             inputData.getPsiFile().acceptChildren(new PyElementVisitor() {
                 @Override
-                public void visitPyClass(PyClass cls) {
+                public void visitPyClass(@NotNull PyClass cls) {
                     super.visitPyClass(cls);
                     OdooModelInfo info = OdooModelInfo.getInfo(cls);
                     if (info != null) {
@@ -84,7 +84,7 @@ public class OdooModelIndex extends FileBasedIndexExtension<String, Void> {
         List<PyClass> classes = new LinkedList<>();
         file.acceptChildren(new PyElementVisitor() {
             @Override
-            public void visitPyClass(PyClass cls) {
+            public void visitPyClass(@NotNull PyClass cls) {
                 super.visitPyClass(cls);
                 OdooModelInfo info = OdooModelInfo.getInfo(cls);
                 if (info != null && info.getName().equals(model)) {

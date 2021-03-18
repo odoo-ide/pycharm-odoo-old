@@ -33,7 +33,7 @@ public class OdooJSFieldWidgetReference extends PsiReferenceBase.Poly<PsiElement
     }
 
     @Override
-    public @NotNull ResolveResult[] multiResolve(boolean incompleteCode) {
+    public ResolveResult @NotNull [] multiResolve(boolean incompleteCode) {
         return PyUtil.getParameterizedCachedValue(getElement(), getValue(), param -> {
             Collection<OdooJSFieldWidget> widgets = OdooJSFieldWidgetIndex.getWidgetsByName(getValue(), getElement(), false);
             String viewType = getViewType();
@@ -45,8 +45,7 @@ public class OdooJSFieldWidgetReference extends PsiReferenceBase.Poly<PsiElement
     }
 
     @Override
-    @NotNull
-    public Object[] getVariants() {
+    public Object @NotNull [] getVariants() {
         Collection<String> names = OdooJSFieldWidgetIndex.getAvailableWidgetNames(getElement(), false);
         List<LookupElement> lookupElements = new LinkedList<>();
         for (String name : names) {

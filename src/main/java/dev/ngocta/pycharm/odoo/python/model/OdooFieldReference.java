@@ -84,9 +84,8 @@ public class OdooFieldReference extends PsiReferenceBase.Poly<PsiElement> {
         });
     }
 
-    @NotNull
     @Override
-    public ResolveResult[] multiResolve(boolean incompleteCode) {
+    public ResolveResult @NotNull [] multiResolve(boolean incompleteCode) {
         return PyUtil.getParameterizedCachedValue(getElement(), getRangeInElement(), param -> {
             return multiResolveInner();
         });
@@ -112,9 +111,8 @@ public class OdooFieldReference extends PsiReferenceBase.Poly<PsiElement> {
         return Collections.emptyList();
     }
 
-    @NotNull
     @Override
-    public Object[] getVariants() {
+    public Object @NotNull [] getVariants() {
         OdooModelClass cls = getModelClass();
         if (cls != null) {
             return OdooModelUtils.getFieldLookupElements(cls, myContext);

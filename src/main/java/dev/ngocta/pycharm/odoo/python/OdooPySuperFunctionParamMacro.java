@@ -26,7 +26,7 @@ public class OdooPySuperFunctionParamMacro extends Macro {
 
     @Override
     @Nullable
-    public Result calculateResult(@NotNull Expression[] params, ExpressionContext context) {
+    public Result calculateResult(Expression @NotNull [] params, ExpressionContext context) {
         PsiElement place = context.getPsiElementAtStartOffset();
         PyFunction pyFunction = PsiTreeUtil.getParentOfType(place, PyFunction.class);
         if (pyFunction == null) {

@@ -21,10 +21,9 @@ public class OdooFieldReferenceProvider extends PsiReferenceProvider {
     public static final Key<Computable<OdooModelClass>> MODEL_CLASS_RESOLVER = new Key<>("modelClassResolver");
     public static final Key<Boolean> IS_SORT_ORDER = new Key<>("isSortOrder");
 
-    @NotNull
     @Override
-    public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
-                                                 @NotNull ProcessingContext context) {
+    public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element,
+                                                           @NotNull ProcessingContext context) {
         OdooModelClass modelClass = context.get(MODEL_CLASS);
         Computable<OdooModelClass> modelClassResolver = context.get(MODEL_CLASS_RESOLVER);
         Boolean enableSubField = context.get(ENABLE_SUB_FIELD);

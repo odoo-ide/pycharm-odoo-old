@@ -10,11 +10,10 @@ import dev.ngocta.pycharm.odoo.OdooFileReferenceSet;
 import org.jetbrains.annotations.NotNull;
 
 public class OdooFieldFileValueReferenceConverter implements CustomReferenceConverter<String> {
-    @NotNull
     @Override
-    public PsiReference[] createReferences(GenericDomValue<String> value,
-                                           PsiElement element,
-                                           ConvertContext context) {
+    public PsiReference @NotNull [] createReferences(GenericDomValue<String> value,
+                                                     PsiElement element,
+                                                     ConvertContext context) {
         FileReferenceSet referenceSet = new OdooFileReferenceSet(element, true);
         return referenceSet.getAllReferences();
     }

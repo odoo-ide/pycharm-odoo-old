@@ -11,11 +11,10 @@ import dev.ngocta.pycharm.odoo.python.model.OdooModelClass;
 import org.jetbrains.annotations.NotNull;
 
 public class OdooFieldNameReferenceConverter implements CustomReferenceConverter<String> {
-    @NotNull
     @Override
-    public PsiReference[] createReferences(GenericDomValue<String> value,
-                                           PsiElement element,
-                                           ConvertContext context) {
+    public PsiReference @NotNull [] createReferences(GenericDomValue<String> value,
+                                                     PsiElement element,
+                                                     ConvertContext context) {
         DomElement parent = value.getParent();
         OdooModelClass modelClass = null;
         if (parent instanceof OdooDomModelScoped) {

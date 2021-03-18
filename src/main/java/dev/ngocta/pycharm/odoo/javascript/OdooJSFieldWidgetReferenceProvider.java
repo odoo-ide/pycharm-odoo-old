@@ -8,8 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class OdooJSFieldWidgetReferenceProvider extends PsiReferenceProvider {
     @Override
-    @NotNull
-    public PsiReference[] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
+    public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
         return new PsiReference[]{new OdooJSFieldWidgetReference(element)};
     }
 }
