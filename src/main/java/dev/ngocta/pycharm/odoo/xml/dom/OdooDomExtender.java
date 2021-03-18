@@ -90,7 +90,14 @@ public class OdooDomExtender extends DomExtender<OdooDomElement> {
             return;
         }
         getChildTagNames(domElement).forEach(name -> {
-            Type type = "xpath".equals(name) ? OdooDomViewXPath.class : OdooDomViewInheritLocator.class;
+            Type type;
+            if ("xpath".equals(name)) {
+                type = OdooDomViewXPath.class;
+            } else if ("field".equals(name)) {
+                type = OdooDomViewFieldInheritLocator.class;
+            } else {
+                type = OdooDomViewInheritLocator.class;
+            }
             registrar.registerCollectionChildrenExtension(new XmlName(name), type);
         });
     }
