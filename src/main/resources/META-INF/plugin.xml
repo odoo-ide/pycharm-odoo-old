@@ -49,6 +49,12 @@
     <change-notes><![CDATA[
         <ul>
             <li>
+                Version 4.14
+                <ul>
+                    <li>Improve references in XML and JavaScript</li>
+                </ul>
+            </li>
+            <li>
                 Version 4.13
                 <ul>
                     <li>Add translation string type provider and inspection</li>
