@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 public interface OdooDomViewElement extends OdooDomElement {
     @Attribute("groups")
-    @Referencing(OdooGroupsReferenceConverter.class)
+    @Referencing(OdooGroupsQualifiedReferenceConverter.class)
     GenericAttributeValue<String> getGroupsAttribute();
 
     @Nullable
