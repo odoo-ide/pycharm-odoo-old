@@ -305,6 +305,47 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                 }
             });
 
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> OTHERS_PATTERN =
+            psiElement(PyStringLiteralExpression.class).with(new PatternCondition<PyStringLiteralExpression>("") {
+                @Override
+                public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression,
+                                       ProcessingContext context) {
+                    String value = pyStringLiteralExpression.getStringValue().trim();
+                    if (!(value.matches("\\w+")) || !maybeContainFieldReferences(pyStringLiteralExpression)) {
+                        return false;
+                    }
+                    PsiElement parent = pyStringLiteralExpression.getParent();
+                    if (parent instanceof PySubscriptionExpression) {
+                        return true;
+                    }
+                    if (parent instanceof PyArgumentList) {
+                        PyExpression[] args = ((PyArgumentList) parent).getArguments();
+                        if (args.length > 0 && args[0].equals(pyStringLiteralExpression)) {
+                            parent = parent.getParent();
+                            if (parent instanceof PyCallExpression) {
+                                PyExpression callee = ((PyCallExpression) parent).getCallee();
+                                if (callee instanceof PyReferenceExpression) {
+                                    if ("get".equals(((PyReferenceExpression) callee).getReferencedName())) {
+                                        PyExpression qualifier = ((PyReferenceExpression) callee).getQualifier();
+                                        if (qualifier instanceof PyReferenceExpression) {
+                                            String qualifierName = ((PyReferenceExpression) qualifier).getReferencedName();
+                                            if (qualifierName != null && !qualifierName.contains("context")) {
+                                                return true;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (parent instanceof PyBinaryExpression) {
+                        return ((PyBinaryExpression) parent).isOperator("in")
+                                || ((PyBinaryExpression) parent).isOperator("notin");
+                    }
+                    return false;
+                }
+            });
+
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
         OdooFieldReferenceProvider provider = new OdooFieldReferenceProvider();
@@ -320,5 +361,6 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
         registrar.registerReferenceProvider(RECORD_VALUE_PATTERN, provider);
         registrar.registerReferenceProvider(READ_FIELDS_PATTERN, provider);
         registrar.registerReferenceProvider(ORDER_PATTERN, provider);
+        registrar.registerReferenceProvider(OTHERS_PATTERN, provider, PsiReferenceRegistrar.LOWER_PRIORITY);
     }
 }
