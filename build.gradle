@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'dev.ngocta'
-version '4.14.1'
+version '4.15'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -20,9 +20,9 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version 'PY-2020.3'
+    version 'PY-2021.1'
     downloadSources = true
-    plugins = ['python', 'CSS', 'JavaScriptLanguage', 'XPathView:203.5981.152', 'net.seesharpsoft.intellij.plugins.csv:2.14.3']
+    plugins = ['python', 'CSS', 'JavaScriptLanguage', 'XPathView:211.6693.44', 'net.seesharpsoft.intellij.plugins.csv:2.15.1']
 }
 patchPluginXml {
 //    changeNotes """
