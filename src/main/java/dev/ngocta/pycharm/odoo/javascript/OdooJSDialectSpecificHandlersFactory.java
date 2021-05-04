@@ -3,7 +3,6 @@ package dev.ngocta.pycharm.odoo.javascript;
 import com.intellij.lang.javascript.JavaScriptSpecificHandlersFactory;
 import com.intellij.lang.javascript.psi.resolve.JSEvaluateContext;
 import com.intellij.lang.javascript.psi.resolve.JSTypeEvaluator;
-import com.intellij.lang.javascript.psi.resolve.JSTypeProcessor;
 import org.jetbrains.annotations.NotNull;
 
 public class OdooJSDialectSpecificHandlersFactory extends JavaScriptSpecificHandlersFactory {
@@ -12,8 +11,7 @@ public class OdooJSDialectSpecificHandlersFactory extends JavaScriptSpecificHand
 
     @NotNull
     @Override
-    public JSTypeEvaluator newTypeEvaluator(@NotNull JSEvaluateContext context,
-                                            @NotNull JSTypeProcessor processor) {
-        return new OdooJSTypeEvaluator(context, processor);
+    public JSTypeEvaluator newTypeEvaluator(@NotNull JSEvaluateContext context) {
+        return new OdooJSTypeEvaluator(context);
     }
 }

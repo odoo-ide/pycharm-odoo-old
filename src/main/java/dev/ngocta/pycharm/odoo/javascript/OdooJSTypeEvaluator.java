@@ -6,7 +6,6 @@ import com.intellij.lang.javascript.psi.JSExpression;
 import com.intellij.lang.javascript.psi.JSLiteralExpression;
 import com.intellij.lang.javascript.psi.JSType;
 import com.intellij.lang.javascript.psi.resolve.JSEvaluateContext;
-import com.intellij.lang.javascript.psi.resolve.JSTypeProcessor;
 import com.intellij.lang.javascript.psi.types.evaluable.JSRequireCallExpressionType;
 import com.intellij.psi.PsiElement;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
@@ -14,9 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class OdooJSTypeEvaluator extends ES6TypeEvaluator {
-    public OdooJSTypeEvaluator(@NotNull JSEvaluateContext context,
-                               @NotNull JSTypeProcessor processor) {
-        super(context, processor);
+    public OdooJSTypeEvaluator(@NotNull JSEvaluateContext context) {
+        super(context);
     }
 
     @Override
@@ -27,7 +25,7 @@ public class OdooJSTypeEvaluator extends ES6TypeEvaluator {
                 String moduleName = ((JSLiteralExpression) arg).getStringValue();
                 if (moduleName != null) {
                     JSType type = getModuleReturnType(moduleName, callExpression);
-                    addType(type, callExpression);
+                    addType(type);
                     return;
                 }
             }
@@ -35,7 +33,7 @@ public class OdooJSTypeEvaluator extends ES6TypeEvaluator {
             String callExpressionName = OdooJSUtils.getCallFunctionName(callExpression);
             if ("$".equals(callExpressionName) && OdooModuleUtils.isInOdooModule(callExpression)) {
                 JSType type = getJQueryType(callExpression);
-                addType(type, callExpression);
+                addType(type);
                 return;
             }
         }
@@ -50,20 +48,19 @@ public class OdooJSTypeEvaluator extends ES6TypeEvaluator {
     }
 
     @Override
-    protected void doAddType(@NotNull JSType type,
-                             @Nullable PsiElement source) {
+    protected void doAddType(@NotNull JSType type) {
         if (type instanceof JSRequireCallExpressionType) {
             String moduleName = ((JSRequireCallExpressionType) type).resolveReferencedModule();
             PsiElement sourceElement = type.getSourceElement();
             if (sourceElement != null && OdooJSUtils.isInOdooJSModule(sourceElement)) {
                 JSType moduleType = getModuleReturnType(moduleName, sourceElement);
                 if (moduleType != null) {
-                    super.doAddType(moduleType, source);
+                    super.doAddType(moduleType);
                     return;
                 }
             }
         }
-        super.doAddType(type, source);
+        super.doAddType(type);
     }
 
     @Override
@@ -72,7 +69,7 @@ public class OdooJSTypeEvaluator extends ES6TypeEvaluator {
         if (resolve instanceof OdooJSModule) {
             JSType type = ((OdooJSModule) resolve).getReturnType();
             if (type != null) {
-                addType(type, resolve);
+                addType(type);
             }
             return;
         }
