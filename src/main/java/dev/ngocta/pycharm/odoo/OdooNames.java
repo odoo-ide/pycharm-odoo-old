@@ -130,4 +130,5 @@ public class OdooNames {
     public static final String VIEW_TYPE_TREE = "tree";
     public static final String VIEW_TYPE_KANBAN = "kanban";
     public static final String TEST_BASE_CASE_QNAME = "odoo.tests.common.BaseCase";
+    public static final String RES_CONFIG_SETTINGS = "res.config.settings";
 }

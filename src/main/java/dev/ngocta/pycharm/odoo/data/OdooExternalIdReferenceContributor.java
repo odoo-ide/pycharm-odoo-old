@@ -21,6 +21,7 @@ import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.data.filter.OdooRecordFilters;
 import dev.ngocta.pycharm.odoo.data.filter.OdooRecordModelFilter;
 import dev.ngocta.pycharm.odoo.python.model.OdooFieldInfo;
+import dev.ngocta.pycharm.odoo.python.model.OdooModelClass;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
 import dev.ngocta.pycharm.odoo.xml.OdooXmlUtils;
 import dev.ngocta.pycharm.odoo.xml.dom.OdooDomFieldAssignment;
@@ -131,6 +132,36 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
                 }
             });
 
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> RES_CONFIG_FIELD_ATTR_GROUP_PATTERN =
+            OdooModelUtils.getFieldAttributePattern(-1, "group").with(new PatternCondition<PyStringLiteralExpression>("fieldGroup") {
+                @Override
+                public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression,
+                                       ProcessingContext context) {
+                    OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(pyStringLiteralExpression);
+                    if (modelClass != null && OdooNames.RES_CONFIG_SETTINGS.equals(modelClass.getName())) {
+                        context.put(OdooExternalIdReferenceProvider.FILTER, OdooRecordFilters.RES_GROUPS);
+                        context.put(OdooExternalIdReferenceProvider.COMMA_SEPARATED, true);
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
+    public static final PsiElementPattern.Capture<PyStringLiteralExpression> RES_CONFIG_FIELD_ATTR_IMPLIED_GROUP_PATTERN =
+            OdooModelUtils.getFieldAttributePattern(-1, "implied_group").with(new PatternCondition<PyStringLiteralExpression>("fieldImpliedGroup") {
+                @Override
+                public boolean accepts(@NotNull PyStringLiteralExpression pyStringLiteralExpression,
+                                       ProcessingContext context) {
+                    OdooModelClass modelClass = OdooModelUtils.getContainingOdooModelClass(pyStringLiteralExpression);
+                    if (modelClass != null && OdooNames.RES_CONFIG_SETTINGS.equals(modelClass.getName())) {
+                        context.put(OdooExternalIdReferenceProvider.FILTER, OdooRecordFilters.RES_GROUPS);
+                        context.put(OdooExternalIdReferenceProvider.COMMA_SEPARATED, true);
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
     public static final PsiElementPattern.Capture<PyStringLiteralExpression> USER_HAS_GROUP_PATTERN =
             psiElement(PyStringLiteralExpression.class).afterLeafSkipping(psiElement(PyTokenTypes.LPAR),
                     psiElement(PsiElement.class).with(new PatternCondition<PsiElement>("hasGroup") {
@@ -167,6 +198,8 @@ public class OdooExternalIdReferenceContributor extends PsiReferenceContributor 
         registrar.registerReferenceProvider(REF_PATTERN, provider);
         registrar.registerReferenceProvider(REQUEST_RENDER_PATTERN, provider);
         registrar.registerReferenceProvider(FIELD_ATTR_GROUPS_PATTERN, provider);
+        registrar.registerReferenceProvider(RES_CONFIG_FIELD_ATTR_GROUP_PATTERN, provider);
+        registrar.registerReferenceProvider(RES_CONFIG_FIELD_ATTR_IMPLIED_GROUP_PATTERN, provider);
         registrar.registerReferenceProvider(USER_HAS_GROUP_PATTERN, provider);
         registrar.registerReferenceProvider(T_PATTERN, provider);
     }
