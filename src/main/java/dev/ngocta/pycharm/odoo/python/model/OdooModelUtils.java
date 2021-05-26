@@ -6,7 +6,6 @@ import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.Iconable;
@@ -149,6 +148,27 @@ public class OdooModelUtils {
         });
     }
 
+    public static boolean lookLikeField(@Nullable PyTargetExpression targetExpression) {
+        if (targetExpression == null) {
+            return false;
+        }
+        if (targetExpression.getName() == null
+                || targetExpression.getName().startsWith("_")
+                || StringUtil.isCapitalized(targetExpression.getName())) {
+            return false;
+        }
+        PyExpression assignedValue = targetExpression.findAssignedValue();
+        if (assignedValue instanceof PyCallExpression) {
+            PyCallExpression callExpression = (PyCallExpression) assignedValue;
+            PyExpression callee = callExpression.getCallee();
+            if (callee instanceof PyReferenceExpression) {
+                String calleeName = callee.getName();
+                return StringUtil.isCapitalized(calleeName);
+            }
+        }
+        return false;
+    }
+
     public static boolean isKnownFieldDeclarationExpression(@NotNull PyCallExpression callExpression) {
         PyExpression callee = callExpression.getCallee();
         if (callee instanceof PyReferenceExpression) {
@@ -161,9 +181,6 @@ public class OdooModelUtils {
     public static boolean isFieldDeclarationExpression(@NotNull PyCallExpression callExpression) {
         if (isKnownFieldDeclarationExpression(callExpression)) {
             return true;
-        }
-        if (DumbService.isDumb(callExpression.getProject())) {
-            return false;
         }
         PyExpression callee = callExpression.getCallee();
         if (callee instanceof PyReferenceExpression) {

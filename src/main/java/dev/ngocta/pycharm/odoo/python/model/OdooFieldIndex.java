@@ -40,8 +40,7 @@ public class OdooFieldIndex extends FileBasedIndexExtension<String, Void> {
                     if (clsInfo != null) {
                         List<PyTargetExpression> attributes = cls.getClassAttributes();
                         for (PyTargetExpression attribute : attributes) {
-                            OdooFieldInfo info = OdooFieldInfo.getInfo(attribute);
-                            if (info != null && attribute.getName() != null) {
+                            if (attribute.getName() != null && OdooModelUtils.lookLikeField(attribute)) {
                                 result.put(attribute.getName(), null);
                             }
                         }

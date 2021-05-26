@@ -114,32 +114,30 @@ public class OdooFieldInfo {
 
     @Nullable
     private static OdooFieldInfo getInfoInner(@NotNull PyTargetExpression field) {
-        if (field.getName() == null || field.getName().startsWith("_")) {
+        if (field.getName() == null || !OdooModelUtils.lookLikeField(field)) {
             return null;
         }
         PyExpression assignedValue = field.findAssignedValue();
         if (assignedValue instanceof PyCallExpression) {
             PyCallExpression callExpression = (PyCallExpression) assignedValue;
-            if (OdooModelUtils.isFieldDeclarationExpression(callExpression)) {
-                Map<String, Object> attributes = new HashMap<>();
-                String typeName = Optional.of(callExpression)
-                        .map(PyCallExpression::getCallee)
-                        .map(NavigationItem::getName).orElse(null);
-                if (typeName != null) {
-                    if (OdooNames.FIELD_TYPE_MANY2ONE.equals(typeName)
-                            || OdooNames.FIELD_TYPE_ONE2MANY.equals(typeName)
-                            || OdooNames.FIELD_TYPE_MANY2MANY.equals(typeName)) {
-                        String comodelName = getCallArgumentStringValue(callExpression, 0, OdooNames.FIELD_ATTR_COMODEL_NAME);
-                        attributes.put(OdooNames.FIELD_ATTR_COMODEL_NAME, comodelName);
-                    }
-                    String related = getCallArgumentStringValue(callExpression, OdooNames.FIELD_ATTR_RELATED);
-                    attributes.put(OdooNames.FIELD_ATTR_RELATED, related);
-                    if (OdooNames.FIELD_TYPE_MANY2ONE.equals(typeName)) {
-                        boolean delegate = getCallArgumentBooleanValue(callExpression, OdooNames.FIELD_ATTR_DELEGATE, false);
-                        attributes.put(OdooNames.FIELD_ATTR_DELEGATE, delegate);
-                    }
-                    return new OdooFieldInfo(field.getName(), field, typeName, attributes);
+            Map<String, Object> attributes = new HashMap<>();
+            String typeName = Optional.of(callExpression)
+                    .map(PyCallExpression::getCallee)
+                    .map(NavigationItem::getName).orElse(null);
+            if (typeName != null) {
+                if (OdooNames.FIELD_TYPE_MANY2ONE.equals(typeName)
+                        || OdooNames.FIELD_TYPE_ONE2MANY.equals(typeName)
+                        || OdooNames.FIELD_TYPE_MANY2MANY.equals(typeName)) {
+                    String comodelName = getCallArgumentStringValue(callExpression, 0, OdooNames.FIELD_ATTR_COMODEL_NAME);
+                    attributes.put(OdooNames.FIELD_ATTR_COMODEL_NAME, comodelName);
                 }
+                String related = getCallArgumentStringValue(callExpression, OdooNames.FIELD_ATTR_RELATED);
+                attributes.put(OdooNames.FIELD_ATTR_RELATED, related);
+                if (OdooNames.FIELD_TYPE_MANY2ONE.equals(typeName)) {
+                    boolean delegate = getCallArgumentBooleanValue(callExpression, OdooNames.FIELD_ATTR_DELEGATE, false);
+                    attributes.put(OdooNames.FIELD_ATTR_DELEGATE, delegate);
+                }
+                return new OdooFieldInfo(field.getName(), field, typeName, attributes);
             }
         }
         return null;
