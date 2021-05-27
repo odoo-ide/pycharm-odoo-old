@@ -607,11 +607,13 @@ public class OdooModelClass extends FakePsiElement implements PyClass {
             PsiElement field = findField(name, context);
             if (field != null) {
                 result.add(field);
-                PyType fieldType = OdooFieldInfo.getFieldType(field, context);
-                if (fieldType instanceof OdooModelClassType) {
-                    String[] remainingFieldNames = Arrays.copyOfRange(fieldNames, 1, fieldNames.length);
-                    OdooModelClass cls = ((OdooModelClassType) fieldType).getPyClass();
-                    result.addAll(cls.findFieldsInPath(remainingFieldNames, context));
+                String[] remainingFieldNames = Arrays.copyOfRange(fieldNames, 1, fieldNames.length);
+                if (remainingFieldNames.length > 0) {
+                    PyType fieldType = OdooFieldInfo.getFieldType(field, context);
+                    if (fieldType instanceof OdooModelClassType) {
+                        OdooModelClass cls = ((OdooModelClassType) fieldType).getPyClass();
+                        result.addAll(cls.findFieldsInPath(remainingFieldNames, context));
+                    }
                 }
             }
             return result;

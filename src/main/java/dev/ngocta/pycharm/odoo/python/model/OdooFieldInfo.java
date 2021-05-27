@@ -2,6 +2,7 @@ package dev.ngocta.pycharm.odoo.python.model;
 
 import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.RecursionManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.CachedValueProvider;
@@ -220,10 +221,15 @@ public class OdooFieldInfo {
     @Nullable
     public static PyType getFieldType(@Nullable PsiElement field,
                                       @NotNull TypeEvalContext context) {
-        OdooFieldInfo info = getInfo(field);
-        if (info != null) {
-            return info.getType(context);
+        if (field == null) {
+            return null;
         }
-        return null;
+        return RecursionManager.doPreventingRecursion(field, true, () -> {
+            OdooFieldInfo info = getInfo(field);
+            if (info != null) {
+                return info.getType(context);
+            }
+            return null;
+        });
     }
 }
