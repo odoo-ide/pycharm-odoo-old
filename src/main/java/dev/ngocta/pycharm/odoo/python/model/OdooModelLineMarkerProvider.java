@@ -52,6 +52,7 @@ public class OdooModelLineMarkerProvider implements LineMarkerProvider {
             return null;
         }
         List<PyClass> ancestors = OdooModelUtils.getModelClassAncestors(cls, null);
+        ancestors.removeIf(c -> c instanceof OdooModelClass);
         if (ancestors.isEmpty()) {
             return null;
         }

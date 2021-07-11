@@ -86,7 +86,9 @@ public class OdooModelClass extends FakePsiElement implements PyClass {
                 }
             }
         } else {
-            List<PyClass> modelBaseAncestors = getInstance(OdooNames.BASE_MODEL, myProject).getAncestorClasses(context);
+            OdooModelClass baseModelClass = getInstance(OdooNames.BASE_MODEL, myProject);
+            result.add(baseModelClass);
+            List<PyClass> modelBaseAncestors = baseModelClass.getAncestorClasses(context);
             result.addAll(modelBaseAncestors);
         }
         return result;
@@ -97,10 +99,10 @@ public class OdooModelClass extends FakePsiElement implements PyClass {
             List<PyClass> result = new LinkedList<>();
             PyClass[] classes = getSuperClasses(context);
             for (PyClass cls : classes) {
+                result.add(cls);
                 if (cls instanceof OdooModelClass) {
                     result.addAll(((OdooModelClass) cls).getExplicitAncestorClasses(context));
                 } else {
-                    result.add(cls);
                     for (PyClass subCls : cls.getSuperClasses(context)) {
                         if (!subCls.isSubclass(OdooNames.BASE_MODEL_CLASS_QNAME, context)) {
                             result.add(subCls);
