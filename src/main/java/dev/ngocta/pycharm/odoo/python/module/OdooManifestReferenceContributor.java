@@ -19,7 +19,12 @@ import org.jetbrains.annotations.NotNull;
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class OdooManifestReferenceContributor extends PsiReferenceContributor {
-    public static String[] HOOK_FUNCTION_KEYS = new String[]{"pre_init_hook", "post_init_hook", "uninstall_hook"};
+    public static String[] HOOK_FUNCTION_KEYS = new String[]{
+            "pre_init_hook",
+            "post_init_hook",
+            "uninstall_hook",
+            "post_load"
+    };
 
     static class ListItemPatternCondition extends PatternCondition<PsiElement> {
         private final String[] myKeys;
