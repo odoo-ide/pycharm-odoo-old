@@ -8,8 +8,11 @@ import com.intellij.util.ObjectUtils;
 import com.jetbrains.python.PyNames;
 import com.jetbrains.python.psi.PyFile;
 import com.jetbrains.python.psi.PyUtil;
+import com.jetbrains.python.psi.resolve.RatedResolveResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class OdooModuleHookFunctionReference extends PsiReferenceBase<PsiElement> implements PsiReference {
     public OdooModuleHookFunctionReference(@NotNull PsiElement element) {
@@ -24,7 +27,11 @@ public class OdooModuleHookFunctionReference extends PsiReferenceBase<PsiElement
             if (initFile == null) {
                 return null;
             }
-            return initFile.findTopLevelFunction(getValue());
+            List<RatedResolveResult> resolveResults = initFile.multiResolveName(getValue(), true);
+            for (RatedResolveResult resolveResult : resolveResults) {
+                return resolveResult.getElement();
+            }
+            return null;
         });
     }
 
