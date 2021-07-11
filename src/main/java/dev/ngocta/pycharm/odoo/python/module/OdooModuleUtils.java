@@ -119,7 +119,7 @@ public class OdooModuleUtils {
         }
         Map<OdooModule, Integer> module2DependsCount = new HashMap<>();
         for (OdooModule module : module2Elements.keySet()) {
-            module2DependsCount.put(module, module.getFlattenedDependsGraph().size());
+            module2DependsCount.put(module, module.getRecursiveDependencies().size());
         }
         List<OdooModule> sortedModules = new LinkedList<>(module2DependsCount.keySet());
         sortedModules.sort((e1, e2) -> {

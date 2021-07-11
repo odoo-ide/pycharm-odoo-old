@@ -49,7 +49,7 @@ public class OdooModule {
     }
 
     @NotNull
-    public List<OdooModule> getDepends() {
+    public List<OdooModule> getDependencies() {
         return PyUtil.getParameterizedCachedValue(getDirectory(), null, param -> {
             OdooManifestInfo info = getManifestInfo();
             if (info == null) {
@@ -71,30 +71,57 @@ public class OdooModule {
     }
 
     @NotNull
-    public List<OdooModule> getFlattenedDependsGraph() {
-        List<OdooModule> result = new LinkedList<>();
-        List<DefaultMutableTreeNode> nodesToVisit = new LinkedList<>();
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode(this);
-        nodesToVisit.add(root);
-        while (!nodesToVisit.isEmpty()) {
-            DefaultMutableTreeNode node = nodesToVisit.remove(0);
-            List<Object> dependPath = Arrays.asList(node.getUserObjectPath());
-            OdooModule module = (OdooModule) node.getUserObject();
-            result.remove(module);
-            result.add(module);
-            for (OdooModule depend : module.getDepends()) {
-                if (dependPath.contains(depend)) {
-                    continue;
+    public List<OdooModule> getRecursiveDependencies() {
+        return PyUtil.getParameterizedCachedValue(getDirectory(), null, param -> {
+            List<OdooModule> result = new LinkedList<>();
+            List<DefaultMutableTreeNode> nodesToVisit = new LinkedList<>();
+            DefaultMutableTreeNode root = new DefaultMutableTreeNode(this);
+            nodesToVisit.add(root);
+            while (!nodesToVisit.isEmpty()) {
+                DefaultMutableTreeNode node = nodesToVisit.remove(0);
+                List<Object> dependPath = Arrays.asList(node.getUserObjectPath());
+                OdooModule module = (OdooModule) node.getUserObject();
+                result.remove(module);
+                result.add(module);
+                for (OdooModule depend : module.getDependencies()) {
+                    if (dependPath.contains(depend)) {
+                        continue;
+                    }
+                    if (nodesToVisit.stream().anyMatch(n -> depend.equals(n.getUserObject()))) {
+                        continue;
+                    }
+                    DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(depend);
+                    node.add(childNode);
+                    nodesToVisit.add(childNode);
                 }
-                if (nodesToVisit.stream().anyMatch(n -> depend.equals(n.getUserObject()))) {
-                    continue;
-                }
-                DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(depend);
-                node.add(childNode);
-                nodesToVisit.add(childNode);
             }
+            return result;
+        });
+    }
+
+    @NotNull
+    public List<OdooModule> getExtensions() {
+        return PyUtil.getParameterizedCachedValue(getDirectory(), null, param -> {
+            return OdooModuleDependIndex.getDependingOdooModules(getName(), getDirectory());
+        });
+    }
+
+    @NotNull
+    public List<OdooModule> getRecursiveExtensions() {
+        return PyUtil.getParameterizedCachedValue(getDirectory(), null, param -> {
+            List<OdooModule> result = new LinkedList<>();
+            collectRecursiveExtensions(result);
+            return result;
+        });
+    }
+
+    private void collectRecursiveExtensions(List<OdooModule> result) {
+        for (OdooModule extension : getExtensions()) {
+            if (!result.contains(extension)) {
+                result.add(extension);
+            }
+            extension.collectRecursiveExtensions(result);
         }
-        return result;
     }
 
     @NotNull
@@ -124,7 +151,7 @@ public class OdooModule {
             List<OdooModule> modules = new LinkedList<>();
             modules.add(this);
             if (includeDependencies) {
-                modules.addAll(getFlattenedDependsGraph());
+                modules.addAll(getRecursiveDependencies());
                 for (OdooModule module : OdooModuleUtils.getSystemWideOdooModules(getDirectory())) {
                     if (!modules.contains(module)) {
                         modules.add(module);
@@ -132,12 +159,7 @@ public class OdooModule {
                 }
             }
             if (includeExtensions) {
-                List<OdooModule> availableModules = OdooModuleIndex.getAvailableOdooModules(getDirectory());
-                for (OdooModule module : availableModules) {
-                    if (module.isDependOn(this)) {
-                        modules.add(module);
-                    }
-                }
+                modules.addAll(getRecursiveExtensions());
             }
             List<VirtualFile> files = new LinkedList<>();
             for (OdooModule module : modules) {
@@ -151,7 +173,7 @@ public class OdooModule {
         if (module == null) {
             return false;
         }
-        return !this.equals(module) && (getDepends().contains(module) || getFlattenedDependsGraph().contains(module));
+        return !this.equals(module) && (getDependencies().contains(module) || getRecursiveDependencies().contains(module));
     }
 
     @Override

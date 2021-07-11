@@ -130,7 +130,7 @@ public class OdooExternalIdReference extends PsiReferenceBase.Poly<PsiElement> {
         }
         Project project = getElement().getProject();
         GlobalSearchScope scope = OdooUtils.getProjectModuleWithDependenciesScope(getElement());
-        Set<String> scopeModuleNames = module.getFlattenedDependsGraph().stream().map(OdooModule::getName).collect(Collectors.toSet());
+        Set<String> scopeModuleNames = module.getRecursiveDependencies().stream().map(OdooModule::getName).collect(Collectors.toSet());
         List<String> scopeIds = new LinkedList<>();
         String prefix = getValue().replace(CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED, "");
         PrefixMatcher matcher = new CamelHumpMatcher(prefix);
