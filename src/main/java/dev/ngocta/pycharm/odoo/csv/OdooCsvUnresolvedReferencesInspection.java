@@ -24,6 +24,9 @@ public class OdooCsvUnresolvedReferencesInspection extends LocalInspectionTool {
                 }
                 PsiReference reference = element.getReference();
                 if (reference instanceof OdooExternalIdReference) {
+                    if (reference.getCanonicalText().isEmpty()) {
+                        return;
+                    }
                     if (((OdooExternalIdReference) reference).multiResolve(false).length == 0) {
                         holder.registerProblem(reference);
                     }
