@@ -1,6 +1,7 @@
 package dev.ngocta.pycharm.odoo.data;
 
 import com.intellij.navigation.ItemPresentation;
+import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
@@ -10,6 +11,7 @@ import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.IncorrectOperationException;
 import com.jetbrains.python.psi.PyClass;
+import com.jetbrains.python.psi.PyTargetExpression;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,8 +37,9 @@ public class OdooRecordElement extends PomTargetPsiElementImpl implements Naviga
     }
 
     public String getPresentableText() {
-        if (getNavigationElement() instanceof PyClass) {
-            ItemPresentation presentation = ((PyClass) getNavigationElement()).getPresentation();
+        PsiElement element = getNavigationElement();
+        if (element instanceof PyClass || element instanceof PyTargetExpression) {
+            ItemPresentation presentation = ((NavigationItem) element).getPresentation();
             if (presentation != null) {
                 return presentation.getPresentableText();
             }

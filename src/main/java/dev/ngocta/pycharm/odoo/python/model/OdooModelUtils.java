@@ -517,8 +517,15 @@ public class OdooModelUtils {
         });
     }
 
+    @NotNull
     public static String getExternalIdOfModel(@NotNull String model) {
         return "model_" + model.replace(".", "_");
+    }
+
+    @NotNull
+    public static String getExternalIdOfField(@NotNull String field,
+                                              @NotNull String model) {
+        return "field_" + model.replace(".", "_") + "__" + field;
     }
 
     @Nullable

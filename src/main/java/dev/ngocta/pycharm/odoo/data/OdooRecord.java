@@ -11,12 +11,12 @@ import com.intellij.util.xml.DomManager;
 import com.intellij.util.xml.DomTarget;
 import com.jetbrains.python.psi.PyClass;
 import com.jetbrains.python.psi.PyFile;
+import com.jetbrains.python.psi.PyTargetExpression;
 import com.jetbrains.python.psi.PyUtil;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.csv.OdooCsvRecord;
 import dev.ngocta.pycharm.odoo.csv.OdooCsvUtils;
 import dev.ngocta.pycharm.odoo.python.model.OdooModelInfo;
-import dev.ngocta.pycharm.odoo.python.model.OdooModelUtils;
 import dev.ngocta.pycharm.odoo.python.module.OdooModule;
 import dev.ngocta.pycharm.odoo.python.module.OdooModuleUtils;
 import dev.ngocta.pycharm.odoo.xml.OdooXmlUtils;
@@ -134,12 +134,26 @@ public class OdooRecord {
                     if (module != null) {
                         elements.add(module.getDirectory());
                     }
-                } else if (OdooNames.IR_MODEL.equals(myModel)) {
+                } else if (OdooNames.IR_MODEL.equals(myModel) && myExtraInfo instanceof OdooRecordModelInfo) {
+                    String modelName = ((OdooRecordModelInfo) myExtraInfo).getModelName();
                     List<PyClass> classes = ((PyFile) file).getTopLevelClasses();
                     for (PyClass cls : classes) {
                         OdooModelInfo info = OdooModelInfo.getInfo(cls);
-                        if (info != null && OdooModelUtils.getExternalIdOfModel(info.getName()).equals(myId)) {
+                        if (info != null && info.getName().equals(modelName)) {
                             elements.add(cls);
+                        }
+                    }
+                } else if (OdooNames.IR_MODEL_FIELDS.equals(myModel) && myExtraInfo instanceof OdooRecordFieldInfo) {
+                    String fieldName = ((OdooRecordFieldInfo) myExtraInfo).getFieldName();
+                    String modelName = ((OdooRecordFieldInfo) myExtraInfo).getModelName();
+                    List<PyClass> classes = ((PyFile) file).getTopLevelClasses();
+                    for (PyClass cls : classes) {
+                        OdooModelInfo info = OdooModelInfo.getInfo(cls);
+                        if (info != null && info.getName().equals(modelName)) {
+                            PyTargetExpression field = cls.findClassAttribute(fieldName, false, null);
+                            if (field != null) {
+                                elements.add(field);
+                            }
                         }
                     }
                 }

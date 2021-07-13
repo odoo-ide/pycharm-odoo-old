@@ -13,9 +13,7 @@ import com.intellij.util.indexing.*;
 import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
-import com.jetbrains.python.psi.PyClass;
-import com.jetbrains.python.psi.PyElementVisitor;
-import com.jetbrains.python.psi.PyFile;
+import com.jetbrains.python.psi.*;
 import dev.ngocta.pycharm.odoo.OdooNames;
 import dev.ngocta.pycharm.odoo.OdooUtils;
 import dev.ngocta.pycharm.odoo.csv.OdooCsvUtils;
@@ -81,15 +79,37 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                         return true;
                     });
                 } else if (psiFile instanceof PyFile) {
+                    String moduleName = moduleDirectory.getName();
                     psiFile.acceptChildren(new PyElementVisitor() {
                         @Override
                         public void visitPyClass(@NotNull PyClass cls) {
                             super.visitPyClass(cls);
-                            OdooModelInfo info = OdooModelInfo.getInfo(cls);
-                            if (info != null) {
-                                String id = OdooModelUtils.getExternalIdOfModel(info.getName());
-                                OdooRecord record = new OdooRecord(id, OdooNames.IR_MODEL, moduleDirectory.getName(), null, null);
-                                records.add(record);
+                            OdooModelInfo modelInfo = OdooModelInfo.getInfo(cls);
+                            if (modelInfo == null) {
+                                return;
+                            }
+                            String modelName = modelInfo.getName();
+                            String modelExternalId = OdooModelUtils.getExternalIdOfModel(modelName);
+                            OdooRecordModelInfo recordModelInfo = new OdooRecordModelInfo(modelName);
+                            OdooRecord irModelRecord = new OdooRecord(modelExternalId, OdooNames.IR_MODEL, moduleName, recordModelInfo, null);
+                            records.add(irModelRecord);
+                            for (PyStatement statement : cls.getStatementList().getStatements()) {
+                                if (statement instanceof PyAssignmentStatement) {
+                                    for (PyExpression target : ((PyAssignmentStatement) statement).getTargets()) {
+                                        if (target instanceof PyTargetExpression) {
+                                            PyTargetExpression field = (PyTargetExpression) target;
+                                            if (OdooModelUtils.lookLikeField(field)) {
+                                                String fieldName = field.getName();
+                                                if (fieldName != null) {
+                                                    String fieldExternalId = OdooModelUtils.getExternalIdOfField(fieldName, modelName);
+                                                    OdooRecordFieldInfo recordFieldInfo = new OdooRecordFieldInfo(fieldName, modelName);
+                                                    OdooRecord irFieldRecord = new OdooRecord(fieldExternalId, OdooNames.IR_MODEL_FIELDS, moduleName, recordFieldInfo, null);
+                                                    records.add(irFieldRecord);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     });
@@ -118,9 +138,14 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                 out.writeUTF(value.getId());
                 out.writeUTF(value.getModel());
                 out.writeUTF(value.getModule());
-                out.writeBoolean(value.getExtraInfo() != null);
-                if (value.getExtraInfo() instanceof OdooRecordViewInfo) {
-                    OdooRecordViewInfoExternalizer.INSTANCE.save(out, (OdooRecordViewInfo) value.getExtraInfo());
+                OdooRecordExtraInfo extraInfo = value.getExtraInfo();
+                out.writeBoolean(extraInfo != null);
+                if (extraInfo instanceof OdooRecordViewInfo) {
+                    OdooRecordViewInfoExternalizer.INSTANCE.save(out, (OdooRecordViewInfo) extraInfo);
+                } else if (extraInfo instanceof OdooRecordModelInfo) {
+                    OdooRecordModelInfoExternalizer.INSTANCE.save(out, (OdooRecordModelInfo) extraInfo);
+                } else if (extraInfo instanceof OdooRecordFieldInfo) {
+                    OdooRecordFieldInfoExternalizer.INSTANCE.save(out, (OdooRecordFieldInfo) extraInfo);
                 }
             }
 
@@ -131,8 +156,16 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
                 String module = in.readUTF();
                 OdooRecordExtraInfo extraInfo = null;
                 if (in.readBoolean()) {
-                    if (OdooNames.IR_UI_VIEW.equals(model)) {
-                        extraInfo = OdooRecordViewInfoExternalizer.INSTANCE.read(in);
+                    switch (model) {
+                        case OdooNames.IR_UI_VIEW:
+                            extraInfo = OdooRecordViewInfoExternalizer.INSTANCE.read(in);
+                            break;
+                        case OdooNames.IR_MODEL:
+                            extraInfo = OdooRecordModelInfoExternalizer.INSTANCE.read(in);
+                            break;
+                        case OdooNames.IR_MODEL_FIELDS:
+                            extraInfo = OdooRecordFieldInfoExternalizer.INSTANCE.read(in);
+                            break;
                     }
                 }
                 return new OdooRecord(id, model, module, extraInfo, null);
@@ -142,7 +175,7 @@ public class OdooExternalIdIndex extends FileBasedIndexExtension<String, OdooRec
 
     @Override
     public int getVersion() {
-        return 12;
+        return 14;
     }
 
     @NotNull
