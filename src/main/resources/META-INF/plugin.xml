@@ -49,6 +49,14 @@
     <change-notes><![CDATA[
         <ul>
             <li>
+                Version 4.16
+                <ul>
+                    <li>Improve CSV support</li>
+                    <li>Improve code analysis performance</li>
+                    <li>Bug fixes</li>
+                </ul>
+            </li>
+            <li>
                 Version 4.15
                 <ul>
                     <li>Support PyCharm 2021.1</li>
