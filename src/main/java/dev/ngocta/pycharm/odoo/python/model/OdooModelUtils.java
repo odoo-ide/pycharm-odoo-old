@@ -31,6 +31,7 @@ import com.intellij.util.xml.GenericValue;
 import com.jetbrains.python.codeInsight.completion.PyFunctionInsertHandler;
 import com.jetbrains.python.psi.*;
 import com.jetbrains.python.psi.types.PyCallableParameter;
+import com.jetbrains.python.psi.types.PyClassType;
 import com.jetbrains.python.psi.types.PyType;
 import com.jetbrains.python.psi.types.TypeEvalContext;
 import dev.ngocta.pycharm.odoo.OdooNames;
@@ -637,5 +638,25 @@ public class OdooModelUtils {
             lookupElements.add(lookupElement);
         }
         return lookupElements.toArray();
+    }
+
+    @Nullable
+    public static PyType upgradeModelType(@Nullable PyType type) {
+        if (type == null || type.isBuiltin()) {
+            return type;
+        }
+        if (type instanceof PyClassType && !(type instanceof OdooModelClassType)) {
+            PyClassType clsType = ((PyClassType) type);
+            String clsQName = clsType.getClassQName();
+            if (clsQName != null && clsQName.contains(".models.")) {
+                PyClass cls = clsType.getPyClass();
+                OdooModelClass modelClass = getContainingOdooModelClass(cls);
+                if (modelClass != null) {
+                    OdooRecordSetType recordSetType = clsType.isDefinition() ? OdooRecordSetType.NONE : OdooRecordSetType.MULTI;
+                    return OdooModelClassType.create(modelClass, recordSetType);
+                }
+            }
+        }
+        return type;
     }
 }

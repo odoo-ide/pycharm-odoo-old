@@ -22,6 +22,10 @@ public class OdooPythonParserDefinition extends PythonParserDefinition {
             element = new OdooPyCallExpression(node);
         } else if (element instanceof PyStringLiteralExpressionImpl) {
             element = new OdooPyStringLiteralExpression(node);
+        } else if (element instanceof PyTargetExpressionImpl) {
+            element = new OdooPyTargetExpression(node);
+        } else if (element instanceof PyNamedParameterImpl) {
+            element = new OdooPyNamedParameter(node);
         }
         return element;
     }
