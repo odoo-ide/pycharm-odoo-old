@@ -16,6 +16,7 @@ public interface OdooDomRecordLike extends OdooDomElement {
     @Required
     @NameValue
     @Attribute("id")
+    @Referencing(OdooRecordReferenceConverter.class)
     GenericAttributeValue<String> getIdAttribute();
 
     @Nullable
