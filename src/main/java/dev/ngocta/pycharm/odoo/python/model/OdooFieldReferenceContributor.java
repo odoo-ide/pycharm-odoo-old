@@ -237,11 +237,12 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                                 PyExpression callee = callExpression.getCallee();
                                 if (callee instanceof PyReferenceExpression) {
                                     PyReferenceExpression referenceExpression = (PyReferenceExpression) callee;
-                                    if ((OdooNames.READ.equals(referenceExpression.getName())
+                                    String funcName = referenceExpression.getName();
+                                    if ((OdooNames.READ.equals(funcName)
                                             && arg.equals(callExpression.getArgument(0, "fields", PyExpression.class)))
-                                            || (ArrayUtil.contains(referenceExpression.getName(), OdooNames.SEARCH_READ, OdooNames.READ_GROUP)
+                                            || (ArrayUtil.contains(funcName, OdooNames.SEARCH_READ, OdooNames.READ_GROUP)
                                             && arg.equals(callExpression.getArgument(1, "fields", PyExpression.class)))
-                                            || (OdooNames.READ_GROUP.equals(referenceExpression.getName())
+                                            || (OdooNames.READ_GROUP.equals(funcName)
                                             && arg.equals(callExpression.getArgument(2, "groupby", PyExpression.class))
                                             && !pyStringLiteralExpression.getStringValue().contains(":"))) {
                                         PyExpression qualifier = referenceExpression.getQualifier();
@@ -253,6 +254,7 @@ public class OdooFieldReferenceContributor extends PsiReferenceContributor {
                                                 }
                                                 return null;
                                             });
+                                            context.put(OdooFieldReferenceProvider.IS_READ_GROUP_FIELDS, OdooNames.READ_GROUP.equals(funcName));
                                             return true;
                                         }
                                     }

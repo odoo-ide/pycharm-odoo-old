@@ -78,4 +78,8 @@ public class OdooUtils {
         }
         return isInOdooPackage(element);
     }
+
+    public static boolean isTrue(@Nullable Boolean value) {
+        return value != null && value;
+    }
 }
