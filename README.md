@@ -4,8 +4,7 @@
 * Other improvements to make PyCharm is the best IDE for Odoo
 
 ## Installation
-1. Install this plugin from [JetBrains Plugins Repository](https://plugins.jetbrains.com/plugin/13499-pycharm-odoo)
-or manually download and install the latest version at [here](https://github.com/trinhanhngoc/pycharm-odoo/releases).
+1. Install this plugin from [JetBrains Plugins Repository](https://plugins.jetbrains.com/plugin/13499-pycharm-odoo).
 2. (Recommended) Clone [Odoo Stubs](https://github.com/trinhanhngoc/odoo-stubs) and attach to your project to improve code analysis.
 3. (Recommended) Install [XPathView](https://plugins.jetbrains.com/plugin/12478-xpathview--xslt) to support XML view inheritance features.
 4. (Recommended) Install [CSV Plugin](https://plugins.jetbrains.com/plugin/10037-csv-plugin) to support code completion and navigation in CSV files.
