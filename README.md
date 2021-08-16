@@ -1,4 +1,4 @@
-This repository contains source code of the old plugin versions. You can create issues and feature requests for the new versions at https://github.com/trinhanhngoc/pycharm-odoo/issues.
+This repository contains source code of the old plugin versions. You can create issues and feature requests for the new versions at https://github.com/trinhanhngoc/pycharm-odoo/issues. In case you don't know, please read https://github.com/trinhanhngoc/pycharm-odoo-old/issues/50 to know the reasons behind this change.
 
 ## Features
 * Improve code completion and navigation for Python, XML, CSV and JavaScript
